@@ -70,3 +70,24 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+/Assets/Music/mus_test.mp3
+/Assets/Music/mus_test.mp3.meta
+/Assets/SFX/apulpen.mp3
+/Assets/SFX/apulpen.mp3.meta
+/Assets/SFX/sfx_test.mp3
+/Assets/SFX/sfx_test.mp3.meta
+/Assets/TextMesh Pro/Documentation
+/Assets/TextMesh Pro/Examples & Extras
+/Assets/TextMesh Pro
+/Assets/Videos/apulpen.mp4
+/Assets/Videos/apulpen.mp4.meta
+/Assets/Videos/apulpen.renderTexture
+/Assets/Videos/apulpen.renderTexture.meta
+/Assets/Videos/NFZ.mp4
+/Assets/Videos/NFZ.mp4.meta
+/Assets/Videos/NFZ.renderTexture
+/Assets/Videos/NFZ.renderTexture.meta
+/Assets/mainmenu/Images/artuś4.jpg
+/Assets/mainmenu/Images/artuś4.jpg.meta
+/Assets/mainmenu/Images/sheepen.png
+/Assets/mainmenu/Images/sheepen.png.meta
