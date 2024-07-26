@@ -70,8 +70,6 @@ public class MapLoader : MonoBehaviour
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();
 
-        set_land_and_water();
-
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);

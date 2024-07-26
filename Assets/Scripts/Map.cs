@@ -7,7 +7,9 @@ public class Map
     [SerializeField] private string name;
     [SerializeField] private string file_name;
     [SerializeField] private List<Province> provinces;
-    // [SerializeField] private List<Country> countires;
+    // [SerializeField] private List<Country> countries;
+
+    public Map() {}
 
     public Map(string name, string file_name)
     {
