@@ -1,102 +1,105 @@
-using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using System.Collections.Generic;
-
-[System.Serializable]
-public class Map
-{
-    [SerializeField] private int id;
-    [SerializeField] private string name;
-    [SerializeField] private int width;
-    [SerializeField] private int height;
-    [SerializeField] private List<Province> provinces;
-
-    public int Id
-    {
-        get { return id; }
-        set { id = value; }
-    }
-
-    public string Name
-    {
-        get { return name; }
-        set { name = value; }
-    }
-
-    public int Width
-    {
-        get { return width; }
-        set { width = value; }
-    }
-
-    public int Height
-    {
-        get { return height; }
-        set { height = value; }
-    }
-
-    public List<Province> Provinces
-    {
-        get { return provinces; }
-        set { provinces = value; }
-    }
-}
 
 public class MapLoader : MonoBehaviour
 {
-    [SerializeField] private TileBase landTile;
-    [SerializeField] private TileBase occupiedTile;
-    [SerializeField] private TileBase waterTile;
-    [SerializeField] private Tilemap tilemap;
+    [SerializeField] private Map map;
 
-
-private Vector2 mapSize;
-
+    [SerializeField] private Tilemap tile_map_layer_1;
+    [SerializeField] private Tilemap tile_map_layer_2;
+    [SerializeField] private TileBase base_tile;
+    [SerializeField] private TileBase occupied_tile;
+    [SerializeField] private TileBase water_tile;
+    [SerializeField] private TileBase capital_tile;
 
     void Start()
     {
-        LoadMap();
-    }
+        map = new Map("map_prototype", "map_prototype");
+        TextAsset jsonFile = Resources.Load<TextAsset>(map.File_name);
 
-    void LoadMap()
-    {
-        TextAsset jsonTextAsset = Resources.Load<TextAsset>("mapData");
-
-        if (jsonTextAsset != null)
-        {
-            string jsonContent = jsonTextAsset.text;
-            Map map = JsonUtility.FromJson<Map>(jsonContent);
-            GenerateMap(map);
-            Debug.Log("Map loaded successfully!");
-        }
-        else
+        if (jsonFile == null)
         {
             Debug.LogError("JSON map file not found in Resources!");
         }
+        else
+        {
+            string jsonContent = "{\"provinces\":" + jsonFile.text + "}";
+
+            map = JsonUtility.FromJson<Map>(jsonContent);
+
+
+            set_land_and_water();
+
+            tile_map_layer_2.SetTile(new Vector3Int(3, 4, 0), occupied_tile);
+            tile_map_layer_2.SetColor(new Vector3Int(3, 4, 0), choose_rgb_color(255, 255, 255, 150)); // occupied Tile transparency
+            tile_map_layer_1.SetColor(new Vector3Int(3, 4, 0), choose_rgb_color(234, 98, 84)); // red
+            tile_map_layer_1.SetColor(new Vector3Int(3, 3, 0), choose_rgb_color(234, 98, 84)); // red
+            tile_map_layer_2.SetTile(new Vector3Int(3, 3, 0), capital_tile);
+            tile_map_layer_1.SetColor(new Vector3Int(4, 4, 0), choose_rgb_color(234, 98, 84));
+
+
+            //set_resources();
+        }
     }
 
-    void GenerateMap(Map map)
+    void set_land_and_water()
     {
+        tile_map_layer_1.ClearAllTiles();
+        tile_map_layer_2.ClearAllTiles();
+
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if (province.IsLand)
+            if (province.Type == "land")
             {
-                tilemap.SetTile(position, landTile);
-                tilemap.SetColor(position, new Color(209 / 255f, 175 / 255f, 112 / 255f, 255 / 255f)); // orange
+                tile_map_layer_1.SetTile(position, base_tile);
+                tile_map_layer_1.SetColor(position, choose_rgb_color(91, 106, 65)); // dark green
             }
             else
             {
-                tilemap.SetTile(position, waterTile);
-                tilemap.SetColor(position, new Color(60 / 255f, 106 / 255f, 130 / 255f, 255 / 255f)); // blue
+                tile_map_layer_1.SetTile(position, base_tile);
+                tile_map_layer_1.SetColor(position, choose_rgb_color(60, 106, 130)); // blue
+                tile_map_layer_2.SetTile(position, water_tile);
             }
         }
+    }
 
-        tilemap.SetTile(new Vector3Int(3, 4, 0), occupiedTile);
-        tilemap.SetColor(new Vector3Int(3, 4, 0), new Color(234 / 255f, 98 / 255f, 84 / 255f, 255 / 255f)); // red
-        tilemap.SetColor(new Vector3Int(3, 3, 0), new Color(234 / 255f, 98 / 255f, 84 / 255f, 255 / 255f)); // red
+    void set_resources()
+    {
+        tile_map_layer_1.ClearAllTiles();
+        tile_map_layer_2.ClearAllTiles();
+
+        set_land_and_water();
+
+        foreach (Province province in map.Provinces)
+        {
+            Vector3Int position = new(province.X, province.Y, 0);
+            Color color;
+
+            switch (province.Resources)
+            {
+                case "gold":
+                    color = choose_rgb_color(255, 215, 0); // yellow
+                    break;
+                case "iron":
+                    color = choose_rgb_color(169, 169, 169); // gray
+                    break;
+                case "wood":
+                    color = choose_rgb_color(139, 69, 19); // brown
+                    break;
+                case "empty":
+                default:
+                    color = choose_rgb_color(255, 255, 255); // white
+                    break;
+            }
+            tile_map_layer_1.SetColor(position, color);
+        }
+    }
+
+    Color choose_rgb_color(int r, int g, int b, int a = 255)
+    {
+        return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
     }
 
 }
