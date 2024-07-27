@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -24,9 +25,7 @@ public class MapLoader : MonoBehaviour
         else
         {
             string jsonContent = "{\"provinces\":" + jsonFile.text + "}";
-
-            map = JsonUtility.FromJson<Map>(jsonContent);
-
+            map.Provinces = JsonUtility.FromJson<List<Province>>(jsonContent);
 
             set_land_and_water();
 
