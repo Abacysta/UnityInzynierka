@@ -25,7 +25,8 @@ public class MapLoader : MonoBehaviour
         else
         {
             string jsonContent = "{\"provinces\":" + jsonFile.text + "}";
-            map.Provinces = JsonUtility.FromJson<List<Province>>(jsonContent);
+            //map.Provinces = JsonUtility.FromJson<List<Province>>(jsonContent);
+            map = JsonUtility.FromJson<Map>(jsonContent);
 
             set_land_and_water();
 
