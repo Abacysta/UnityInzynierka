@@ -28,7 +28,7 @@ public class MapLoader : MonoBehaviour
             //map.Provinces = JsonUtility.FromJson<List<Province>>(jsonContent);
             map = JsonUtility.FromJson<Map>(jsonContent);
 
-            set_land_and_water();
+            /*set_land_and_water();
 
             tile_map_layer_2.SetTile(new Vector3Int(3, 4, 0), occupied_tile);
             tile_map_layer_2.SetColor(new Vector3Int(3, 4, 0), choose_rgb_color(255, 255, 255, 150)); // occupied Tile transparency
@@ -36,9 +36,10 @@ public class MapLoader : MonoBehaviour
             tile_map_layer_1.SetColor(new Vector3Int(3, 3, 0), choose_rgb_color(234, 98, 84)); // red
             tile_map_layer_2.SetTile(new Vector3Int(3, 3, 0), capital_tile);
             tile_map_layer_1.SetColor(new Vector3Int(4, 4, 0), choose_rgb_color(234, 98, 84));
+            */
 
 
-            //set_resources();
+            set_resources();
         }
     }
 
@@ -91,6 +92,7 @@ public class MapLoader : MonoBehaviour
                     color = choose_rgb_color(255, 255, 255); // white
                     break;
             }
+            tile_map_layer_1.SetTile(position, base_tile);
             tile_map_layer_1.SetColor(position, color);
         }
     }
