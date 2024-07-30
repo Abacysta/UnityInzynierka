@@ -11,7 +11,7 @@ public class ProvinceClickHandler : MonoBehaviour
     private Vector3Int previousCellPosition;
     private bool isHovering;
     private Color originalColor;
-    private float lightenFactor = 0.3f;
+    private const float lightenFactor = 0.3f;
 
     private void Start()
     {
@@ -62,13 +62,13 @@ public class ProvinceClickHandler : MonoBehaviour
             TileBase clickedTile = tilemap.GetTile(cellPosition);
             if (clickedTile != null)
             {
-                Display_province_info(cellPosition.x, cellPosition.y);
+                DisplayProvinceInfo(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
             }
         }
     }
 
-    public void Display_province_info(int x, int y)
+    public void DisplayProvinceInfo(int x, int y)
     {
         Province province = map.Provinces.Find(p => p.X == x && p.Y == y);
 

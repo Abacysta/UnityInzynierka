@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c6d423b876bcfc548938b282f488c427, type: 3}
-  m_Name: MapData
+  m_Name: map_data
   m_EditorClassIdentifier: 
   name: map_prototype
   file_name: map_prototype

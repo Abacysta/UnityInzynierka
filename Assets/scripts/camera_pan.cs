@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CameraDrag : MonoBehaviour
+public class CameraPan : MonoBehaviour
 {
     [SerializeField] private float dragSpeed = 15f;
     [SerializeField] private Texture2D cursorTexture;

@@ -2092,7 +2092,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2813,7 +2813,7 @@ GameObject:
   - component: {fileID: 800883926}
   - component: {fileID: 800883925}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3560,7 +3560,7 @@ GameObject:
   - component: {fileID: 1125061330}
   - component: {fileID: 1125061329}
   m_Layer: 0
-  m_Name: EventSystem
+  m_Name: event_system
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4748,7 +4748,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.24950966, y: 0.2528388}
   m_AnchorMax: {x: 0.74700004, y: 0.75100005}
-  m_AnchoredPosition: {x: 1.9998016, y: -1}
+  m_AnchoredPosition: {x: 1.9997864, y: -1}
   m_SizeDelta: {x: 540, y: 260}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1728894918
@@ -4855,7 +4855,7 @@ GameObject:
   - component: {fileID: 1820364024}
   - component: {fileID: 1820364023}
   m_Layer: 5
-  m_Name: Image
+  m_Name: image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

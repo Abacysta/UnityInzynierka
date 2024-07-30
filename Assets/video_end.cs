@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
 
-public class video_end : MonoBehaviour
+public class VideoEnd : MonoBehaviour
 {
     public VideoPlayer player;
     

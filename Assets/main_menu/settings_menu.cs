@@ -7,13 +7,10 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class settings_menu : MonoBehaviour
+public class SettingsMenu : MonoBehaviour
 {
-
     public AudioMixer mixer;
-
     public TMP_Dropdown ResList;
-
     public Slider sliderSFX, sliderMus;
 
     Resolution[] res;

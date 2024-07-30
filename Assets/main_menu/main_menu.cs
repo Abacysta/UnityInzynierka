@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class main_menu : MonoBehaviour
+public class MainMenu : MonoBehaviour
 {
-    public settings_menu settings;
-    // Start is called before the first frame update
+    public SettingsMenu settings;
+
     void Start()
     {
         settings.settingsInit();
         Screen.fullScreen = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
         

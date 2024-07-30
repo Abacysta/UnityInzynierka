@@ -7,10 +7,10 @@ public class GameManager : MonoBehaviour
     // Loading map data before all scripts
     void Awake()
     {
-        Load_data();
+        LoadData();
     }
 
-    void Load_data()
+    void LoadData()
     {
         map.Map_name = "map1";
         map.File_name = "map_prototype";
