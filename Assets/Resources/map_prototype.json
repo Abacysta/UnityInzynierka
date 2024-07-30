@@ -66,7 +66,7 @@
     "resources": "wood",
     "resources_amount": 6,
     "population": 50,
-    "happiness": 50,
+    "happiness": 80,
     "is_coast": false
   },
   {
@@ -76,7 +76,7 @@
     "resources": "wood",
     "resources_amount": 7,
     "population": 50,
-    "happiness": 50,
+    "happiness": 0,
     "is_coast": false
   },
   {
@@ -86,7 +86,7 @@
     "resources": "empty",
     "resources_amount": 4,
     "population": 50,
-    "happiness": 50,
+    "happiness": 26,
     "is_coast": false
   },
   {
@@ -455,8 +455,8 @@
     "type": "land",
     "resources": "empty",
     "resources_amount": 2,
-    "population": 50,
-    "happiness": 50,
+    "population": 10,
+    "happiness": 100,
     "is_coast": false
   },
   {
@@ -465,8 +465,8 @@
     "type": "land",
     "resources": "wood",
     "resources_amount": 2,
-    "population": 50,
-    "happiness": 50,
+    "population": 110,
+    "happiness": 60,
     "is_coast": false
   },
   {
@@ -475,7 +475,7 @@
     "type": "land",
     "resources": "wood",
     "resources_amount": 7,
-    "population": 50,
+    "population": 210,
     "happiness": 50,
     "is_coast": false
   },
@@ -555,8 +555,8 @@
     "type": "land",
     "resources": "wood",
     "resources_amount": 7,
-    "population": 50,
-    "happiness": 50,
+    "population": 310,
+    "happiness": 26,
     "is_coast": false
   },
   {
@@ -565,8 +565,8 @@
     "type": "land",
     "resources": "wood",
     "resources_amount": 5,
-    "population": 50,
-    "happiness": 50,
+    "population": 410,
+    "happiness": 0,
     "is_coast": false
   },
   {
@@ -575,7 +575,7 @@
     "type": "land",
     "resources": "wood",
     "resources_amount": 4,
-    "population": 50,
+    "population": 510,
     "happiness": 50,
     "is_coast": false
   },
