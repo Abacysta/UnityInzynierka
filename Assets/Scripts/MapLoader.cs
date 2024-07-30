@@ -25,34 +25,19 @@ public class MapLoader : MonoBehaviour
 
     void Start()
     {
-        map = new Map("map_prototype", "map_prototype");
-        TextAsset jsonFile = Resources.Load<TextAsset>(map.File_name);
+        /*
+        tile_map_layer_2.SetTile(new Vector3Int(3, 4, 0), occupied_tile);
+        tile_map_layer_2.SetColor(new Vector3Int(3, 4, 0), choose_rgb_color(255, 255, 255, 150)); // occupied Tile transparency
+        tile_map_layer_1.SetColor(new Vector3Int(3, 4, 0), choose_rgb_color(234, 98, 84)); // red
+        tile_map_layer_1.SetColor(new Vector3Int(3, 3, 0), choose_rgb_color(234, 98, 84)); // red
+        tile_map_layer_2.SetTile(new Vector3Int(3, 3, 0), capital_tile);
+        tile_map_layer_1.SetColor(new Vector3Int(4, 4, 0), choose_rgb_color(234, 98, 84));
+        */
 
-        if (jsonFile == null)
-        {
-            Debug.LogError("JSON map file not found in Resources!");
-        }
-        else
-        {
-            string jsonContent = "{\"provinces\":" + jsonFile.text + "}";
-            JsonUtility.FromJsonOverwrite(jsonContent, map);
-
-            /*set_land_and_water();
-
-            tile_map_layer_2.SetTile(new Vector3Int(3, 4, 0), occupied_tile);
-            tile_map_layer_2.SetColor(new Vector3Int(3, 4, 0), choose_rgb_color(255, 255, 255, 150)); // occupied Tile transparency
-            tile_map_layer_1.SetColor(new Vector3Int(3, 4, 0), choose_rgb_color(234, 98, 84)); // red
-            tile_map_layer_1.SetColor(new Vector3Int(3, 3, 0), choose_rgb_color(234, 98, 84)); // red
-            tile_map_layer_2.SetTile(new Vector3Int(3, 3, 0), capital_tile);
-            tile_map_layer_1.SetColor(new Vector3Int(4, 4, 0), choose_rgb_color(234, 98, 84));
-            */
-
-
-            set_resources();
-        }
+        Set_land_and_water();
     }
 
-    public void set_land_and_water()
+    public void Set_land_and_water()
     {
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();
@@ -64,18 +49,18 @@ public class MapLoader : MonoBehaviour
             if (province.Type == "land")
             {
                 tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, choose_rgb_color(91, 106, 65)); // dark green
+                tile_map_layer_1.SetColor(position, Choose_rgb_color(91, 106, 65)); // dark green
             }
             else
             {
                 tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, choose_rgb_color(60, 106, 130)); // blue
+                tile_map_layer_1.SetColor(position, Choose_rgb_color(60, 106, 130)); // blue
                 tile_map_layer_2.SetTile(position, water_tile);
             }
         }
     }
 
-    public void set_resources()
+    public void Set_resources()
     {
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();
@@ -88,24 +73,25 @@ public class MapLoader : MonoBehaviour
             switch (province.Resources)
             {
                 case "gold":
-                    color = choose_rgb_color(255, 215, 0); // yellow
+                    color = Choose_rgb_color(255, 215, 0); // yellow
                     break;
                 case "iron":
-                    color = choose_rgb_color(169, 169, 169); // gray
+                    color = Choose_rgb_color(169, 169, 169); // gray
                     break;
                 case "wood":
-                    color = choose_rgb_color(139, 69, 19); // brown
+                    color = Choose_rgb_color(139, 69, 19); // brown
                     break;
                 case "empty":
                 default:
-                    color = choose_rgb_color(255, 255, 255); // white
+                    color = Choose_rgb_color(255, 255, 255); // white
                     break;
             }
             tile_map_layer_1.SetTile(position, base_tile);
             tile_map_layer_1.SetColor(position, color);
         }
     }
-        void set_happiness()
+
+    public void Set_happiness()
     {
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();
@@ -118,44 +104,44 @@ public class MapLoader : MonoBehaviour
                 if (province.Happiness < 25)
                 {
                     tile_map_layer_1.SetTile(position, base_tile);
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(220, 20, 60)); // red - crimson
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(220, 20, 60)); // red - crimson
                     tile_map_layer_2.SetTile(position, sad_tile);
-                    tile_map_layer_2.SetColor(position, choose_rgb_color(255, 255, 255, 150)); // transparency
+                    tile_map_layer_2.SetColor(position, Choose_rgb_color(255, 255, 255, 150)); // transparency
                 }
                 else if (province.Happiness < 50)
                 {
                     tile_map_layer_1.SetTile(position, base_tile);
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(225, 225, 0)); // yellow
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(225, 225, 0)); // yellow
                     tile_map_layer_2.SetTile(position, neutral_tile);
-                    tile_map_layer_2.SetColor(position, choose_rgb_color(255, 255, 255, 150)); // transparency
+                    tile_map_layer_2.SetColor(position, Choose_rgb_color(255, 255, 255, 150)); // transparency
                 }
                 else if (province.Happiness < 75)
                 {
                     tile_map_layer_1.SetTile(position, base_tile);
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(0, 255, 0)); // green - lime
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(0, 255, 0)); // green - lime
                     tile_map_layer_2.SetTile(position, smile_tile);
-                    tile_map_layer_2.SetColor(position, choose_rgb_color(255, 255, 255, 150)); // transparency
+                    tile_map_layer_2.SetColor(position, Choose_rgb_color(255, 255, 255, 150)); // transparency
                 }
                 else
                 {
                     tile_map_layer_1.SetTile(position, base_tile);
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(0, 100, 0)); // dark green
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(0, 100, 0)); // dark green
                     tile_map_layer_2.SetTile(position, happy_tile);
-                    tile_map_layer_2.SetColor(position, choose_rgb_color(255, 255, 255, 150)); // transparency
+                    tile_map_layer_2.SetColor(position, Choose_rgb_color(255, 255, 255, 150)); // transparency
                 }
             }
             else
             {
                 tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, choose_rgb_color(60, 106, 130)); // blue
+                tile_map_layer_1.SetColor(position, Choose_rgb_color(60, 106, 130)); // blue
                 tile_map_layer_2.SetTile(position, water_tile);
             }
         }
     }
 
-    void set_population()
+    public void Set_population()
     {
-        set_land_and_water();
+        Set_land_and_water();
 
         foreach (Province province in map.Provinces)
         {
@@ -167,52 +153,51 @@ public class MapLoader : MonoBehaviour
                 tile_map_layer_1.SetColor(position, populationColor);
                 */
                 if(province.Population < 100){
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(255,155,133)); // coral pink
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(255,155,133)); // coral pink
                     tile_map_layer_2.SetTile(position, population_0_tile);
                 }
                 else if(province.Population < 200){
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(255,122,92)); // bittersweet 
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(255,122,92)); // bittersweet 
                     tile_map_layer_2.SetTile(position, population_1_tile);
                 }
                 else if(province.Population < 300){
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(255,88,51)); // tomato
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(255,88,51)); // tomato
                     tile_map_layer_2.SetTile(position, population_2_tile);
                 }
                 else if(province.Population < 400){
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(255,55,10)); // coquelicot
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(255,55,10)); // coquelicot
                     tile_map_layer_2.SetTile(position, population_3_tile);
                 }
                 else if(province.Population < 500){
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(224,41,0)); // sinopia
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(224,41,0)); // sinopia
                     tile_map_layer_2.SetTile(position, population_4_tile);
                 }
                 else {
-                    tile_map_layer_1.SetColor(position, choose_rgb_color(184,34,0)); // engineering orange 
+                    tile_map_layer_1.SetColor(position, Choose_rgb_color(184,34,0)); // engineering orange 
                     tile_map_layer_2.SetTile(position, population_5_tile);
                 }
             }
         }
     }
 
-Color GetColorBasedOnPopulation(int population)
-{
-    // Define the range for the colors
-    int minPopulation = 0;
-    int maxPopulation = 600;
+    Color GetColorBasedOnPopulation(int population)
+    {
+        // Define the range for the colors
+        int minPopulation = 0;
+        int maxPopulation = 600;
 
-    // Define colors for the range
-    Color minColor = choose_rgb_color(255,165,0); // orange 
-    Color maxColor = choose_rgb_color(165,42,42); //brown - chocolate
+        // Define colors for the range
+        Color minColor = Choose_rgb_color(255,165,0); // orange 
+        Color maxColor = Choose_rgb_color(165,42,42); //brown - chocolate
 
 
-    // Interpolate between yellow and brown
-    float t = Mathf.InverseLerp(minPopulation, maxPopulation, population);
-    return Color.Lerp(minColor, maxColor, t);
-}
+        // Interpolate between yellow and brown
+        float t = Mathf.InverseLerp(minPopulation, maxPopulation, population);
+        return Color.Lerp(minColor, maxColor, t);
+    }
 
-    Color choose_rgb_color(int r, int g, int b, int a = 255)
+    Color Choose_rgb_color(int r, int g, int b, int a = 255)
     {
         return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
     }
-
 }

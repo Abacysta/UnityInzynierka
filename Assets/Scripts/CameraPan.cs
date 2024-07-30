@@ -4,7 +4,7 @@ public class CameraDrag : MonoBehaviour
 {
     [SerializeField] private float dragSpeed = 15f;
     [SerializeField] private Texture2D cursorTexture;
-    [SerializeField] private float minX = -4f, maxX = 4f, minY = -4f, maxY = 4f;
+    [SerializeField] private float minX = -40f, maxX = 40f, minY = -40f, maxY = 40f;
 
     private Vector3 dragOrigin;
     private Vector2 hotSpot = Vector2.zero;

@@ -1,12 +1,12 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class ProvinceClickHandler : MonoBehaviour
 {
-    public Grid mapSrc;
-    public TMP_Text id, res, type;
+    [SerializeField] private Map map;
+    [SerializeField] private TMP_Text id, res, type;
+
     private Tilemap tilemap;
     private Vector3Int previousCellPosition;
     private bool isHovering;
@@ -62,23 +62,21 @@ public class ProvinceClickHandler : MonoBehaviour
             TileBase clickedTile = tilemap.GetTile(cellPosition);
             if (clickedTile != null)
             {
-                displayProvinceInfo(cellPosition.x, cellPosition.y);
-                //Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
+                Display_province_info(cellPosition.x, cellPosition.y);
+                Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
             }
         }
     }
 
-    public void displayProvinceInfo(int x, int y) {
-        Map m = mapSrc.GetComponent<Map>();
-        if(m == null) {
-            Debug.Log("kurwa");
+    public void Display_province_info(int x, int y)
+    {
+        Province province = map.Provinces.Find(p => p.X == x && p.Y == y);
+
+        if (province != null)
+        {
+            id.SetText($"Wspó³rzêdne prowincji: {province.X}, {province.Y}");
+            res.SetText($"Zasób: {province.Resources} ({province.Resources_amount})");
+            type.SetText($"Typ prowincji: {province.Type}");
         }
-            
-       //.Provinces.Find(p=> p.X == x && p.Y == y);
-        //id.SetText("id:" + p.X + "," + p.Y);
-        //res.SetText("resource:" + p.Resources + ":" + p.Resources_amount);
-        //type.SetText("type:" + p.Type);
     }
-
-
 }
