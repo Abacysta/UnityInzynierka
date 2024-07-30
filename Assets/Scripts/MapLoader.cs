@@ -41,7 +41,7 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    void set_land_and_water()
+    public void set_land_and_water()
     {
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();
@@ -64,7 +64,7 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    void set_resources()
+    public void set_resources()
     {
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();

@@ -3415,6 +3415,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b647bc7cf78af714ea9ea6f13940295f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  settings: {fileID: 1728894918}
 --- !u!1 &1071181565
 GameObject:
   m_ObjectHideFlags: 0
@@ -4764,6 +4765,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mixer: {fileID: 24100000, guid: 89deee04d72ed384cb9f5e007f466a78, type: 2}
   ResList: {fileID: 715132477}
+  sliderSFX: {fileID: 1208650797}
+  sliderMus: {fileID: 951093169}
 --- !u!1 &1804144942
 GameObject:
   m_ObjectHideFlags: 0

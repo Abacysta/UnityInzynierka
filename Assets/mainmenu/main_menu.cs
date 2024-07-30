@@ -5,9 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class main_menu : MonoBehaviour
 {
+    public settings_menu settings;
     // Start is called before the first frame update
     void Start()
     {
+        settings.settingsInit();
         Screen.fullScreen = false;
     }
 
