@@ -70,24 +70,34 @@ public class map_loader : MonoBehaviour
             Vector3Int position = new(province.X, province.Y, 0);
             Color color;
 
-            switch (province.Resources)
+            if (province.Type == "land")
             {
-                case "gold":
-                    color = ChooseRGBColor(255, 215, 0); // yellow
-                    break;
-                case "iron":
-                    color = ChooseRGBColor(169, 169, 169); // gray
-                    break;
-                case "wood":
-                    color = ChooseRGBColor(139, 69, 19); // brown
-                    break;
-                case "empty":
-                default:
-                    color = ChooseRGBColor(255, 255, 255); // white
-                    break;
+                switch (province.Resources)
+                {
+                    case "gold":
+                        color = ChooseRGBColor(255, 215, 0); // yellow
+                        break;
+                    case "iron":
+                        color = ChooseRGBColor(169, 169, 169); // gray
+                        break;
+                    case "wood":
+                        color = ChooseRGBColor(139, 69, 19); // brown
+                        break;
+                    case "empty":
+                    default:
+                        color = ChooseRGBColor(255, 255, 255); // white
+                        break;
+                }
+
+                tile_map_layer_1.SetTile(position, base_tile);
+                tile_map_layer_1.SetColor(position, color);
             }
-            tile_map_layer_1.SetTile(position, base_tile);
-            tile_map_layer_1.SetColor(position, color);
+            else
+            {
+                tile_map_layer_1.SetTile(position, base_tile);
+                tile_map_layer_1.SetColor(position, ChooseRGBColor(60, 106, 130)); // blue
+                tile_map_layer_2.SetTile(position, water_tile);
+            }
         }
     }
 
