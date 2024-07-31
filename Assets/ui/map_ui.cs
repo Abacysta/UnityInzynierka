@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapUI : MonoBehaviour
+public class map_ui : MonoBehaviour
 {
 
-    public SettingsMenu menu;
+    public settings_menu menu;
     public GameObject menuUI;
     // Start is called before the first frame update
     void Start()

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class SettingsMenu : MonoBehaviour
+public class settings_menu : MonoBehaviour
 {
     public AudioMixer mixer;
     public TMP_Dropdown ResList;

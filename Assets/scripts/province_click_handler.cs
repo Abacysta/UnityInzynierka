@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class ProvinceClickHandler : MonoBehaviour
+public class province_click_handler : MonoBehaviour
 {
     [SerializeField] private Map map;
     [SerializeField] private TMP_Text id, res, type;

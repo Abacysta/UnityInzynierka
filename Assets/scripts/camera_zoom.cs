@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraZoom : MonoBehaviour
+public class camera_zoom : MonoBehaviour
 {
     [SerializeField] private float zoomSpeed = 10f;
     [SerializeField] private float minSize = 3f;

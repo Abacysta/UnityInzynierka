@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenu : MonoBehaviour
+public class main_menu : MonoBehaviour
 {
-    public SettingsMenu settings;
+    public settings_menu settings;
 
     void Start()
     {

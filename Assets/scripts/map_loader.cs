@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class MapLoader : MonoBehaviour
+public class map_loader : MonoBehaviour
 {
     [SerializeField] private Map map;
 
@@ -34,10 +34,10 @@ public class MapLoader : MonoBehaviour
         tile_map_layer_1.SetColor(new Vector3Int(4, 4, 0), choose_rgb_color(234, 98, 84));
         */
 
-        SetLandAndWater();
+        SetTerrain();
     }
 
-    public void SetLandAndWater()
+    public void SetTerrain()
     {
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();
@@ -141,7 +141,7 @@ public class MapLoader : MonoBehaviour
 
     public void SetPopulation()
     {
-        SetLandAndWater();
+        SetTerrain();
 
         foreach (Province province in map.Provinces)
         {
