@@ -92,7 +92,7 @@ public class map_loader : MonoBehaviour
         }
     }
 
-        void SetHappiness()
+    public void SetHappiness()
     {
         tile_map_layer_1.ClearAllTiles();
         tile_map_layer_2.ClearAllTiles();
@@ -115,7 +115,7 @@ public class map_loader : MonoBehaviour
         }
     }
 
-    void SetPopulation()
+    public void SetPopulation()
     {
         foreach (Province province in map.Provinces)
         {
