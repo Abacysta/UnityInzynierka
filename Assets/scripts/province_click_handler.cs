@@ -65,7 +65,7 @@ public class province_click_handler : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(0) && !panner.isDrag())
+        if (Input.GetMouseButtonDown(0)/* && !panner.isDrag()*/)
         {
             TileBase clickedTile = tilemap.GetTile(cellPosition);
             if (clickedTile != null)

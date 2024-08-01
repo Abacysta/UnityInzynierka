@@ -9,8 +9,8 @@ public class camera_pan : MonoBehaviour
 
     private Vector3 dragOrigin;
     private Vector2 hotSpot = Vector2.zero;
-    private bool drag=false;
-    private float dragThreshold = 0.5f;
+    //private bool drag=false;
+    //private float dragThreshold = 0.5f;
 
     void Update()
     {
@@ -18,20 +18,20 @@ public class camera_pan : MonoBehaviour
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             return;
         }
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(1))
         {
             dragOrigin = Input.mousePosition;
             Cursor.SetCursor(cursorTexture, hotSpot, CursorMode.Auto); // Zmieñ na w³aœciwy kursor
-            drag = false;
+            //drag = false;
             return;
         }
 
-        if(!Input.GetMouseButton(0)) {
+        if(!Input.GetMouseButton(1)) {
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto); // Przywróæ domyœlny kursor
             return;
         }
-        else if(Vector3.Distance(dragOrigin, Input.mousePosition) > dragThreshold) {
-            drag = true;
+        
+            //drag = true;
             Vector3 pos = Camera.main.ScreenToViewportPoint(dragOrigin - Input.mousePosition);
             Vector3 move = new Vector3(pos.x * dragSpeed, pos.y * dragSpeed, 0);
 
@@ -44,10 +44,9 @@ public class camera_pan : MonoBehaviour
             transform.position = newPosition;
 
             dragOrigin = Input.mousePosition; // Aktualizuj pozycjê przeci¹gania
-        }
     }
 
-    public bool isDrag() { return drag; }
+    //public bool isDrag() { return drag; }
 }
 
 
