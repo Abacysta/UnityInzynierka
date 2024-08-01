@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -102,7 +103,7 @@ public class map_loader : MonoBehaviour
             Vector3Int position = new(province.X, province.Y, 0);
             if (province.Type == "land")
             {
-                Color happinessColor = GetColorBasedOnValue(province.Happiness,0);
+                Color happinessColor = GetColorBasedOnValueHappiness(province.Happiness);
                 tile_map_layer_1.SetTile(position, base_tile);
                 tile_map_layer_1.SetColor(position, happinessColor);
             }
@@ -117,12 +118,13 @@ public class map_loader : MonoBehaviour
 
     public void SetPopulation()
     {
+
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
             if (province.Type == "land")
             {
-                Color populationColor = GetColorBasedOnValue(province.Population,1);
+                Color populationColor = GetColorBasedOnValuePop(province.Population);
                 tile_map_layer_1.SetTile(position, base_tile);
                 tile_map_layer_1.SetColor(position, populationColor);
             }
@@ -134,15 +136,12 @@ public class map_loader : MonoBehaviour
         }
     }
 
-Color GetColorBasedOnValue(int value, int option)
+Color GetColorBasedOnValueHappiness(int value)
 {
     Color minColor = Color.red;     
     Color midColor = Color.yellow; 
     Color maxColor = Color.green;  
-    switch (option)
-    {
-        case 0:
-            {
+    
                 int minHappiness = 0;
                 int maxHappiness = 100;
 
@@ -157,29 +156,27 @@ Color GetColorBasedOnValue(int value, int option)
                 {
                     return Color.Lerp(midColor, maxColor, (t - 0.5f) * 2);
                 }
-            }
+            
+}
 
-        case 1:
-            {
-                int minPopulation = 100;
-                int maxPopulation = 20000;
+    Color GetColorBasedOnValuePop(int value) {
+        Color minColor = Color.white;
+        Color midColor = Color.yellow;
+        Color maxColor = Color.blue;
+        
+                int minPopulation = map.Provinces.Min(p=>p.Population);
+                int maxPopulation = map.Provinces.Max(p => p.Population); ;
 
                 float t = Mathf.InverseLerp(minPopulation, maxPopulation, value);
 
-                if (t < 0.5f)
-                {
+                if(t < 0.5f) {
                     return Color.Lerp(minColor, midColor, t * 2);
                 }
-                else
-                {
+                else {
                     return Color.Lerp(midColor, maxColor, (t - 0.5f) * 2);
                 }
-            }
-
-        default:
-            return Color.white;
+            
     }
-}
 
     Color ChooseRGBColor(int r, int g, int b, int a = 255)
     {

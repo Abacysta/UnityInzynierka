@@ -1,0 +1,952 @@
+[
+  {
+    "x": 0,
+    "y": 0,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 7,
+    "population": 10096,
+    "happiness": 24,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 1,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 8,
+    "population": 1810,
+    "happiness": 58,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 2,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 6,
+    "population": 12308,
+    "happiness": 74,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 3,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 6,
+    "population": 17380,
+    "happiness": 62,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 4,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 5,
+    "population": 18958,
+    "happiness": 78,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 5,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 3,
+    "population": 11184,
+    "happiness": 24,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 6,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 2,
+    "population": 12858,
+    "happiness": 28,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 7,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 3,
+    "population": 4182,
+    "happiness": 46,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 8,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 7,
+    "population": 18968,
+    "happiness": 18,
+    "is_coast": false
+  },
+  {
+    "x": 0,
+    "y": 9,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 4,
+    "population": 5674,
+    "happiness": 16,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 0,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 15786,
+    "happiness": 16,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 1,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 3,
+    "population": 1620,
+    "happiness": 10,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 2,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 8,
+    "population": 422,
+    "happiness": 52,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 3,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 8,
+    "population": 3050,
+    "happiness": 76,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 4,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 8,
+    "population": 4384,
+    "happiness": 46,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 5,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 8,
+    "population": 9316,
+    "happiness": 96,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 6,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 2776,
+    "happiness": 88,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 7,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 2,
+    "population": 6078,
+    "happiness": 54,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 8,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 2,
+    "population": 4354,
+    "happiness": 20,
+    "is_coast": false
+  },
+  {
+    "x": 1,
+    "y": 9,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 5,
+    "population": 16740,
+    "happiness": 86,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 0,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 4,
+    "population": 2086,
+    "happiness": 44,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 1,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 6,
+    "population": 7062,
+    "happiness": 74,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 2,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 7,
+    "population": 13312,
+    "happiness": 20,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 3,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 6,
+    "population": 8624,
+    "happiness": 56,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 4,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 2,
+    "population": 14280,
+    "happiness": 46,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 5,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 2,
+    "population": 15240,
+    "happiness": 42,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 6,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 8,
+    "population": 1830,
+    "happiness": 60,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 7,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 7,
+    "population": 10050,
+    "happiness": 72,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 8,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 7,
+    "population": 14094,
+    "happiness": 56,
+    "is_coast": false
+  },
+  {
+    "x": 2,
+    "y": 9,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 5,
+    "population": 14014,
+    "happiness": 64,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 0,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 2,
+    "population": 1550,
+    "happiness": 68,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 1,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 12082,
+    "happiness": 64,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 2,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 2,
+    "population": 3242,
+    "happiness": 36,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 3,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 7,
+    "population": 3966,
+    "happiness": 60,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 4,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 7,
+    "population": 9014,
+    "happiness": 98,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 5,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 4,
+    "population": 12808,
+    "happiness": 92,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 6,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 8,
+    "population": 17546,
+    "happiness": 56,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 7,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 3,
+    "population": 16256,
+    "happiness": 84,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 8,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 3,
+    "population": 8094,
+    "happiness": 6,
+    "is_coast": false
+  },
+  {
+    "x": 3,
+    "y": 9,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 7120,
+    "happiness": 32,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 0,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 6,
+    "population": 14352,
+    "happiness": 68,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 1,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 13342,
+    "happiness": 62,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 2,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 8,
+    "population": 8356,
+    "happiness": 10,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 3,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 5,
+    "population": 12448,
+    "happiness": 90,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 4,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 3,
+    "population": 15766,
+    "happiness": 58,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 5,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 3,
+    "population": 9946,
+    "happiness": 60,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 6,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 6,
+    "population": 12954,
+    "happiness": 14,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 7,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 5,
+    "population": 10702,
+    "happiness": 66,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 8,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 4,
+    "population": 7286,
+    "happiness": 32,
+    "is_coast": false
+  },
+  {
+    "x": 4,
+    "y": 9,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 2,
+    "population": 2632,
+    "happiness": 36,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 0,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 8,
+    "population": 16044,
+    "happiness": 42,
+    "is_coast": true
+  },
+  {
+    "x": 5,
+    "y": 1,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 4,
+    "population": 13822,
+    "happiness": 68,
+    "is_coast": true
+  },
+  {
+    "x": 5,
+    "y": 2,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 2,
+    "population": 2658,
+    "happiness": 78,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 3,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 2,
+    "population": 402,
+    "happiness": 54,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 4,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 8,
+    "population": 6816,
+    "happiness": 98,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 5,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 3,
+    "population": 17120,
+    "happiness": 58,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 6,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 4,
+    "population": 754,
+    "happiness": 62,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 7,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 4298,
+    "happiness": 68,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 8,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 3,
+    "population": 5678,
+    "happiness": 70,
+    "is_coast": false
+  },
+  {
+    "x": 5,
+    "y": 9,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 2,
+    "population": 3340,
+    "happiness": 34,
+    "is_coast": true
+  },
+  {
+    "x": 6,
+    "y": 0,
+    "type": "ocean"
+  },
+  {
+    "x": 6,
+    "y": 1,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 5,
+    "population": 11512,
+    "happiness": 28,
+    "is_coast": true
+  },
+  {
+    "x": 6,
+    "y": 2,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 2,
+    "population": 13868,
+    "happiness": 80,
+    "is_coast": true
+  },
+  {
+    "x": 6,
+    "y": 3,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 5,
+    "population": 3812,
+    "happiness": 22,
+    "is_coast": false
+  },
+  {
+    "x": 6,
+    "y": 4,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 2,
+    "population": 19464,
+    "happiness": 98,
+    "is_coast": false
+  },
+  {
+    "x": 6,
+    "y": 5,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 14028,
+    "happiness": 72,
+    "is_coast": false
+  },
+  {
+    "x": 6,
+    "y": 6,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 2,
+    "population": 17318,
+    "happiness": 78,
+    "is_coast": false
+  },
+  {
+    "x": 6,
+    "y": 7,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 8,
+    "population": 13476,
+    "happiness": 18,
+    "is_coast": false
+  },
+  {
+    "x": 6,
+    "y": 8,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 4,
+    "population": 7976,
+    "happiness": 26,
+    "is_coast": true
+  },
+  {
+    "x": 6,
+    "y": 9,
+    "type": "ocean"
+  },
+  {
+    "x": 7,
+    "y": 0,
+    "type": "ocean"
+  },
+  {
+    "x": 7,
+    "y": 1,
+    "type": "ocean"
+  },
+  {
+    "x": 7,
+    "y": 2,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 3,
+    "population": 8124,
+    "happiness": 44,
+    "is_coast": true
+  },
+  {
+    "x": 7,
+    "y": 3,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 4,
+    "population": 14682,
+    "happiness": 60,
+    "is_coast": false
+  },
+  {
+    "x": 7,
+    "y": 4,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 6,
+    "population": 4812,
+    "happiness": 4,
+    "is_coast": false
+  },
+  {
+    "x": 7,
+    "y": 5,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 3,
+    "population": 240,
+    "happiness": 72,
+    "is_coast": false
+  },
+  {
+    "x": 7,
+    "y": 6,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 3,
+    "population": 8610,
+    "happiness": 24,
+    "is_coast": false
+  },
+  {
+    "x": 7,
+    "y": 7,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 6,
+    "population": 3760,
+    "happiness": 92,
+    "is_coast": false
+  },
+  {
+    "x": 7,
+    "y": 8,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 2,
+    "population": 6834,
+    "happiness": 60,
+    "is_coast": true
+  },
+  {
+    "x": 7,
+    "y": 9,
+    "type": "ocean"
+  },
+  {
+    "x": 8,
+    "y": 0,
+    "type": "ocean"
+  },
+  {
+    "x": 8,
+    "y": 1,
+    "type": "ocean"
+  },
+  {
+    "x": 8,
+    "y": 2,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 5,
+    "population": 19502,
+    "happiness": 10,
+    "is_coast": true
+  },
+  {
+    "x": 8,
+    "y": 3,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 5,
+    "population": 2446,
+    "happiness": 52,
+    "is_coast": false
+  },
+  {
+    "x": 8,
+    "y": 4,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 6,
+    "population": 19818,
+    "happiness": 88,
+    "is_coast": false
+  },
+  {
+    "x": 8,
+    "y": 5,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 5,
+    "population": 4638,
+    "happiness": 78,
+    "is_coast": false
+  },
+  {
+    "x": 8,
+    "y": 6,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 7,
+    "population": 8170,
+    "happiness": 20,
+    "is_coast": false
+  },
+  {
+    "x": 8,
+    "y": 7,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 5,
+    "population": 12610,
+    "happiness": 40,
+    "is_coast": false
+  },
+  {
+    "x": 8,
+    "y": 8,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 7,
+    "population": 12366,
+    "happiness": 46,
+    "is_coast": true
+  },
+  {
+    "x": 8,
+    "y": 9,
+    "type": "land",
+    "resources": "empty",
+    "resources_amount": 4,
+    "population": 16170,
+    "happiness": 2,
+    "is_coast": true
+  },
+  {
+    "x": 9,
+    "y": 0,
+    "type": "ocean"
+  },
+  {
+    "x": 9,
+    "y": 1,
+    "type": "ocean"
+  },
+  {
+    "x": 9,
+    "y": 2,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 7,
+    "population": 2430,
+    "happiness": 84,
+    "is_coast": true
+  },
+  {
+    "x": 9,
+    "y": 3,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 7,
+    "population": 6508,
+    "happiness": 92,
+    "is_coast": false
+  },
+  {
+    "x": 9,
+    "y": 4,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 4,
+    "population": 18564,
+    "happiness": 16,
+    "is_coast": false
+  },
+  {
+    "x": 9,
+    "y": 5,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 4,
+    "population": 17522,
+    "happiness": 66,
+    "is_coast": false
+  },
+  {
+    "x": 9,
+    "y": 6,
+    "type": "land",
+    "resources": "wood",
+    "resources_amount": 4,
+    "population": 11446,
+    "happiness": 38,
+    "is_coast": false
+  },
+  {
+    "x": 9,
+    "y": 7,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 5,
+    "population": 15446,
+    "happiness": 94,
+    "is_coast": true
+  },
+  {
+    "x": 9,
+    "y": 8,
+    "type": "ocean"
+  },
+  {
+    "x": 9,
+    "y": 9,
+    "type": "land",
+    "resources": "iron",
+    "resources_amount": 6,
+    "population": 10592,
+    "happiness": 20,
+    "is_coast": true
+  }
+]
