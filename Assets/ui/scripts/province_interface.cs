@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class province_interface : MonoBehaviour
 {
-    public TMP_Text id, res, type, pop;
+    public TMP_Text id, res, type, pop, rec_pop;
     public Map map;
     private int prov;
     private void Start() {
@@ -13,6 +13,7 @@ public class province_interface : MonoBehaviour
         res.SetText("null");
         type.SetText("null");
         pop.SetText("null");
+        rec_pop.SetText("null");
     }
 
     private void Update() {
@@ -22,7 +23,8 @@ public class province_interface : MonoBehaviour
         //icons TBD
         res.SetText("resource:" + map.Provinces[prov].Resources);
         type.SetText(map.Provinces[prov].Type == "land" ? "land" : "sea");
-        pop.SetText("population" + map.Provinces[prov].Population);
+        pop.SetText("population " + map.Provinces[prov].Population);
+        rec_pop.SetText("recruitable population " + map.Provinces[prov].RecruitablePopulation);
     }
 
     public void PopulationIncrease(int val) {
