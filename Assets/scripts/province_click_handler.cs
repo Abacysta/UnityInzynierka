@@ -7,14 +7,14 @@ using UnityEngine.UIElements;
 public class province_click_handler : MonoBehaviour
 {
     [SerializeField] private Map map;
+
+    [SerializeField] private Tilemap tile_map_layer_1;
     [SerializeField] private TMP_Text id, res, type;
-    public AudioSource province_click;
-    public GameObject province_interface;
-    public camera_pan panner;
-    public GameObject blocker;
+    [SerializeField] private AudioSource province_click;
+    [SerializeField] private GameObject province_interface;
+    [SerializeField] private camera_pan panner;
+    [SerializeField] private GameObject blocker;
 
-
-    private Tilemap tilemap;
     private Vector3Int previousCellPosition;
     private bool isHovering;
     private Color originalColor;
@@ -22,8 +22,7 @@ public class province_click_handler : MonoBehaviour
 
     private void Start()
     {
-        tilemap = GetComponent<Tilemap>();
-        if (tilemap == null)
+        if (tile_map_layer_1 == null)
         {
             Debug.LogError("Tilemap not found!");
         }
@@ -38,22 +37,22 @@ public class province_click_handler : MonoBehaviour
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0;
 
-        Vector3Int cellPosition = tilemap.WorldToCell(mouseWorldPos);
+        Vector3Int cellPosition = tile_map_layer_1.WorldToCell(mouseWorldPos);
 
 
         if (cellPosition != previousCellPosition)
         {
             if (isHovering)
             {
-                tilemap.SetColor(previousCellPosition, originalColor);
+                tile_map_layer_1.SetColor(previousCellPosition, originalColor);
             }
 
-            TileBase hoveredTile = tilemap.GetTile(cellPosition);
+            TileBase hoveredTile = tile_map_layer_1.GetTile(cellPosition);
             if (hoveredTile != null)
             {
-                originalColor = tilemap.GetColor(cellPosition);
+                originalColor = tile_map_layer_1.GetColor(cellPosition);
                 Color lightenedColor = Color.Lerp(originalColor, Color.white, lightenFactor);
-                tilemap.SetColor(cellPosition, lightenedColor);
+                tile_map_layer_1.SetColor(cellPosition, lightenedColor);
 
                 isHovering = true;
                 previousCellPosition = cellPosition;
@@ -67,7 +66,7 @@ public class province_click_handler : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0)/* && !panner.isDrag()*/)
         {
-            TileBase clickedTile = tilemap.GetTile(cellPosition);
+            TileBase clickedTile = tile_map_layer_1.GetTile(cellPosition);
             if (clickedTile != null)
             {
                 province_click.Play();

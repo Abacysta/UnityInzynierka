@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
 
@@ -26,33 +26,4 @@ public class GameManager : MonoBehaviour
             Debug.LogError("JSON map file not found in Resources!");
         }
     }
-
-    /*void Save_data()
-    {
-
-    }
-    */
 }
-
-/*
-public class GameManager : MonoBehaviour
-{
-    public static GameManager Instance { get; private set; }
-    private Map map;
-
-    public Map Map { get => map; set => map = value; }
-
-    void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-}
-*/
