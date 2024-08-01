@@ -13,7 +13,7 @@ public class game_manager : MonoBehaviour
     void LoadData()
     {
         map.Map_name = "map1";
-        map.File_name = "map_prototype_2";
+        map.File_name = "map_prototype_3";
         TextAsset jsonFile = Resources.Load<TextAsset>(map.File_name);
 
         if (jsonFile != null)
