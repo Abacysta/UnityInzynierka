@@ -12,6 +12,7 @@ public class settings_menu : MonoBehaviour
     public AudioMixer mixer;
     public TMP_Dropdown ResList;
     public Slider sliderSFX, sliderMus;
+    public GameObject[] toBlock;
 
     Resolution[] res;
 
@@ -65,6 +66,14 @@ public class settings_menu : MonoBehaviour
     }
 
     public void toggleMenu(GameObject menu) {
+        if(toBlock != null) {
+            foreach(var o in toBlock) {
+                Button[] b = o.GetComponentsInChildren<Button>();
+                foreach(var bb in b) {
+                    bb.interactable = menu.activeSelf;
+                }
+            }
+        }
         menu.SetActive(!menu.activeSelf);
     }
 

@@ -1,11 +1,18 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class province_click_handler : MonoBehaviour
 {
     [SerializeField] private Map map;
     [SerializeField] private TMP_Text id, res, type;
+    public AudioSource province_click;
+    public GameObject province_interface;
+    public camera_pan panner;
+    public GameObject blocker;
+
 
     private Tilemap tilemap;
     private Vector3Int previousCellPosition;
@@ -27,6 +34,7 @@ public class province_click_handler : MonoBehaviour
 
     private void Update()
     {
+        if(blocker != null && blocker.activeSelf) return;
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0;
 
@@ -57,11 +65,12 @@ public class province_click_handler : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !panner.isDrag())
         {
             TileBase clickedTile = tilemap.GetTile(cellPosition);
             if (clickedTile != null)
             {
+                province_click.Play();
                 DisplayProvinceInfo(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
             }
@@ -74,9 +83,8 @@ public class province_click_handler : MonoBehaviour
 
         if (province != null)
         {
-            id.SetText($"Wspó³rzêdne prowincji: {province.X}, {province.Y}");
-            res.SetText($"Zasób: {province.Resources} ({province.Resources_amount})");
-            type.SetText($"Typ prowincji: {province.Type}");
+            map.Selected_province = (province.X, province.Y);
+            province_interface.SetActive(true);
         }
     }
 }
