@@ -6,7 +6,7 @@ public class camera_zoom : MonoBehaviour
 {
     [SerializeField] private float zoomSpeed = 10f;
     [SerializeField] private float minSize = 3f;
-    [SerializeField] private float maxSize = 20f;
+    [SerializeField] private float maxSize = 40f;
     public GameObject blocker;
 
     void Update()
