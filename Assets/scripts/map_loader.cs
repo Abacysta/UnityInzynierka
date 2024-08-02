@@ -23,7 +23,10 @@ public class map_loader : MonoBehaviour
         tile_map_layer_2.SetTile(new Vector3Int(3, 3, 0), capital_tile);
         tile_map_layer_1.SetColor(new Vector3Int(4, 4, 0), choose_rgb_color(234, 98, 84));
         */
-
+        map.calcPopExtremes();
+        foreach(var p in map.Provinces) {
+            map.calcRecruitablePop(p.coordinates, 0.2f);
+        }
         SetTerrain();
         //SetHappiness();
         //SetPopulation();
@@ -163,11 +166,11 @@ Color GetColorBasedOnValueHappiness(int value)
         Color minColor = Color.white;
         Color midColor = Color.yellow;
         Color maxColor = Color.blue;
-        
-                int minPopulation = map.Provinces.Min(p=>p.Population);
-                int maxPopulation = map.Provinces.Max(p => p.Population); ;
 
-                float t = Mathf.InverseLerp(minPopulation, maxPopulation, value);
+        int minPopulation = map.Pop_extremes.Item1;
+        int maxPopulation = map.Pop_extremes.Item2;
+
+        float t = Mathf.InverseLerp(minPopulation, maxPopulation, value);
 
                 if(t < 0.5f) {
                     return Color.Lerp(minColor, midColor, t * 2);

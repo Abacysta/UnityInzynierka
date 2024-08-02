@@ -30,75 +30,9 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    public void CalculateRecruitablePopulation()
-    {
-        foreach (Province province in map.Provinces)
-        {
-            if (province != null)
-            {
-                if (province.Type == "land" && province.Is_possible_to_recruit)
-                {
-                    province.RecruitablePopulation = (int)(province.Population * RecruitablePopulationFactor);
-                }
-                else
-                {
-                    province.RecruitablePopulation = 0;
-                }
-            }
-        }
-    }
-    private void TurnIncreasePopulation()
-    {
-        foreach (Province province in map.Provinces)
-        {
-            if (province != null)
-            {
-                if (province.Type == "land")
-                {
-                    province.Population = province.Population + (int)(province.Population * PopulationFactor);
-                }
-            }
-        }
-    }
-    private void TurnDecreaseOccupation()
-    {
-        foreach (Province province in map.Provinces)
-        {
-            if (province != null)
-            {
-                if (province.Occupation)
-                {
-                    province.Occupation_count -= 1;
-                    if(province.Occupation_count == 0)
-                    {
-                        province.Occupation = false;
-                    }
-                }
-            }
-        }
-    }
-    private void TurnHappinessIncrease()
-    {
-        foreach (Province province in map.Provinces)
-        {
-            if (province != null)
-            {
-                if (province.Happiness < 100)
-                {
-                    province.Happiness += HappinessFactor;
-                }
-                else if (province.Happiness > province.Happiness - HappinessFactor && province.Happiness <= 100)
-                {
-                    province.Happiness = 100;
-                }
-            }
-        }
-    }
+    
     public void TurnSimulation()
     {
-        TurnDecreaseOccupation();
-        TurnHappinessIncrease();
-        TurnIncreasePopulation();
-        CalculateRecruitablePopulation();
+        
     }
 }
