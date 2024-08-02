@@ -22,9 +22,6 @@ public class Building
     }
     public void Downgrade()
     {
-        if(buildingLevel > 0)
-        {
         buildingLevel--;
-        }
     }
 }

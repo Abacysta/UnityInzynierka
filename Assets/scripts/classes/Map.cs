@@ -75,5 +75,17 @@ public class Map:ScriptableObject {
         Building buildingToUpgrade = Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType);
         buildingToUpgrade.Upgrade();
     }
-
+    public void downgradeBuilding((int,int) coordinates, BuildingType buildingType)
+    {
+        int prov = getProvinceIndex(coordinates);
+        Building buildingToDowngrade = Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType);
+        if(buildingToDowngrade.BuildingLevel > 1)
+        {
+            buildingToDowngrade.Downgrade();
+        }
+        else
+        {
+            Provinces[prov].Buildings.Remove(buildingToDowngrade);
+        }
+    }
 }
