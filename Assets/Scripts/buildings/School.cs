@@ -18,4 +18,8 @@ public class School : Building
             Debug.Log($"Building is at maximum leevel");
         }
     }
+    public override void ResetLevel()
+    {
+        buildingLevel = 0;
+    }
 }

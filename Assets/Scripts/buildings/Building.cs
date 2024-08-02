@@ -12,4 +12,5 @@ public abstract class Building : ScriptableObject
 
     public abstract void ApplyEffect();
     public abstract void Upgrade();
+    public abstract void ResetLevel();
 }

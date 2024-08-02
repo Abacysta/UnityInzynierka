@@ -15,4 +15,16 @@ public class Map : ScriptableObject
     public List<Province> Provinces { get => provinces; set => provinces = value; }
 
     public (int, int) Selected_province { get => selected_province; set => selected_province = value; }
+
+    public Province GetProvince(int x, int y)
+    {
+        foreach(Province province in provinces)
+        {
+            if(province.X == x && province.Y == y)
+            {
+                return province;
+            }
+        }
+        return null;
+    }
 }

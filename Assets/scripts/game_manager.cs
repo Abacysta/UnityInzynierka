@@ -3,7 +3,9 @@ using UnityEngine;
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
-    [SerializeField] private int RecruitablePopulationFactor = 5;
+    [SerializeField] private float RecruitablePopulationFactor = 0.2f;
+    [SerializeField] private float PopulationFactor = 0.1f;
+    [SerializeField] private int HappinessFactor = 5;
 
     // Loading map data before all scripts
     void Awake()
@@ -30,33 +32,73 @@ public class game_manager : MonoBehaviour
 
     public void CalculateRecruitablePopulation()
     {
-        if (map.Provinces == null)
-        {
-            Debug.LogError("Provinces data is null!");
-            return;
-        }
-
         foreach (Province province in map.Provinces)
         {
             if (province != null)
             {
-                Debug.Log($"Processing Province: {province.Name}, Population: {province.Population}, Type: {province.Type}, Can Recruit: {province.Is_possible_to_recruit}");
-                
                 if (province.Type == "land" && province.Is_possible_to_recruit)
                 {
-                    province.RecruitablePopulation = province.Population / RecruitablePopulationFactor;
+                    province.RecruitablePopulation = (int)(province.Population * RecruitablePopulationFactor);
                 }
                 else
                 {
                     province.RecruitablePopulation = 0;
                 }
-
-                Debug.Log($"Recruitable Population for {province.Name}: {province.RecruitablePopulation}");
-            }
-            else
-            {
-                Debug.LogWarning("Encountered a null province in the list!");
             }
         }
+    }
+    private void TurnIncreasePopulation()
+    {
+        foreach (Province province in map.Provinces)
+        {
+            if (province != null)
+            {
+                if (province.Type == "land")
+                {
+                    province.Population = province.Population + (int)(province.Population * PopulationFactor);
+                }
+            }
+        }
+    }
+    private void TurnDecreaseOccupation()
+    {
+        foreach (Province province in map.Provinces)
+        {
+            if (province != null)
+            {
+                if (province.Occupation)
+                {
+                    province.Occupation_count -= 1;
+                    if(province.Occupation_count == 0)
+                    {
+                        province.Occupation = false;
+                    }
+                }
+            }
+        }
+    }
+    private void TurnHappinessIncrease()
+    {
+        foreach (Province province in map.Provinces)
+        {
+            if (province != null)
+            {
+                if (province.Happiness < 100)
+                {
+                    province.Happiness += HappinessFactor;
+                }
+                else if (province.Happiness > province.Happiness - HappinessFactor && province.Happiness <= 100)
+                {
+                    province.Happiness = 100;
+                }
+            }
+        }
+    }
+    public void TurnSimulation()
+    {
+        TurnDecreaseOccupation();
+        TurnHappinessIncrease();
+        TurnIncreasePopulation();
+        CalculateRecruitablePopulation();
     }
 }
