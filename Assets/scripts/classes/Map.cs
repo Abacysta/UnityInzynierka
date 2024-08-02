@@ -55,7 +55,25 @@ public class Map:ScriptableObject {
         int prov = getProvinceIndex(coordinates);
         Provinces[prov].Happiness += value;
     }
+    public void addBuilding((int,int) coordinates, Building building)
+    {
+        int prov = getProvinceIndex(coordinates);
+        bool buildingExist = Provinces[prov].Buildings.Any(b => b.BuildingType == building.BuildingType);
+        if(!buildingExist)
+        {
+            Provinces[prov].Buildings.Add(building);
+        }
+        else
+        {
+            Debug.Log("Building of this type already exists!");
+        }
+    }
 
-
+    public void upgradeBuilding((int,int) coordinates, BuildingType buildingType)
+    {
+        int prov = getProvinceIndex(coordinates);
+        Building buildingToUpgrade = Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType);
+        buildingToUpgrade.Upgrade();
+    }
 
 }
