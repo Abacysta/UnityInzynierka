@@ -12,7 +12,6 @@ public class province_click_handler : MonoBehaviour
     [SerializeField] private TMP_Text id, res, type;
     [SerializeField] private AudioSource province_click;
     [SerializeField] private GameObject province_interface;
-    [SerializeField] private camera_pan panner;
     [SerializeField] private GameObject blocker;
 
     private Vector3Int previousCellPosition;
@@ -64,7 +63,7 @@ public class province_click_handler : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(0)/* && !panner.isDrag()*/)
+        if (Input.GetMouseButtonDown(0))
         {
             TileBase clickedTile = tile_map_layer_1.GetTile(cellPosition);
             if (clickedTile != null)
