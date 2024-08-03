@@ -1,25 +1,24 @@
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class province_click_handler : MonoBehaviour
 {
     [SerializeField] private Map map;
 
     [SerializeField] private Tilemap tile_map_layer_1;
-    [SerializeField] private TMP_Text id, res, type;
     [SerializeField] private AudioSource province_click;
     [SerializeField] private GameObject province_interface;
-    [SerializeField] private GameObject blocker;
+    [SerializeField] private GameObject settings_menu;
 
     private Vector3Int previousCellPosition;
     private bool isHovering;
     private Color originalColor;
     private const float lightenFactor = 0.3f;
 
-    private void Start()
+    void Start()
     {
         if (tile_map_layer_1 == null)
         {
@@ -30,14 +29,15 @@ public class province_click_handler : MonoBehaviour
         isHovering = false;
     }
 
-    private void Update()
+    void Update()
     {
-        if(blocker != null && blocker.activeSelf) return;
+        if (settings_menu != null && settings_menu.activeSelf) return;
+        if (IsCursorOverUIObject()) return;
+
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0;
 
         Vector3Int cellPosition = tile_map_layer_1.WorldToCell(mouseWorldPos);
-
 
         if (cellPosition != previousCellPosition)
         {
@@ -47,6 +47,7 @@ public class province_click_handler : MonoBehaviour
             }
 
             TileBase hoveredTile = tile_map_layer_1.GetTile(cellPosition);
+
             if (hoveredTile != null)
             {
                 originalColor = tile_map_layer_1.GetColor(cellPosition);
@@ -75,9 +76,19 @@ public class province_click_handler : MonoBehaviour
         }
     }
 
+    private bool IsCursorOverUIObject()
+    {
+        PointerEventData eventDataCurrentPosition = new(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        List<RaycastResult> results = new();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+
+        return results.Count > 0;
+    }
+
     public void DisplayProvinceInfo(int x, int y)
     {
-        Province province = map.Provinces.Find(p => p.X == x && p.Y == y);
+        Province province = map.getProvince(x, y);
 
         if (province != null)
         {
