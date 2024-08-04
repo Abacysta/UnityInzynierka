@@ -32,7 +32,25 @@ public class game_manager : MonoBehaviour
 
     
     public void TurnSimulation()
-    {
-        
+    {//id 0 is a dummy
+        for(int i = 1; i < map.Countries.Count; i++) { 
+            float APsum = 0;
+            foreach(var p in map.Countries[i].Provinces) {
+                if(map.getProvince(p).ResourcesT != Resource.AP){ 
+                    map.Countries[i].modifyResource(map.calcResources(p, i, 1));
+                }
+                else {
+                    APsum+= map.getProvince(p).Resources_amount;
+                }
+
+            }
+            map.Countries[i].setResource((Resource.AP, APsum));
+        }
+
+        foreach(var p in map.Provinces) {
+            map.growPop(p.coordinates, 0.05f);
+            map.calcRecruitablePop(p.coordinates, PopulationFactor);
+            map.calcPopExtremes();
+        }
     }
 }

@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 2436504e83b0f8f499e0ccd04f4e5e47
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - tile_map_layer_1: {instanceID: 0}
+  - tile_map_layer_2: {instanceID: 0}
+  - base_tile: {instanceID: 0}
+  - occupied_tile: {instanceID: 0}
+  - water_tile: {instanceID: 0}
+  - capital_tile: {instanceID: 0}
+  - sad_tile: {instanceID: 0}
+  - neutral_tile: {instanceID: 0}
+  - smile_tile: {instanceID: 0}
+  - great_tile: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

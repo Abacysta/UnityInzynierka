@@ -10,10 +10,10 @@ public class camera_controller : MonoBehaviour
     [SerializeField] private Texture2D pan_cursor;
     [SerializeField] private GameObject settings_menu;
 
-    [SerializeField] private float minZoom = 2.5f;
-    [SerializeField] private float maxZoom = 200f;
-    [SerializeField] private float minPanSpeed = 2f;
-    [SerializeField] private float maxPanSpeed = 30f;
+    [SerializeField] private float minZoom = 30f;
+    [SerializeField] private float maxZoom = 100f;
+    [SerializeField] private float minPanSpeed = 1f;
+    [SerializeField] private float maxPanSpeed = 15f;
     [SerializeField] private float minZoomSpeed = 5f;
     [SerializeField] private float maxZoomSpeed = 100f;
     [SerializeField] private float minScalingMargin = 10f;
@@ -142,7 +142,7 @@ public class camera_controller : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        float adjustedPanSpeed = panSpeed * 5f;
+        float adjustedPanSpeed = panSpeed * 10f;
         Vector3 move = new(horizontal * adjustedPanSpeed * Time.deltaTime, vertical * adjustedPanSpeed * Time.deltaTime, 0);
         Vector3 newPosition = transform.position + move;
 
@@ -172,7 +172,7 @@ public class camera_controller : MonoBehaviour
         float cameraSize = Camera.main.orthographicSize;
         float zoomFactor = Mathf.InverseLerp(minZoom, maxZoom, cameraSize);
 
-        panSpeed = Mathf.Lerp(minPanSpeed, maxPanSpeed, zoomFactor);
+        panSpeed = Mathf.Lerp(minPanSpeed, maxPanSpeed, zoomFactor*0.7f);//wytlumaczy mi ktos czemu to raz leci jak kubica a raz jak mucha w gnoju?????
         zoomSpeed = Mathf.Lerp(minZoomSpeed, maxZoomSpeed, zoomFactor);
     }
 

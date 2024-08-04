@@ -28,7 +28,7 @@ public class buildings_interface : MonoBehaviour
         Debug.Log("BuildBuilding called with type: " + buildingType);
         var coordinates = map.Selected_province;
         Building newBuilding = new Building(buildingType);
-        map.addBuilding(coordinates, newBuilding);
+        //map.addBuilding(coordinates, newBuilding); rozpedz sie i zapierdol glowa w sciane
         UpdateInterface();
     }
     public void UpdateInterface()
