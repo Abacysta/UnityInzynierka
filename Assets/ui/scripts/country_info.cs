@@ -19,6 +19,6 @@ public class country_info : MonoBehaviour
             "name:" + map.Countries[1].Name + '\n' +
             "wood: " + map.Countries[1].Resources[Resource.Wood] + '\n' +
             "AP: " + map.Countries[1].Resources[Resource.AP]
-            );
+        );
     }
 }
