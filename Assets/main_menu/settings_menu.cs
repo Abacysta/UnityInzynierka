@@ -9,10 +9,11 @@ using UnityEngine.SceneManagement;
 
 public class settings_menu : MonoBehaviour
 {
-    public AudioMixer mixer;
-    public TMP_Dropdown ResList;
-    public Slider sliderSFX, sliderMus;
-    public GameObject[] toBlock;
+    [SerializeField] private AudioMixer mixer;
+    [SerializeField] private TMP_Dropdown ResList;
+    [SerializeField] private Slider sliderSFX, sliderMus;
+    [SerializeField] private GameObject[] toBlock;
+    [SerializeField] private GameObject overlay;
 
     Resolution[] res;
 
@@ -74,6 +75,7 @@ public class settings_menu : MonoBehaviour
     }
 
     public void toggleMenu(GameObject menu) {
+        /*
         if(toBlock != null) {
             foreach(var o in toBlock) {
                 Button[] b = o.GetComponentsInChildren<Button>();
@@ -83,6 +85,8 @@ public class settings_menu : MonoBehaviour
                 }
             }
         }
+        */
+        overlay.SetActive(!overlay.activeSelf);
         menu.SetActive(!menu.activeSelf);
     }
 

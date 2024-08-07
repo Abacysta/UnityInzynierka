@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
 public class camera_controller : MonoBehaviour
@@ -92,8 +94,10 @@ public class camera_controller : MonoBehaviour
 
     void HandleCameraPan()
     {
-        // Disabling camera panning while using the settings menu.
-        if (settings_menu != null && settings_menu.activeSelf)
+        // Disabling camera panning while using the settings menu
+        // and when the cursor is over UI
+        if ((settings_menu != null && settings_menu.activeSelf) ||
+            IsCursorOverUIObject())
         {
             Cursor.SetCursor(default_cursor, Vector2.zero, CursorMode.Auto);
             return;
@@ -138,6 +142,7 @@ public class camera_controller : MonoBehaviour
     void HandleKeyboardPan()
     {
         if (settings_menu != null && settings_menu.activeSelf) return;
+        if (IsCursorOverUIObject()) return;
 
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -155,6 +160,7 @@ public class camera_controller : MonoBehaviour
     void HandleCameraZoom()
     {
         if (settings_menu != null && settings_menu.activeSelf) return;
+        if (IsCursorOverUIObject()) return;
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
@@ -172,8 +178,18 @@ public class camera_controller : MonoBehaviour
         float cameraSize = Camera.main.orthographicSize;
         float zoomFactor = Mathf.InverseLerp(minZoom, maxZoom, cameraSize);
 
-        panSpeed = Mathf.Lerp(minPanSpeed, maxPanSpeed, zoomFactor*0.7f);//wytlumaczy mi ktos czemu to raz leci jak kubica a raz jak mucha w gnoju?????
+        panSpeed = Mathf.Lerp(minPanSpeed, maxPanSpeed, zoomFactor * 0.7f);
         zoomSpeed = Mathf.Lerp(minZoomSpeed, maxZoomSpeed, zoomFactor);
+    }
+
+    bool IsCursorOverUIObject()
+    {
+        PointerEventData eventDataCurrentPosition = new(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        List<RaycastResult> results = new();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+
+        return results.Count > 0;
     }
 
     public void CenterCamera()

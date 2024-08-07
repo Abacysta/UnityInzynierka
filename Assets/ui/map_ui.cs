@@ -1,21 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class map_ui : MonoBehaviour
 {
+    [SerializeField] private settings_menu settings_menu_scr;
+    [SerializeField] private GameObject settings_menu_ui;
+    [SerializeField] private GameObject dialog_box;
 
-    public settings_menu menu;
-    public GameObject menuUI;
-    // Start is called before the first frame update
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Escape)) menu.toggleMenu(menuUI);
+    {   
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!dialog_box.activeSelf)
+            {
+                settings_menu_scr.toggleMenu(settings_menu_ui);
+            } 
+        }
     }
 }
