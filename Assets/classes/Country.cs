@@ -1,16 +1,254 @@
 using Assets.classes.subclasses;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.Animations;
 using UnityEngine;
 
 
 public class Country
 {
+    public class TechnologyInterpreter {
+        /// <summary>
+        /// Able to build boats
+        /// </summary>
+        public bool canBoats;
+        /// <summary>
+        /// Can start a festival effect for provinces
+        /// </summary>
+        public bool canFestival;
+        /// <summary>
+        /// Can start a taxbreak effect for provinces
+        /// </summary>
+        public bool canTaxBreak;
+        /// <summary>
+        /// Can start a rebel suppression effect for provinces
+        /// </summary>
+        public bool canRebelSupp;
+        /// <summary>
+        /// Can build infrastructure in provinces
+        /// </summary>
+        public bool canInfrastructure;
+        /// <summary>
+        /// Production Efficiency 
+        /// </summary>
+        public float prodFactor;
+        /// <summary>
+        /// Taxation Efficiency
+        /// </summary>
+        public float taxFactor;
+        /// <summary>
+        /// Population growth
+        /// </summary>
+        public float popGrowth;
+        /// <summary>
+        /// Army strength multiplier
+        /// </summary>
+        public float armyPower; 
+        /// <summary>
+        /// Army upkeep (cost at the beginning of the turn) multiplier
+        /// </summary>
+        public float armyUpkeep;
+        /// <summary>
+        /// Cost of building new military units
+        /// </summary>
+        public float armyCost;
+        /// <summary>
+        /// % of recruitable population
+        /// </summary>
+        public float recPop;
+        /// <summary>
+        /// Penalty to population growth and happiness growth in occupied provinces
+        /// </summary>
+        public float occPenalty;
+        /// <summary>
+        /// Strength of positive effects
+        /// </summary>
+        public float posEffFactor;
+        /// <summary>
+        /// Strength of negative effects
+        /// </summary>
+        public float negEffFactor;
+        /// <summary>
+        /// Multiplier of production in occupied provinces. Always calculated last
+        /// </summary>
+        public float occProd;
+        /// <summary>
+        /// Max level of Mine building
+        /// </summary>
+        public int lvlMine;
+        /// <summary>
+        /// Max level of Fort building
+        /// </summary>
+        public int lvlFort;
+        /// <summary>
+        /// Max level of School building
+        /// </summary>
+        public int lvlSchool;
+        /// <summary>
+        /// How many taxation policies were unlocked
+        /// </summary>
+        public int lvlTax;
+        /// <summary>
+        /// Fog of War level in tiles seen beyond controlled ones
+        /// </summary>
+        public int lvlFoW;
+
+        public TechnologyInterpreter(Dictionary<Technology, int> tech) {
+            Calculate(tech);
+        }
+
+        public void Calculate(Dictionary<Technology, int> tech) {
+            int eco = tech[Technology.Economic],
+                mil = tech[Technology.Military],
+                adm = tech[Technology.Administrative];
+
+            prodFactor = 1 +  eco*0.05f;
+            taxFactor = 1 + adm * 0.01f;
+            popGrowth = 1 + adm * 0.03f;
+            armyPower = 1 + mil * 0.05f;
+            armyUpkeep = 1 + mil * 0.03f;
+            armyCost = 1 + mil * 0.05f;
+            popGrowth = 0.15f;
+            recPop = 0.05f;
+            occPenalty = 0.5f;
+            occProd = 0;
+            posEffFactor = 1; negEffFactor = 1;
+            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 0;
+            //economic
+            switch(eco) {
+                case 1:
+                    prodFactor += 0.05f;
+                    goto case 2;
+                case 2:
+                    canBoats = true;
+                    lvlMine += 1;
+                    goto case 3;
+                case 3:
+                    prodFactor += 0.05f;
+                    goto case 4;
+                case 4:
+                    lvlTax += 1;
+                    goto case 5;
+                case 5:
+                    taxFactor += 0.15f;
+                    goto case 6;
+                case 6:
+                    lvlMine += 1;
+                    goto case 7;
+                case 7:
+                    prodFactor += 0.1f;
+                    goto case 8;
+                case 8:
+                    taxFactor += 0.05f;
+                    goto case 9;
+                case 9:
+                    lvlTax += 1;
+                    goto case 10;
+                case 10:
+                    lvlMine += 1;
+                    prodFactor += 0.05f;
+                    goto default;
+                default:
+                    break;
+            }
+            //military
+            switch(mil) {
+                case 1:
+                    armyPower += 0.1f;
+                    goto case 2;
+                case 2:
+                    lvlFort += 1;
+                    armyCost += 0.05f;
+                    goto case 3;
+                case 3:
+                    armyUpkeep -= 0.03f;
+                    goto case 4;
+                case 4:
+                    armyPower += 0.1f;
+                    armyCost += 0.1f;
+                    goto case 5;
+                case 5:
+                    lvlFort += 1;
+                    armyUpkeep += 0.02f;
+                    goto case 6;
+                case 6:
+                    armyCost -= 0.1f;
+                    goto case 7;
+                case 7:
+                    lvlFort += 1;
+                    armyUpkeep += 0.02f;
+                    goto case 8;
+                case 8:
+                    recPop += 0.05f;
+                    armyCost -= 0.10f;
+                    armyUpkeep -= 0.15f;
+                    goto case 9;
+                case 9:
+                    occPenalty -= 0.35f;
+                    goto case 10;
+                case 10:
+                    armyPower += 0.15f;
+                    goto default;
+                default:
+                    break;
+            }
+            //administrative
+            switch(adm) {
+                case 1:
+                    canInfrastructure = true;
+                    lvlFoW += 1;
+                    goto case 2;
+                case 2:
+                    lvlSchool += 1;
+                    goto case 3;
+                case 3:
+                    canFestival = true;
+                    taxFactor += 0.03f;
+                    goto case 4;
+                case 4:
+                    canTaxBreak = true;
+                    goto case 5;
+                case 5:
+                    negEffFactor -= 0.1f;
+                    posEffFactor += 0.1f;
+                    lvlFoW += 1;
+                    goto case 6;
+                case 6:
+                    occProd += 0.1f;
+                    goto case 7;
+                case 7:
+                    negEffFactor -= 0.1f;
+                    posEffFactor += 0.1f;
+                    goto case 8;
+                case 8:
+                    taxFactor += 0.01f;
+                    recPop += 0.02f;
+                    goto case 9;
+                case 9:
+                    canRebelSupp = true;
+                    occPenalty -= 0.05f;
+                    goto case 10;
+                case 10:
+                    occProd += 0.4f;
+                    lvlFoW += 2;
+                    goto default;
+                default:
+                    break;
+            }
+        }
+    }
+
     [SerializeField] private int id;
     [SerializeField] private string name;
     [SerializeField] private int prio;
     [SerializeField] private (int, int) capital;
     [SerializeField] private Dictionary<Resource, float> resources;
+    [SerializeField] private Dictionary<Technology, int> technology;
+    /// <summary>
+    /// Container for all stats modified by technology
+    /// </summary>
+    public TechnologyInterpreter techStats;
     [SerializeField] private List<(int, int)> provinces;
     [SerializeField] private Color color;
 
@@ -20,6 +258,8 @@ public class Country
         this.capital = id==0 ? (-1, -1) : capital;
         this.color = id == 0 ? Color.white : color;
         this.resources = technicalDefaultResources.defaultValues;
+        this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
+        this.techStats = new TechnologyInterpreter(this.technology);
         this.provinces = new List<(int, int)> { capital };
     }
 
