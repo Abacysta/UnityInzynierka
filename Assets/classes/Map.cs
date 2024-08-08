@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
@@ -12,7 +11,9 @@ public class Map:ScriptableObject {
     [SerializeField] (int, int) selected_province;
     [SerializeField] (int, int) pop_extremes;
     [SerializeField] private List<Country> countries;
-
+    [SerializeField] private List<Army> armies = new List<Army>();
+    [SerializeField] private GameObject armyPrefab;
+    private List<ArmyView> armyViews = new List<ArmyView>();
     public string Map_name { get => map_name; set => map_name = value; }
     public string File_name { get => file_name; set => file_name = value; }
     public List<Province> Provinces { get => provinces; set => provinces = value; }
@@ -21,6 +22,7 @@ public class Map:ScriptableObject {
 
     public (int, int) Selected_province { get => selected_province; set => selected_province = value; }
     public (int, int) Pop_extremes { get => pop_extremes; set => pop_extremes = value; }
+    public List<Army> Armies { get => armies; set => armies = value; }
 
     public Province getProvince(int x, int y) {
         return Provinces.Find(p => p.X == x && p.Y == y);
@@ -97,5 +99,109 @@ public class Map:ScriptableObject {
     public (Resource, float) calcResources((int, int) coordinates, int id, float factor) {
         var p = getProvince(coordinates);
         return (p.ResourcesT, p.Resources_amount);
+    }
+
+    public void addArmy(Army army)
+    {
+        armies.Add(army);
+        createArmyView(army);
+    }
+    public void removeArmy(Army army)
+    {
+        armies.Remove(army);
+        destroyArmyView(army);
+    }
+    private void createArmyView(Army army)
+    {
+        GameObject armyObject = Instantiate(armyPrefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
+        ArmyView armyView = armyObject.GetComponent<ArmyView>();
+        armyView.Initialize(army);
+        armyViews.Add(armyView);
+    }
+    private void destroyArmyView(Army army)
+    {
+        ArmyView armyView = armyViews.Find(view => view.ArmyData == army);
+        if(armyView != null)
+        {
+            armyViews.Remove(armyView);
+            Destroy(armyView.gameObject);
+        }
+    }
+    public void updateArmyPosition(Army army, (int,int) coordinates)
+    {
+        army.position = coordinates;
+        ArmyView armyView = armyViews.Find(view => view.ArmyData == army);
+        if(armyView != null)
+        {
+            armyView.MoveTo(coordinates);
+        }
+    }
+    public void updateArmyDestination(Army army, (int,int) coordinates)
+    {
+        army.destination = coordinates;
+    }
+    public float calcArmyCombatPower(Army army, float factor)
+    {
+        return army.count + (army.count * factor);
+    }
+    public void moveArmies()
+    {
+        foreach(var army in armies)
+        {
+            if(army.position != army.destination)
+            {
+                updateArmyPosition(army, army.destination);
+                updateArmyDestination(army, army.position);
+            }
+        }
+    }
+    public List<(int, int)> getPossibleMoveCells(Army army)
+    {
+        List<(int, int)> possibleCells = new List<(int, int)>();
+        (int startX, int startY) = army.position;
+        int moveRangeLand = army.moveRangeLand;
+        int moveRangeWater = army.moveRangeWater;
+
+        HexUtils.Cube startCube = HexUtils.OffsetToCube(startX, startY);
+        Queue<(HexUtils.Cube, int, string)> frontier = new Queue<(HexUtils.Cube, int, string)>();
+        frontier.Enqueue((startCube, 0, getProvince(startX, startY).Type));
+
+        HashSet<(int, int)> visited = new HashSet<(int, int)>();
+        visited.Add((startX, startY));
+
+        while (frontier.Count > 0)
+        {
+            var (current, currentDistance, currentTerrain) = frontier.Dequeue();
+            (int currentX, int currentY) = HexUtils.CubeToOffset(current);
+            possibleCells.Add((currentX, currentY));
+
+            int currentMoveRange = currentTerrain == "land" ? moveRangeLand : moveRangeWater;
+
+            if (currentDistance < currentMoveRange)
+            {
+                for (int dir = 0; dir < 6; dir++)
+                {
+                    HexUtils.Cube neighbor = HexUtils.CubeNeighbor(current, dir);
+                    (int neighborX, int neighborY) = HexUtils.CubeToOffset(neighbor);
+
+                    if (!IsValidPosition(neighborX, neighborY)) continue;
+
+                    string neighborTerrain = getProvince(neighborX, neighborY).Type;
+                    int nextDistance = currentTerrain == neighborTerrain ? currentDistance + 1 : currentDistance + 1;
+
+                    if (!visited.Contains((neighborX, neighborY)) && nextDistance <= currentMoveRange)
+                    {
+                        visited.Add((neighborX, neighborY));
+                        frontier.Enqueue((neighbor, nextDistance, neighborTerrain));
+                    }
+                }
+            }
+        }
+
+        return possibleCells;
+    }
+    private bool IsValidPosition(int x, int y)
+    {
+        return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }
 }

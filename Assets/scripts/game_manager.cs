@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class game_manager : MonoBehaviour
@@ -6,6 +7,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private float RecruitablePopulationFactor = 0.2f;
     [SerializeField] private float PopulationFactor = 0.1f;
     [SerializeField] private int HappinessFactor = 5;
+    [SerializeField] private float ArmyFactor = 0.1f;
 
     // Loading map data before all scripts
     void Awake()
@@ -28,6 +30,8 @@ public class game_manager : MonoBehaviour
         {
             Debug.LogError("JSON map file not found in Resources!");
         }
+        Army testArmy = new Army(0,100,(2,0),(2,1),1,2);
+        map.addArmy(testArmy);
     }
 
     
@@ -53,5 +57,6 @@ public class game_manager : MonoBehaviour
             map.calcRecruitablePop(p.coordinates, PopulationFactor);
             map.calcPopExtremes();
         }
+        map.moveArmies();
     }
 }

@@ -16,7 +16,10 @@ public class province_click_handler : MonoBehaviour
     private Vector3Int previousCellPosition;
     private bool isHovering;
     private Color originalColor;
+    private List<Color> originalCellsColor = new List<Color>();
     private const float lightenFactor = 0.3f;
+    private ArmyView selectedArmy;
+    private List<Vector3Int> highlightedCells = new List<Vector3Int>();
 
     void Start()
     {
@@ -48,7 +51,7 @@ public class province_click_handler : MonoBehaviour
 
             TileBase hoveredTile = tile_map_layer_1.GetTile(cellPosition);
 
-            if (hoveredTile != null)
+            if (hoveredTile != null && !highlightedCells.Contains(cellPosition))
             {
                 originalColor = tile_map_layer_1.GetColor(cellPosition);
                 Color lightenedColor = Color.Lerp(originalColor, Color.white, lightenFactor);
@@ -66,13 +69,7 @@ public class province_click_handler : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            TileBase clickedTile = tile_map_layer_1.GetTile(cellPosition);
-            if (clickedTile != null)
-            {
-                province_click.Play();
-                DisplayProvinceInfo(cellPosition.x, cellPosition.y);
-                Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
-            }
+            HandleLeftClick(cellPosition);
         }
     }
 
@@ -86,6 +83,63 @@ public class province_click_handler : MonoBehaviour
         return results.Count > 0;
     }
 
+    private void HandleLeftClick(Vector3Int cellPosition)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+        if (hit.collider != null)
+        {
+            ArmyView armyView = hit.collider.GetComponent<ArmyView>();
+            if (armyView != null)
+            {
+                if (selectedArmy != null)
+                {
+                    selectedArmy.GetComponent<SpriteRenderer>().color = Color.white;
+                }
+                selectedArmy = armyView;
+                selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
+                HighlightPossibleMoveCells(selectedArmy.ArmyData);
+                Debug.Log($"Selected Army: ({armyView.ArmyData.position.Item1}, {armyView.ArmyData.position.Item2}), Count: {armyView.ArmyData.count}");
+                return;
+            }
+        }
+
+        if (selectedArmy != null)
+        {
+            if (highlightedCells.Contains(cellPosition))
+            {
+                (int x, int y) = (cellPosition.x, cellPosition.y);
+                map.updateArmyDestination(selectedArmy.ArmyData, (x, y));
+                Debug.Log($"Army destination set to ({x},{y})");
+            }
+
+            selectedArmy.GetComponent<SpriteRenderer>().color = Color.white;
+
+            foreach (var highlightCell in highlightedCells)
+            {
+                if (originalCellsColor.Count > 0)
+                {
+                    int index = highlightedCells.IndexOf(highlightCell);
+                    tile_map_layer_1.SetColor(highlightCell, originalCellsColor[index]);
+                }
+                else
+                {
+                    tile_map_layer_1.SetColor(highlightCell, originalColor);
+                }
+            }
+            highlightedCells.Clear();
+            originalCellsColor.Clear();
+            selectedArmy = null;
+        }
+
+        TileBase clickedTile = tile_map_layer_1.GetTile(cellPosition);
+        if (clickedTile != null)
+        {
+            province_click.Play();
+            DisplayProvinceInfo(cellPosition.x, cellPosition.y);
+            Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
+        }
+    }
+
     public void DisplayProvinceInfo(int x, int y)
     {
         Province province = map.getProvince(x, y);
@@ -95,5 +149,41 @@ public class province_click_handler : MonoBehaviour
             map.Selected_province = (province.X, province.Y);
             province_interface.SetActive(true);
         }
+    }
+
+    private void HighlightPossibleMoveCells(Army army)
+    {
+        List<(int, int)> possibleCells = map.getPossibleMoveCells(army);
+
+        highlightedCells.Clear();
+        originalCellsColor.Clear();
+
+        foreach (var cell in possibleCells)
+        {
+            Vector3Int cellPosition = new Vector3Int(cell.Item1, cell.Item2, 0);
+            TileBase tile = tile_map_layer_1.GetTile(cellPosition);
+            // bez sprawdzania czy nie ma armii, hex na ktorym znajduje sie armia zostaje podswietlony.
+            bool hasArmy = false;
+            Collider2D[] colliders = Physics2D.OverlapPointAll(tile_map_layer_1.CellToWorld(cellPosition));
+            foreach (var collider in colliders)
+            {
+                if (collider.GetComponent<ArmyView>() != null)
+                {
+                    hasArmy = true;
+                    break;
+                }
+            }
+
+            if (tile != null && !hasArmy)
+            {
+                highlightedCells.Add(cellPosition);
+                originalColor = tile_map_layer_1.GetColor(cellPosition);
+                originalCellsColor.Add(originalColor);
+                Color lightenedColor = Color.Lerp(originalColor, Color.white, lightenFactor);
+                tile_map_layer_1.SetColor(cellPosition, lightenedColor);
+            }
+        }
+        //https://www.redblobgames.com/grids/hexagons/#line-drawing do przysz³ego pathfindingu? 
+        //https://www.redblobgames.com/grids/hexagons/#pathfinding
     }
 }
