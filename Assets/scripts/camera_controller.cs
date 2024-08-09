@@ -12,22 +12,25 @@ public class camera_controller : MonoBehaviour
     [SerializeField] private Texture2D pan_cursor;
     [SerializeField] private GameObject settings_menu;
 
-    [SerializeField] private float minZoom = 30f;
+    [SerializeField] private float minZoom = 2f;
     [SerializeField] private float maxZoom = 100f;
-    [SerializeField] private float minPanSpeed = 1f;
-    [SerializeField] private float maxPanSpeed = 15f;
+    [SerializeField] private float minPanSpeed = 5f;
+    [SerializeField] private float maxPanSpeed = 100f;
     [SerializeField] private float minZoomSpeed = 5f;
     [SerializeField] private float maxZoomSpeed = 100f;
     [SerializeField] private float minScalingMargin = 10f;
+    [SerializeField] private float panSpeed;
+    [SerializeField] private float zoomSpeed;
 
+    private Vector2 baseResolution = new(1920, 1080);
+    private float resolutionScaleFactor;
     private float minX = -200f, maxX = 200f, minY = -200f, maxY = 200f;
     private float mapWorldHeight;
     private float mapWorldWidth;
     private float cameraSizeAfterScaling;
     private float centerX;
     private float centerY;
-    private float panSpeed;
-    private float zoomSpeed;
+
 
     private Vector3 panOrigin;
     private Vector3 lastPanPosition;
@@ -35,6 +38,8 @@ public class camera_controller : MonoBehaviour
 
     void Start()
     {
+        resolutionScaleFactor = (Screen.width / baseResolution.x + Screen.height / baseResolution.y) / 2f;
+
         CalculateMapCenter();
         CalculateCameraBounds();
         CalculateCameraScalingSize();
@@ -54,8 +59,11 @@ public class camera_controller : MonoBehaviour
         int mapHexGridHeight = 80, mapHexGridWidth = 80;
 
         // Max tilemap coordinates
-        mapHexGridHeight = map.Provinces.Max(p => p.Y);
-        mapHexGridWidth = map.Provinces.Max(p => p.X);
+        if (map.Provinces.Any())
+        {
+            mapHexGridHeight = map.Provinces.Max(p => p.Y);
+            mapHexGridWidth = map.Provinces.Max(p => p.X);
+        }
 
         Vector3Int maxCellPosition = new(mapHexGridWidth, mapHexGridHeight, 0);
 
@@ -126,7 +134,8 @@ public class camera_controller : MonoBehaviour
 
             if (difference != Vector3.zero)
             {
-                Vector3 move = new Vector3(difference.x * panSpeed * Time.deltaTime, difference.y * panSpeed * Time.deltaTime, 0);
+                Vector3 move = new(difference.x * panSpeed * Time.deltaTime * resolutionScaleFactor,
+                                      difference.y * panSpeed * Time.deltaTime * resolutionScaleFactor, 0);
                 Vector3 newPosition = transform.position + move;
 
                 newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
@@ -147,7 +156,7 @@ public class camera_controller : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        float adjustedPanSpeed = panSpeed * 10f;
+        float adjustedPanSpeed = panSpeed * 3f * resolutionScaleFactor;
         Vector3 move = new(horizontal * adjustedPanSpeed * Time.deltaTime, vertical * adjustedPanSpeed * Time.deltaTime, 0);
         Vector3 newPosition = transform.position + move;
 
@@ -176,10 +185,12 @@ public class camera_controller : MonoBehaviour
     void UpdateSpeedSettings()
     {
         float cameraSize = Camera.main.orthographicSize;
-        float zoomFactor = Mathf.InverseLerp(minZoom, maxZoom, cameraSize);
 
-        panSpeed = Mathf.Lerp(minPanSpeed, maxPanSpeed, zoomFactor * 0.7f);
-        zoomSpeed = Mathf.Lerp(minZoomSpeed, maxZoomSpeed, zoomFactor);
+        float zoomFactor = Mathf.InverseLerp(maxZoom, minZoom, cameraSize);
+        float steepFactor = Mathf.Pow(zoomFactor, 2); 
+
+        panSpeed = Mathf.Lerp(maxPanSpeed, minPanSpeed, steepFactor);
+        zoomSpeed = Mathf.Lerp(maxZoomSpeed, minZoomSpeed, zoomFactor);
     }
 
     bool IsCursorOverUIObject()
