@@ -13,7 +13,7 @@ public class Map:ScriptableObject {
     [SerializeField] private List<Country> countries;
     [SerializeField] private List<Army> armies = new List<Army>();
     [SerializeField] private GameObject armyPrefab;
-    private List<ArmyView> armyViews = new List<ArmyView>();
+    private List<army_view> armyViews = new List<army_view>();
     public string Map_name { get => map_name; set => map_name = value; }
     public string File_name { get => file_name; set => file_name = value; }
     public List<Province> Provinces { get => provinces; set => provinces = value; }
@@ -114,13 +114,13 @@ public class Map:ScriptableObject {
     private void createArmyView(Army army)
     {
         GameObject armyObject = Instantiate(armyPrefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
-        ArmyView armyView = armyObject.GetComponent<ArmyView>();
+        army_view armyView = armyObject.GetComponent<army_view>();
         armyView.Initialize(army);
         armyViews.Add(armyView);
     }
     private void destroyArmyView(Army army)
     {
-        ArmyView armyView = armyViews.Find(view => view.ArmyData == army);
+        army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
         {
             armyViews.Remove(armyView);
@@ -130,7 +130,7 @@ public class Map:ScriptableObject {
     public void updateArmyPosition(Army army, (int,int) coordinates)
     {
         army.position = coordinates;
-        ArmyView armyView = armyViews.Find(view => view.ArmyData == army);
+        army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
         {
             armyView.MoveTo(coordinates);

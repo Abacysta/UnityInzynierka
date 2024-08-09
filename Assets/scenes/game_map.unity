@@ -4689,6 +4689,7 @@ MonoBehaviour:
   base_tile: {fileID: 11400000, guid: 93f9a5004e204dd4b8e31c6894d87e29, type: 2}
   province_click: {fileID: 1308276978}
   province_interface: {fileID: 888877804}
+  armyClickHandler: {fileID: 653004899}
 --- !u!114 &653004899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5538,7 +5539,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.9255669, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: 0}
+  m_AnchoredPosition: {x: 0.000061035156, y: -0.000030517578}
   m_SizeDelta: {x: 0.00053406, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &740454679

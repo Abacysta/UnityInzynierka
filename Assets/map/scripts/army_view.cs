@@ -1,12 +1,31 @@
 using UnityEngine;
 
-public class ArmyView : MonoBehaviour
+public class army_view : MonoBehaviour
 {
     public Army ArmyData { get; private set; }
     private SpriteRenderer spriteRenderer;
-    private void Awake()
+    private Vector3 targetPosition;
+
+    private readonly float moveSpeed = 2f;
+    private bool isMoving = false;
+
+    void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    void Update()
+    {
+        if (isMoving)
+        {
+            transform.position = Vector3.Lerp(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+
+            if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
+            {
+                transform.position = targetPosition;
+                isMoving = false;
+            }
+        }
     }
 
     public void Initialize(Army armyData)
@@ -20,10 +39,12 @@ public class ArmyView : MonoBehaviour
         Vector3 position = HexToWorldPosition(ArmyData.position.Item1, ArmyData.position.Item2);
         transform.position = position;
     }
+
     public void MoveTo((int, int) newPosition)
     {
         ArmyData.position = newPosition;
-        UpdatePosition();
+        targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
+        isMoving = true;
     }
 
     private Vector3 HexToWorldPosition(int x, int y)

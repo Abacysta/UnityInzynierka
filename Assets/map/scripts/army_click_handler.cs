@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
-public class army_click_handler : MonoBehaviour
+public class army_click_handler : cursor_helper
 {
     [SerializeField] private Map map;
 
@@ -14,7 +13,7 @@ public class army_click_handler : MonoBehaviour
     [SerializeField] private AudioSource army_click;
     [SerializeField] private AudioSource army_move_select;
 
-    private ArmyView selectedArmy;
+    private army_view selectedArmy;
     private List<Vector3Int> highlightedCells = new();
 
     private float duration = 0.75f;
@@ -34,6 +33,8 @@ public class army_click_handler : MonoBehaviour
     }
     void Update()
     {
+        if (IsCursorOverUIObject()) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             HandleLeftClick();
@@ -51,7 +52,7 @@ public class army_click_handler : MonoBehaviour
 
         if (hit.collider != null)
         {
-            if (hit.collider.TryGetComponent<ArmyView>(out var armyView))
+            if (hit.collider.TryGetComponent<army_view>(out var armyView))
             {
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
@@ -115,7 +116,7 @@ public class army_click_handler : MonoBehaviour
             Collider2D[] colliders = Physics2D.OverlapPointAll(base_layer.CellToWorld(cellPosition));
             foreach (var collider in colliders)
             {
-                if (collider.GetComponent<ArmyView>() != null)
+                if (collider.GetComponent<army_view>() != null)
                 {
                     hasArmy = true;
                     break;
@@ -151,5 +152,14 @@ public class army_click_handler : MonoBehaviour
             timeElapsed = 0.0f;
             increasing = !increasing;
         }
+    }
+
+    public bool IsCursorOverHighlightedCell()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPos.z = 0;
+        Vector3Int cellPosition = base_layer.WorldToCell(mouseWorldPos);
+
+        return highlightedCells.Contains(cellPosition);
     }
 }

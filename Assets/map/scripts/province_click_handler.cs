@@ -3,7 +3,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-public class province_click_handler : MonoBehaviour
+public class province_click_handler : cursor_helper
 {
     [SerializeField] private Map map;
 
@@ -13,6 +13,7 @@ public class province_click_handler : MonoBehaviour
 
     [SerializeField] private AudioSource province_click;
     [SerializeField] private GameObject province_interface;
+    [SerializeField] private army_click_handler armyClickHandler;
 
     private Vector3Int previousCellPosition;
     private Vector3Int cellPosition;
@@ -36,6 +37,7 @@ public class province_click_handler : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            if (IsCursorOverArmy() || armyClickHandler.IsCursorOverHighlightedCell()) return;
             HandleLeftClick();
         }
     }
@@ -64,16 +66,6 @@ public class province_click_handler : MonoBehaviour
                 previousCellPosition = new Vector3Int(-1, -1, -1);
             }
         }
-    }
-
-    private bool IsCursorOverUIObject()
-    {
-        PointerEventData eventDataCurrentPosition = new(EventSystem.current);
-        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        List<RaycastResult> results = new();
-        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-
-        return results.Count > 0;
     }
 
     private void HandleLeftClick()
