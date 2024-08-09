@@ -1,18 +1,25 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 using UnityEngine.Video;
 
 public class map_loader : MonoBehaviour
 {
     [SerializeField] private Map map;
 
-    [SerializeField] private Tilemap tile_map_layer_1;
-    [SerializeField] private Tilemap tile_map_layer_2;
+    [SerializeField] private Tilemap base_layer;
+    [SerializeField] private Tilemap occupation_color_layer;
+    [SerializeField] private Tilemap terrain_feature_layer_1;
+    [SerializeField] private Tilemap terrain_feature_layer_2;
+    [SerializeField] private Tilemap filter_layer;
+
     [SerializeField] private TileBase base_tile;
     [SerializeField] private TileBase occupied_tile;
     [SerializeField] private TileBase water_tile;
     [SerializeField] private TileBase capital_tile;
+
+    [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
 
     void Start()
     {
@@ -54,8 +61,7 @@ public class map_loader : MonoBehaviour
 
     public void SetTerrain()
     {
-        tile_map_layer_1.ClearAllTiles();
-        tile_map_layer_2.ClearAllTiles();
+        filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces)
         {
@@ -63,22 +69,20 @@ public class map_loader : MonoBehaviour
 
             if (province.Type == "land")
             {
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, ChooseRGBColor(91, 106, 65)); // dark green
+                base_layer.SetTile(position, base_tile);
+                base_layer.SetColor(position, ChooseRGBColor(91, 106, 65)); // dark green
             }
             else
             {
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, ChooseRGBColor(60, 106, 130)); // blue
-                tile_map_layer_2.SetTile(position, water_tile);
+                SetWater(position);
             }
         }
+        mouse_hover_layer_rnd.sortingOrder = 8;
     }
 
     public void SetResources()
     {
-        tile_map_layer_1.ClearAllTiles();
-        tile_map_layer_2.ClearAllTiles();
+        filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces)
         {
@@ -104,22 +108,20 @@ public class map_loader : MonoBehaviour
                         break;
                 }
 
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, color);
+                filter_layer.SetTile(position, base_tile);
+                filter_layer.SetColor(position, color);
             }
             else
             {
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, ChooseRGBColor(60, 106, 130)); // blue
-                tile_map_layer_2.SetTile(position, water_tile);
+                SetWater(position);
             }
         }
+        mouse_hover_layer_rnd.sortingOrder = 8;
     }
 
     public void SetHappiness()
     {
-        tile_map_layer_1.ClearAllTiles();
-        tile_map_layer_2.ClearAllTiles();
+        filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces)
         {
@@ -127,52 +129,61 @@ public class map_loader : MonoBehaviour
             if (province.Type == "land")
             {
                 Color happinessColor = GetColorBasedOnValueHappiness(province.Happiness);
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, happinessColor);
+                filter_layer.SetTile(position, base_tile);
+                filter_layer.SetColor(position, happinessColor);
             }
             else
             {
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, ChooseRGBColor(60, 106, 130)); // blue
-                tile_map_layer_2.SetTile(position, water_tile);
+                SetWater(position);
             }
         }
+        mouse_hover_layer_rnd.sortingOrder = 8;
     }
 
     public void SetPopulation()
     {
+        filter_layer.ClearAllTiles();
+
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
             if (province.Type == "land")
             {
                 Color populationColor = GetColorBasedOnValuePop(province.Population);
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, populationColor);
+                filter_layer.SetTile(position, base_tile);
+                filter_layer.SetColor(position, populationColor);
             }
-            else{
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, ChooseRGBColor(60, 106, 130)); // blue
-                tile_map_layer_2.SetTile(position, water_tile);
+            else {
+                SetWater(position);
             }
         }
+        mouse_hover_layer_rnd.sortingOrder = 8;
     }
 
     public void SetPolitical() {
-        foreach(Province province in map.Provinces) {
+        filter_layer.ClearAllTiles();
+
+        foreach (Province province in map.Provinces) {
             Country owner = map.Countries[province.Owner_id];
             Vector3Int position = new(province.X, province.Y, 0);
+
             if(province.Type == "land") {
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, owner.Color);
-                if(owner.Capital == province.coordinates) tile_map_layer_2.SetTile(position, capital_tile);
+                base_layer.SetTile(position, base_tile);
+                base_layer.SetColor(position, owner.Color);
+                if(owner.Capital == province.coordinates) terrain_feature_layer_2.SetTile(position, capital_tile);
             }
             else {
-                tile_map_layer_1.SetTile(position, base_tile);
-                tile_map_layer_1.SetColor(position, ChooseRGBColor(60, 106, 130)); // blue
-                tile_map_layer_2.SetTile(position, water_tile);
+                SetWater(position);
             }
         }
+        mouse_hover_layer_rnd.sortingOrder = 5;
+    }
+
+    private void SetWater(Vector3Int position)
+    {
+        base_layer.SetTile(position, base_tile);
+        base_layer.SetColor(position, ChooseRGBColor(60, 106, 130)); // blue
+        terrain_feature_layer_1.SetTile(position, water_tile);
     }
 
     Color GetColorBasedOnValueHappiness(int value)
