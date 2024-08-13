@@ -296,6 +296,8 @@ public class Country
             capital = coordinates;
         }
     }
+
+    
 }
 
 

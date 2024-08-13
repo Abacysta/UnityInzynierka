@@ -41,7 +41,7 @@ public class map_loader : MonoBehaviour
         map.assignProvince((1, 0), 1);
 
         foreach(var p in map.Provinces) {
-            map.calcRecruitablePop(p.coordinates, 0.2f);
+            map.calcRecruitablePop(p.coordinates);
 
             if(p.Type == "land") {
                 p.Buildings = new System.Collections.Generic.List<Building>{

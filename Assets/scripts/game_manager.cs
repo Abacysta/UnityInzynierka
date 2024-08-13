@@ -4,6 +4,7 @@ using UnityEngine;
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
+    public AudioSource turn_sound;
     [SerializeField] private float RecruitablePopulationFactor = 0.2f;
     [SerializeField] private float PopulationFactor = 0.1f;
     [SerializeField] private int HappinessFactor = 5;
@@ -30,13 +31,11 @@ public class game_manager : MonoBehaviour
         {
             Debug.LogError("JSON map file not found in Resources!");
         }
-        Army testArmy = new Army(0,100,(2,0),(2,1),1,2);
-        map.addArmy(testArmy);
     }
 
-    
     public void TurnSimulation()
     {//id 0 is a dummy
+        turn_sound.Play();
         for(int i = 1; i < map.Countries.Count; i++) { 
             float APsum = 0;
 
@@ -53,8 +52,8 @@ public class game_manager : MonoBehaviour
         }
 
         foreach(var p in map.Provinces) {
-            map.growPop(p.coordinates, 0.05f);
-            map.calcRecruitablePop(p.coordinates, PopulationFactor);
+            map.growPop(p.coordinates);
+            map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
         }
         map.moveArmies();

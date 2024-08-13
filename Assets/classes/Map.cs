@@ -45,14 +45,16 @@ public class Map:ScriptableObject {
         Pop_extremes=(min,max);
     }
 
-    public void growPop((int, int) coordinates, float factor) {
+    public void growPop((int, int) coordinates) {
         int prov = getProvinceIndex(coordinates);
-        Provinces[prov].Population += (int)Math.Floor(Provinces[prov].Population * factor);
+        var stats = countries[Provinces[prov].Owner_id].techStats;
+        Provinces[prov].Population += (int)Math.Floor(Provinces[prov].Population * stats.popGrowth);
     }
 
-    public void calcRecruitablePop((int, int) coordinates, float factor) {
+    public void calcRecruitablePop((int, int) coordinates) {
         int prov = getProvinceIndex(coordinates);
-        Provinces[prov].RecruitablePopulation = (int)Math.Floor(Provinces[prov].Population * factor);
+        var stats = countries[Provinces[prov].Owner_id].techStats;
+        Provinces[prov].RecruitablePopulation = (int)Math.Floor(Provinces[prov].Population * stats.recPop);
     }
 
     public void growHap((int, int) coordinates, int value) {
@@ -140,9 +142,10 @@ public class Map:ScriptableObject {
     {
         army.destination = coordinates;
     }
-    public float calcArmyCombatPower(Army army, float factor)
+    public float calcArmyCombatPower(Army army)
     {
-        return army.count + (army.count * factor);
+        var stats = countries[army.OwnerId].techStats;
+        return army.count + (army.count * stats.armyPower);
     }
     public void moveArmies()
     {
@@ -155,6 +158,30 @@ public class Map:ScriptableObject {
             }
         }
     }
+
+    public void setMoveArmy(Army army, int count, (int, int) destination) {
+        if(count <= army.count) {
+            if(count == army.count) {
+                updateArmyDestination(army, destination);
+                return;
+            }
+            var army_dest = Army.makeSubarmy(army, count);
+            updateArmyDestination(army_dest, destination);
+
+        }
+    }
+
+    //tbd
+    public void mergeArmies() {
+        List<Army> final_armies = new List<Army>();
+        foreach(var province in provinces) {
+            List<Army> provincearmies = armies.FindAll(a => a.Position == province.coordinates);
+            if(armies.Count > 0) {
+                final_armies.Add(Army.mergeArmiesInProvince(armies));
+            }
+        }
+    }
+
     public List<(int, int)> getPossibleMoveCells(Army army)
     {
         List<(int, int)> possibleCells = new List<(int, int)>();
