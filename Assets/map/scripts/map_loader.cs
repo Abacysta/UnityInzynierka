@@ -1,4 +1,5 @@
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
@@ -30,8 +31,9 @@ public class map_loader : MonoBehaviour
             new Country(i++, "", (-1, -1), Color.white),
             new Country(i++, "Kingdom", (0, 0), Color.gray)
         };
-
+        i = 0;
         foreach(Country country in map.Countries) {
+            country.Priority = i++;
             Debug.Log(country.Id);
         }
 
@@ -56,6 +58,8 @@ public class map_loader : MonoBehaviour
                 }
             }
         }
+        Army testArmy = new Army(0, 100, (2, 0), (2, 1), 1, 2);
+        map.addArmy(testArmy);
         SetPolitical();
     }
 

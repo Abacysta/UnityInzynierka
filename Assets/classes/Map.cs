@@ -62,6 +62,7 @@ public class Map:ScriptableObject {
         Provinces[prov].Happiness += value;
     }
 
+    
     //jebnij sie w leb
 
     //public void addBuilding((int,int) coordinates, Building building)
@@ -129,6 +130,18 @@ public class Map:ScriptableObject {
             Destroy(armyView.gameObject);
         }
     }
+
+    public void recArmy((int, int) coordinates, int amount) {
+        var province = getProvince(coordinates);
+        if(province.RecruitablePopulation <= amount) { 
+            addArmy(new(province.Owner_id, amount, coordinates, coordinates, 1, 2));
+            province.Population -= amount;
+            province.RecruitablePopulation -= amount;
+        }
+    }
+
+
+
     public void updateArmyPosition(Army army, (int,int) coordinates)
     {
         army.position = coordinates;
@@ -159,6 +172,18 @@ public class Map:ScriptableObject {
         }
     }
 
+    public void disbandArmy(Army army, int count) {
+        if(count <= army.count) {
+            if(count == army.count) {
+                removeArmy(army);
+                return;
+            }
+            var province = getProvince(army.position);
+            province.Population += army.count / 2;
+            var army_dest = Army.makeSubarmy(army, count);
+        }
+    }
+
     public void setMoveArmy(Army army, int count, (int, int) destination) {
         if(count <= army.count) {
             if(count == army.count) {
@@ -166,8 +191,9 @@ public class Map:ScriptableObject {
                 return;
             }
             var army_dest = Army.makeSubarmy(army, count);
+            
             updateArmyDestination(army_dest, destination);
-
+            addArmy(army);
         }
     }
 
@@ -181,6 +207,7 @@ public class Map:ScriptableObject {
             }
         }
     }
+
 
     public List<(int, int)> getPossibleMoveCells(Army army)
     {

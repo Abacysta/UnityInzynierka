@@ -24,6 +24,7 @@ public class province_interface : MonoBehaviour
     [SerializeField] private Image b_1, b_2, b_3, b_4;
     [SerializeField] private Sprite[] b_1_spr, b_2_spr, b_3_spr, b_4_spr;
     [SerializeField] private Transform b_1_m, b_2_m, b_3_m, b_4_m;
+    [SerializeField] private dialog_box_manager dialog_box;
     //[SerializeField] private buildings_interface buildings_Interface;
 
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
@@ -50,8 +51,8 @@ public class province_interface : MonoBehaviour
                                     (b_3_m, BuildingType.School), 
                                     (b_4_m, BuildingType.Mine) 
                                 }) {
-            bt.Item1.Find("add").GetComponent<Button>().onClick.AddListener(() => map.upgradeBuilding(map.Selected_province, bt.Item2));
-            bt.Item1.Find("remove").GetComponent<Button>().onClick.AddListener(() => map.downgradeBuilding(map.Selected_province, bt.Item2));
+            bt.Item1.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeUpgradeBuilding(map, map.Selected_province, bt.Item2));
+            bt.Item1.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeDowngradeBuilding(map, map.Selected_province, bt.Item2));
         }
         //buildings_Interface.Initialize(map);
     }

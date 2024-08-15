@@ -1,9 +1,12 @@
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
+    public int turnCnt = 0;
+    [SerializeField] TMP_Text turnCntTxt;
     public AudioSource turn_sound;
     [SerializeField] private float RecruitablePopulationFactor = 0.2f;
     [SerializeField] private float PopulationFactor = 0.1f;
@@ -57,5 +60,7 @@ public class game_manager : MonoBehaviour
             map.calcPopExtremes();
         }
         map.moveArmies();
+        turnCnt++;
+        turnCntTxt.SetText("" + turnCnt);
     }
 }
