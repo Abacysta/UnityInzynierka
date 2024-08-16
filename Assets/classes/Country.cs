@@ -62,14 +62,6 @@ public class Country
         /// </summary>
         public float occPenalty;
         /// <summary>
-        /// Strength of positive effects
-        /// </summary>
-        public float posEffFactor;
-        /// <summary>
-        /// Strength of negative effects
-        /// </summary>
-        public float negEffFactor;
-        /// <summary>
         /// Multiplier of production in occupied provinces. Always calculated last
         /// </summary>
         public float occProd;
@@ -113,7 +105,6 @@ public class Country
             recPop = 0.05f;
             occPenalty = 0.5f;
             occProd = 0;
-            posEffFactor = 1; negEffFactor = 1;
             lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 0;
             //economic
             switch(eco) {
@@ -210,16 +201,12 @@ public class Country
                     canTaxBreak = true;
                     goto case 5;
                 case 5:
-                    negEffFactor -= 0.1f;
-                    posEffFactor += 0.1f;
                     lvlFoW += 1;
                     goto case 6;
                 case 6:
                     occProd += 0.1f;
                     goto case 7;
                 case 7:
-                    negEffFactor -= 0.1f;
-                    posEffFactor += 0.1f;
                     goto case 8;
                 case 8:
                     taxFactor += 0.01f;
@@ -236,6 +223,7 @@ public class Country
                 default:
                     break;
             }
+            //pos and neg effect factor is a retarded idea
         }
     }
 
@@ -249,7 +237,7 @@ public class Country
     /// Container for all stats modified by technology
     /// </summary>
     public TechnologyInterpreter techStats;
-    [SerializeField] private List<(int, int)> provinces;
+    [SerializeField] private HashSet<(int, int)> provinces;
     [SerializeField] private Color color;
 
     public Country(int id, string name, (int, int) capital, Color color) {
@@ -260,7 +248,7 @@ public class Country
         this.resources = technicalDefaultResources.defaultValues;
         this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
         this.techStats = new TechnologyInterpreter(this.technology);
-        this.provinces = new List<(int, int)> { capital };
+        this.provinces = new HashSet<(int, int)> { capital };
     }
 
     public void addProvince((int, int) coordinates) {
@@ -276,15 +264,23 @@ public class Country
     public int Priority { get { return prio; } set => prio = value; }
     public Color Color { get { return color; } }
     public Dictionary<Resource, float> Resources { get { return resources; } }
-    public List<(int, int)> Provinces { get { return provinces; } }
+    public HashSet<(int, int)> Provinces { get { return provinces; } }
     public (int, int) Capital {  get { return capital; } }
 
     public void modifyResource((Resource, float) values) {
         resources[values.Item1] += values.Item2;
     }
 
+    public void modifyResource(Resource resource, float value) {
+        modifyResource((resource, value));
+    }
+
     public void setResource((Resource, float) values) {
         resources[values.Item1] = values.Item2;
+    }
+
+    public void setResource(Resource resource, float value) { 
+        setResource((resource, value));    
     }
 
     public void nullifyResources() {

@@ -1,3 +1,4 @@
+using Assets.classes.subclasses;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -41,11 +42,13 @@ public class map_loader : MonoBehaviour
         map.getProvince((0, 0)).Owner_id = 1;
         map.assignProvince((0, 1), 1);
         map.assignProvince((1, 0), 1);
-
+        
+        
         foreach(var p in map.Provinces) {
             map.calcRecruitablePop(p.coordinates);
 
             if(p.Type == "land") {
+                p.Statuses = new System.Collections.Generic.List<Status>();
                 p.Buildings = new System.Collections.Generic.List<Building>{
                     new Building(BuildingType.Infrastructure, 0),
                     new Building(BuildingType.Fort, 0),
@@ -53,11 +56,16 @@ public class map_loader : MonoBehaviour
                     new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
                 };
 
-                if(p.Owner_id != 0 && p.Owner_id!= null) {
+                if(p.Owner_id != 0 && p.Owner_id != null) {
                     map.assignProvince(p.coordinates, p.Owner_id);
                 }
+                p.calcStatuses();
             }
         }
+        map.getProvince((0, 0)).addStatus(new TaxBreak(3));
+        map.getProvince(0, 0).addStatus(new Disaster(2));
+        map.getProvince(1, 0).addStatus(new ProdBoom(3));
+        map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
         Army testArmy = new Army(0, 100, (2, 0), (2, 1), 1, 2);
         map.addArmy(testArmy);
         SetPolitical();

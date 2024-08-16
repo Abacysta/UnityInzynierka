@@ -1,3 +1,4 @@
+using Assets.classes.subclasses;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -5,6 +6,35 @@ using UnityEngine.UI;
 
 public class province_interface : MonoBehaviour
 {
+    private class EffectDisplay {
+        public static void deleteIcons(GameObject obj) {
+            foreach(Transform child in obj.transform) {
+                Destroy(child.gameObject);
+            }
+        }
+        public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites) { 
+            deleteIcons(obj);
+
+            if(statuses!=null){
+                RectTransform rect = obj.GetComponent<RectTransform>();
+                float height = rect.rect.height, currentX = 0f;
+                foreach(Status status in statuses) {
+                    GameObject child = new GameObject("icon_" + status.id);
+                    child.transform.SetParent(obj.transform);
+                    Image image = child.AddComponent<Image>();
+                    image.sprite = status_sprites[status.id];
+                    RectTransform rectT = child.GetComponent<RectTransform>();
+                    rectT.sizeDelta = new Vector2(height, height);
+                    rectT.anchorMin = new Vector2(0, 0.5f);
+                    rectT.anchorMax = new Vector2(0, 0.5f);
+                    rectT.pivot = new Vector2(0, 0.5f);
+
+                    rectT.anchoredPosition = new Vector2(currentX, 0);
+                    currentX += height;
+                } 
+            }
+        }
+    }
     private class ProvinceInfoField 
     {
         private TMP_Text txt;
@@ -24,7 +54,10 @@ public class province_interface : MonoBehaviour
     [SerializeField] private Image b_1, b_2, b_3, b_4;
     [SerializeField] private Sprite[] b_1_spr, b_2_spr, b_3_spr, b_4_spr;
     [SerializeField] private Transform b_1_m, b_2_m, b_3_m, b_4_m;
+    [SerializeField] private List<Sprite> res_images;//gold,wood,iron,tech,ap
     [SerializeField] private dialog_box_manager dialog_box;
+    [SerializeField] private GameObject statuses_list;
+    [SerializeField] private List<Sprite> status_sprites;
     //[SerializeField] private buildings_interface buildings_Interface;
 
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
@@ -64,13 +97,14 @@ public class province_interface : MonoBehaviour
         type_.Txt.SetText (""+p.Type);
 
         if(p.Type == "land") {
+
             res.SetActive(true);
             happ.SetActive(true);
             pop.SetActive(true);
             rec_pop.SetActive(true);
             building_interface.SetActive(true);
-
-            res_.Txt.SetText("" + p.Resources);
+            res_.Txt.SetText("" + p.ResourcesP + "(" + p.Resources_amount + ")");
+            res_.Img.sprite = res_images[((int)p.ResourcesT)];
             happ_.Txt.SetText("" + p.Happiness);
             pop_.Txt.SetText("" + p.Population);
             rec_pop_.Txt.SetText("" + p.RecruitablePopulation);
@@ -91,6 +125,8 @@ public class province_interface : MonoBehaviour
                 bt.Item1.Find("add").GetComponent<Button>().interactable = bld[bt.Item2].BuildingLevel < 3 ? true : false;
                 bt.Item1.Find("remove").GetComponent<Button>().interactable = bld[bt.Item2].BuildingLevel > 0 && bld[bt.Item2].BuildingLevel < 4? true : false;
             }
+
+            EffectDisplay.showIcons(statuses_list, p.Statuses, status_sprites);
 
         }
         else {
