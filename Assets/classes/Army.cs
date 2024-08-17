@@ -17,7 +17,7 @@ public class Army
         this.moveRangeLand = moveRangeLand;
         this.moveRangeWater = moveRangeWater;
     }
-    public int OwnerId { get => OwnerId; set => ownerId = value; }
+    public int OwnerId { get => ownerId; set => ownerId = value; }
     public int Count { get => count; set => count = value; }
     public (int,int) Position { get => position; set => position = value;  }
     public (int,int) Destination { get => destination; set => destination = value; }

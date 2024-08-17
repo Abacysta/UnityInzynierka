@@ -74,9 +74,17 @@ public class province_click_handler : cursor_helper
 
         if (clickedTile != null)
         {
-            province_click.Play();
-            DisplayProvinceInterface(cellPosition.x, cellPosition.y);
-            Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
+            if (IsProvinceRevealed(cellPosition.x,cellPosition.y)) // to jest zeby nie by³o informacji o prowincji
+            {
+                province_click.Play();
+                DisplayProvinceInterface(cellPosition.x, cellPosition.y);
+                Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
+            }
+            else
+            {
+                province_interface.SetActive(false);
+                Debug.Log($"tile at position: ({cellPosition.x}, {cellPosition.y} is not revealed!)");
+            }
         }
     }
 
@@ -89,5 +97,17 @@ public class province_click_handler : cursor_helper
             map.Selected_province = (province.X, province.Y);
             province_interface.SetActive(true);
         }
+    }
+    private bool IsProvinceRevealed(int x, int y)
+    {
+        Province province = map.getProvince(x, y);
+        if (province != null)
+        {
+            foreach(Country country in map.Countries)
+            {
+                if (country.RevealedTiles.Contains((x, y))) return true;
+            }
+        }
+        return false;
     }
 }

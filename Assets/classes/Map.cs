@@ -10,10 +10,11 @@ public class Map:ScriptableObject {
     [SerializeField] private List<Province> provinces;
     [SerializeField] (int, int) selected_province;
     [SerializeField] (int, int) pop_extremes;
-    [SerializeField] private List<Country> countries;
+    [SerializeField] private List<Country> countries = new List<Country>();
     [SerializeField] private List<Army> armies = new List<Army>();
     [SerializeField] private GameObject armyPrefab;
     private List<army_view> armyViews = new List<army_view>();
+
     public string Map_name { get => map_name; set => map_name = value; }
     public string File_name { get => file_name; set => file_name = value; }
     public List<Province> Provinces { get => provinces; set => provinces = value; }
@@ -129,12 +130,23 @@ public class Map:ScriptableObject {
     }
     public void updateArmyPosition(Army army, (int,int) coordinates)
     {
+        Province previousProvince = getProvince(coordinates);
+        if (previousProvince != null)
+        {
+            Country previousOwner = Countries.FirstOrDefault(c => c.Id == previousProvince.Owner_id);
+            if (previousOwner != null)
+            {
+                previousOwner.removeProvince(coordinates);
+            }
+        }
+
         army.position = coordinates;
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
         {
             armyView.MoveTo(coordinates);
         }
+        assignProvince(coordinates, army.OwnerId);
     }
     public void updateArmyDestination(Army army, (int,int) coordinates)
     {
@@ -152,6 +164,7 @@ public class Map:ScriptableObject {
             {
                 updateArmyPosition(army, army.destination);
                 updateArmyDestination(army, army.position);
+                Province province = getProvince(army.position);
             }
         }
     }
@@ -200,7 +213,7 @@ public class Map:ScriptableObject {
 
         return possibleCells;
     }
-    private bool IsValidPosition(int x, int y)
+    public bool IsValidPosition(int x, int y)
     {
         return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }

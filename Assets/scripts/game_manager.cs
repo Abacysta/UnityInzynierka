@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private float PopulationFactor = 0.1f;
     [SerializeField] private int HappinessFactor = 5;
     [SerializeField] private float ArmyFactor = 0.1f;
+    [SerializeField] private fog_of_war fog_Of_War;
 
     // Loading map data before all scripts
     void Awake()
@@ -30,8 +32,17 @@ public class game_manager : MonoBehaviour
         {
             Debug.LogError("JSON map file not found in Resources!");
         }
-        Army testArmy = new Army(0,100,(2,0),(2,1),1,2);
+        // Ensure the map.Countries list is initialized
+        if (map.Countries == null)
+        {
+            map.Countries = new List<Country>();
+        }
+
+        // Add an initial test army
+        Army testArmy = new Army(0, 100, (2, 0), (2, 1), 1, 2);
         map.addArmy(testArmy);
+        Army testArmyFog = new Army(2, 100, (1, 1), (1, 1), 1, 2);
+        map.addArmy(testArmyFog);
     }
 
     
@@ -58,5 +69,6 @@ public class game_manager : MonoBehaviour
             map.calcPopExtremes();
         }
         map.moveArmies();
+        fog_Of_War.StartTurn();
     }
 }

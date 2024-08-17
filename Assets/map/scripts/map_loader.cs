@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -21,6 +22,7 @@ public class map_loader : MonoBehaviour
 
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
 
+
     void Start()
     {
         int i = 0;
@@ -28,7 +30,8 @@ public class map_loader : MonoBehaviour
         map.calcPopExtremes();
         map.Countries = new System.Collections.Generic.List<Country> {
             new Country(i++, "", (-1, -1), Color.white),
-            new Country(i++, "Kingdom", (0, 0), Color.gray)
+            new Country(i++, "Kingdom", (0, 0), Color.gray),
+            new Country(i++, "TestFog", (1,1), Color.red)
         };
 
         foreach(Country country in map.Countries) {
@@ -39,6 +42,9 @@ public class map_loader : MonoBehaviour
         map.getProvince((0, 0)).Owner_id = 1;
         map.assignProvince((0, 1), 1);
         map.assignProvince((1, 0), 1);
+
+        map.getProvince((1, 1)).Owner_id = 2;
+        map.assignProvince((1, 2), 2);
 
         foreach(var p in map.Provinces) {
             map.calcRecruitablePop(p.coordinates, 0.2f);
@@ -56,7 +62,7 @@ public class map_loader : MonoBehaviour
                 }
             }
         }
-        SetPolitical();
+        SetTerrain();
     }
 
     public void SetTerrain()
@@ -160,7 +166,7 @@ public class map_loader : MonoBehaviour
         mouse_hover_layer_rnd.sortingOrder = 8;
     }
 
-    public void SetPolitical() {
+     public void SetPolitical() {
         filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces) {
@@ -178,7 +184,34 @@ public class map_loader : MonoBehaviour
         }
         mouse_hover_layer_rnd.sortingOrder = 5;
     }
+    /*
+    public void SetPolitical()
+    {
+        filter_layer.ClearAllTiles();
 
+        foreach (Province province in map.Provinces)
+        {
+            if (province.Owner_id == 1)
+            {
+                Country owner = map.Countries[province.Owner_id];
+                Vector3Int position = new Vector3Int(province.X, province.Y, 0);
+
+                if (province.Type == "land")
+                {
+                    base_layer.SetTile(position, base_tile);
+                    base_layer.SetColor(position, owner.Color);
+                    if (owner.Capital == province.coordinates)
+                        terrain_feature_layer_2.SetTile(position, capital_tile);
+                }
+                else
+                {
+                    SetWater(position);
+                }
+            }
+        }
+        mouse_hover_layer_rnd.sortingOrder = 5;
+    }
+    */
     private void SetWater(Vector3Int position)
     {
         base_layer.SetTile(position, base_tile);

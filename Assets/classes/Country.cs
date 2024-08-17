@@ -252,6 +252,8 @@ public class Country
     [SerializeField] private List<(int, int)> provinces;
     [SerializeField] private Color color;
 
+    private HashSet<(int, int)> revealedTiles;
+
     public Country(int id, string name, (int, int) capital, Color color) {
         this.id = id;
         this.name = name;
@@ -261,6 +263,7 @@ public class Country
         this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
         this.techStats = new TechnologyInterpreter(this.technology);
         this.provinces = new List<(int, int)> { capital };
+        revealedTiles = new HashSet<(int, int)>();
     }
 
     public void addProvince((int, int) coordinates) {
@@ -278,6 +281,7 @@ public class Country
     public Dictionary<Resource, float> Resources { get { return resources; } }
     public List<(int, int)> Provinces { get { return provinces; } }
     public (int, int) Capital {  get { return capital; } }
+    public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
 
     public void modifyResource((Resource, float) values) {
         resources[values.Item1] += values.Item2;
@@ -295,6 +299,18 @@ public class Country
         if(provinces.Contains(coordinates)) {
             capital = coordinates;
         }
+    }
+    public void RevealTile((int,int) coordinates)
+    {
+        revealedTiles.Add(coordinates);
+    }
+    public bool IsTileRevealed((int,int) coordinates)
+    {
+        return revealedTiles.Contains(coordinates);
+    }
+    public void ClearRevealedTiles()
+    {
+        revealedTiles.Clear();
     }
 }
 

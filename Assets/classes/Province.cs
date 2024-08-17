@@ -34,6 +34,7 @@ public class Province {
         this.occupation_info = occupation_info;
         this.owner_id = owner_id;
         this.buildings = new List<Building>();
+
     }
 
     public string Id { get => id; set => id = value; }
@@ -51,7 +52,6 @@ public class Province {
     public int Owner_id { get => owner_id; set => owner_id = value; }
     public List<Building> Buildings { get => buildings; set => buildings = value; }
     public (int, int) coordinates { get => (x, y); }
-
     public Resource ResourcesT { get => RealResource(); }
     private Resource RealResource() {
         switch(Resources) {
