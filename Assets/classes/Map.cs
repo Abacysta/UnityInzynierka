@@ -46,14 +46,16 @@ public class Map:ScriptableObject {
         Pop_extremes=(min,max);
     }
 
-    public void growPop((int, int) coordinates, float factor) {
+    public void growPop((int, int) coordinates) {
         int prov = getProvinceIndex(coordinates);
-        Provinces[prov].Population += (int)Math.Floor(Provinces[prov].Population * factor);
+        var stats = countries[Provinces[prov].Owner_id].techStats;
+        Provinces[prov].Population += (int)Math.Floor(Provinces[prov].Population * stats.popGrowth);
     }
 
-    public void calcRecruitablePop((int, int) coordinates, float factor) {
+    public void calcRecruitablePop((int, int) coordinates) {
         int prov = getProvinceIndex(coordinates);
-        Provinces[prov].RecruitablePopulation = (int)Math.Floor(Provinces[prov].Population * factor);
+        var stats = countries[Provinces[prov].Owner_id].techStats;
+        Provinces[prov].RecruitablePopulation = (int)Math.Floor(Provinces[prov].Population * stats.recPop);
     }
 
     public void growHap((int, int) coordinates, int value) {
@@ -61,6 +63,7 @@ public class Map:ScriptableObject {
         Provinces[prov].Happiness += value;
     }
 
+    
     //jebnij sie w leb
 
     //public void addBuilding((int,int) coordinates, Building building)
@@ -128,6 +131,18 @@ public class Map:ScriptableObject {
             Destroy(armyView.gameObject);
         }
     }
+
+    public void recArmy((int, int) coordinates, int amount) {
+        var province = getProvince(coordinates);
+        if(province.RecruitablePopulation <= amount) { 
+            addArmy(new(province.Owner_id, amount, coordinates, coordinates, 1, 2));
+            province.Population -= amount;
+            province.RecruitablePopulation -= amount;
+        }
+    }
+
+
+
     public void updateArmyPosition(Army army, (int,int) coordinates)
     {
         Province previousProvince = getProvince(coordinates);
@@ -152,9 +167,10 @@ public class Map:ScriptableObject {
     {
         army.destination = coordinates;
     }
-    public float calcArmyCombatPower(Army army, float factor)
+    public float calcArmyCombatPower(Army army)
     {
-        return army.count + (army.count * factor);
+        var stats = countries[army.OwnerId].techStats;
+        return army.count + (army.count * stats.armyPower);
     }
     public void moveArmies()
     {
@@ -168,6 +184,44 @@ public class Map:ScriptableObject {
             }
         }
     }
+
+    public void disbandArmy(Army army, int count) {
+        if(count <= army.count) {
+            if(count == army.count) {
+                removeArmy(army);
+                return;
+            }
+            var province = getProvince(army.position);
+            province.Population += army.count / 2;
+            var army_dest = Army.makeSubarmy(army, count);
+        }
+    }
+
+    public void setMoveArmy(Army army, int count, (int, int) destination) {
+        if(count <= army.count) {
+            if(count == army.count) {
+                updateArmyDestination(army, destination);
+                return;
+            }
+            var army_dest = Army.makeSubarmy(army, count);
+            
+            updateArmyDestination(army_dest, destination);
+            addArmy(army);
+        }
+    }
+
+    //tbd
+    public void mergeArmies() {
+        List<Army> final_armies = new List<Army>();
+        foreach(var province in provinces) {
+            List<Army> provincearmies = armies.FindAll(a => a.Position == province.coordinates);
+            if(armies.Count > 0) {
+                final_armies.Add(Army.mergeArmiesInProvince(armies));
+            }
+        }
+    }
+
+
     public List<(int, int)> getPossibleMoveCells(Army army)
     {
         List<(int, int)> possibleCells = new List<(int, int)>();

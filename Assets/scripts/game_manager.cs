@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
+    public int turnCnt = 0;
+    [SerializeField] TMP_Text turnCntTxt;
+    public AudioSource turn_sound;
     [SerializeField] private float RecruitablePopulationFactor = 0.2f;
     [SerializeField] private float PopulationFactor = 0.1f;
     [SerializeField] private int HappinessFactor = 5;
@@ -15,6 +19,7 @@ public class game_manager : MonoBehaviour
     void Awake()
     {
         LoadData();
+        
     }
 
     void LoadData()
@@ -32,43 +37,41 @@ public class game_manager : MonoBehaviour
         {
             Debug.LogError("JSON map file not found in Resources!");
         }
-        // Ensure the map.Countries list is initialized
-        if (map.Countries == null)
-        {
-            map.Countries = new List<Country>();
-        }
-
-        // Add an initial test army
-        Army testArmy = new Army(0, 100, (2, 0), (2, 1), 1, 2);
-        map.addArmy(testArmy);
-        Army testArmyFog = new Army(2, 100, (1, 1), (1, 1), 1, 2);
-        map.addArmy(testArmyFog);
     }
 
-    
     public void TurnSimulation()
     {//id 0 is a dummy
-        for(int i = 1; i < map.Countries.Count; i++) { 
-            float APsum = 0;
-
-            foreach(var p in map.Countries[i].Provinces) {
-                if(map.getProvince(p).ResourcesT != Resource.AP){ 
-                    map.Countries[i].modifyResource(map.calcResources(p, i, 1));
-                }
-                else {
-                    APsum+= map.getProvince(p).Resources_amount;
-                }
-
-            }
-            map.Countries[i].setResource((Resource.AP, APsum));
-        }
-
+        turn_sound.Play();
         foreach(var p in map.Provinces) {
-            map.growPop(p.coordinates, 0.05f);
-            map.calcRecruitablePop(p.coordinates, PopulationFactor);
+            map.growPop(p.coordinates);
+            map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
+            p.calcStatuses();
         }
+        for(int i = 1; i < map.Countries.Count; i++) {
+            Country country = map.Countries[i];
+            float tax = 0;
+            Dictionary<Resource, float> resources = new Dictionary<Resource, float> { { Resource.Gold, 0 }, { Resource.Wood, 0 }, { Resource.Iron, 0 }, { Resource.SciencePoint, 0 }, { Resource.AP, 0 } };
+            foreach(var p in map.Countries[i].Provinces) {
+                var province = map.getProvince(p);
+                tax += province.Population / 100 * 1f * province.Tax_mod;//0.1f = temp 100% tax rate
+                resources[province.ResourcesT] += province.ResourcesP;
+                resources[Resource.AP] += 0.1f;
+            }
+            tax *= country.techStats.taxFactor;
+            resources[Resource.Gold] *= country.techStats.prodFactor;
+            resources[Resource.Wood] *= country.techStats.prodFactor;
+            resources[Resource.Iron] *= country.techStats.prodFactor;
+            country.modifyResource(Resource.Gold, tax);
+            foreach(var res in resources) {
+                country.modifyResource(res.Key, res.Value);
+            }
+            country.setResource(Resource.AP, resources[Resource.AP]);
+        }
+
+        
         map.moveArmies();
         fog_Of_War.StartTurn();
+        turnCntTxt.SetText("" + ++turnCnt);
     }
 }

@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public enum Resource {
-    AP,//action points
+public enum Resource{
+    Gold,//action points
     Wood,
     Iron,
-    Gold,
-    SciencePoint
+    SciencePoint,
+    AP
 }

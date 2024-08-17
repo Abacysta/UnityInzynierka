@@ -1,5 +1,7 @@
+using Assets.classes.subclasses;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
@@ -33,8 +35,9 @@ public class map_loader : MonoBehaviour
             new Country(i++, "Kingdom", (0, 0), Color.gray),
             new Country(i++, "TestFog", (1,1), Color.red)
         };
-
+        i = 0;
         foreach(Country country in map.Countries) {
+            country.Priority = i++;
             Debug.Log(country.Id);
         }
 
@@ -47,9 +50,10 @@ public class map_loader : MonoBehaviour
         map.assignProvince((1, 2), 2);
 
         foreach(var p in map.Provinces) {
-            map.calcRecruitablePop(p.coordinates, 0.2f);
+            map.calcRecruitablePop(p.coordinates);
 
             if(p.Type == "land") {
+                p.Statuses = new System.Collections.Generic.List<Status>();
                 p.Buildings = new System.Collections.Generic.List<Building>{
                     new Building(BuildingType.Infrastructure, 0),
                     new Building(BuildingType.Fort, 0),
@@ -57,12 +61,19 @@ public class map_loader : MonoBehaviour
                     new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
                 };
 
-                if(p.Owner_id != 0 && p.Owner_id!= null) {
+                if(p.Owner_id != 0 && p.Owner_id != null) {
                     map.assignProvince(p.coordinates, p.Owner_id);
                 }
+                p.calcStatuses();
             }
         }
-        SetTerrain();
+        map.getProvince((0, 0)).addStatus(new TaxBreak(3));
+        map.getProvince(0, 0).addStatus(new Disaster(2));
+        map.getProvince(1, 0).addStatus(new ProdBoom(3));
+        map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
+        Army testArmy = new Army(0, 100, (2, 0), (2, 1), 1, 2);
+        map.addArmy(testArmy);
+        SetPolitical();
     }
 
     public void SetTerrain()
@@ -184,34 +195,7 @@ public class map_loader : MonoBehaviour
         }
         mouse_hover_layer_rnd.sortingOrder = 5;
     }
-    /*
-    public void SetPolitical()
-    {
-        filter_layer.ClearAllTiles();
 
-        foreach (Province province in map.Provinces)
-        {
-            if (province.Owner_id == 1)
-            {
-                Country owner = map.Countries[province.Owner_id];
-                Vector3Int position = new Vector3Int(province.X, province.Y, 0);
-
-                if (province.Type == "land")
-                {
-                    base_layer.SetTile(position, base_tile);
-                    base_layer.SetColor(position, owner.Color);
-                    if (owner.Capital == province.coordinates)
-                        terrain_feature_layer_2.SetTile(position, capital_tile);
-                }
-                else
-                {
-                    SetWater(position);
-                }
-            }
-        }
-        mouse_hover_layer_rnd.sortingOrder = 5;
-    }
-    */
     private void SetWater(Vector3Int position)
     {
         base_layer.SetTile(position, base_tile);

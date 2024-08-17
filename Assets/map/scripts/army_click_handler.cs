@@ -13,6 +13,8 @@ public class army_click_handler : cursor_helper
     [SerializeField] private AudioSource army_click;
     [SerializeField] private AudioSource army_move_select;
 
+    [SerializeField] private dialog_box_manager dialog_box;
+
     private army_view selectedArmy;
     private List<Vector3Int> highlightedCells = new();
 
@@ -74,9 +76,10 @@ public class army_click_handler : cursor_helper
                 if (highlightedCells.Contains(cellPosition))
                 {
                     (int x, int y) = (cellPosition.x, cellPosition.y);
-                    map.updateArmyDestination(selectedArmy.ArmyData, (x, y));
-                    army_move_select.Play();
-                    Debug.Log($"Army destination set to ({x},{y})");
+                    dialog_box.invokeArmyBox(map, selectedArmy.ArmyData, (x, y));
+                    //map.updateArmyDestination(selectedArmy.ArmyData, (x, y));
+                    //army_move_select.Play();
+                    //Debug.Log($"Army destination set to ({x},{y})");
                 }
 
                 ResetSelectedArmy();

@@ -74,17 +74,10 @@ public class province_click_handler : cursor_helper
 
         if (clickedTile != null)
         {
-            if (IsProvinceRevealed(cellPosition.x,cellPosition.y)) // to jest zeby nie by³o informacji o prowincji
-            {
-                province_click.Play();
-                DisplayProvinceInterface(cellPosition.x, cellPosition.y);
-                Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
-            }
-            else
-            {
-                province_interface.SetActive(false);
-                Debug.Log($"tile at position: ({cellPosition.x}, {cellPosition.y} is not revealed!)");
-            }
+            province_click.Play();
+            DisplayProvinceInterface(cellPosition.x, cellPosition.y);
+            Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
+            Debug.Log("res:" + map.getProvince((cellPosition.x, cellPosition.y)).ResourcesP + "mul:" + map.getProvince((cellPosition.x, cellPosition.y)).Prod_mod);
         }
     }
 
