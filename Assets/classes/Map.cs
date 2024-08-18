@@ -183,6 +183,7 @@ public class Map:ScriptableObject {
                 Province province = getProvince(army.position);
             }
         }
+        mergeArmies();
     }
 
     public void disbandArmy(Army army, int count) {
@@ -203,23 +204,26 @@ public class Map:ScriptableObject {
                 updateArmyDestination(army, destination);
                 return;
             }
-            var army_dest = Army.makeSubarmy(army, count);
-            
-            updateArmyDestination(army_dest, destination);
-            addArmy(army);
+            var subArmy = Army.makeSubarmy(army, count);
+            addArmy(subArmy);
+            updateArmyDestination(subArmy, destination);
+
         }
     }
-
     //tbd
-    public void mergeArmies() {
+    public void mergeArmies()
+    {
         List<Army> final_armies = new List<Army>();
-        foreach(var province in provinces) {
+        foreach (var province in provinces)
+        {
             List<Army> provincearmies = armies.FindAll(a => a.Position == province.coordinates);
-            if(armies.Count > 0) {
+            if (armies.Count > 0)
+            {
                 final_armies.Add(Army.mergeArmiesInProvince(armies));
             }
         }
     }
+
 
 
     public List<(int, int)> getPossibleMoveCells(Army army)

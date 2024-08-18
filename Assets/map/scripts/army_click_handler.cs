@@ -56,13 +56,14 @@ public class army_click_handler : cursor_helper
         {
             if (hit.collider.TryGetComponent<army_view>(out var armyView))
             {
+                ResetSelectedArmy(); // Resetuj wybran¹ armiê przed przypisaniem nowej
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
                 HighlightPossibleMoveCells(selectedArmy.ArmyData);
 
                 army_click.Play();
                 Debug.Log($"Selected Army: ({armyView.ArmyData.position.Item1}, {armyView.ArmyData.position.Item2}), " +
-                    $"Count: {armyView.ArmyData.count}");
+                          $"Count: {armyView.ArmyData.count}");
             }
         }
         else
@@ -77,12 +78,9 @@ public class army_click_handler : cursor_helper
                 {
                     (int x, int y) = (cellPosition.x, cellPosition.y);
                     dialog_box.invokeArmyBox(map, selectedArmy.ArmyData, (x, y));
-                    //map.updateArmyDestination(selectedArmy.ArmyData, (x, y));
-                    //army_move_select.Play();
-                    //Debug.Log($"Army destination set to ({x},{y})");
                 }
 
-                ResetSelectedArmy();
+                ResetSelectedArmy(); // Zresetuj po zakoñczeniu ruchu
             }
         }
     }

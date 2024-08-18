@@ -21,10 +21,10 @@ public class Army
     public (int,int) Position { get => position; set => position = value;  }
     public (int,int) Destination { get => destination; set => destination = value; }
 
-    public static Army makeSubarmy(Army army, int count) {
+    public static Army makeSubarmy(Army army, int count)
+    {
         army.count -= count;
-        var army2 = army;
-        army2.count = count;
+        Army army2 = new Army(army.OwnerId, count, army.position, army.destination);
         return army2;
     }
 
