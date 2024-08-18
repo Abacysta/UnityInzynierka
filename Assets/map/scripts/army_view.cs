@@ -46,12 +46,6 @@ public class army_view : MonoBehaviour
         targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         isMoving = true;
     }
-    public void ScaleArmyView(army_view army_view)
-    {
-        Vector3 originalSize = army_view.transform.localScale;
-        Vector3 targetScale = originalSize * 0.5f;
-        army_view.transform.localScale = targetScale;
-    }
 
     public Vector3 HexToWorldPosition(int x, int y)
     {

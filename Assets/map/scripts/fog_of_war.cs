@@ -116,14 +116,47 @@ public class fog_of_war : MonoBehaviour
             }
         }
     }
-   private void CalculateVisibilityForArmies()
+    private void UpdateVisibilityAroundArmy(Army army)
+    {
+        Province province = map.getProvince(army.position.Item1, army.position.Item2);
+
+        if (province == null)
+        {
+            return;
+        }
+
+        Country country = map.Countries.FirstOrDefault(c => c.Id == army.OwnerId);
+        if (country == null)
+        {
+            Debug.LogError($"Country with ID {province.Owner_id} not found for province at {army.position.Item1},{army.position.Item2}.");
+            return;
+        }
+
+        HexUtils.Cube centerCube = HexUtils.OffsetToCube(army.position.Item1, army.position.Item2);
+        List<HexUtils.Cube> visibleCubes = HexUtils.CubeRange(centerCube, country.techStats.lvlFoW);
+
+        foreach (HexUtils.Cube cube in visibleCubes)
+        {
+            (int offsetX, int offsetY) = HexUtils.CubeToOffset(cube);
+
+            if (map.IsValidPosition(offsetX, offsetY))
+            {
+                Province visibleProvince = map.getProvince(offsetX, offsetY);
+                if (visibleProvince != null)
+                {
+                    country.RevealedTiles.Add((offsetX, offsetY));
+                }
+            }
+        }
+    }
+    private void CalculateVisibilityForArmies()
     {
         List<Army>armies = map.Armies;
         foreach(Army army in armies)
         {
             Country country = map.Countries.FirstOrDefault(c => c.Id == army.ownerId);
             country.RevealedTiles.Add((army.position.Item1, army.position.Item2));
-            UpdateVisibilityAroundProvince(army.position.Item1, army.position.Item2, country.techStats.lvlFoW);
+            UpdateVisibilityAroundArmy(army);
         }
     }
 }

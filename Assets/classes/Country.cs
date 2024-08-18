@@ -114,7 +114,7 @@ public class Country
             recPop = 0.05f;
             occPenalty = 0.5f;
             occProd = 0;
-            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 0; moveRange = 1;
+            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 1; moveRange = 1;
             waterMoveFactor = 0.5f;
             //economic
             switch(eco) {
