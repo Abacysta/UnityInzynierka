@@ -143,7 +143,7 @@ public class Map:ScriptableObject {
 
 
 
-    public void updateArmyPosition(Army army, (int,int) coordinates)
+    public void updateArmyPosition(Army army, (int,int) coordinates) // narazie dziala to tak ¿e jak armia wejdzie na panstwo odrazu jest przypisywana do owner id kontrollera armii
     {
         Province previousProvince = getProvince(coordinates);
         if (previousProvince != null)
@@ -151,7 +151,7 @@ public class Map:ScriptableObject {
             Country previousOwner = Countries.FirstOrDefault(c => c.Id == previousProvince.Owner_id);
             if (previousOwner != null)
             {
-                previousOwner.removeProvince(coordinates);
+                previousOwner.removeProvince(coordinates); // ususniecie prowincji z listy posiadanych prowincji orginalnego posiadacza prowincji
             }
         }
 
@@ -161,7 +161,7 @@ public class Map:ScriptableObject {
         {
             armyView.MoveTo(coordinates);
         }
-        assignProvince(coordinates, army.OwnerId);
+        assignProvince(coordinates, army.OwnerId);  // dodanie prowincji do kontrollera armii 
     }
     public void updateArmyDestination(Army army, (int,int) coordinates)
     {

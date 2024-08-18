@@ -19,7 +19,7 @@ public class game_manager : MonoBehaviour
     void Awake()
     {
         LoadData();
-        
+        fog_Of_War.StartTurn();
     }
 
     void LoadData()
@@ -71,7 +71,7 @@ public class game_manager : MonoBehaviour
 
         
         map.moveArmies();
-        fog_Of_War.StartTurn();
         turnCntTxt.SetText("" + ++turnCnt);
+        fog_Of_War.StartTurn();
     }
 }

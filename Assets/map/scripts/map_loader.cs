@@ -33,7 +33,7 @@ public class map_loader : MonoBehaviour
         map.Countries = new System.Collections.Generic.List<Country> {
             new Country(i++, "", (-1, -1), Color.white),
             new Country(i++, "Kingdom", (0, 0), Color.gray),
-            new Country(i++, "TestFog", (1,1), Color.red)
+            new Country(i++, "TestFog", (9,9), Color.red)
         };
         i = 0;
         foreach(Country country in map.Countries) {
@@ -46,8 +46,9 @@ public class map_loader : MonoBehaviour
         map.assignProvince((0, 1), 1);
         map.assignProvince((1, 0), 1);
 
-        map.getProvince((1, 1)).Owner_id = 2;
-        map.assignProvince((1, 2), 2);
+        map.getProvince((9, 9)).Owner_id = 2;
+        map.assignProvince((8, 9), 2);
+
 
         foreach(var p in map.Provinces) {
             map.calcRecruitablePop(p.coordinates);
@@ -71,7 +72,7 @@ public class map_loader : MonoBehaviour
         map.getProvince(0, 0).addStatus(new Disaster(2));
         map.getProvince(1, 0).addStatus(new ProdBoom(3));
         map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
-        Army testArmy = new Army(0, 100, (2, 0), (2, 1), 1, 2);
+        Army testArmy = new Army(1, 100, (2, 0), (2, 1), 1, 2);
         map.addArmy(testArmy);
         SetPolitical();
     }

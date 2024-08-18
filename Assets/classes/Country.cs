@@ -86,6 +86,7 @@ public class Country
         /// </summary>
         public int lvlFoW;
 
+
         public TechnologyInterpreter(Dictionary<Technology, int> tech) {
             Calculate(tech);
         }

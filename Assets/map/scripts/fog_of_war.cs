@@ -1,16 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class fog_of_war : MonoBehaviour
 {
     [SerializeField] private Tilemap fogTilemap;
     [SerializeField] private TileBase tileFog;
 
-    private int playerCountryId = 2;
+    private int playerCountryId = 1;
     [SerializeField] private Map map;
-    public void Start() // pierwsze za³adowanie gry
+    public void Start() 
     {
         StartTurn();
     }
@@ -65,6 +67,7 @@ public class fog_of_war : MonoBehaviour
         foreach (Country country in map.Countries)
         {
             CalculateVisibilityForCountry(country);
+            CalculateVisibilityForArmies();
         }
         UpdateFogOfWar();
     }
@@ -76,7 +79,7 @@ public class fog_of_war : MonoBehaviour
         foreach ((int x, int y) in country.Provinces)
         {
             country.RevealedTiles.Add((x, y));
-            UpdateVisibilityAroundProvince(x, y, 1); // trzeba zmienic range
+            UpdateVisibilityAroundProvince(x, y, country.techStats.lvlFoW);
         }
     }
 
@@ -86,7 +89,6 @@ public class fog_of_war : MonoBehaviour
 
         if (province == null)
         {
-            Debug.LogError($"Province at {x},{y} does not exist.");
             return;
         }
 
@@ -112,6 +114,16 @@ public class fog_of_war : MonoBehaviour
                     country.RevealedTiles.Add((offsetX, offsetY));
                 }
             }
+        }
+    }
+   private void CalculateVisibilityForArmies()
+    {
+        List<Army>armies = map.Armies;
+        foreach(Army army in armies)
+        {
+            Country country = map.Countries.FirstOrDefault(c => c.Id == army.ownerId);
+            country.RevealedTiles.Add((army.position.Item1, army.position.Item2));
+            UpdateVisibilityAroundProvince(army.position.Item1, army.position.Item2, country.techStats.lvlFoW);
         }
     }
 }
