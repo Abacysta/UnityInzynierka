@@ -85,6 +85,14 @@ public class Country
         /// Fog of War level in tiles seen beyond controlled ones
         /// </summary>
         public int lvlFoW;
+        /// <summary>
+        /// Range of movement for land units.
+        /// </summary>
+        public int moveRange;
+        /// <summary>
+        /// Factor for calculation water movement range based on moveRange and Waterfactor.
+        /// </summary>
+        public float waterMoveFactor;
 
 
         public TechnologyInterpreter(Dictionary<Technology, int> tech) {
@@ -106,7 +114,8 @@ public class Country
             recPop = 0.05f;
             occPenalty = 0.5f;
             occProd = 0;
-            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 0;
+            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 0; moveRange = 1;
+            waterMoveFactor = 0.5f;
             //economic
             switch(eco) {
                 case 1:
@@ -166,6 +175,7 @@ public class Country
                     goto case 6;
                 case 6:
                     armyCost -= 0.1f;
+                    moveRange += 1;
                     goto case 7;
                 case 7:
                     lvlFort += 1;
@@ -181,6 +191,7 @@ public class Country
                     goto case 10;
                 case 10:
                     armyPower += 0.15f;
+                    waterMoveFactor += 0.5f;
                     goto default;
                 default:
                     break;

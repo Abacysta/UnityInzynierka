@@ -67,8 +67,8 @@ public class fog_of_war : MonoBehaviour
         foreach (Country country in map.Countries)
         {
             CalculateVisibilityForCountry(country);
-            CalculateVisibilityForArmies();
         }
+        CalculateVisibilityForArmies();
         UpdateFogOfWar();
     }
 

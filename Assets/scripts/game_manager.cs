@@ -19,7 +19,6 @@ public class game_manager : MonoBehaviour
     void Awake()
     {
         LoadData();
-        fog_Of_War.StartTurn();
     }
 
     void LoadData()

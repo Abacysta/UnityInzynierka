@@ -72,7 +72,7 @@ public class map_loader : MonoBehaviour
         map.getProvince(0, 0).addStatus(new Disaster(2));
         map.getProvince(1, 0).addStatus(new ProdBoom(3));
         map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
-        Army testArmy = new Army(1, 100, (2, 0), (2, 1), 1, 2);
+        Army testArmy = new Army(1, 100, (2, 0), (2, 1));
         map.addArmy(testArmy);
         SetPolitical();
     }

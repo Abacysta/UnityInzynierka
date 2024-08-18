@@ -135,7 +135,7 @@ public class Map:ScriptableObject {
     public void recArmy((int, int) coordinates, int amount) {
         var province = getProvince(coordinates);
         if(province.RecruitablePopulation <= amount) { 
-            addArmy(new(province.Owner_id, amount, coordinates, coordinates, 1, 2));
+            addArmy(new(province.Owner_id, amount, coordinates, coordinates));
             province.Population -= amount;
             province.RecruitablePopulation -= amount;
         }
@@ -226,8 +226,9 @@ public class Map:ScriptableObject {
     {
         List<(int, int)> possibleCells = new List<(int, int)>();
         (int startX, int startY) = army.position;
-        int moveRangeLand = army.moveRangeLand;
-        int moveRangeWater = army.moveRangeWater;
+        Country country = Countries.FirstOrDefault(c => c.Id == army.ownerId);
+        int moveRangeLand = country.techStats.moveRange;
+        int moveRangeWater = (int)Math.Floor(country.techStats.moveRange + country.techStats.moveRange * country.techStats.waterMoveFactor);
 
         HexUtils.Cube startCube = HexUtils.OffsetToCube(startX, startY);
         Queue<(HexUtils.Cube, int, string)> frontier = new Queue<(HexUtils.Cube, int, string)>();
