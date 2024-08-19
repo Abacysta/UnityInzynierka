@@ -16,14 +16,6 @@ public class Army
         this.position = position;
         this.destination = destination;
     }
-
-    public Army(Army army) {
-        this.ownerId = army.ownerId;
-        this.count = army.count;
-        this.position = army.position;
-        this.destination = army.destination;
-    }
-
     public int OwnerId { get => ownerId; set => ownerId = value; }
     public int Count { get => count; set => count = value; }
     public (int,int) Position { get => position; set => position = value;  }

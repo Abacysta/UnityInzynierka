@@ -68,6 +68,9 @@ public class game_manager : MonoBehaviour
             country.setResource(Resource.AP, resources[Resource.AP]);
         }
         map.moveArmies();
+        foreach(var c in map.Countries) { 
+            map.mergeArmies(c);
+        }
         turnCntTxt.SetText("" + ++turnCnt);
         fog_Of_War.StartTurn();
     }

@@ -52,14 +52,12 @@ public class fog_of_war : MonoBehaviour
     {
         Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
         fogTilemap.SetTile(position, null);
-        Debug.Log($"Revealed tile at {coordinates.x}, {coordinates.y}");
     }
 
     public void HideTile((int x, int y) coordinates)
     {
         Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
         fogTilemap.SetTile(position, tileFog);
-        Debug.Log($"Hidden tile at {coordinates.x}, {coordinates.y}");
     }
 
     public void StartTurn()

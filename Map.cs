@@ -174,19 +174,16 @@ public class Map:ScriptableObject {
     }
     public void moveArmies()
     {
-        int it = 0;
         foreach(var army in armies)
         {
-            Debug.Log(army.position != army.destination ? ("army" + it++ + "in" + army.position.ToString() + "hasn't moved") : ("army" + it++ + "in" + army.position.ToString() + "has moved to" + army.destination.ToString()));
             if(army.position != army.destination)
             {
                 updateArmyPosition(army, army.destination);
                 updateArmyDestination(army, army.position);
                 Province province = getProvince(army.position);
             }
-
-           
         }
+        mergeArmies();
     }
 
     public void disbandArmy(Army army, int count) {
@@ -207,30 +204,23 @@ public class Map:ScriptableObject {
                 updateArmyDestination(army, destination);
                 return;
             }
-            Army moved_army = new(army);
-            moved_army.destination = destination;
-            army.count -= count;
-            moved_army.count = count;
+            var subArmy = Army.makeSubarmy(army, count);
+            addArmy(subArmy);
+            updateArmyDestination(subArmy, destination);
 
-            addArmy(moved_army);
         }
     }
-    //I LOVE LINQ
-    public void mergeArmies(Country country) {
-        List<Army> ar = armies.Where(a => a.OwnerId == country.Id).ToList();
-        var grouped =  ar.GroupBy(a => a.Position)
-            .Select(gr => new {
-                pos = gr.Key,
-                count = gr.Sum(a => a.Count),
-                ars = gr.ToList()
-            }).ToList();
-        foreach(var group in grouped) {
-            foreach(var army in group.ars) { 
-                removeArmy(army);
+    //tbd
+    public void mergeArmies()
+    {
+        List<Army> final_armies = new List<Army>();
+        foreach (var province in provinces)
+        {
+            List<Army> provincearmies = armies.FindAll(a => a.Position == province.coordinates);
+            if (armies.Count > 0)
+            {
+                final_armies.Add(Army.mergeArmiesInProvince(armies));
             }
-
-            Army merged = new(country.Id, group.count, group.pos, group.pos);
-            addArmy(merged);
         }
     }
 
