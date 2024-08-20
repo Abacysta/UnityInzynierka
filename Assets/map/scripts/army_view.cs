@@ -1,9 +1,10 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class army_view : MonoBehaviour
 {
     public Army ArmyData { get; private set; }
-    private SpriteRenderer spriteRenderer;
+    private PolygonCollider2D army_collider;
     private Vector3 targetPosition;
 
     private readonly float moveSpeed = 2f;
@@ -11,14 +12,14 @@ public class army_view : MonoBehaviour
 
     void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        army_collider = GetComponent<PolygonCollider2D>();
     }
 
     void Update()
     {
         if (isMoving)
         {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
             if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
             {
@@ -45,6 +46,15 @@ public class army_view : MonoBehaviour
         ArmyData.position = newPosition;
         targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         isMoving = true;
+        army_collider.enabled = true;
+    }
+
+    public void PrepareToMoveTo((int, int) newPosition)
+    {
+        Vector3 worldNewPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
+        targetPosition = Vector3.Lerp(transform.position, worldNewPosition, 0.45f);
+        isMoving = true;
+        army_collider.enabled = false;
     }
 
     public Vector3 HexToWorldPosition(int x, int y)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 public class Map:ScriptableObject {
@@ -12,7 +13,7 @@ public class Map:ScriptableObject {
     [SerializeField] (int, int) pop_extremes;
     [SerializeField] private List<Country> countries = new List<Country>();
     [SerializeField] private List<Army> armies = new List<Army>();
-    [SerializeField] private GameObject armyPrefab;
+    [SerializeField] private GameObject army_prefab;
     private List<army_view> armyViews = new List<army_view>();
 
     public string Map_name { get => map_name; set => map_name = value; }
@@ -117,7 +118,7 @@ public class Map:ScriptableObject {
     }
     private void createArmyView(Army army)
     {
-        GameObject armyObject = Instantiate(armyPrefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
+        GameObject armyObject = Instantiate(army_prefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
         army_view armyView = armyObject.GetComponent<army_view>();
         armyView.Initialize(army);
         armyViews.Add(armyView);
@@ -201,20 +202,38 @@ public class Map:ScriptableObject {
         }
     }
 
-    public void setMoveArmy(Army army, int count, (int, int) destination) {
-        if(count <= army.count) {
-            if(count == army.count) {
-                updateArmyDestination(army, destination);
-                return;
-            }
-            Army moved_army = new(army);
-            moved_army.destination = destination;
-            army.count -= count;
-            moved_army.count = count;
+    public void setMoveArmy(Army army, int count, (int, int) destination)
+    {
+        if (count <= army.count)
+        {
+            Army moved_army;
 
-            addArmy(moved_army);
+            if (count == army.count)
+            {
+                updateArmyDestination(army, destination);
+                moved_army = army;
+            }
+            else
+            {
+                moved_army = new Army(army)
+                {
+                    destination = destination
+                };
+                army.count -= count;
+                moved_army.count = count;
+
+                addArmy(moved_army);
+            }
+
+            var armyView = armyViews.Find(view => view.ArmyData == moved_army);
+
+            if (armyView != null)
+            {
+                armyView.PrepareToMoveTo(destination);
+            }
         }
     }
+
     //I LOVE LINQ
     public void mergeArmies(Country country) {
         List<Army> ar = armies.Where(a => a.OwnerId == country.Id).ToList();
