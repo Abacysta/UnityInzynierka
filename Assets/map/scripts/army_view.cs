@@ -1,10 +1,11 @@
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class army_view : MonoBehaviour
 {
     public Army ArmyData { get; private set; }
     private PolygonCollider2D army_collider;
+    private SpriteRenderer spriteRenderer;
+    private AudioSource move_army_sound;
     private Vector3 targetPosition;
 
     private readonly float moveSpeed = 2f;
@@ -12,7 +13,9 @@ public class army_view : MonoBehaviour
 
     void Awake()
     {
+        spriteRenderer = GetComponent<SpriteRenderer>();
         army_collider = GetComponent<PolygonCollider2D>();
+        move_army_sound = GetComponent<AudioSource>(); 
     }
 
     void Update()
@@ -43,18 +46,22 @@ public class army_view : MonoBehaviour
 
     public void MoveTo((int, int) newPosition)
     {
+        UpdatePosition();
         ArmyData.position = newPosition;
         targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         isMoving = true;
+        move_army_sound.Play();
         army_collider.enabled = true;
+        spriteRenderer.color = Color.white;
     }
 
     public void PrepareToMoveTo((int, int) newPosition)
     {
-        Vector3 worldNewPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
-        targetPosition = Vector3.Lerp(transform.position, worldNewPosition, 0.45f);
+        targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         isMoving = true;
+        move_army_sound.Play();
         army_collider.enabled = false;
+        spriteRenderer.color = new Color(200f / 255f, 200f / 255f, 200f / 255f);
     }
 
     public Vector3 HexToWorldPosition(int x, int y)

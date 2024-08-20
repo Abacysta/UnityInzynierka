@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 public class Map:ScriptableObject {
@@ -156,7 +155,6 @@ public class Map:ScriptableObject {
             }
         }
 
-        army.position = coordinates;
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
         {
