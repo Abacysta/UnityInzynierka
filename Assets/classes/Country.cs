@@ -1,3 +1,4 @@
+using Assets.classes;
 using Assets.classes.subclasses;
 using System.Collections;
 using System.Collections.Generic;
@@ -245,6 +246,7 @@ public class Country
     [SerializeField] private (int, int) capital;
     [SerializeField] private Dictionary<Resource, float> resources;
     [SerializeField] private Dictionary<Technology, int> technology;
+    private actionContainer actions;
     /// <summary>
     /// Container for all stats modified by technology
     /// </summary>
@@ -264,6 +266,7 @@ public class Country
         this.techStats = new TechnologyInterpreter(this.technology);
         this.provinces = new HashSet<(int, int)> { capital };
         revealedTiles = new HashSet<(int, int)>();
+        this.actions = new();
     }
 
     public void addProvince((int, int) coordinates) {
