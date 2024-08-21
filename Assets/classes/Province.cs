@@ -2,17 +2,13 @@ using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
 
 
 [System.Serializable]
 public class Province {
-
-    
-
-    
-
     [SerializeField] private string id;
     [SerializeField] private string name;
     [SerializeField] private int x;
@@ -24,13 +20,13 @@ public class Province {
     [SerializeField] private int recruitable_population;
     [SerializeField] private int happiness;
     [SerializeField] private bool is_coast;
-    [SerializeField] private OccupationInfo occupation_info;
+    [SerializeField] private int? occupier_id;
     [SerializeField] private int owner_id;
     [SerializeField] private List<Building> buildings;
     private List<Status> statuses;
     private float prod_mod = 1, pop_mod = 1, pop_static = 0, happ_mod = 1, happ_static = 0, tax_mod = 1, rec_pop = 1; 
 
-    public Province(string id, string name, int x, int y, string type, string resources, int resources_amount, int population, int recruitable_population, int happiness, bool is_coast, OccupationInfo occupation_info, int owner_id) {
+    public Province(string id, string name, int x, int y, string type, string resources, int resources_amount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id) {
         this.id = id;
         this.name = name;
         this.x = x;
@@ -42,7 +38,7 @@ public class Province {
         this.recruitable_population = recruitable_population;
         this.happiness = happiness;
         this.is_coast = is_coast;
-        this.occupation_info = occupation_info;
+        this.occupier_id = null;
         this.owner_id = owner_id;
         this.buildings = new List<Building>();
         this.statuses = new List<Status>();
@@ -59,7 +55,7 @@ public class Province {
     public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
     public int Happiness { get => happiness; set => happiness = value; }
     public bool Is_coast { get => is_coast; set => is_coast = value; }
-    public OccupationInfo OccupationInfo { get => occupation_info; set => occupation_info = value; }
+    public int? Occupier_id{ get => occupier_id; set => occupier_id = value; }
     public int Owner_id { get => owner_id; set => owner_id = value; }
     public List<Building> Buildings { get => buildings; set => buildings = value; }
     public (int, int) coordinates { get => (x, y); }
@@ -84,7 +80,7 @@ public class Province {
         }
     }
 
-    public void calcStatuses() {
+    public void calcStatuses(List<Country> countries) {
         prod_mod = 1;
         pop_mod = 1;
         pop_static = 0;
@@ -94,10 +90,28 @@ public class Province {
         if(statuses!= null){
             List<Status> to_rmv = new List<Status>();
             statuses.OrderByDescending(s => s.type).ToList();
-            foreach(var status in statuses) {
-                if(0 != status.duration--)
-                    status.applyEffect(this);
-                else to_rmv.Add(status);
+
+            foreach (var status in statuses) {
+                if(status is Occupation occupationStatus)
+                {
+                    if(occupationStatus.duration > 0)
+                    {
+                        occupationStatus.applyEffect(this);
+                        occupationStatus.duration--;
+                        
+                    }
+                    else
+                    {
+                        occupationStatus.EndOccupation(this,countries);
+                        to_rmv.Add(status);
+                    }
+                }
+                else
+                {
+                    if (0 != status.duration--)
+                        status.applyEffect(this);
+                    else to_rmv.Add(status);
+                }
             }
             statuses = statuses.Except(to_rmv).ToList();
         }

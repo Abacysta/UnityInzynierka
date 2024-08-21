@@ -8,6 +8,7 @@ using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCou
 public class fog_of_war : MonoBehaviour
 {
     [SerializeField] private Tilemap fogTilemap;
+    [SerializeField] private Tilemap fogMemoryTilemap;
     [SerializeField] private TileBase tileFog;
 
     private int playerCountryId = 1;
@@ -33,10 +34,19 @@ public class fog_of_war : MonoBehaviour
                     if (country.RevealedTiles.Contains((province.X, province.Y)))
                     {
                         RevealTile((province.X, province.Y));
+                        HideMemoryTile((province.X, province.Y));
+
                     }
                     else
                     {
-                        HideTile((province.X, province.Y));
+                        if(country.SeenTiles.Contains((province.X, province.Y)))
+                        {
+                            MemoryTile((province.X, province.Y));
+                        }
+                        else
+                        {
+                            HideTile((province.X, province.Y));
+                        }
                     }
                 }
             }
@@ -58,6 +68,16 @@ public class fog_of_war : MonoBehaviour
     {
         Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
         fogTilemap.SetTile(position, tileFog);
+    }
+    public void MemoryTile((int x, int y) coordinates)
+    {
+        Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
+        fogMemoryTilemap.SetTile(position, tileFog);
+    }
+    public void HideMemoryTile((int x, int y) coordinates)
+    {
+        Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
+        fogMemoryTilemap.SetTile(position, null);
     }
 
     public void StartTurn()
@@ -110,6 +130,7 @@ public class fog_of_war : MonoBehaviour
                 if (visibleProvince != null)
                 {
                     country.RevealedTiles.Add((offsetX, offsetY));
+                    country.SeenTiles.Add((offsetX, offsetY));
                 }
             }
         }
@@ -143,6 +164,7 @@ public class fog_of_war : MonoBehaviour
                 if (visibleProvince != null)
                 {
                     country.RevealedTiles.Add((offsetX, offsetY));
+                    country.SeenTiles.Add((offsetX, offsetY));
                 }
             }
         }
@@ -154,6 +176,7 @@ public class fog_of_war : MonoBehaviour
         {
             Country country = map.Countries.FirstOrDefault(c => c.Id == army.ownerId);
             country.RevealedTiles.Add((army.position.Item1, army.position.Item2));
+            country.SeenTiles.Add((army.position.Item1, army.position.Item2));
             UpdateVisibilityAroundArmy(army);
         }
     }

@@ -142,16 +142,6 @@ public class province_interface : MonoBehaviour
     public void PopulationIncrease(int val) {
         map.Provinces[prov].Population += val;
     }
-    public void addOccupation()
-    {
-        map.Provinces[prov].OccupationInfo = new OccupationInfo(true,3,69);
-    }
-    public void removeOccupation()
-    {
-        map.Provinces[prov].OccupationInfo.IsOccupied = false;
-        map.Provinces[prov].OccupationInfo.OccupationCount = 0;
-        map.Provinces[prov].OccupationInfo.OccupyingCountryId = 0;
-    }
 
 }
 

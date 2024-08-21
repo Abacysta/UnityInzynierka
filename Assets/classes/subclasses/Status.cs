@@ -92,4 +92,30 @@ namespace Assets.classes.subclasses {
             province.Prod_mod -= 0.3f;
         }
     }
+    internal class Occupation : Status
+    {
+        public int Occupier_id { get; private set; }
+        public Occupation(int duration, int occupierId) : base(duration, StatusType.negative, "This province is currently occupied", 7) 
+        {
+            this.Occupier_id = occupierId;
+        }
+
+        public override void applyEffect(Province province)
+        {
+            province.Occupier_id = this.Occupier_id;
+        }
+        public void EndOccupation(Province province, List<Country> countries)
+        {
+            Country newOwner = countries.FirstOrDefault(c => c.Id == Occupier_id);
+            Country previousOwner = countries.FirstOrDefault(c => c.Id == province.Owner_id);
+            if (newOwner != null)
+            {
+                province.Owner_id = Occupier_id;
+                province.Occupier_id = null;
+
+                previousOwner.removeProvince(province.coordinates);
+                newOwner.addProvince(province.coordinates);
+            }
+        }
+    }
 }

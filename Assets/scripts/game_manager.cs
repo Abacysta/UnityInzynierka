@@ -42,6 +42,27 @@ public class game_manager : MonoBehaviour
         }
     }
 
+    public void UndoAll()
+    {
+        foreach (var army in map.Armies)
+        {
+            if (army.position != army.destination)
+            {
+                army_view armyView = map.getView(army);
+                if (armyView != null)
+                {
+                    armyView.ReturnTo(army.position);
+                }
+                map.updateArmyDestination(army, army.position);
+            }
+        }
+
+        foreach (var c in map.Countries)
+        {
+            map.mergeArmies(c);
+        }
+    }
+
     public void TurnSimulation()
     {
         StartCoroutine(TurnSimulationCoroutine());
@@ -55,7 +76,7 @@ public class game_manager : MonoBehaviour
             map.growPop(p.coordinates);
             map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
-            p.calcStatuses();
+            p.calcStatuses(map.countries);
         }
     }
 
@@ -68,7 +89,7 @@ public class game_manager : MonoBehaviour
         loading_txt.text = "txttt";
         loading_bar.value = 0;
         loading_box.SetActive(true);
-        
+        provinceCalc(pcnt);
 
         it = 0;
         
