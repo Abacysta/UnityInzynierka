@@ -1,3 +1,4 @@
+using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -144,23 +145,13 @@ public class Map:ScriptableObject {
 
 
     public void updateArmyPosition(Army army, (int,int) coordinates) // narazie dziala to tak ¿e jak armia wejdzie na panstwo odrazu jest przypisywana do owner id kontrollera armii
-    {
-        Province previousProvince = getProvince(coordinates);
-        if (previousProvince != null)
-        {
-            Country previousOwner = Countries.FirstOrDefault(c => c.Id == previousProvince.Owner_id);
-            if (previousOwner != null)
-            {
-                previousOwner.removeProvince(coordinates); // ususniecie prowincji z listy posiadanych prowincji orginalnego posiadacza prowincji
-            }
-        }
-
+    { 
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
         {
             armyView.MoveTo(coordinates);
         }
-        assignProvince(coordinates, army.OwnerId);  // dodanie prowincji do kontrollera armii 
+        AddOccupation(army);
     }
     public void updateArmyDestination(Army army, (int,int) coordinates)
     {
@@ -251,8 +242,6 @@ public class Map:ScriptableObject {
         }
     }
 
-
-
     public List<(int, int)> getPossibleMoveCells(Army army)
     {
         List<(int, int)> possibleCells = new List<(int, int)>();
@@ -261,37 +250,49 @@ public class Map:ScriptableObject {
         int moveRangeLand = country.techStats.moveRange;
         int moveRangeWater = (int)Math.Floor(country.techStats.moveRange + country.techStats.moveRange * country.techStats.waterMoveFactor);
 
+        string startTerrain = getProvince(startX, startY).Type;
+
         HexUtils.Cube startCube = HexUtils.OffsetToCube(startX, startY);
-        Queue<(HexUtils.Cube, int, string)> frontier = new Queue<(HexUtils.Cube, int, string)>();
-        frontier.Enqueue((startCube, 0, getProvince(startX, startY).Type));
+        Queue<(HexUtils.Cube, int)> frontier = new Queue<(HexUtils.Cube, int)>();
+        frontier.Enqueue((startCube, 0));
 
         HashSet<(int, int)> visited = new HashSet<(int, int)>();
         visited.Add((startX, startY));
 
         while (frontier.Count > 0)
         {
-            var (current, currentDistance, currentTerrain) = frontier.Dequeue();
+            var (current, currentDistance) = frontier.Dequeue();
             (int currentX, int currentY) = HexUtils.CubeToOffset(current);
             possibleCells.Add((currentX, currentY));
 
-            int currentMoveRange = currentTerrain == "land" ? moveRangeLand : moveRangeWater;
+            int currentMoveRange = startTerrain == "land" ? moveRangeLand : moveRangeWater;
 
-            if (currentDistance < currentMoveRange)
+            for (int dir = 0; dir < 6; dir++)
             {
-                for (int dir = 0; dir < 6; dir++)
+                HexUtils.Cube neighbor = HexUtils.CubeNeighbor(current, dir);
+                (int neighborX, int neighborY) = HexUtils.CubeToOffset(neighbor);
+
+                if (!IsValidPosition(neighborX, neighborY)) continue;
+
+                string neighborTerrain = getProvince(neighborX, neighborY).Type;
+
+                if (!visited.Contains((neighborX, neighborY)))
                 {
-                    HexUtils.Cube neighbor = HexUtils.CubeNeighbor(current, dir);
-                    (int neighborX, int neighborY) = HexUtils.CubeToOffset(neighbor);
-
-                    if (!IsValidPosition(neighborX, neighborY)) continue;
-
-                    string neighborTerrain = getProvince(neighborX, neighborY).Type;
-                    int nextDistance = currentTerrain == neighborTerrain ? currentDistance + 1 : currentDistance + 1;
-
-                    if (!visited.Contains((neighborX, neighborY)) && nextDistance <= currentMoveRange)
+                    if (neighborTerrain == startTerrain)
                     {
-                        visited.Add((neighborX, neighborY));
-                        frontier.Enqueue((neighbor, nextDistance, neighborTerrain));
+                        if (currentDistance + 1 <= currentMoveRange)
+                        {
+                            visited.Add((neighborX, neighborY));
+                            frontier.Enqueue((neighbor, currentDistance + 1));
+                        }
+                    }
+                    else
+                    {
+                        if (currentDistance < currentMoveRange)
+                        {
+                            visited.Add((neighborX, neighborY));
+                            frontier.Enqueue((neighbor, currentMoveRange)); 
+                        }
                     }
                 }
             }
@@ -299,8 +300,34 @@ public class Map:ScriptableObject {
 
         return possibleCells;
     }
+
+
+
     public bool IsValidPosition(int x, int y)
     {
         return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }
+    private void AddOccupation(Army army)
+    {
+        Province province = getProvince(army.position.Item1, army.position.Item2);
+        Country country = Countries.FirstOrDefault(c => c.Id == army.ownerId);
+        Occupation occupationStatus = null;
+        if (province.Owner_id == 0)
+        {
+            occupationStatus = new Occupation(0, army.ownerId);
+        }
+        else 
+        {
+            Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
+            if(!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.Occupier_id))
+            {
+                occupationStatus = new Occupation(country.techStats.occTime, army.ownerId);
+            }
+        }
+        if(occupationStatus != null && province.Type == "land")
+        {
+            province.addStatus(occupationStatus);
+        }
+    }
+
 }

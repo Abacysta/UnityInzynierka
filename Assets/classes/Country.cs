@@ -66,6 +66,10 @@ public class Country
         /// </summary>
         public float occProd;
         /// <summary>
+        /// Amount of turns needed to change province status from "occupied" to "owned"
+        /// </summary>
+        public int occTime;
+        /// <summary>
         /// Max level of Mine building
         /// </summary>
         public int lvlMine;
@@ -114,7 +118,8 @@ public class Country
             recPop = 0.05f;
             occPenalty = 0.5f;
             occProd = 0;
-            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 1; moveRange = 1;
+            occTime = 3;
+            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 1; moveRange = 3;
             waterMoveFactor = 0.5f;
             //economic
             switch(eco) {
@@ -164,6 +169,7 @@ public class Country
                     goto case 3;
                 case 3:
                     armyUpkeep -= 0.03f;
+                    occTime -= 1;
                     goto case 4;
                 case 4:
                     armyPower += 0.1f;
@@ -255,6 +261,8 @@ public class Country
     private HashSet<(int, int)> revealedTiles;
     private HashSet<(int, int)> seenTiles;
 
+    private HashSet<Country> alliedCountries;
+    private HashSet<(int, int)> occupiedProvinces;
     public Country(int id, string name, (int, int) capital, Color color) {
         this.id = id;
         this.name = name;
@@ -266,6 +274,8 @@ public class Country
         this.provinces = new HashSet<(int, int)> { capital };
         revealedTiles = new HashSet<(int, int)>();
         seenTiles = new HashSet<(int, int)>();
+        alliedCountries = new HashSet<Country>();
+        occupiedProvinces = new HashSet<(int, int)>();
     }
 
     public void addProvince((int, int) coordinates) {
@@ -277,7 +287,7 @@ public class Country
     }
 
     public int Id { get { return id; } }
-    public string Name { get { return name; } }
+    public string Name { get { return name; } } 
     public int Priority { get { return prio; } set => prio = value; }
     public Color Color { get { return color; } }
     public Dictionary<Resource, float> Resources { get { return resources; } }
@@ -285,6 +295,8 @@ public class Country
     public (int, int) Capital {  get { return capital; } }
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
+    public HashSet<Country> AlliedCountries { get { return alliedCountries; } }
+    public HashSet<(int,int)> OccupiedProvinces { get { return occupiedProvinces; } }
 
     public void modifyResource((Resource, float) values) {
         resources[values.Item1] += values.Item2;
@@ -323,6 +335,20 @@ public class Country
     {
         revealedTiles.Clear();
     }    
+    public void AddOccupiedProvince((int, int) coordinates)
+    {
+        if(!occupiedProvinces.Contains(coordinates))
+        {
+            occupiedProvinces.Add(coordinates);
+        }
+    }
+    public void RemoveOccupiedProvince((int, int) coordinates)
+    {
+        if (occupiedProvinces.Contains(coordinates))
+        {
+            occupiedProvinces.Remove(coordinates);
+        }
+    }
 }
 
 

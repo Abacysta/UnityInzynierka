@@ -52,7 +52,7 @@ public class game_manager : MonoBehaviour
             map.growPop(p.coordinates);
             map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
-            p.calcStatuses();
+            p.calcStatuses(map.Countries);
         }
 
         for(int i = 1; i < map.Countries.Count; i++) {
