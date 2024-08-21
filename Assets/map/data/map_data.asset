@@ -144359,4 +144359,4 @@ MonoBehaviour:
       occupyingCountryId: 0
     owner_id: 0
     buildings: []
-  armyPrefab: {fileID: 8881007966899125626, guid: 79923ca259238ba4cb3faca8d13947cd, type: 3}
+  army_prefab: {fileID: 8881007966899125626, guid: 79923ca259238ba4cb3faca8d13947cd, type: 3}

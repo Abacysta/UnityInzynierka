@@ -35,16 +35,16 @@ public class army_click_handler : cursor_helper
     }
     void Update()
     {
+        if (isHighlighted)
+        {
+            AnimateHighlitedTiles();
+        }
+
         if (IsCursorOverUIObject()) return;
 
         if (Input.GetMouseButtonDown(0))
         {
             HandleLeftClick();
-        }
-
-        if (isHighlighted)
-        {
-            AnimateHighlitedTiles();
         }
     }
 

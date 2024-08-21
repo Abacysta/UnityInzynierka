@@ -24,7 +24,7 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Button cancel_button;
     [SerializeField] private Button confirm_button;
 
-    [SerializeField] private AudioSource click_sound, move_sound;
+    [SerializeField] private AudioSource click_sound;
 
     public class dialog_box_precons {
         internal class DialogBox {
@@ -51,7 +51,6 @@ public class dialog_box_manager : MonoBehaviour
         (string image, string title, string message) = dialog_box_precons.army_box.toVars();
         Action onConfirm = () => {
             map.setMoveArmy(army, (int)dialog_slider.value, destination);
-            move_sound.Play();
         };
         Action onCancel = null;
         ShowSliderBox(image, title, message, onConfirm, onCancel, army.Count);
