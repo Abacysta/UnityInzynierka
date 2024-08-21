@@ -42,6 +42,27 @@ public class game_manager : MonoBehaviour
         }
     }
 
+    public void UndoAll()
+    {
+        foreach (var army in map.Armies)
+        {
+            if (army.position != army.destination)
+            {
+                army_view armyView = map.getView(army);
+                if (armyView != null)
+                {
+                    armyView.ReturnTo(army.position);
+                }
+                map.updateArmyDestination(army, army.position);
+            }
+        }
+
+        foreach (var c in map.Countries)
+        {
+            map.mergeArmies(c);
+        }
+    }
+
     public void TurnSimulation()
     {
         StartCoroutine(TurnSimulationCoroutine());
