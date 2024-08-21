@@ -253,6 +253,7 @@ public class Country
     [SerializeField] private Color color;
 
     private HashSet<(int, int)> revealedTiles;
+    private HashSet<(int, int)> seenTiles;
 
     public Country(int id, string name, (int, int) capital, Color color) {
         this.id = id;
@@ -264,6 +265,7 @@ public class Country
         this.techStats = new TechnologyInterpreter(this.technology);
         this.provinces = new HashSet<(int, int)> { capital };
         revealedTiles = new HashSet<(int, int)>();
+        seenTiles = new HashSet<(int, int)>();
     }
 
     public void addProvince((int, int) coordinates) {
@@ -282,6 +284,7 @@ public class Country
     public HashSet<(int, int)> Provinces { get { return provinces; } }
     public (int, int) Capital {  get { return capital; } }
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
+    public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
 
     public void modifyResource((Resource, float) values) {
         resources[values.Item1] += values.Item2;
@@ -319,9 +322,7 @@ public class Country
     public void ClearRevealedTiles()
     {
         revealedTiles.Clear();
-    }
-
-    
+    }    
 }
 
 

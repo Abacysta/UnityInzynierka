@@ -108,11 +108,19 @@ public class army_click_handler : cursor_helper
 
         highlightedCells.Clear();
 
+        Vector3Int currentArmyPosition = new Vector3Int(army.position.Item1, army.position.Item2, 0);
+
         foreach (var cell in possibleCells)
         {
-            Vector3Int cellPosition = new(cell.Item1, cell.Item2, 0);
+            Vector3Int cellPosition = new Vector3Int(cell.Item1, cell.Item2, 0);
             TileBase tile = base_layer.GetTile(cellPosition);
-            // bez sprawdzania czy nie ma armii, hex na ktorym znajduje sie armia zostaje podswietlony.
+
+            // Sprawdzenie czy na danym tile'u nie znajduje siê bie¿¹ca armia
+            if (cellPosition == currentArmyPosition)
+            {
+                continue;
+            }
+
             bool hasArmy = false;
             Collider2D[] colliders = Physics2D.OverlapPointAll(base_layer.CellToWorld(cellPosition));
             foreach (var collider in colliders)
@@ -124,15 +132,16 @@ public class army_click_handler : cursor_helper
                 }
             }
 
-            if (tile != null && !hasArmy)
+            if (tile != null)
             {
                 highlightedCells.Add(cellPosition);
                 army_movement_layer.SetTile(cellPosition, base_tile);
             }
         }
-        //https://www.redblobgames.com/grids/hexagons/#line-drawing do przyszlego pathfindingu? 
-        //https://www.redblobgames.com/grids/hexagons/#pathfinding
     }
+
+    //https://www.redblobgames.com/grids/hexagons/#line-drawing do przyszlego pathfindingu? 
+    //https://www.redblobgames.com/grids/hexagons/#pathfinding
 
     private void AnimateHighlitedTiles()
     {
