@@ -142,7 +142,9 @@ public class Map:ScriptableObject {
         }
     }
 
-
+    public army_view getView(Army army) {
+        return armyViews.Find(view => view.ArmyData == army);
+    }
 
     public void updateArmyPosition(Army army, (int,int) coordinates) // narazie dziala to tak ¿e jak armia wejdzie na panstwo odrazu jest przypisywana do owner id kontrollera armii
     { 
@@ -167,16 +169,19 @@ public class Map:ScriptableObject {
         int it = 0;
         foreach(var army in armies)
         {
-            Debug.Log(army.position != army.destination ? ("army" + it++ + "in" + army.position.ToString() + "hasn't moved") : ("army" + it++ + "in" + army.position.ToString() + "has moved to" + army.destination.ToString()));
+            
             if(army.position != army.destination)
             {
-                updateArmyPosition(army, army.destination);
-                updateArmyDestination(army, army.position);
-                Province province = getProvince(army.position);
+                MoveArmy(army);   
             }
+            Debug.Log(army.position != army.destination ? ("army" + it++ + "in" + army.position.ToString() + "hasn't moved") : ("army" + it++ + "in" + army.position.ToString() + "has moved to" + army.destination.ToString()));
 
-           
         }
+    }
+
+    public void MoveArmy(Army army) {
+        updateArmyPosition(army, army.destination);
+        updateArmyDestination(army, army.position);
     }
 
     public void disbandArmy(Army army, int count) {
