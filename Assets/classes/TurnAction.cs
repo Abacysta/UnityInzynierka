@@ -103,13 +103,15 @@ namespace Assets.classes {
 
                 public override void execute() {
                     base.execute();
-                    army.count -= this.count;
+                    
                 }
                 public override void preview() {
                     base.preview();
+                    army.count -= this.count;
                 }
                 public override void revert() {
                     base.revert();
+                    army.count += this.count;
                 }
             }
         }

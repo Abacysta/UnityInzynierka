@@ -47,6 +47,18 @@ public class game_manager : MonoBehaviour
         StartCoroutine(TurnSimulationCoroutine());
     }
 
+    private void provinceCalc(int pcnt) {
+        loading_txt.text = "Calculating provinces";
+        Debug.Log("started bar");
+        foreach(var p in map.Provinces) {
+            loading_bar.value = (0.2f * 100 / pcnt);
+            map.growPop(p.coordinates);
+            map.calcRecruitablePop(p.coordinates);
+            map.calcPopExtremes();
+            p.calcStatuses();
+        }
+    }
+
     private IEnumerator TurnSimulationCoroutine()
     {//id 0 is a dummy
 
@@ -56,15 +68,7 @@ public class game_manager : MonoBehaviour
         loading_txt.text = "txttt";
         loading_bar.value = 0;
         loading_box.SetActive(true);
-        loading_txt.text = "Calculating provinces";
-        Debug.Log("started bar");
-        foreach(var p in map.Provinces) {
-            loading_bar.value = (0.2f * it++ * 100 / pcnt);
-            map.growPop(p.coordinates);
-            map.calcRecruitablePop(p.coordinates);
-            map.calcPopExtremes();
-            p.calcStatuses();
-        }
+        
 
         it = 0;
         

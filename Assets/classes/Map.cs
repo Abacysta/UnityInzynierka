@@ -134,10 +134,30 @@ public class Map:ScriptableObject {
 
     public void recArmy((int, int) coordinates, int amount) {
         var province = getProvince(coordinates);
+        var exitsing = armies.Find(a => a.position == coordinates);
         if(province.RecruitablePopulation <= amount) { 
-            addArmy(new(province.Owner_id, amount, coordinates, coordinates));
             province.Population -= amount;
             province.RecruitablePopulation -= amount;
+            if(exitsing == null) { 
+                addArmy(new(province.Owner_id, amount, coordinates, coordinates));
+            }
+            else {
+                exitsing.count += amount;
+            }
+        }
+    }
+
+    public void disArmy((int, int) coordinates, int amount) {
+        var province = getProvince(coordinates);
+        var army = armies.Find(a => a.position == coordinates);
+        if(army != null) {
+            if(army.count == amount) {
+                removeArmy(army);
+            }
+            else {
+                army.count -= amount;
+            }
+            province.Population += army.count / 2;
         }
     }
 
@@ -193,17 +213,6 @@ public class Map:ScriptableObject {
         updateArmyDestination(army, army.position);
     }
 
-    public void disbandArmy(Army army, int count) {
-        if(count <= army.count) {
-            if(count == army.count) {
-                removeArmy(army);
-                return;
-            }
-            var province = getProvince(army.position);
-            province.Population += army.count / 2;
-            var army_dest = Army.makeSubarmy(army, count);
-        }
-    }
 
     public void setMoveArmy(Army army, int count, (int, int) destination)
     {

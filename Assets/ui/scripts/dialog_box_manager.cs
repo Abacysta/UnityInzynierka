@@ -69,7 +69,7 @@ public class dialog_box_manager : MonoBehaviour
     public void invokeDisBox(Map map, Army army) {
         (string image, string title, string message) = dialog_box_precons.dis_box.toVars();
         Action onConfirm = () => {
-            map.disbandArmy(army, (int)dialog_slider.value);
+            map.disArmy(army.position, (int)dialog_slider.value);
         };
         Action onCancel= null;
         ShowSliderBox(image, title, message, onConfirm, onCancel, army.count);
