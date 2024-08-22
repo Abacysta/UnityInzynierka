@@ -65,7 +65,7 @@ public class map_loader : MonoBehaviour
                 if(p.Owner_id != 0 && p.Owner_id != null) {
                     map.assignProvince(p.coordinates, p.Owner_id);
                 }
-                p.calcStatuses(map.Countries);
+                p.calcStatuses();
             }
         }
         map.getProvince((0, 0)).addStatus(new TaxBreak(3));

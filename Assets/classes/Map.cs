@@ -2,6 +2,7 @@ using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
@@ -25,6 +26,7 @@ public class Map:ScriptableObject {
     public (int, int) Selected_province { get => selected_province; set => selected_province = value; }
     public (int, int) Pop_extremes { get => pop_extremes; set => pop_extremes = value; }
     public List<Army> Armies { get => armies; set => armies = value; }
+    private Dictionary<(int, int), OccupationInfo> occupiedProvinces = new Dictionary<(int, int), OccupationInfo>();
 
     public Province getProvince(int x, int y) {
         return Provinces.Find(p => p.X == x && p.Y == y);
@@ -312,6 +314,44 @@ public class Map:ScriptableObject {
     {
         return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }
+    // kocham okupacje
+    public void ManageOccupationDuration()
+    {
+        List<(int, int)> provincesToChangeOwner = new List<(int, int)>();
+
+        foreach (var entry in occupiedProvinces)
+        {
+            (int, int) provinceCoords = entry.Key;
+            OccupationInfo occupationInfo = entry.Value;
+
+            occupationInfo.OccupationCount--;
+
+            if (occupationInfo.OccupationCount < 0)
+            {
+                provincesToChangeOwner.Add(provinceCoords);
+            }
+        }
+
+        foreach (var provinceCoords in provincesToChangeOwner)
+        {
+            OccupationChangeOwner(provinceCoords);
+        }
+    }
+    private void OccupationChangeOwner((int, int) coordinates)
+    {
+        if (occupiedProvinces.TryGetValue(coordinates, out OccupationInfo occupationInfo))
+        {
+            Province province = getProvince(coordinates);
+            int previousOwnerId = province.Owner_id;
+            int newOwnerId = occupationInfo.OccupyingCountryId;
+
+            Countries.FirstOrDefault(c => c.Id == previousOwnerId).removeProvince(coordinates);
+            assignProvince(coordinates, newOwnerId);
+
+            occupiedProvinces.Remove(coordinates);
+        }
+    }
+
     private void AddOccupation(Army army)
     {
         Province province = getProvince(army.position.Item1, army.position.Item2);
@@ -321,18 +361,23 @@ public class Map:ScriptableObject {
         {
             occupationStatus = new Occupation(0, army.ownerId);
         }
-        else 
+        else
         {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-            if(!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.Occupier_id))
+            if (!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.Occupier_id))
             {
                 occupationStatus = new Occupation(country.techStats.occTime, army.ownerId);
             }
         }
-        if(occupationStatus != null && province.Type == "land")
+        if (occupationStatus != null && province.Type == "land")
         {
             province.addStatus(occupationStatus);
+            occupiedProvinces[army.position] = new OccupationInfo(true, occupationStatus.duration+1 , army.ownerId); // duration jest jakies dziwne w statusach
         }
+    }
+    private void cancelOccupation((int, int) coordinates) // jak owner wejdzie na swoja okupowana prowincje
+    {
+
     }
 
 }

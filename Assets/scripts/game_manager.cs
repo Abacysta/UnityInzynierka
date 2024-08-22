@@ -84,7 +84,7 @@ public class game_manager : MonoBehaviour
             map.growPop(p.coordinates);
             map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
-            p.calcStatuses(map.Countries);
+            p.calcStatuses();
         }
 
         it = 0;
@@ -134,6 +134,7 @@ public class game_manager : MonoBehaviour
             map.mergeArmies(c);
         }
 
+        map.ManageOccupationDuration();
         turnCntTxt.SetText("" + ++turnCnt);
         fog_Of_War.StartTurn();
         loading_box.SetActive(false);

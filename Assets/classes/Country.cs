@@ -264,7 +264,6 @@ public class Country
     private HashSet<(int, int)> seenTiles;
 
     private HashSet<Country> alliedCountries;
-    private HashSet<(int, int)> occupiedProvinces;
     public Country(int id, string name, (int, int) capital, Color color) {
         this.id = id;
         this.name = name;
@@ -278,7 +277,6 @@ public class Country
         this.actions = new();
         seenTiles = new HashSet<(int, int)>();
         alliedCountries = new HashSet<Country>();
-        occupiedProvinces = new HashSet<(int, int)>();
     }
 
     public void addProvince((int, int) coordinates) {
@@ -299,7 +297,6 @@ public class Country
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
     public HashSet<Country> AlliedCountries { get { return alliedCountries; } }
-    public HashSet<(int,int)> OccupiedProvinces { get { return occupiedProvinces; } }
 
     public void modifyResource((Resource, float) values) {
         resources[values.Item1] += values.Item2;
@@ -338,20 +335,6 @@ public class Country
     {
         revealedTiles.Clear();
     }    
-    public void AddOccupiedProvince((int, int) coordinates)
-    {
-        if(!occupiedProvinces.Contains(coordinates))
-        {
-            occupiedProvinces.Add(coordinates);
-        }
-    }
-    public void RemoveOccupiedProvince((int, int) coordinates)
-    {
-        if (occupiedProvinces.Contains(coordinates))
-        {
-            occupiedProvinces.Remove(coordinates);
-        }
-    }
 }
 
 
