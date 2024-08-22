@@ -26,7 +26,6 @@ public class Map:ScriptableObject {
     public (int, int) Selected_province { get => selected_province; set => selected_province = value; }
     public (int, int) Pop_extremes { get => pop_extremes; set => pop_extremes = value; }
     public List<Army> Armies { get => armies; set => armies = value; }
-    private Dictionary<(int, int), OccupationInfo> occupiedProvinces = new Dictionary<(int, int), OccupationInfo>();
 
     public Province getProvince(int x, int y) {
         return Provinces.Find(p => p.X == x && p.Y == y);
@@ -315,69 +314,59 @@ public class Map:ScriptableObject {
         return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }
     // kocham okupacje
-    public void ManageOccupationDuration()
+    public void ManageOccupationDuration(Province province)
     {
-        List<(int, int)> provincesToChangeOwner = new List<(int, int)>();
-
-        foreach (var entry in occupiedProvinces)
+        if (province.OccupationInfo.IsOccupied)
         {
-            (int, int) provinceCoords = entry.Key;
-            OccupationInfo occupationInfo = entry.Value;
+            province.OccupationInfo.OccupationCount--;
 
-            occupationInfo.OccupationCount--;
-
-            if (occupationInfo.OccupationCount < 0)
+            if (province.OccupationInfo.OccupationCount <= 0)
             {
-                provincesToChangeOwner.Add(provinceCoords);
+                OccupationChangeOwner(province);
             }
         }
-
-        foreach (var provinceCoords in provincesToChangeOwner)
-        {
-            OccupationChangeOwner(provinceCoords);
-        }
     }
-    private void OccupationChangeOwner((int, int) coordinates)
+    private void OccupationChangeOwner(Province province)
     {
-        if (occupiedProvinces.TryGetValue(coordinates, out OccupationInfo occupationInfo))
-        {
-            Province province = getProvince(coordinates);
-            int previousOwnerId = province.Owner_id;
-            int newOwnerId = occupationInfo.OccupyingCountryId;
+        int previousOwnerId = province.Owner_id;
+        int newOwnerId = province.OccupationInfo.OccupyingCountryId;
 
-            Countries.FirstOrDefault(c => c.Id == previousOwnerId).removeProvince(coordinates);
-            assignProvince(coordinates, newOwnerId);
+        Countries.FirstOrDefault(c => c.Id == previousOwnerId)?.removeProvince(province.coordinates);
 
-            occupiedProvinces.Remove(coordinates);
-        }
+        assignProvince(province.coordinates, newOwnerId);
     }
 
     private void AddOccupation(Army army)
     {
-        Province province = getProvince(army.position.Item1, army.position.Item2);
-        Country country = Countries.FirstOrDefault(c => c.Id == army.ownerId);
+        Province province = getProvince(army.Position.Item1, army.Position.Item2);
+        Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
         Occupation occupationStatus = null;
+
         if (province.Owner_id == 0)
         {
-            occupationStatus = new Occupation(0, army.ownerId);
+            province.OccupationInfo.OccupationCount = 0;
+            occupationStatus = new Occupation(0, army.OwnerId);
         }
         else
         {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-            if (!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.Occupier_id))
+            if (!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.OccupationInfo.OccupyingCountryId))
             {
-                occupationStatus = new Occupation(country.techStats.occTime, army.ownerId);
+                occupationStatus = new Occupation(country.techStats.occTime, army.OwnerId);
             }
         }
+
         if (occupationStatus != null && province.Type == "land")
         {
             province.addStatus(occupationStatus);
-            occupiedProvinces[army.position] = new OccupationInfo(true, occupationStatus.duration+1 , army.ownerId); // duration jest jakies dziwne w statusach
+            province.OccupationInfo = new OccupationInfo(true, occupationStatus.duration + 1, army.OwnerId);
         }
     }
-    private void cancelOccupation((int, int) coordinates) // jak owner wejdzie na swoja okupowana prowincje
+    private void CancelOccupation(Province province) // jak odbija panstwo prowincje 
     {
-
+        province.OccupationInfo.IsOccupied = false;
+        province.OccupationInfo.OccupationCount = 0;
+        province.OccupationInfo.OccupyingCountryId = -1; 
     }
 
 }

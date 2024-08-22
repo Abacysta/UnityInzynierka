@@ -1,3 +1,4 @@
+using Assets.classes.subclasses;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -85,6 +86,12 @@ public class game_manager : MonoBehaviour
             map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
             p.calcStatuses();
+
+            // zarzadzanie okupacja
+            if(p.OccupationInfo.OccupyingCountryId != -1)
+            {
+                map.ManageOccupationDuration(p);
+            }
         }
 
         it = 0;
@@ -133,8 +140,6 @@ public class game_manager : MonoBehaviour
             loading_bar.value = (0.9f + 0.1f * it++ * 100 / ccnt);
             map.mergeArmies(c);
         }
-
-        map.ManageOccupationDuration();
         turnCntTxt.SetText("" + ++turnCnt);
         fog_Of_War.StartTurn();
         loading_box.SetActive(false);

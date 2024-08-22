@@ -102,7 +102,7 @@ namespace Assets.classes.subclasses {
 
         public override void applyEffect(Province province)
         {
-            province.Occupier_id = this.Occupier_id;
+            province.OccupationInfo.OccupyingCountryId = this.Occupier_id;
         }
     }
 }
