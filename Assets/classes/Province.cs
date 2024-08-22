@@ -26,7 +26,7 @@ public class Province {
     private List<Status> statuses;
     private float prod_mod = 1, pop_mod = 1, pop_static = 0, happ_mod = 1, happ_static = 0, tax_mod = 1, rec_pop = 1; 
 
-    public Province(string id, string name, int x, int y, string type, string resources, int resources_amount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id, OccupationInfo occupationInfo) {
+    public Province(string id, string name, int x, int y, string type, string resources, int resources_amount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id) {
         this.id = id;
         this.name = name;
         this.x = x;
