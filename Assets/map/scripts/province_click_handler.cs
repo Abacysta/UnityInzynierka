@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.EventSystems;
-using System.Collections.Generic;
 
 public class province_click_handler : cursor_helper
 {
@@ -15,6 +13,7 @@ public class province_click_handler : cursor_helper
     [SerializeField] private GameObject province_interface;
     [SerializeField] private GameObject province_tooltip;
     [SerializeField] private army_click_handler armyClickHandler;
+    [SerializeField] private camera_controller cameraController;
 
     private Vector3Int previousCellPosition;
     private Vector3Int cellPosition;
@@ -29,6 +28,12 @@ public class province_click_handler : cursor_helper
 
     void Update()
     {
+        if (cameraController.IsPanning) 
+        {
+            province_tooltip.SetActive(false);
+            mouse_hover_layer.ClearAllTiles();
+            return;
+        }
         if (IsCursorOverUIObject()) return;
 
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);

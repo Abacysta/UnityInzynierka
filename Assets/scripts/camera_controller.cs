@@ -1,16 +1,13 @@
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
-public class camera_controller : MonoBehaviour
+public class camera_controller : cursor_helper
 {
     [SerializeField] private Map map;
     [SerializeField] private Tilemap tile_map_layer_1;
     [SerializeField] private Texture2D default_cursor;
     [SerializeField] private Texture2D pan_cursor;
-    [SerializeField] private GameObject settings_menu;
 
     [SerializeField] private float minZoom = 2f;
     [SerializeField] private float maxZoom = 100f;
@@ -31,10 +28,11 @@ public class camera_controller : MonoBehaviour
     private float centerX;
     private float centerY;
 
-
     private Vector3 panOrigin;
     private Vector3 lastPanPosition;
     private bool isPanning = false;
+
+    public bool IsPanning { get => isPanning; private set => isPanning = value; }
 
     void Start()
     {
@@ -104,8 +102,7 @@ public class camera_controller : MonoBehaviour
     {
         // Disabling camera panning while using the settings menu
         // and when the cursor is over UI
-        if ((settings_menu != null && settings_menu.activeSelf) ||
-            IsCursorOverUIObject())
+        if (IsCursorOverUIObject())
         {
             Cursor.SetCursor(default_cursor, Vector2.zero, CursorMode.Auto);
             return;
@@ -150,7 +147,6 @@ public class camera_controller : MonoBehaviour
 
     void HandleKeyboardPan()
     {
-        if (settings_menu != null && settings_menu.activeSelf) return;
         if (IsCursorOverUIObject()) return;
 
         float horizontal = Input.GetAxis("Horizontal");
@@ -168,7 +164,6 @@ public class camera_controller : MonoBehaviour
 
     void HandleCameraZoom()
     {
-        if (settings_menu != null && settings_menu.activeSelf) return;
         if (IsCursorOverUIObject()) return;
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -191,16 +186,6 @@ public class camera_controller : MonoBehaviour
 
         panSpeed = Mathf.Lerp(maxPanSpeed, minPanSpeed, steepFactor);
         zoomSpeed = Mathf.Lerp(maxZoomSpeed, minZoomSpeed, zoomFactor);
-    }
-
-    bool IsCursorOverUIObject()
-    {
-        PointerEventData eventDataCurrentPosition = new(EventSystem.current);
-        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        List<RaycastResult> results = new();
-        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-
-        return results.Count > 0;
     }
 
     public void CenterCamera()

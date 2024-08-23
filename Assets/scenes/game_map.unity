@@ -3864,7 +3864,7 @@ GameObject:
   - component: {fileID: 486171403}
   m_Layer: 5
   m_Name: province_tooltip
-  m_TagString: Untagged
+  m_TagString: IgnoreRaycast
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5361,6 +5361,7 @@ MonoBehaviour:
   province_interface: {fileID: 888877804}
   province_tooltip: {fileID: 486171399}
   armyClickHandler: {fileID: 653004899}
+  cameraController: {fileID: 1043393647}
 --- !u!114 &653004899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8891,7 +8892,6 @@ MonoBehaviour:
   tile_map_layer_1: {fileID: 352083102}
   default_cursor: {fileID: 2800000, guid: 0b86e86e49c39584ca92724a2cc3a501, type: 3}
   pan_cursor: {fileID: 2800000, guid: f27d2a87b8553f8438fadbb8f50e9bbd, type: 3}
-  settings_menu: {fileID: 198795764}
   minZoom: 2
   maxZoom: 200
   minPanSpeed: 5

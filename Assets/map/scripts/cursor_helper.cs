@@ -6,13 +6,27 @@ public class cursor_helper : MonoBehaviour
 {
     protected bool IsCursorOverUIObject()
     {
-        PointerEventData eventDataCurrentPosition = new(EventSystem.current);
-        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        if (EventSystem.current == null)
+        {
+            Debug.LogWarning("EventSystem is not found!");
+            return false;
+        }
+
+        PointerEventData eventDataCurrentPosition = new(EventSystem.current)
+        {
+            position = new Vector2(Input.mousePosition.x, Input.mousePosition.y)
+        };
         List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
 
+        foreach (var result in results)
+        {
+            if (result.gameObject.CompareTag("IgnoreRaycast")) return false;
+        }
+
         return results.Count > 0;
     }
+
     protected bool IsCursorOverArmy()
     {
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
