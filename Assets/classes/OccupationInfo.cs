@@ -2,9 +2,10 @@
 [System.Serializable]
 public class OccupationInfo
 {
-    [SerializeField] private bool isOccupied;
-    [SerializeField] private int occupationCount;
-    [SerializeField] private int occupyingCountryId;
+    [SerializeField] private bool isOccupied = false;
+    [SerializeField] private int occupationCount = 0;
+    [SerializeField] private int occupyingCountryId = -1;
+    public OccupationInfo() { }
 
     public OccupationInfo(bool isOccupied, int occupationCount, int occupyingCountryId)
     {

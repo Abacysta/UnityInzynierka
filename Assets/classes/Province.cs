@@ -38,7 +38,7 @@ public class Province {
         this.recruitable_population = recruitable_population;
         this.happiness = happiness;
         this.is_coast = is_coast;
-        this.occupationInfo = occupationInfo;
+        this.occupationInfo = new OccupationInfo();
         this.owner_id = owner_id;
         this.buildings = new List<Building>();
         this.statuses = new List<Status>();

@@ -147,7 +147,7 @@ public class Map:ScriptableObject {
         return armyViews.Find(view => view.ArmyData == army);
     }
 
-    public void updateArmyPosition(Army army, (int,int) coordinates) // narazie dziala to tak ¿e jak armia wejdzie na panstwo odrazu jest przypisywana do owner id kontrollera armii
+    public void updateArmyPosition(Army army, (int,int) coordinates)
     { 
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
@@ -313,7 +313,6 @@ public class Map:ScriptableObject {
     {
         return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }
-    // kocham okupacje
     public void ManageOccupationDuration(Province province)
     {
         if (province.OccupationInfo.IsOccupied)
@@ -334,6 +333,7 @@ public class Map:ScriptableObject {
         Countries.FirstOrDefault(c => c.Id == previousOwnerId)?.removeProvince(province.coordinates);
 
         assignProvince(province.coordinates, newOwnerId);
+        CancelOccupation(province);
     }
 
     private void AddOccupation(Army army)
@@ -344,7 +344,6 @@ public class Map:ScriptableObject {
 
         if (province.Owner_id == 0)
         {
-            province.OccupationInfo.OccupationCount = 0;
             occupationStatus = new Occupation(0, army.OwnerId);
         }
         else

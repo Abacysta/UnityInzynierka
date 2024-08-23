@@ -65,6 +65,7 @@ public class map_loader : MonoBehaviour
                 if(p.Owner_id != 0 && p.Owner_id != null) {
                     map.assignProvince(p.coordinates, p.Owner_id);
                 }
+                p.OccupationInfo = new OccupationInfo();
                 p.calcStatuses();
             }
         }
