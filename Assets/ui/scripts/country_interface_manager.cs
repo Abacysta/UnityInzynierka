@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class country_tab_manager : MonoBehaviour
+public class country_interface_manager : MonoBehaviour
 {
     [SerializeField] private GameObject[] tab_buttons;
     [SerializeField] private GameObject[] tab_panels;
@@ -36,6 +34,5 @@ public class country_tab_manager : MonoBehaviour
         tab_buttons[index].GetComponent<Image>().color = activeColor;
 
         activeTab = index;
-        Canvas.ForceUpdateCanvases();
     }
 }

@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class provinces_table_manager : MonoBehaviour
+public class province_table_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
 
@@ -39,7 +39,7 @@ public class provinces_table_manager : MonoBehaviour
 
     void OnEnable()
     {
-        if (sortedProvinces == null) return;
+        sortedProvinces = new List<Province>(map.Provinces);
         SortData(currentSortCriteria);
     }
 
