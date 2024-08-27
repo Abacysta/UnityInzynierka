@@ -52,8 +52,10 @@ public class map_loader : MonoBehaviour
         map.getProvince((9, 9)).Owner_id = 2;
         map.assignProvince((8, 9), 2);
 
+        int mapWidth = map.Provinces.Max(p => p.X);
 
         foreach(var p in map.Provinces) {
+            p.Name = $"Province {p.Y * (mapWidth + 1) + p.X + 1}";
             map.calcRecruitablePop(p.coordinates);
 
             if(p.Type == "land") {
@@ -68,7 +70,8 @@ public class map_loader : MonoBehaviour
                 if(p.Owner_id != 0 && p.Owner_id != null) {
                     map.assignProvince(p.coordinates, p.Owner_id);
                 }
-                p.calcStatuses(map.Countries);
+                p.OccupationInfo = new OccupationInfo();
+                p.calcStatuses();
             }
         }
         map.getProvince((0, 0)).addStatus(new TaxBreak(3));

@@ -20,7 +20,7 @@ public class Province {
     [SerializeField] private int recruitable_population;
     [SerializeField] private int happiness;
     [SerializeField] private bool is_coast;
-    [SerializeField] private int? occupier_id;
+    [SerializeField] private OccupationInfo occupationInfo;
     [SerializeField] private int owner_id;
     [SerializeField] private List<Building> buildings;
     private List<Status> statuses;
@@ -38,7 +38,7 @@ public class Province {
         this.recruitable_population = recruitable_population;
         this.happiness = happiness;
         this.is_coast = is_coast;
-        this.occupier_id = null;
+        this.occupationInfo = new OccupationInfo();
         this.owner_id = owner_id;
         this.buildings = new List<Building>();
         this.statuses = new List<Status>();
@@ -55,7 +55,7 @@ public class Province {
     public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
     public int Happiness { get => happiness; set => happiness = value; }
     public bool Is_coast { get => is_coast; set => is_coast = value; }
-    public int? Occupier_id{ get => occupier_id; set => occupier_id = value; }
+    public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
     public int Owner_id { get => owner_id; set => owner_id = value; }
     public List<Building> Buildings { get => buildings; set => buildings = value; }
     public (int, int) coordinates { get => (x, y); }
@@ -80,7 +80,7 @@ public class Province {
         }
     }
 
-    public void calcStatuses(List<Country> countries) {
+    public void calcStatuses() {
         prod_mod = 1;
         pop_mod = 1;
         pop_static = 0;

@@ -2,6 +2,7 @@ using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
@@ -168,7 +169,7 @@ public class Map:ScriptableObject {
         return armyViews.Find(view => view.ArmyData == army);
     }
 
-    public void updateArmyPosition(Army army, (int,int) coordinates) // narazie dziala to tak ¿e jak armia wejdzie na panstwo odrazu jest przypisywana do owner id kontrollera armii
+    public void updateArmyPosition(Army army, (int,int) coordinates)
     { 
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
@@ -337,27 +338,59 @@ public class Map:ScriptableObject {
     {
         return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }
+    public void ManageOccupationDuration(Province province)
+    {
+        if (province.OccupationInfo.IsOccupied)
+        {
+            province.OccupationInfo.OccupationCount--;
+
+            if (province.OccupationInfo.OccupationCount <= 0)
+            {
+                OccupationChangeOwner(province);
+            }
+        }
+    }
+    private void OccupationChangeOwner(Province province)
+    {
+        int previousOwnerId = province.Owner_id;
+        int newOwnerId = province.OccupationInfo.OccupyingCountryId;
+
+        Countries.FirstOrDefault(c => c.Id == previousOwnerId)?.removeProvince(province.coordinates);
+
+        assignProvince(province.coordinates, newOwnerId);
+        CancelOccupation(province);
+    }
+
     private void AddOccupation(Army army)
     {
-        Province province = getProvince(army.position.Item1, army.position.Item2);
-        Country country = Countries.FirstOrDefault(c => c.Id == army.ownerId);
+        Province province = getProvince(army.Position.Item1, army.Position.Item2);
+        Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
         Occupation occupationStatus = null;
+
         if (province.Owner_id == 0)
         {
             occupationStatus = new Occupation(1, army.ownerId);
         }
-        else 
+        else
         {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-            if(!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.Occupier_id))
+            if (!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.OccupationInfo.OccupyingCountryId))
             {
-                occupationStatus = new Occupation(country.techStats.occTime, army.ownerId);
+                occupationStatus = new Occupation(country.techStats.occTime, army.OwnerId);
             }
         }
-        if(occupationStatus != null && province.Type == "land")
+
+        if (occupationStatus != null && province.Type == "land")
         {
             province.addStatus(occupationStatus);
+            province.OccupationInfo = new OccupationInfo(true, occupationStatus.duration + 1, army.OwnerId);
         }
+    }
+    private void CancelOccupation(Province province) // jak odbija panstwo prowincje 
+    {
+        province.OccupationInfo.IsOccupied = false;
+        province.OccupationInfo.OccupationCount = 0;
+        province.OccupationInfo.OccupyingCountryId = -1; 
     }
 
 }

@@ -102,20 +102,7 @@ namespace Assets.classes.subclasses {
 
         public override void applyEffect(Province province)
         {
-            province.Occupier_id = this.Occupier_id;
-        }
-        public void EndOccupation(Province province, List<Country> countries)
-        {
-            Country newOwner = countries.FirstOrDefault(c => c.Id == Occupier_id);
-            Country previousOwner = countries.FirstOrDefault(c => c.Id == province.Owner_id);
-            if (newOwner != null)
-            {
-                province.Owner_id = Occupier_id;
-                province.Occupier_id = null;
-
-                previousOwner.removeProvince(province.coordinates);
-                newOwner.addProvince(province.coordinates);
-            }
+            province.OccupationInfo.OccupyingCountryId = this.Occupier_id;
         }
     }
 }

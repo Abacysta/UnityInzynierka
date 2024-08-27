@@ -124,7 +124,13 @@ public class game_manager : MonoBehaviour
             map.growPop(p.coordinates);
             map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
-            p.calcStatuses(map.Countries);
+            p.calcStatuses();
+
+            // zarzadzanie okupacja
+            if(p.OccupationInfo.OccupyingCountryId != -1)
+            {
+                map.ManageOccupationDuration(p);
+            }
         }
     }
     private void ccc(int i) {

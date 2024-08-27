@@ -264,7 +264,6 @@ public class Country
     private HashSet<(int, int)> seenTiles;
 
     private HashSet<Country> alliedCountries;
-    private HashSet<(int, int)> occupiedProvinces;
     public Country(int id, string name, (int, int) capital, Color color, Map map) {
         this.id = id;
         this.name = name;
@@ -278,7 +277,6 @@ public class Country
         this.actions = new(map);
         seenTiles = new HashSet<(int, int)>();
         alliedCountries = new HashSet<Country>();
-        occupiedProvinces = new HashSet<(int, int)>();
     }
 
     public void addProvince((int, int) coordinates) {
@@ -299,9 +297,7 @@ public class Country
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
     public HashSet<Country> AlliedCountries { get { return alliedCountries; } }
-    public HashSet<(int,int)> OccupiedProvinces { get { return occupiedProvinces; } }
     public actionContainer Actions { get { return actions; } }
-
     public void modifyResource((Resource, float) values) {
         Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] += values.Item2;
@@ -340,29 +336,14 @@ public class Country
     public void ClearRevealedTiles()
     {
         revealedTiles.Clear();
-    }    
-    public void AddOccupiedProvince((int, int) coordinates)
-    {
-        if(!occupiedProvinces.Contains(coordinates))
-        {
-            occupiedProvinces.Add(coordinates);
-        }
     }
-    public void RemoveOccupiedProvince((int, int) coordinates)
-    {
-        if (occupiedProvinces.Contains(coordinates))
-        {
-            occupiedProvinces.Remove(coordinates);
-        }
-    }
-
     public bool canPay(Dictionary<Resource, float> cost) {
         bool can = true;
         if(cost != null) foreach(var key in cost.Keys) {
-            if(resources[key] < cost[key]) {
-                can = false; break;
+                if(resources[key] < cost[key]) {
+                    can = false; break;
+                }
             }
-        }
         return can;
     }
 }

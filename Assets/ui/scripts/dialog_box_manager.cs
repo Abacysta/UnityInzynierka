@@ -48,6 +48,7 @@ public class dialog_box_manager : MonoBehaviour
         internal static DialogBox dis_box = new("gauls", "Disband Army", "Select how many units you want to disband");
         internal static DialogBox upBuilding_box = new("gauls", "Build ", "Do you want to build ");
         internal static DialogBox downBuilding_box = new("gauls", "Raze ", "Do you want to raze ");
+        internal static DialogBox tech_box = new("gauls", "Upgrade Technology", "Do you want to upgrade ");
     };
 
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
@@ -143,6 +144,17 @@ public class dialog_box_manager : MonoBehaviour
         }
         Action onConfirm = () => {
             map.downgradeBuilding(coordinates, type);
+        };
+        Action onCancel = null;
+        ShowConfirmBox(image, title, message, onConfirm, onCancel);
+    }
+
+    public void invokeTechUpgradeBox()
+    {
+        (string image, string title, string message) = dialog_box_precons.tech_box.toVars();
+
+        Action onConfirm = () => {
+            Debug.Log("Upgraded the technology");
         };
         Action onCancel = null;
         ShowConfirmBox(image, title, message, onConfirm, onCancel);
