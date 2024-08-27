@@ -59,6 +59,7 @@ public class army_view : MonoBehaviour
         targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         army_collider.enabled = true;
         spriteRenderer.color = Color.white;
+        transform.position = targetPosition;
     }
 
     public void PrepareToMoveTo((int, int) newPosition)

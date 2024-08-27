@@ -1,5 +1,7 @@
+using Assets.classes.subclasses;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,28 +46,74 @@ public class game_manager : MonoBehaviour
 
     public void UndoAll()
     {
-        foreach (var army in map.Armies)
-        {
-            if (army.position != army.destination)
-            {
-                army_view armyView = map.getView(army);
-                if (armyView != null)
-                {
-                    armyView.ReturnTo(army.position);
-                }
-                map.updateArmyDestination(army, army.position);
-            }
+        while(map.CurrentPlayer.Actions.Count > 0) {
+            map.CurrentPlayer.Actions.revert();
         }
+        //foreach (var army in map.Armies)
+        //{
+        //    if (army.position != army.destination)
+        //    {
+        //        army_view armyView = map.getView(army);
+        //        if (armyView != null)
+        //        {
+        //            armyView.ReturnTo(army.position);
+        //        }
+        //        map.updateArmyDestination(army, army.position);
+        //    }
+        //}
 
-        foreach (var c in map.Countries)
-        {
-            map.mergeArmies(c);
+        //foreach (var c in map.Countries)
+        //{
+        //    map.mergeArmies(c);
+        //}
+    }
+
+    public void undoLast() {
+        map.CurrentPlayer.Actions.revert();
+    }
+
+    public void undoLast(int id) {
+        map.Countries[id].Actions.revert();
+    }
+
+    private void executeActions() {
+        int acmax = map.Countries.Max(a => a.Actions.Count);
+        for(int i = 0; i < acmax; i++) {
+            foreach(var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
+                c.Actions.execute();
+            }
         }
     }
 
-    public void TurnSimulation()
-    {
-        StartCoroutine(TurnSimulationCoroutine());
+    private void turnCalculations() {
+        int it = 0;
+        int pcnt = map.Provinces.Count, ccnt = map.Countries.Count;
+        loading_txt.text = "txttt";
+        loading_bar.value = 0;
+        loading_box.SetActive(true);
+        provinceCalc(pcnt);
+        countryCalc();
+
+        
+
+        //yield return new WaitForSeconds(2f);
+        //map.moveArmies();
+        //yield return new WaitForSeconds(2f);
+
+
+        loading_txt.text = "Merging armies";
+        foreach(var c in map.Countries) {
+            loading_bar.value += 0.1f  * 100 / ccnt;
+            map.mergeArmies(c);
+        }
+        foreach(var a in map.Armies) {
+            map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.armyUpkeep);
+        }
+
+        turnCntTxt.SetText("" + ++turnCnt);
+        fog_Of_War.StartTurn();
+        loading_box.SetActive(false);
+        Debug.Log("stopped bar");
     }
 
     private void provinceCalc(int pcnt) {
@@ -76,25 +124,13 @@ public class game_manager : MonoBehaviour
             map.growPop(p.coordinates);
             map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
-            p.calcStatuses(map.countries);
+            p.calcStatuses(map.Countries);
         }
     }
 
-    private IEnumerator TurnSimulationCoroutine()
-    {//id 0 is a dummy
+    private void countryCalc() {
 
-        turn_sound.Play();
-        int it = 0;
-        int pcnt = map.Provinces.Count, ccnt = map.Countries.Count;
-        loading_txt.text = "txttt";
-        loading_bar.value = 0;
-        loading_box.SetActive(true);
-        provinceCalc(pcnt);
-
-        it = 0;
-        
         for(int i = 1; i < map.Countries.Count; i++) {
-            Country country = map.Countries[i];
             float tax = 0;
             Dictionary<Resource, float> resources = new Dictionary<Resource, float> {
                 { Resource.Gold, 0 },
@@ -104,43 +140,45 @@ public class game_manager : MonoBehaviour
                 { Resource.AP, 0 }
             };
 
-            loading_txt.text = "Gathering resources for country." + country.Id;
-            loading_bar.value = (0.2f + 0.7f * it++ * 100 / ccnt);
-            
+            loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
+            loading_bar.value += 0.7f  * 100 / map.Countries.Count;
+
             foreach(var p in map.Countries[i].Provinces) {
                 var province = map.getProvince(p);
-                tax += province.Population / 100 * 1f * province.Tax_mod;//0.1f = temp 100% tax rate
+                tax += province.Population / 200 * 1f * province.Tax_mod;//0.1f = temp 100% tax rate
                 resources[province.ResourcesT] += province.ResourcesP;
                 resources[Resource.AP] += 0.1f;
             }
 
-            tax *= country.techStats.taxFactor;
-            resources[Resource.Gold] *= country.techStats.prodFactor;
-            resources[Resource.Wood] *= country.techStats.prodFactor;
-            resources[Resource.Iron] *= country.techStats.prodFactor;
-            country.modifyResource(Resource.Gold, tax);
+            tax *= map.Countries[i].techStats.taxFactor;
+            resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
+            resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
+            resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
+            Debug.Log("wd" + resources[Resource.Wood] + map.Countries[i].Id + map.Countries[i].Name);
+            map.Countries[i].modifyResource(Resource.Gold, tax);
 
             foreach(var res in resources) {
-                country.modifyResource(res.Key, res.Value);
+                map.Countries[i].modifyResource(res.Key, res.Value);
             }
-
-            country.setResource(Resource.AP, resources[Resource.AP]);
+            Debug.Log(map.Countries[i].Id + " " + resources[Resource.AP] + " " + map.Countries[i].Resources[Resource.AP]);
+            map.Countries[i].setResource(Resource.AP, resources[Resource.AP]);
+            Debug.Log(map.Countries[i].Resources[Resource.AP]);
         }
+    }
 
-        yield return new WaitForSeconds(2f);
-        map.moveArmies();
-        yield return new WaitForSeconds(2f);
+    public void TurnSimulation()
+    {//id 0 is a 
+        //Debug.Log(map.Countries.ToString());
+        //foreach(var c in map.Countries) {
+        //    Debug.Log(c.Actions.Count);
+        //}
+        turn_sound.Play();
+        executeActions();
+        turnCalculations();
 
-        loading_txt.text = "Merging armies";
-        it = 0;
-        foreach(var c in map.Countries) { 
-            loading_bar.value = (0.9f + 0.1f * it++ * 100 / ccnt);
-            map.mergeArmies(c);
-        }
-
-        turnCntTxt.SetText("" + ++turnCnt);
-        fog_Of_War.StartTurn();
-        loading_box.SetActive(false);
-        Debug.Log("stopped bar");
+        //Debug.Log(map.Countries.ToString());
+        //foreach(var c in map.Countries) { 
+        //    Debug.Log(c.Actions.Count);
+        //}
     }
 }

@@ -4,6 +4,9 @@ using UnityEngine.UI;
 using Unity.VisualScripting;
 using System;
 using JetBrains.Annotations;
+using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
+
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -30,7 +33,7 @@ public class dialog_box_manager : MonoBehaviour
         internal class DialogBox {
             public string image, title, message;
 
-            public DialogBox(string image, string title, string message) {
+            public DialogBox(string image, string title, string message, Dictionary<Resource, float> cost=null) {
                 this.image = image;
                 this.title = title;
                 this.message = message;
@@ -49,31 +52,39 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
         (string image, string title, string message) = dialog_box_precons.army_box.toVars();
+        
         Action onConfirm = () => {
-            map.setMoveArmy(army, (int)dialog_slider.value, destination);
+            //map.setMoveArmy(army, (int)dialog_slider.value, destination);
+            var act = new Assets.classes.actionContainer.TurnAction.army_move(army.Position, destination, (int)dialog_slider.value, army);
+            map.Countries[army.OwnerId].Actions.addAction(act);
         };
         Action onCancel = null;
-        ShowSliderBox(image, title, message, onConfirm, onCancel, army.Count);
+        ShowSliderBox(image, title, message, onConfirm, onCancel, army.Count, true);
     }
 
     public void invokeRecBox(Map map, (int, int) coordinates) {
         (string image, string title, string message) = dialog_box_precons.rec_box.toVars();
         var province = map.getProvince(coordinates);
         Action onConfirm = () => {
-            map.recArmy(coordinates, (int)dialog_slider.value);
+            //map.recArmy(coordinates, (int)dialog_slider.value);
+            var act = new Assets.classes.actionContainer.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value);
+            map.Countries[province.Owner_id].Actions.addAction(act);
         };
         Action onCancel= null;
-        ShowSliderBox(image, title, message, onConfirm, onCancel, province.RecruitablePopulation);
+        ShowSliderBox(image, title, message, onConfirm, onCancel, province.RecruitablePopulation, true);
     }
 
     public void invokeDisBox(Map map, Army army) {
         (string image, string title, string message) = dialog_box_precons.dis_box.toVars();
+        
         Action onConfirm = () => {
-            map.disArmy(army.position, (int)dialog_slider.value);
+            var act = new Assets.classes.actionContainer.TurnAction.army_disbandment(army, (int)dialog_slider.value);
+            map.Countries[army.OwnerId].Actions.addAction(act);
         };
         Action onCancel= null;
-        ShowSliderBox(image, title, message, onConfirm, onCancel, army.count);
+        ShowSliderBox(image, title, message, onConfirm, onCancel, army.count, true);
     }
+    
 
     public void invokeUpgradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
         (string image, string title, string message) = dialog_box_precons.upBuilding_box.toVars();
@@ -137,7 +148,7 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(image, title, message, onConfirm, onCancel);
     }
 
-    private void ShowDialogBox(string imageName, string actionTitle, string message, System.Action onConfirm, System.Action onCancel, string txtConfirm=null, string txtCancel=null)
+    private void ShowDialogBox(string imageName, string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
     {
         close_button.onClick.RemoveAllListeners();
         confirm_button.onClick.RemoveAllListeners();
@@ -161,7 +172,7 @@ public class dialog_box_manager : MonoBehaviour
         });
 
         dialog_message.text = message;
-
+        confirm_button.interactable = confirmable;
         confirm_button.onClick.AddListener(() =>
         {
             onConfirm?.Invoke();
@@ -179,7 +190,7 @@ public class dialog_box_manager : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    private void ShowSliderBox(string imageName, string actionTitle, string message, System.Action onConfirm, System.Action onCancel, int maxValue)
+    private void ShowSliderBox(string imageName, string actionTitle, string message, System.Action onConfirm, System.Action onCancel, int maxValue, bool confirmable)
     {
         choice_area.SetActive(true);
         cost_area.SetActive(true);
@@ -229,5 +240,14 @@ public class dialog_box_manager : MonoBehaviour
     public void SetCost(string costText) 
     {
         cost_content.text = costText;
+    }
+    public void addValue(int value) {
+        dialog_slider.value += value;
+    }
+    public void subValue(int value) { 
+        dialog_slider.value -= value;
+    }
+    public void percentValue(float percent) { 
+        dialog_slider.value = dialog_slider.maxValue * percent;
     }
 }

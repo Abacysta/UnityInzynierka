@@ -115,7 +115,7 @@ public class Country
             armyPower = 1 + mil * 0.05f;
             armyUpkeep = 1 + mil * 0.03f;
             armyCost = 1 + mil * 0.05f;
-            popGrowth = 0.15f;
+            popGrowth = 0.05f;
             recPop = 0.05f;
             occPenalty = 0.5f;
             occProd = 0;
@@ -265,7 +265,7 @@ public class Country
 
     private HashSet<Country> alliedCountries;
     private HashSet<(int, int)> occupiedProvinces;
-    public Country(int id, string name, (int, int) capital, Color color) {
+    public Country(int id, string name, (int, int) capital, Color color, Map map) {
         this.id = id;
         this.name = name;
         this.capital = id==0 ? (-1, -1) : capital;
@@ -275,7 +275,7 @@ public class Country
         this.techStats = new TechnologyInterpreter(this.technology);
         this.provinces = new HashSet<(int, int)> { capital };
         revealedTiles = new HashSet<(int, int)>();
-        this.actions = new();
+        this.actions = new(map);
         seenTiles = new HashSet<(int, int)>();
         alliedCountries = new HashSet<Country>();
         occupiedProvinces = new HashSet<(int, int)>();
@@ -300,8 +300,10 @@ public class Country
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
     public HashSet<Country> AlliedCountries { get { return alliedCountries; } }
     public HashSet<(int,int)> OccupiedProvinces { get { return occupiedProvinces; } }
+    public actionContainer Actions { get { return actions; } }
 
     public void modifyResource((Resource, float) values) {
+        Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         resources[values.Item1] += values.Item2;
     }
 
@@ -310,6 +312,7 @@ public class Country
     }
 
     public void setResource((Resource, float) values) {
+        Debug.Log("set " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         resources[values.Item1] = values.Item2;
     }
 
@@ -351,6 +354,16 @@ public class Country
         {
             occupiedProvinces.Remove(coordinates);
         }
+    }
+
+    public bool canPay(Dictionary<Resource, float> cost) {
+        bool can = true;
+        if(cost != null) foreach(var key in cost.Keys) {
+            if(resources[key] < cost[key]) {
+                can = false; break;
+            }
+        }
+        return can;
     }
 }
 

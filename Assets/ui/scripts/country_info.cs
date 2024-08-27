@@ -21,10 +21,10 @@ public class country_info : MonoBehaviour
     }
 
     public void displayInfo() {
-        gold.SetText("" + map.Countries[1].Resources[Resource.Gold]);
-        wood.SetText("" + map.Countries[1].Resources[Resource.Wood]);
-        iron.SetText("" + map.Countries[1].Resources[Resource.Iron]);
-        tech.SetText("" + map.Countries[1].Resources[Resource.SciencePoint]);
-        ap.SetText("" + map.Countries[1].Resources[Resource.AP]);
+        gold.SetText("" + map.CurrentPlayer.Resources[Resource.Gold]);
+        wood.SetText("" + map.CurrentPlayer.Resources[Resource.Wood]);
+        iron.SetText("" + map.CurrentPlayer.Resources[Resource.Iron]);
+        tech.SetText("" + map.CurrentPlayer.Resources[Resource.SciencePoint]);
+        ap.SetText("" + map.CurrentPlayer.Resources[Resource.AP]);
     }
 }

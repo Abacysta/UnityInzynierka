@@ -27,15 +27,17 @@ public class map_loader : MonoBehaviour
 
     void Start()
     {
+        map.currentPlayer = 1;
         int i = 0;
 
         map.calcPopExtremes();
         map.Countries = new System.Collections.Generic.List<Country> {
-            new Country(i++, "", (-1, -1), Color.white),
-            new Country(i++, "Kingdom", (0, 0), Color.gray),
-            new Country(i++, "TestFog", (9,9), Color.red)
+            new Country(i++, "", (-1, -1), Color.white, map),
+            new Country(i++, "Kingdom", (0, 0), Color.gray, map),
+            new Country(i++, "TestFog", (9,9), Color.red, map)
         };
         i = 0;
+        Debug.Log(map.CurrentPlayer.Name);
         foreach(Country country in map.Countries) {
             country.Priority = i++;
             Debug.Log(country.Id);
@@ -45,7 +47,8 @@ public class map_loader : MonoBehaviour
         map.getProvince((0, 0)).Owner_id = 1;
         map.assignProvince((0, 1), 1);
         map.assignProvince((1, 0), 1);
-
+        map.assignProvince((2, 0), 1);
+        map.assignProvince((3, 0), 1);
         map.getProvince((9, 9)).Owner_id = 2;
         map.assignProvince((8, 9), 2);
 

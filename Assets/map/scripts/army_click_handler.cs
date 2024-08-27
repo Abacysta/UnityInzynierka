@@ -63,7 +63,7 @@ public class army_click_handler : cursor_helper
 
                 army_click.Play();
                 Debug.Log($"Selected Army: ({armyView.ArmyData.position.Item1}, {armyView.ArmyData.position.Item2}), " +
-                          $"Count: {armyView.ArmyData.count}");
+                          $"Count: {armyView.ArmyData.count} origin:{armyView.ArmyData.position} destination:{armyView.ArmyData.destination}");
             }
         }
         else

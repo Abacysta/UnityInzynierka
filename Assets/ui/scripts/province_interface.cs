@@ -58,6 +58,7 @@ public class province_interface : MonoBehaviour
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private GameObject statuses_list;
     [SerializeField] private List<Sprite> status_sprites;
+    [SerializeField] private GameObject recruitment_button;
     //[SerializeField] private buildings_interface buildings_Interface;
 
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
@@ -87,6 +88,7 @@ public class province_interface : MonoBehaviour
             bt.Item1.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeUpgradeBuilding(map, map.Selected_province, bt.Item2));
             bt.Item1.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeDowngradeBuilding(map, map.Selected_province, bt.Item2));
         }
+        recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRecBox(map, map.Selected_province));
         //buildings_Interface.Initialize(map);
     }
 
@@ -109,6 +111,9 @@ public class province_interface : MonoBehaviour
             pop_.Txt.SetText("" + p.Population);
             rec_pop_.Txt.SetText("" + p.RecruitablePopulation);
 
+            recruitment_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+            recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
+
             var bld = new List<Building> { 
                 p.Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure), 
                 p.Buildings.Find(b => b.BuildingType == BuildingType.Fort), 
@@ -121,7 +126,7 @@ public class province_interface : MonoBehaviour
             b_3.sprite = b_3_spr[bld[2].BuildingLevel];
             b_4.sprite = b_4_spr[bld[3].BuildingLevel];
 
-            foreach(var bt in new List<(Transform, int)> { (b_1_m, 0), (b_2_m, 1), (b_3_m, 2), (b_4_m, 3)}) {
+            if(map.CurrentPlayer.Id == p.Owner_id) foreach(var bt in new List<(Transform, int)> { (b_1_m, 0), (b_2_m, 1), (b_3_m, 2), (b_4_m, 3)}) {
                 bt.Item1.Find("add").GetComponent<Button>().interactable = bld[bt.Item2].BuildingLevel < 3 ? true : false;
                 bt.Item1.Find("remove").GetComponent<Button>().interactable = bld[bt.Item2].BuildingLevel > 0 && bld[bt.Item2].BuildingLevel < 4? true : false;
             }
@@ -135,6 +140,7 @@ public class province_interface : MonoBehaviour
             pop.SetActive(false );
             rec_pop .SetActive(false );
             building_interface.SetActive(false) ;
+            recruitment_button.SetActive(false);
         }
 
     }

@@ -92,26 +92,9 @@ public class Province {
             statuses.OrderByDescending(s => s.type).ToList();
 
             foreach (var status in statuses) {
-                if(status is Occupation occupationStatus)
-                {
-                    if(occupationStatus.duration > 0)
-                    {
-                        occupationStatus.applyEffect(this);
-                        occupationStatus.duration--;
-                        
-                    }
-                    else
-                    {
-                        occupationStatus.EndOccupation(this,countries);
-                        to_rmv.Add(status);
-                    }
-                }
-                else
-                {
                     if (0 != status.duration--)
                         status.applyEffect(this);
                     else to_rmv.Add(status);
-                }
             }
             statuses = statuses.Except(to_rmv).ToList();
         }
