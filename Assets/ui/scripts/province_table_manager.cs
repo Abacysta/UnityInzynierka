@@ -87,8 +87,8 @@ public class province_table_manager : MonoBehaviour
         {
             case "name":
                 sortedProvinces = isAscending
-                    ? sortedProvinces.OrderBy(p => p.Name).ToList()
-                    : sortedProvinces.OrderByDescending(p => p.Name).ToList();
+                    ? sortedProvinces.OrderBy(p => ExtractNumberFromName(p.Name)).ThenBy(p => p.Name).ToList()
+                    : sortedProvinces.OrderByDescending(p => ExtractNumberFromName(p.Name)).ThenByDescending(p => p.Name).ToList();
                 break;
             case "population":
                 sortedProvinces = isAscending
@@ -108,6 +108,13 @@ public class province_table_manager : MonoBehaviour
         }
 
         DisplayTable();
+    }
+
+    int ExtractNumberFromName(string name)
+    {
+        var number = new string(name.Reverse().TakeWhile(char.IsDigit).Reverse().ToArray());
+
+        return int.TryParse(number, out int result) ? result : 0;
     }
 
     Sprite GetResourceSprite(string resourceName)

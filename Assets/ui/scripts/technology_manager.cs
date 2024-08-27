@@ -6,51 +6,20 @@ using UnityEngine.UI;
 
 public class technology_manager : MonoBehaviour
 {
-    List<string> militaryTree = new()
-    {
-        "Level 1: Increases unit combat strength by 5%",
-        "Level 2: Unlocks Fort",
-        "Level 3: Reduces unit maintenance cost by 10%",
-        "Level 4: Increases unit combat strength by 10%",
-        "Level 5: Unlocks Fort Upgrade I",
-        "Level 6: Reduces unit construction cost by 10%",
-        "Level 7: Unlocks Fort Upgrade II",
-        "Level 8: Increases recruitable population percentage",
-        "Level 9: Reduces penalty from newly conquered provinces",
-        "Level 10: Increases unit combat strength by 20%"
-    };
-
-    List<string> economicTree = new()
-    {
-        "Level 1: Increases resource growth by 10%",
-        "Level 2: Allows ship construction and increases resource growth by 10%",
-        "Level 3: Increases resource growth by 10%",
-        "Level 4: Allows choice of tax law",
-        "Level 5: Increases tax revenue by 15%",
-        "Level 6: Unlocks Mine Upgrade I",
-        "Level 7: Increases resource growth by 10%",
-        "Level 8: Increases tax revenue by 10%",
-        "Level 9: Allows choice of tax law",
-        "Level 10: Unlocks Mine Upgrade II"
-    };
-
-    List<string> administrativeTree = new()
-    {
-        "Level 1: Unlocks infrastructure",
-        "Level 2: Unlocks school",
-        "Level 3: Unlocks province action - festival",
-        "Level 4: Unlocks province action - tax relief",
-        "Level 5: Reduces penalty from temporary effects by 10%",
-        "Level 6: Allows production in occupied provinces (1/5 of base value)",
-        "Level 7: Reduces penalty from temporary effects by 10%",
-        "Level 8: Increases bonuses from temporary effects by 20%",
-        "Level 9: Reduces chances of rebellion",
-        "Level 10: Allows production in occupied provinces (1/2 of base value)"
-    };
-
     [SerializeField] private Map map;
 
+    [SerializeField] private GameObject mil_tree_prefab;
+    [SerializeField] private GameObject ec_tree_prefab;
+    [SerializeField] private GameObject adm_tree_prefab;
+
     [SerializeField] private dialog_box_manager dialog_box;
+
+    [SerializeField] private GameObject mil_tooltip_column_1;
+    [SerializeField] private GameObject mil_tooltip_column_2;
+    [SerializeField] private GameObject ec_tooltip_column_1;
+    [SerializeField] private GameObject ec_tooltip_column_2;
+    [SerializeField] private GameObject adm_tooltip_column_1;
+    [SerializeField] private GameObject adm_tooltip_column_2;
 
     [SerializeField] private Button mil_tech_button;
     [SerializeField] private Button ec_tech_button;
@@ -60,17 +29,17 @@ public class technology_manager : MonoBehaviour
     [SerializeField] private TMP_Text ec_current_level_text;
     [SerializeField] private TMP_Text adm_current_level_text;
 
-    [SerializeField] private TMP_Text mil_next_level_content;
-    [SerializeField] private TMP_Text ec_next_level_content;
-    [SerializeField] private TMP_Text adm_next_level_content;
+    [SerializeField] private GameObject mil_next_level_panel;
+    [SerializeField] private GameObject adm_next_level_panel;
+    [SerializeField] private GameObject ec_next_level_panel;
 
-    [SerializeField] private TMP_Text mil_science_points_text;
-    [SerializeField] private TMP_Text ec_science_points_text;
-    [SerializeField] private TMP_Text adm_science_points_text;
+    [SerializeField] private TMP_Text mil_cost_text;
+    [SerializeField] private TMP_Text ec_cost_text;
+    [SerializeField] private TMP_Text adm_cost_text;
 
-    [SerializeField] private TMP_Text mil_current_lvl_tooltip;
-    [SerializeField] private TMP_Text ec_current_lvl_tooltip;
-    [SerializeField] private TMP_Text adm_current_lvl_tooltip;
+    private List<GameObject> militaryTree = new();
+    private List<GameObject> economicTree = new();
+    private List<GameObject> administrativeTree = new();
 
     int militaryLevel = 3;
     int economicLevel = 5;
@@ -92,50 +61,89 @@ public class technology_manager : MonoBehaviour
 
         // Kod do testow, ale moze jakies czesci bedzie mozna wykorzystac
 
-        UpdateTooltipAndContent(militaryLevel, militaryTree, mil_current_lvl_tooltip, mil_next_level_content, mil_tech_button, mil_current_level_text);
-        UpdateTooltipAndContent(economicLevel, economicTree, ec_current_lvl_tooltip, ec_next_level_content, ec_tech_button, ec_current_level_text);
-        UpdateTooltipAndContent(administrativeLevel, administrativeTree, adm_current_lvl_tooltip, adm_next_level_content, adm_tech_button, adm_current_level_text);
+        AddChildrenToList(mil_tree_prefab, militaryTree);
+        AddChildrenToList(ec_tree_prefab, economicTree);
+        AddChildrenToList(adm_tree_prefab, administrativeTree);
+
+        UpgradeTechnology(mil_tooltip_column_1, mil_tooltip_column_2,
+            militaryLevel, militaryTree, mil_next_level_panel, mil_tech_button, mil_current_level_text);
+        UpgradeTechnology(ec_tooltip_column_1, ec_tooltip_column_2,
+            economicLevel, economicTree, ec_next_level_panel, ec_tech_button, ec_current_level_text);
+        UpgradeTechnology(adm_tooltip_column_1, adm_tooltip_column_2,
+            administrativeLevel, administrativeTree, adm_next_level_panel, adm_tech_button, adm_current_level_text);
 
         mil_tech_button.onClick.AddListener(() =>
         {
             militaryLevel++;
-            UpdateTooltipAndContent(militaryLevel, militaryTree, mil_current_lvl_tooltip, mil_next_level_content, mil_tech_button, mil_current_level_text);
+            UpgradeTechnology(mil_tooltip_column_1, mil_tooltip_column_2,
+                militaryLevel, militaryTree, mil_next_level_panel, mil_tech_button, mil_current_level_text);
         });
 
         ec_tech_button.onClick.AddListener(() =>
         {
             economicLevel++;
-            UpdateTooltipAndContent(economicLevel, economicTree, ec_current_lvl_tooltip, ec_next_level_content, ec_tech_button, ec_current_level_text);
+            UpgradeTechnology(ec_tooltip_column_1, ec_tooltip_column_2,
+                economicLevel, economicTree, ec_next_level_panel, ec_tech_button, ec_current_level_text);
         });
 
         adm_tech_button.onClick.AddListener(() =>
         {
             administrativeLevel++;
-            UpdateTooltipAndContent(administrativeLevel, administrativeTree, adm_current_lvl_tooltip, adm_next_level_content, adm_tech_button, adm_current_level_text);
+            UpgradeTechnology(adm_tooltip_column_1, adm_tooltip_column_2,
+                administrativeLevel, administrativeTree, adm_next_level_panel, adm_tech_button, adm_current_level_text);
         });
 
-        DisableButton(ec_tech_button);
+        SetButtonColorToRed(ec_tech_button);
     }
 
-    void UpdateTooltipAndContent(int level, List<string> techTree, TMP_Text tooltipText, TMP_Text nextLevelContent, Button techButton, TMP_Text currentLevelText)
+    void Update()
     {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_tooltip_column_1.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_tooltip_column_2.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_tooltip_column_1.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_tooltip_column_2.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_tooltip_column_1.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_tooltip_column_2.GetComponent<RectTransform>());
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_next_level_panel.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_next_level_panel.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_next_level_panel.GetComponent<RectTransform>());
+    }
+
+    public void UpgradeTechnology(GameObject tooltip_column_1, GameObject tooltip_column_2, int level,
+        List<GameObject> techTree, GameObject nextLevelPanel, Button techButton, TMP_Text currentLevelText)
+    {
+        // Tech tooltip
+        ClearChildren(tooltip_column_1.transform);
+        ClearChildren(tooltip_column_2.transform);
+
+        var levelNodes = techTree.Take(level).ToList();
+        for (int i = 0; i < levelNodes.Count; i++)
+        {
+            var column = (i < 5) ? tooltip_column_1.transform : tooltip_column_2.transform;
+            Instantiate(levelNodes[i], column);
+        }
+
+        // Current level text
         currentLevelText.text = level.ToString();
 
-        tooltipText.text = string.Join("\n", techTree.Take(level));
-
-        if (level < techTree.Count)
+        // Tooltip and next level panel
+        if (level <= 10)
         {
-            nextLevelContent.text = techTree[level];
+            foreach (Transform child in nextLevelPanel.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+            Instantiate(techTree[level], nextLevelPanel.transform);
         }
 
-        if (level >= techTree.Count)
+        if (level >= 10)
         {
-            nextLevelContent.text = "Maximum level reached";
-            techButton.gameObject.SetActive(false);
+            DeactivateButton(techButton);
         }
     }
 
-    void DisableButton(Button techButton)
+    private void SetButtonColorToRed(Button techButton)
     {
         techButton.interactable = false;
         techButton.GetComponent<Image>().color = new Color32(176, 41, 23, 255); // red color
@@ -144,6 +152,37 @@ public class technology_manager : MonoBehaviour
         if (buttonText != null)
         {
             buttonText.text = "Not enough funds";
+        }
+    }
+    private void SetButtonColorToGreen(Button techButton)
+    {
+        techButton.interactable = true;
+        TMP_Text buttonText = techButton.GetComponentInChildren<TMP_Text>();
+        techButton.GetComponent<Image>().color = new Color32(35, 82, 29, 255); // green color
+
+        if (buttonText != null)
+        {
+            buttonText.text = "Upgrade technology";
+        }
+    }
+
+    private void DeactivateButton(Button techButton)
+    {
+        techButton.gameObject.SetActive(false);
+    }
+
+    private void AddChildrenToList(GameObject prefab, List<GameObject> list)
+    {
+        foreach (Transform child in prefab.transform)
+        {
+            list.Add(child.gameObject);
+        }
+    }
+    private void ClearChildren(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
+            GameObject.Destroy(child.gameObject);
         }
     }
 }

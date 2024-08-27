@@ -47,6 +47,13 @@ public class camera_controller : cursor_helper
 
     void Update()
     {
+        if (IsCursorOverUIObject())
+        {
+            isPanning = false;
+            Cursor.SetCursor(default_cursor, Vector2.zero, CursorMode.Auto);
+            return;
+        }
+
         HandleCameraPan();
         HandleKeyboardPan();
         HandleCameraZoom();
@@ -100,14 +107,6 @@ public class camera_controller : cursor_helper
 
     void HandleCameraPan()
     {
-        // Disabling camera panning while using the settings menu
-        // and when the cursor is over UI
-        if (IsCursorOverUIObject())
-        {
-            Cursor.SetCursor(default_cursor, Vector2.zero, CursorMode.Auto);
-            return;
-        }
-
         // onMouseDown
         if (Input.GetMouseButtonDown(1))
         {
@@ -147,8 +146,6 @@ public class camera_controller : cursor_helper
 
     void HandleKeyboardPan()
     {
-        if (IsCursorOverUIObject()) return;
-
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
@@ -164,8 +161,6 @@ public class camera_controller : cursor_helper
 
     void HandleCameraZoom()
     {
-        if (IsCursorOverUIObject()) return;
-
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (scroll != 0.0f)
