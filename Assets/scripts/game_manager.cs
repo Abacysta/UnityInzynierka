@@ -127,12 +127,9 @@ public class game_manager : MonoBehaviour
             p.calcStatuses(map.Countries);
         }
     }
-
-    private void countryCalc() {
-
-        for(int i = 1; i < map.Countries.Count; i++) {
-            float tax = 0;
-            Dictionary<Resource, float> resources = new Dictionary<Resource, float> {
+    private void ccc(int i) {
+        float tax = 0;
+        Dictionary<Resource, float> resources = new Dictionary<Resource, float> {
                 { Resource.Gold, 0 },
                 { Resource.Wood, 0 },
                 { Resource.Iron, 0 },
@@ -140,29 +137,31 @@ public class game_manager : MonoBehaviour
                 { Resource.AP, 0 }
             };
 
-            loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
-            loading_bar.value += 0.7f  * 100 / map.Countries.Count;
+        loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
+        loading_bar.value += 0.7f * 100 / map.Countries.Count;
 
-            foreach(var p in map.Countries[i].Provinces) {
-                var province = map.getProvince(p);
-                tax += province.Population / 200 * 1f * province.Tax_mod;//0.1f = temp 100% tax rate
-                resources[province.ResourcesT] += province.ResourcesP;
-                resources[Resource.AP] += 0.1f;
-            }
+        foreach(var p in map.Countries[i].Provinces) {
+            var province = map.getProvince(p);
+            tax += province.Population / 200 * 1f * province.Tax_mod;//0.1f = temp 100% tax rate
+            resources[province.ResourcesT] += province.ResourcesP;
+            resources[Resource.AP] += 0.1f;
+        }
 
-            tax *= map.Countries[i].techStats.taxFactor;
-            resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
-            resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
-            resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
-            Debug.Log("wd" + resources[Resource.Wood] + map.Countries[i].Id + map.Countries[i].Name);
-            map.Countries[i].modifyResource(Resource.Gold, tax);
+        tax *= map.Countries[i].techStats.taxFactor;
+        resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
+        resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
+        resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
+        map.Countries[i].modifyResource(Resource.Gold, tax);
 
-            foreach(var res in resources) {
-                map.Countries[i].modifyResource(res.Key, res.Value);
-            }
-            Debug.Log(map.Countries[i].Id + " " + resources[Resource.AP] + " " + map.Countries[i].Resources[Resource.AP]);
-            map.Countries[i].setResource(Resource.AP, resources[Resource.AP]);
-            Debug.Log(map.Countries[i].Resources[Resource.AP]);
+        foreach(var res in resources) {
+            map.Countries[i].modifyResource(res.Key, res.Value);
+        }
+        map.Countries[i].setResource(Resource.AP, resources[Resource.AP]);
+    }
+    private void countryCalc() {
+
+        for(int i = 1; i < map.Countries.Count; i++) {
+            ccc(i);
         }
     }
 

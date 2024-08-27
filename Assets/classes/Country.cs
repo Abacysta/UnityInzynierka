@@ -270,7 +270,7 @@ public class Country
         this.name = name;
         this.capital = id==0 ? (-1, -1) : capital;
         this.color = id == 0 ? Color.white : color;
-        this.resources = technicalDefaultResources.defaultValues;
+        this.resources = new(technicalDefaultResources.defaultValues);
         this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
         this.techStats = new TechnologyInterpreter(this.technology);
         this.provinces = new HashSet<(int, int)> { capital };
@@ -304,7 +304,7 @@ public class Country
 
     public void modifyResource((Resource, float) values) {
         Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
-        resources[values.Item1] += values.Item2;
+        this.resources[values.Item1] += values.Item2;
     }
 
     public void modifyResource(Resource resource, float value) {
@@ -313,7 +313,7 @@ public class Country
 
     public void setResource((Resource, float) values) {
         Debug.Log("set " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
-        resources[values.Item1] = values.Item2;
+        this.resources[values.Item1] = values.Item2;
     }
 
     public void setResource(Resource resource, float value) { 

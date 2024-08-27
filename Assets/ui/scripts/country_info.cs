@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -21,10 +22,10 @@ public class country_info : MonoBehaviour
     }
 
     public void displayInfo() {
-        gold.SetText("" + map.CurrentPlayer.Resources[Resource.Gold]);
-        wood.SetText("" + map.CurrentPlayer.Resources[Resource.Wood]);
-        iron.SetText("" + map.CurrentPlayer.Resources[Resource.Iron]);
-        tech.SetText("" + map.CurrentPlayer.Resources[Resource.SciencePoint]);
-        ap.SetText("" + map.CurrentPlayer.Resources[Resource.AP]);
+        gold.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Gold], 1));
+        wood.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Wood],1));
+        iron.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Iron],1));
+        tech.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.SciencePoint], 1));
+        ap.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.AP], 1));
     }
 }
