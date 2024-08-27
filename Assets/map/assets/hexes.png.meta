@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a4ff9028547fd9a4d8c409ebc25fe042
+guid: 15fa8c95e51cea34f936c3f5840323ef
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -37,9 +37,9 @@ TextureImporter:
     filterMode: 2
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
-    wrapW: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -93,45 +93,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: Windows Store Apps
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 0
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Hexes_0
+      name: hexes_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 100
+        width: 101
         height: 115
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b3c541e9a08a9b448a79d768e46e571b
-      internalID: -1592265269
+      spriteID: fa1a59bbf1aab9648970e5eb8eaf7116
+      internalID: -1365625044
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Hexes_1
+      name: hexes_1
       rect:
         serializedVersion: 2
         x: 130
@@ -139,62 +126,62 @@ TextureImporter:
         width: 100
         height: 115
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8c75346945fc3ee4dafa020f851e290a
-      internalID: 2006245557
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hexes_3
-      rect:
-        serializedVersion: 2
-        x: 267
-        y: 0
-        width: 100
-        height: 115
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ab1343479a3432e44a48d3a5981a23a0
-      internalID: -1329498634
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hexes_4
-      rect:
-        serializedVersion: 2
-        x: 389
-        y: 0
-        width: 100
-        height: 115
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4894a98b271b6f641a1e5af8424b5e76
-      internalID: -1896391353
+      spriteID: 640111b022add5249a24455e8689414d
+      internalID: -1764275463
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
       name: hexes_5
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 0
+        width: 100
+        height: 115
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f264398a8bf0984b85faba6ed979850
+      internalID: 2099198375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hexes_6
+      rect:
+        serializedVersion: 2
+        x: 392
+        y: 0
+        width: 100
+        height: 115
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b5e33d8f071573449bd9b4c0d882de24
+      internalID: -684997281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hexes_7
       rect:
         serializedVersion: 2
         x: 518
@@ -208,8 +195,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: af77748fcd72a124ca2524bf74888f6a
-      internalID: 1590618805
+      spriteID: 5f78cbed6e24bd44f9284e72cedceaff
+      internalID: -1195541432
       vertices: []
       indices: 
       edges: []
@@ -225,12 +212,17 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Hexes_0: -1592265269
-      Hexes_1: 2006245557
-      Hexes_2: -718276100
-      Hexes_3: -1329498634
-      Hexes_4: -1896391353
-      hexes_5: 1590618805
+      hexes_0: -1365625044
+      hexes_1: -1764275463
+      hexes_10: -2012497951
+      hexes_2: -1793237536
+      hexes_3: -1658437711
+      hexes_4: 390578740
+      hexes_5: 2099198375
+      hexes_6: -684997281
+      hexes_7: -1195541432
+      hexes_8: 44061792
+      hexes_9: 1419425894
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
