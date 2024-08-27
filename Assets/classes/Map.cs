@@ -138,8 +138,8 @@ public class Map:ScriptableObject {
 
     public void recArmy((int, int) coordinates, int amount) {
         var province = getProvince(coordinates);
-        var exitsing = armies.Find(a => a.position == coordinates);
-        if(province.RecruitablePopulation <= amount) { 
+        var exitsing = armies.Find(a => a.position == coordinates && a.position == a.destination);
+        if(province.RecruitablePopulation >= amount) { 
             province.Population -= amount;
             province.RecruitablePopulation -= amount;
             if(exitsing == null) { 
