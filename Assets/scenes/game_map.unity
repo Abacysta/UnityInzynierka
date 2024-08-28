@@ -603,7 +603,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 316045547}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: dialog_box_manager, Assembly-CSharp
         m_MethodName: percentValue
         m_Mode: 4
@@ -5874,7 +5874,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 316045547}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: dialog_box_manager, Assembly-CSharp
         m_MethodName: addValue
         m_Mode: 3
@@ -7065,7 +7065,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!82 &255037097
 AudioSource:
   m_ObjectHideFlags: 0
@@ -17405,7 +17405,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   base_layer: {fileID: 352083102}
-  occupation_color_layer: {fileID: 230216597}
+  occupation_layer: {fileID: 230216597}
   terrain_feature_layer_1: {fileID: 155425490}
   terrain_feature_layer_2: {fileID: 117996424}
   filter_layer: {fileID: 1022513887}
@@ -39156,7 +39156,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 316045547}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: dialog_box_manager, Assembly-CSharp
         m_MethodName: percentValue
         m_Mode: 4

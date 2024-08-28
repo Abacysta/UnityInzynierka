@@ -12,7 +12,7 @@ public class map_loader : MonoBehaviour
     [SerializeField] private Map map;
 
     [SerializeField] private Tilemap base_layer;
-    [SerializeField] private Tilemap occupation_color_layer;
+    [SerializeField] private Tilemap occupation_layer;
     [SerializeField] private Tilemap terrain_feature_layer_1;
     [SerializeField] private Tilemap terrain_feature_layer_2;
     [SerializeField] private Tilemap filter_layer;
@@ -186,6 +186,8 @@ public class map_loader : MonoBehaviour
 
      public void SetPolitical() {
         filter_layer.ClearAllTiles();
+        base_layer.ClearAllTiles();
+        occupation_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces) {
             Country owner = map.Countries[province.Owner_id];
@@ -195,6 +197,13 @@ public class map_loader : MonoBehaviour
                 base_layer.SetTile(position, base_tile);
                 base_layer.SetColor(position, owner.Color);
                 if(owner.Capital == province.coordinates) terrain_feature_layer_2.SetTile(position, capital_tile);
+
+                if (province.OccupationInfo.IsOccupied)
+                {
+                    Country occupier = map.Countries[province.OccupationInfo.OccupyingCountryId];
+                    occupation_layer.SetTile(position, occupied_tile);
+                    occupation_layer.SetColor(position, occupier.Color);
+                }
             }
             else {
                 SetWater(position);
