@@ -1,18 +1,16 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using Unity.VisualScripting;
 using System;
-using JetBrains.Annotations;
 using System.Collections.Generic;
-using Unity.Burst.Intrinsics;
-
 
 public class dialog_box_manager : MonoBehaviour
 {
+    [SerializeField] Map map;
+    [SerializeField] private Image db_country_color_img;
+
     [SerializeField] private GameObject overlay;
 
-    [SerializeField] private Image country_image;
     [SerializeField] private TMP_Text dialog_title;
     [SerializeField] private Button close_button;
 
@@ -31,28 +29,27 @@ public class dialog_box_manager : MonoBehaviour
 
     public class dialog_box_precons {
         internal class DialogBox {
-            public string image, title, message;
+            public string title, message;
 
-            public DialogBox(string image, string title, string message, Dictionary<Resource, float> cost=null) {
-                this.image = image;
+            public DialogBox(string title, string message, Dictionary<Resource, float> cost=null) {
                 this.title = title;
                 this.message = message;
             }
 
-            internal (string, string, string) toVars() {
-                return (image, title, message);
+            internal (string, string) toVars() {
+                return (title, message);
             }
         }
-        internal static DialogBox army_box = new("gauls", "Move Army", "Select how many units you want to move");
-        internal static DialogBox rec_box = new("gauls", "Recruit Army", "Select how many units you want to recruit");
-        internal static DialogBox dis_box = new("gauls", "Disband Army", "Select how many units you want to disband");
-        internal static DialogBox upBuilding_box = new("gauls", "Build ", "Do you want to build ");
-        internal static DialogBox downBuilding_box = new("gauls", "Raze ", "Do you want to raze ");
-        internal static DialogBox tech_box = new("gauls", "Upgrade Technology", "Do you want to upgrade ");
+        internal static DialogBox army_box = new("Move Army", "Select how many units you want to move");
+        internal static DialogBox rec_box = new("Recruit Army", "Select how many units you want to recruit");
+        internal static DialogBox dis_box = new("Disband Army", "Select how many units you want to disband");
+        internal static DialogBox upBuilding_box = new("Build ", "Do you want to build ");
+        internal static DialogBox downBuilding_box = new("Raze ", "Do you want to raze ");
+        internal static DialogBox tech_box = new("Upgrade Technology", "Do you want to upgrade ");
     };
 
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
-        (string image, string title, string message) = dialog_box_precons.army_box.toVars();
+        (string title, string message) = dialog_box_precons.army_box.toVars();
         
         Action onConfirm = () => {
             //map.setMoveArmy(army, (int)dialog_slider.value, destination);
@@ -60,11 +57,16 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
         Action onCancel = null;
-        ShowSliderBox(image, title, message, onConfirm, onCancel, army.Count, true);
+        ShowSliderBox(title, message, onConfirm, onCancel, army.Count, true);
+    }
+
+    void OnEnable()
+    {
+        SetCoatOfArmsColor();    
     }
 
     public void invokeRecBox(Map map, (int, int) coordinates) {
-        (string image, string title, string message) = dialog_box_precons.rec_box.toVars();
+        (string title, string message) = dialog_box_precons.rec_box.toVars();
         var province = map.getProvince(coordinates);
         Action onConfirm = () => {
             //map.recArmy(coordinates, (int)dialog_slider.value);
@@ -72,23 +74,23 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[province.Owner_id].Actions.addAction(act);
         };
         Action onCancel= null;
-        ShowSliderBox(image, title, message, onConfirm, onCancel, province.RecruitablePopulation, true);
+        ShowSliderBox(title, message, onConfirm, onCancel, province.RecruitablePopulation, true);
     }
 
     public void invokeDisBox(Map map, Army army) {
-        (string image, string title, string message) = dialog_box_precons.dis_box.toVars();
+        (string title, string message) = dialog_box_precons.dis_box.toVars();
         
         Action onConfirm = () => {
             var act = new Assets.classes.actionContainer.TurnAction.army_disbandment(army, (int)dialog_slider.value);
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
         Action onCancel= null;
-        ShowSliderBox(image, title, message, onConfirm, onCancel, army.count, true);
+        ShowSliderBox(title, message, onConfirm, onCancel, army.count, true);
     }
     
 
     public void invokeUpgradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
-        (string image, string title, string message) = dialog_box_precons.upBuilding_box.toVars();
+        (string title, string message) = dialog_box_precons.upBuilding_box.toVars();
         var province = map.getProvince(coordinates);
         switch(type) {
             case BuildingType.Fort:
@@ -117,11 +119,11 @@ public class dialog_box_manager : MonoBehaviour
             map.upgradeBuilding(coordinates, type);
         };
         Action onCancel = null;
-        ShowConfirmBox(image, title, message, onConfirm, onCancel);
+        ShowConfirmBox(title, message, onConfirm, onCancel);
     }
 
     public void invokeDowngradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
-        (string image, string title, string message) = dialog_box_precons.downBuilding_box.toVars();
+        (string title, string message) = dialog_box_precons.downBuilding_box.toVars();
         switch(type) {
             case BuildingType.Fort:
                 title += "Fort";
@@ -146,21 +148,21 @@ public class dialog_box_manager : MonoBehaviour
             map.downgradeBuilding(coordinates, type);
         };
         Action onCancel = null;
-        ShowConfirmBox(image, title, message, onConfirm, onCancel);
+        ShowConfirmBox(title, message, onConfirm, onCancel);
     }
 
     public void invokeTechUpgradeBox()
     {
-        (string image, string title, string message) = dialog_box_precons.tech_box.toVars();
+        (string title, string message) = dialog_box_precons.tech_box.toVars();
 
         Action onConfirm = () => {
             Debug.Log("Upgraded the technology");
         };
         Action onCancel = null;
-        ShowConfirmBox(image, title, message, onConfirm, onCancel);
+        ShowConfirmBox(title, message, onConfirm, onCancel);
     }
 
-    private void ShowDialogBox(string imageName, string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
+    private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
     {
         close_button.onClick.RemoveAllListeners();
         confirm_button.onClick.RemoveAllListeners();
@@ -173,8 +175,6 @@ public class dialog_box_manager : MonoBehaviour
         else txt_can.SetText("Cancel");
         dialog_slider.value = dialog_slider.minValue;
         dialog_slider.onValueChanged.AddListener(OnSliderValueChanged);
-
-        SetCountryImage(imageName);
 
         dialog_title.text = actionTitle;
 
@@ -202,7 +202,7 @@ public class dialog_box_manager : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    private void ShowSliderBox(string imageName, string actionTitle, string message, System.Action onConfirm, System.Action onCancel, int maxValue, bool confirmable)
+    private void ShowSliderBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, int maxValue, bool confirmable)
     {
         choice_area.SetActive(true);
         cost_area.SetActive(true);
@@ -211,37 +211,23 @@ public class dialog_box_manager : MonoBehaviour
         slider_max.text = maxValue.ToString();
         quantity_text.text = dialog_slider.value.ToString();
 
-        ShowDialogBox(imageName, actionTitle, message, onConfirm, onCancel);
+        ShowDialogBox(actionTitle, message, onConfirm, onCancel);
     }
 
-    private void ShowConfirmBox(string imageName, string actionTitle, string message, System.Action onConfirm, System.Action onCancel)
+    private void ShowConfirmBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel)
     {
 
         choice_area.SetActive(false);
         cost_area.SetActive(true);
         cost_content.text = "";
 
-        ShowDialogBox(imageName, actionTitle, message, onConfirm, onCancel);
+        ShowDialogBox(actionTitle, message, onConfirm, onCancel);
     }
 
     public void HideDialog()
     {
         gameObject.SetActive(false);
         overlay.SetActive(false);
-    }
-
-    public void SetCountryImage(string spriteName)
-    {
-        Sprite sprite = Resources.Load<Sprite>(spriteName);
-
-        if (sprite != null)
-        {
-            country_image.sprite = sprite;
-        }
-        else
-        {
-            Debug.LogError("Cannot find image with the name: " + spriteName);
-        }
     }
 
     public void OnSliderValueChanged(float value)
@@ -261,5 +247,10 @@ public class dialog_box_manager : MonoBehaviour
     }
     public void percentValue(float percent) { 
         dialog_slider.value = dialog_slider.maxValue * percent;
+    }
+
+    public void SetCoatOfArmsColor()
+    {
+        db_country_color_img.color = map.CurrentPlayer.Color;
     }
 }

@@ -27,8 +27,6 @@ public class province_table_manager : MonoBehaviour
 
     void Start()
     {
-        sortedProvinces = new List<Province>(map.Provinces);
-
         sort_by_name_button.onClick.AddListener(() => ToggleSort("name"));
         sort_by_population_button.onClick.AddListener(() => ToggleSort("population"));
         sort_by_happiness_button.onClick.AddListener(() => ToggleSort("happiness"));
@@ -52,13 +50,18 @@ public class province_table_manager : MonoBehaviour
 
         foreach (var province in sortedProvinces)
         {
-            if (province.Owner_id == 1)
+            if (province.Owner_id == map.currentPlayer)
             {
                 GameObject rowObj = Instantiate(province_row, content);
 
                 rowObj.transform.Find("name_text").GetComponent<TMP_Text>().text = province.Name;
                 rowObj.transform.Find("population_text").GetComponent<TMP_Text>().text = province.Population.ToString();
-                rowObj.transform.Find("happiness_text").GetComponent<TMP_Text>().text = province.Happiness.ToString() + "%";
+                TMP_Text happinessText = rowObj.transform.Find("happiness_text").GetComponent<TMP_Text>();
+
+                happinessText.text = province.Happiness.ToString() + "%";
+                happinessText.color = province.Happiness < 9 ? new Color32(255, 41, 35, 255) : // red
+                                       province.Happiness < 50 ? new Color32(255, 162, 0, 255) : // orange
+                                       Color.green;
 
                 Image resourceImage = rowObj.transform.Find("resource/resource_img").GetComponent<Image>();
                 resourceImage.sprite = GetResourceSprite(province.Resources);

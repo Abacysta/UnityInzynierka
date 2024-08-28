@@ -14,6 +14,7 @@ public class province_click_handler : cursor_helper
     [SerializeField] private province_tooltip province_tooltip;
     [SerializeField] private army_click_handler armyClickHandler;
     [SerializeField] private camera_controller cameraController;
+    [SerializeField] private country_interface_manager country_interface_manager;
 
     private Vector3Int previousCellPosition;
     private Vector3Int cellPosition;
@@ -30,6 +31,7 @@ public class province_click_handler : cursor_helper
         if (cameraController.IsPanning) 
         {
             mouse_hover_layer.ClearAllTiles();
+            province_tooltip.OnMouseExitProvince();
             return;
         }
         if (IsCursorOverUIObject()) return;
@@ -44,6 +46,7 @@ public class province_click_handler : cursor_helper
         {
             if (IsCursorOverArmy() || armyClickHandler.IsCursorOverHighlightedCell()) return;
             province_tooltip.OnMouseExitProvince();
+            country_interface_manager.HideCountryInterface();
             HandleLeftClick();
         }
     }

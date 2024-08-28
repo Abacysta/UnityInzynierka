@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 public class country_interface_manager : MonoBehaviour
 {
+    [SerializeField] Map map;
+
+    [SerializeField] private Image cn_in_country_color_img;
     [SerializeField] private GameObject[] tab_buttons;
     [SerializeField] private GameObject[] tab_panels;
 
@@ -22,6 +25,11 @@ public class country_interface_manager : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        SetCoatOfArmsColor();
+    }
+
     public void ActivateTab(int index)
     {
         for (int i = 0; i < tab_buttons.Length; i++)
@@ -34,5 +42,20 @@ public class country_interface_manager : MonoBehaviour
         tab_buttons[index].GetComponent<Image>().color = activeColor;
 
         activeTab = index;
+    }
+
+    public void SetCoatOfArmsColor()
+    {
+        cn_in_country_color_img.color = map.CurrentPlayer.Color;
+    }
+
+    public void HideCountryInterface()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void ShowCountryInterface()
+    {
+        gameObject.SetActive(true);
     }
 }
