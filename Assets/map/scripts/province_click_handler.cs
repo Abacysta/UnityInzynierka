@@ -11,7 +11,7 @@ public class province_click_handler : cursor_helper
 
     [SerializeField] private AudioSource province_click;
     [SerializeField] private GameObject province_interface;
-    [SerializeField] private GameObject province_tooltip;
+    [SerializeField] private province_tooltip province_tooltip;
     [SerializeField] private army_click_handler armyClickHandler;
     [SerializeField] private camera_controller cameraController;
 
@@ -23,14 +23,12 @@ public class province_click_handler : cursor_helper
     {
         previousCellPosition = new Vector3Int(-1, -1, -1);
         isHovering = false;
-        province_tooltip.SetActive(false);
     }
 
     void Update()
     {
         if (cameraController.IsPanning) 
         {
-            province_tooltip.SetActive(false);
             mouse_hover_layer.ClearAllTiles();
             return;
         }
@@ -44,8 +42,8 @@ public class province_click_handler : cursor_helper
 
         if (Input.GetMouseButtonDown(0))
         {
-            province_tooltip.SetActive(false);
             if (IsCursorOverArmy() || armyClickHandler.IsCursorOverHighlightedCell()) return;
+            province_tooltip.OnMouseExitProvince();
             HandleLeftClick();
         }
     }
@@ -57,7 +55,7 @@ public class province_click_handler : cursor_helper
             if (isHovering)
             {
                 mouse_hover_layer.SetTile(previousCellPosition, null);
-                province_tooltip.SetActive(false);
+                province_tooltip.OnMouseExitProvince();
             }
 
             TileBase hoveredTile = base_layer.GetTile(cellPosition);
@@ -68,8 +66,8 @@ public class province_click_handler : cursor_helper
 
                 if(IsProvinceRevealed(cellPosition.x,cellPosition.y))
                 {
-                    province_tooltip.GetComponent<province_tooltip>().SetTooltipData(map.getProvince(cellPosition.x,cellPosition.y));
-                    DisplayProvinceTooltip(cellPosition.x, cellPosition.y);
+                    var prov = map.getProvince(cellPosition.x, cellPosition.y);
+                    province_tooltip.OnMouseEnterProvince(prov);
                 }
                 isHovering = true;
                 previousCellPosition = cellPosition;
@@ -78,6 +76,7 @@ public class province_click_handler : cursor_helper
             {
                 isHovering = false;
                 previousCellPosition = new Vector3Int(-1, -1, -1);
+                province_tooltip.OnMouseExitProvince();
             }
         }
     }
@@ -86,7 +85,6 @@ public class province_click_handler : cursor_helper
     {
         TileBase clickedTile = base_layer.GetTile(cellPosition);
 
-        province_tooltip.SetActive(false);
         if (clickedTile != null)
         {
             if(IsProvinceRevealed(cellPosition.x, cellPosition.y))
@@ -111,18 +109,17 @@ public class province_click_handler : cursor_helper
         if (province != null)
         {
             map.Selected_province = (province.X, province.Y);
-            province_interface.SetActive(true);
         }
     }
-    private void DisplayProvinceTooltip(int x, int y)
-    {
-        Province province = map.getProvince(x, y);
+    //private void DisplayProvinceTooltip(int x, int y)
+    //{
+    //    Province province = map.getProvince(x, y);
 
-        if(province != null)
-        {
-            province_tooltip.SetActive(true);
-        }
-    }
+    //    if(province != null)
+    //    {
+    //        province_tooltip;
+    //    }
+    //}
     private bool IsProvinceRevealed(int x, int y)
     {
         Province province = map.getProvince(x, y);

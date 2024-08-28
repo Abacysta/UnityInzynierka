@@ -14,7 +14,7 @@ public class army_click_handler : cursor_helper
     [SerializeField] private AudioSource army_move_select;
 
     [SerializeField] private dialog_box_manager dialog_box;
-
+    [SerializeField] private province_tooltip province_tooltip;
     private army_view selectedArmy;
     private List<Vector3Int> highlightedCells = new();
 
@@ -54,6 +54,7 @@ public class army_click_handler : cursor_helper
 
         if (hit.collider != null)
         {
+            province_tooltip.OnMouseExitProvince();
             if (hit.collider.TryGetComponent<army_view>(out var armyView))
             {
                 ResetSelectedArmy(); // Resetuj wybran¹ armiê przed przypisaniem nowej
@@ -78,6 +79,7 @@ public class army_click_handler : cursor_helper
                 {
                     (int x, int y) = (cellPosition.x, cellPosition.y);
                     dialog_box.invokeArmyBox(map, selectedArmy.ArmyData, (x, y));
+                    province_tooltip.OnMouseExitProvince();
                 }
 
                 ResetSelectedArmy(); // Zresetuj po zakoñczeniu ruchu
