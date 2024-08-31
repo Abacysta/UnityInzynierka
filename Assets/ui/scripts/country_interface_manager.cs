@@ -16,6 +16,7 @@ public class country_interface_manager : MonoBehaviour
 
     void Start()
     {
+        gameObject.SetActive(false);
         ActivateTab(activeTab);
 
         for (int i = 0; i < tab_buttons.Length; i++)

@@ -8,18 +8,17 @@ public class technology_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
 
-    [SerializeField] private GameObject mil_tree_prefab;
-    [SerializeField] private GameObject ec_tree_prefab;
-    [SerializeField] private GameObject adm_tree_prefab;
+    [SerializeField] private GameObject tech_tooltip_row;
 
     [SerializeField] private dialog_box_manager dialog_box;
 
-    [SerializeField] private GameObject mil_tooltip_column_1;
-    [SerializeField] private GameObject mil_tooltip_column_2;
-    [SerializeField] private GameObject ec_tooltip_column_1;
-    [SerializeField] private GameObject ec_tooltip_column_2;
-    [SerializeField] private GameObject adm_tooltip_column_1;
-    [SerializeField] private GameObject adm_tooltip_column_2;
+    [SerializeField] private TMP_Text mil_tooltip_text;
+    [SerializeField] private TMP_Text ec_tooltip_text;
+    [SerializeField] private TMP_Text adm_tooltip_text;
+
+    [SerializeField] private GameObject mil_tooltip_container;
+    [SerializeField] private GameObject ec_tooltip_container;
+    [SerializeField] private GameObject adm_tooltip_container;
 
     [SerializeField] private Button mil_tech_button;
     [SerializeField] private Button ec_tech_button;
@@ -29,21 +28,141 @@ public class technology_manager : MonoBehaviour
     [SerializeField] private TMP_Text ec_current_level_text;
     [SerializeField] private TMP_Text adm_current_level_text;
 
-    [SerializeField] private GameObject mil_next_level_panel;
-    [SerializeField] private GameObject adm_next_level_panel;
-    [SerializeField] private GameObject ec_next_level_panel;
+    [SerializeField] private TMP_Text mil_next_level_text;
+    [SerializeField] private TMP_Text ec_next_level_text;
+    [SerializeField] private TMP_Text adm_next_level_text;
+
+    [SerializeField] private GameObject mil_next_level_container;
+    [SerializeField] private GameObject adm_next_level_container;
+    [SerializeField] private GameObject ec_next_level_container;
 
     [SerializeField] private TMP_Text mil_cost_text;
     [SerializeField] private TMP_Text ec_cost_text;
     [SerializeField] private TMP_Text adm_cost_text;
 
-    private List<GameObject> militaryTree = new();
-    private List<GameObject> economicTree = new();
-    private List<GameObject> administrativeTree = new();
+    [SerializeField] private Sprite army_combat_power_sprite;
+    [SerializeField] private Sprite army_cost_sprite;
+    [SerializeField] private Sprite army_upkeep_cost_sprite;
+    [SerializeField] private Sprite army_move_range_sprite;
+    [SerializeField] private Sprite recruitable_population_sprite;
+    [SerializeField] private Sprite occupation_penalty_sprite;
+    [SerializeField] private Sprite occupation_time_sprite;
+    [SerializeField] private Sprite water_move_factor_sprite;
 
-    int militaryLevel = 3;
-    int economicLevel = 5;
-    int administrativeLevel = 10;
+    [SerializeField] private Sprite production_factor_sprite;
+    [SerializeField] private Sprite tax_revenue_sprite;
+    [SerializeField] private Sprite can_boat_sprite;
+    [SerializeField] private Sprite choosing_new_tax_law_sprite;
+
+    [SerializeField] private List<Sprite> building_the_fort_sprite;
+    [SerializeField] private List<Sprite> building_the_mine_sprite;
+    [SerializeField] private List<Sprite> building_the_infrastructure_sprite;
+    [SerializeField] private List<Sprite> building_the_school_sprite;
+
+    [SerializeField] private Sprite holding_the_festival_sprite;
+    [SerializeField] private Sprite introducing_the_tax_break_sprite;
+    [SerializeField] private Sprite occupation_production_factor_sprite;
+    [SerializeField] private Sprite penalties_from_temporary_statuses_sprite;
+    [SerializeField] private Sprite supressing_the_rebelion_sprite;
+
+    public class Bonus
+    {
+        public string Name { get; private set; }
+        public float? NumericValue { get; private set; } 
+        public int? IntValue { get; private set; }
+        public bool? BoolValue { get; private set; }
+        public Sprite Icon { get; private set; }
+        public bool IsBonusPositive { get; private set; }
+
+        public Bonus(string name, float value, Sprite icon, bool isPositiveBonus)
+        {
+            Name = name;
+            NumericValue = value;
+            IntValue = null;
+            BoolValue = null;
+            Icon = icon;
+            IsBonusPositive = isPositiveBonus;
+        }
+
+        public Bonus(string name, int value, Sprite icon, bool isPositiveBonus)
+        {
+            Name = name;
+            NumericValue = null;
+            IntValue = value;
+            BoolValue = null;
+            Icon = icon;
+            IsBonusPositive = isPositiveBonus;
+        }
+
+        public Bonus(string name, bool value, Sprite icon, bool isPositiveBonus)
+        {
+            Name = name;
+            NumericValue = null;
+            IntValue = null;
+            BoolValue = value;
+            Icon = icon;
+            IsBonusPositive = isPositiveBonus;
+        }
+
+        public string GetFormattedValue()
+        {
+            if (Name.StartsWith("Building") || Name.Contains("tax law"))
+            {
+                return "YES";
+            }
+            else if (NumericValue.HasValue)
+            {
+                float percentageValue = NumericValue.Value * 100;
+                string sign = percentageValue >= 0 ? "+" : "";
+                return sign + percentageValue.ToString("0.##") + "%";
+            }
+            else if (IntValue.HasValue)
+            {
+                string sign = IntValue >= 0 ? "+" : "";
+                return sign + IntValue.Value.ToString();
+            }
+            else if (BoolValue.HasValue)
+            {
+                return BoolValue.Value ? "YES" : "NO";
+            }
+            else
+            {
+                return "N/A";
+            }
+        }
+    }
+
+    public class TechLevel
+    {
+        private List<Bonus> bonuses;
+
+        public TechLevel(List<Bonus> bonuses)
+        {
+            this.bonuses = bonuses;
+        }
+
+        public List<Bonus> Bonuses
+        {
+            get { return bonuses; }
+            private set { bonuses = value; }
+        }
+    }
+
+    private List<TechLevel> militaryTree;
+    private List<TechLevel> economicTree;
+    private List<TechLevel> administrativeTree;
+
+    int militaryLevel = 0;
+    int economicLevel = 0;
+    int administrativeLevel = 0;
+
+    public float updateInterval = 0.1f;
+    private float timeSinceLastUpdate = 0f;
+
+    void Awake()
+    {
+        InitializeLevels();
+    }
 
     void Start()
     {
@@ -58,88 +177,88 @@ public class technology_manager : MonoBehaviour
         administrative_tech_button.onClick.AddListener(() => dialog_box.invokeTechUpgradeBox());
         */
 
-
-        // Kod do testow, ale moze jakies czesci bedzie mozna wykorzystac
-
-        AddChildrenToList(mil_tree_prefab, militaryTree);
-        AddChildrenToList(ec_tree_prefab, economicTree);
-        AddChildrenToList(adm_tree_prefab, administrativeTree);
-
-        UpgradeTechnology(mil_tooltip_column_1, mil_tooltip_column_2,
-            militaryLevel, militaryTree, mil_next_level_panel, mil_tech_button, mil_current_level_text);
-        UpgradeTechnology(ec_tooltip_column_1, ec_tooltip_column_2,
-            economicLevel, economicTree, ec_next_level_panel, ec_tech_button, ec_current_level_text);
-        UpgradeTechnology(adm_tooltip_column_1, adm_tooltip_column_2,
-            administrativeLevel, administrativeTree, adm_next_level_panel, adm_tech_button, adm_current_level_text);
-
         mil_tech_button.onClick.AddListener(() =>
         {
             militaryLevel++;
-            UpgradeTechnology(mil_tooltip_column_1, mil_tooltip_column_2,
-                militaryLevel, militaryTree, mil_next_level_panel, mil_tech_button, mil_current_level_text);
+            SetTechnologyData(mil_tooltip_container, mil_tooltip_text, militaryLevel, militaryTree,
+                mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text);
         });
 
         ec_tech_button.onClick.AddListener(() =>
         {
             economicLevel++;
-            UpgradeTechnology(ec_tooltip_column_1, ec_tooltip_column_2,
-                economicLevel, economicTree, ec_next_level_panel, ec_tech_button, ec_current_level_text);
+            SetTechnologyData(ec_tooltip_container, ec_tooltip_text, economicLevel, economicTree,
+                ec_next_level_container, ec_tech_button, ec_current_level_text, ec_next_level_text);
         });
 
         adm_tech_button.onClick.AddListener(() =>
         {
             administrativeLevel++;
-            UpgradeTechnology(adm_tooltip_column_1, adm_tooltip_column_2,
-                administrativeLevel, administrativeTree, adm_next_level_panel, adm_tech_button, adm_current_level_text);
+            SetTechnologyData(adm_tooltip_container, adm_tooltip_text, administrativeLevel, administrativeTree,
+                adm_next_level_container, adm_tech_button, adm_current_level_text, adm_next_level_text);
         });
+    }
 
-        SetButtonColorToRed(ec_tech_button);
+    void OnEnable()
+    {
+        ActiveButton(mil_tech_button);
+        ActiveButton(ec_tech_button);
+        ActiveButton(adm_tech_button);
+
+        SetButtonColorToGreen(mil_tech_button);
+        SetButtonColorToGreen(ec_tech_button);
+        SetButtonColorToGreen(adm_tech_button);
+
+        SetTechnologyData(mil_tooltip_container, mil_tooltip_text, militaryLevel, militaryTree,
+            mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text);
+        SetTechnologyData(ec_tooltip_container, ec_tooltip_text, economicLevel, economicTree,
+            ec_next_level_container, ec_tech_button, ec_current_level_text, ec_next_level_text);
+        SetTechnologyData(adm_tooltip_container, adm_tooltip_text, administrativeLevel, administrativeTree,
+            adm_next_level_container, adm_tech_button, adm_current_level_text, adm_next_level_text);
     }
 
     void Update()
     {
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_tooltip_column_1.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_tooltip_column_2.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_tooltip_column_1.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_tooltip_column_2.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_tooltip_column_1.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_tooltip_column_2.GetComponent<RectTransform>());
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_next_level_panel.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_next_level_panel.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_next_level_panel.GetComponent<RectTransform>());
+        ForceRebuildLayout();
     }
 
-    public void UpgradeTechnology(GameObject tooltip_column_1, GameObject tooltip_column_2, int level,
-        List<GameObject> techTree, GameObject nextLevelPanel, Button techButton, TMP_Text currentLevelText)
+    public void SetTechnologyData(GameObject tooltip, TMP_Text tooltipText, int level, List<TechLevel> techTree, GameObject nextLevelContainer, 
+        Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText)
     {
-        // Tech tooltip
-        ClearChildren(tooltip_column_1.transform);
-        ClearChildren(tooltip_column_2.transform);
+        // Tooltip
+        ClearChildren(tooltip.transform);
 
-        var levelNodes = techTree.Take(level).ToList();
-        for (int i = 0; i < levelNodes.Count; i++)
+        if (level == 0)
         {
-            var column = (i < 5) ? tooltip_column_1.transform : tooltip_column_2.transform;
-            Instantiate(levelNodes[i], column);
+            tooltipText.text = "No active bonuses!";
+        }
+        else
+        {
+            tooltipText.text = "Current bonuses:";
+            var levelNodes = techTree.Take(level);
+            SumBonuses(levelNodes, tooltip);
         }
 
-        // Current level text
+        // Panel
         currentLevelText.text = level.ToString();
 
-        // Tooltip and next level panel
-        if (level <= 10)
-        {
-            foreach (Transform child in nextLevelPanel.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-            Instantiate(techTree[level], nextLevelPanel.transform);
-        }
+        ClearChildren(nextLevelContainer.transform);
 
-        if (level >= 10)
+        if (level < 10)
+        {
+            nextLevelText.text = $"Level {level + 1}:";
+
+            foreach (var bonus in techTree[level].Bonuses)
+            {
+                GameObject bonus_row = Instantiate(tech_tooltip_row, nextLevelContainer.transform);
+                bonus_ui bonusUI = bonus_row.GetComponent<bonus_ui>();
+                bonusUI.SetBonus(bonus);
+            }
+        }
+        else
         {
             DeactivateButton(techButton);
+            nextLevelText.text = "Maximum level reached!";
         }
     }
 
@@ -166,23 +285,225 @@ public class technology_manager : MonoBehaviour
         }
     }
 
+    private void ActiveButton(Button techButton)
+    {
+        techButton.gameObject.SetActive(true);
+    }
+
     private void DeactivateButton(Button techButton)
     {
         techButton.gameObject.SetActive(false);
     }
 
-    private void AddChildrenToList(GameObject prefab, List<GameObject> list)
-    {
-        foreach (Transform child in prefab.transform)
-        {
-            list.Add(child.gameObject);
-        }
-    }
     private void ClearChildren(Transform parent)
     {
         foreach (Transform child in parent)
         {
             GameObject.Destroy(child.gameObject);
         }
+    }
+
+    void SumBonuses(IEnumerable<TechLevel> levelNodes, GameObject tooltip)
+    {
+        var consolidatedBonuses = new List<Bonus>();
+
+        var nonBuildingBonuses = levelNodes
+            .SelectMany(level => level.Bonuses)
+            .Where(b => !b.Name.StartsWith("Building"))
+            .GroupBy(b => b.Name)
+            .Select(g => 
+            {
+                bool hasFloat = g.Any(b => b.NumericValue.HasValue);
+                float sumFloat = g.Sum(b => b.NumericValue ?? 0f);
+                int sumInt = g.Sum(b => b.IntValue ?? 0);
+
+                return hasFloat
+                    ? new Bonus(g.Key, sumFloat, g.First().Icon, g.All(b => b.IsBonusPositive))
+                    : new Bonus(g.Key, sumInt, g.First().Icon, g.All(b => b.IsBonusPositive));
+            })
+            .ToList();
+
+        var buildingBonuses = levelNodes
+            .SelectMany(level => level.Bonuses)
+            .Where(b => b.Name.StartsWith("Building"))
+            .GroupBy(b => b.Name)
+            .Select(g => new Bonus(
+                g.Key,
+                g.Max(b => b.IntValue ?? 0),
+                g.OrderByDescending(b => b.IntValue).First().Icon,
+                true
+            ))
+            .ToList();
+
+        consolidatedBonuses.AddRange(nonBuildingBonuses);
+        consolidatedBonuses.AddRange(buildingBonuses);
+
+        foreach (var bonus in consolidatedBonuses)
+        {
+            GameObject bonusRow = Instantiate(tech_tooltip_row, tooltip.transform);
+            bonus_ui bonusUI = bonusRow.GetComponent<bonus_ui>();
+            bonusUI.SetBonus(bonus);
+        }
+    }
+
+    void InitializeLevels()
+    {
+        militaryTree = new List<TechLevel>
+        {
+            // Level 1
+            new(new List<Bonus> {
+                new("Army combat power", 0.01f, army_combat_power_sprite, true)
+            }),
+            // Level 2
+            new(new List<Bonus> {
+                new("Building the fort", 1, building_the_fort_sprite[0], true),
+                new("Army cost", 0.05f, army_cost_sprite, false)
+            }),
+            // Level 3
+            new(new List<Bonus> {
+                new("Army upkeep cost", -0.03f, army_upkeep_cost_sprite, false),
+                new("Occupation time", -1, occupation_time_sprite, false)
+            }),
+            // Level 4
+            new(new List<Bonus> {
+                new("Army combat power", 0.1f, army_combat_power_sprite, true),
+                new("Army cost", 0.1f, army_cost_sprite, false)
+            }),
+            // Level 5
+            new(new List<Bonus> {
+                new("Building the fort", 2, building_the_fort_sprite[1], true),
+                new("Army upkeep cost", 0.02f, army_upkeep_cost_sprite, false)
+            }),
+            // Level 6
+            new(new List<Bonus> {
+                new("Army cost", -0.1f, army_cost_sprite, false),
+                new("Army move range", 1, army_move_range_sprite, true)
+            }),
+            // Level 7
+            new(new List<Bonus> {
+                new("Building the fort", 3, building_the_fort_sprite[2], true),
+                new("Army upkeep cost", 0.02f, army_upkeep_cost_sprite, false)
+            }),
+            // Level 8
+            new(new List<Bonus> {
+                new("Recruitable population", 0.05f, recruitable_population_sprite, true),
+                new("Army cost", -0.1f, army_cost_sprite, false),
+                new("Army upkeep cost", -0.15f, army_upkeep_cost_sprite, false),
+            }),
+            // Level 9
+            new(new List<Bonus> {
+                new("Occupation penalty", -0.35f, occupation_penalty_sprite, false)
+            }),
+            // Level 10
+            new(new List<Bonus> {
+                new("Army combat power", 0.15f, army_combat_power_sprite, true),
+                new("Water move factor", 0.5f, water_move_factor_sprite, true)
+            }),
+        };
+
+        economicTree = new List<TechLevel>
+        {
+            // Level 1
+            new(new List<Bonus> {
+                new("Production factor", 0.05f, production_factor_sprite, true)
+            }),
+            // Level 2
+            new(new List<Bonus> {
+                new("Can boat", true, can_boat_sprite, true),
+                new("Building the mine", 1, building_the_mine_sprite[0], true)
+            }),
+            // Level 3
+            new(new List<Bonus> {
+                new("Production factor", 0.05f, production_factor_sprite, true)
+            }),
+            // Level 4
+            new(new List<Bonus> {
+                new("Choosing tax law", 1, choosing_new_tax_law_sprite, true)
+            }),
+            // Level 5
+            new(new List<Bonus> {
+                new("Tax revenue", 0.15f, tax_revenue_sprite, true)
+            }),
+            // Level 6
+            new(new List<Bonus> {
+                new("Building the mine", 2, building_the_mine_sprite[1], true)
+            }),
+            // Level 7
+            new(new List<Bonus> {
+                new("Production factor", 0.1f, production_factor_sprite, true)
+            }),
+            // Level 8
+            new(new List<Bonus> {
+                new("Tax revenue", 0.05f, tax_revenue_sprite, true)
+            }),
+            // Level 9
+            new(new List<Bonus> {
+                new("Choosing tax law", 2, choosing_new_tax_law_sprite, true)
+            }),
+            // Level 10
+            new(new List<Bonus> {
+                new("Building the mine", 3, building_the_mine_sprite[2], true),
+                new("Production factor", 0.05f, production_factor_sprite, true)
+            }),
+        };
+
+        administrativeTree = new List<TechLevel>
+        {
+            // Level 1
+            new(new List<Bonus> {
+                new("Building the infrastructure", 1, building_the_infrastructure_sprite[0], true)
+            }),
+            // Level 2
+            new(new List<Bonus> {
+                new("Building the school", 1, building_the_school_sprite[0], true)
+            }),
+            // Level 3
+            new(new List<Bonus> {
+                new("Holding the festival", true, holding_the_festival_sprite, true),
+                new("Tax revenue", 0.03f, tax_revenue_sprite, true)
+            }),
+            // Level 4
+            new(new List<Bonus> {
+                new("Introducing the tax break", true, introducing_the_tax_break_sprite, true)
+            }),
+            // Level 5
+            new(new List<Bonus> {
+                new("Building the infrastructure", 2, building_the_infrastructure_sprite[1], true)
+            }),
+            // Level 6
+            new(new List<Bonus> {
+                new("Occupation production factor", 0.1f, occupation_production_factor_sprite, true)
+            }),
+            // Level 7
+            new(new List<Bonus> {
+                new("Penalties from temporary statuses", -0.1f, null, false)
+            }),
+            // Level 8
+            new(new List<Bonus> {
+                new("Tax revenue", 0.01f, tax_revenue_sprite, true),
+                new("Recruitable population", 0.02f, recruitable_population_sprite, true)
+            }),
+            // Level 9
+            new(new List<Bonus> {
+                new("Suppressing the rebellion", true, supressing_the_rebelion_sprite, true),
+                new("Army cost", -0.05f, army_cost_sprite, false)
+            }),
+            // Level 10
+            new(new List<Bonus> {
+                new("Occupation production factor", 0.4f, occupation_production_factor_sprite, true),
+                new("Building the infrastructure", 3, building_the_infrastructure_sprite[2], true)
+            }),
+        };
+    }
+
+    void ForceRebuildLayout()
+    {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_tooltip_container.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_tooltip_container.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_tooltip_container.GetComponent<RectTransform>());
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_next_level_container.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_next_level_container.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_next_level_container.GetComponent<RectTransform>());
     }
 }
