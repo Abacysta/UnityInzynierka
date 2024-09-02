@@ -24,12 +24,18 @@ public class technology_tooltip_controller : MonoBehaviour, IPointerEnterHandler
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (showTooltipCoroutine != null)
+        if (!RectTransformUtility.RectangleContainsScreenPoint(
+            GetComponent<RectTransform>(),
+            Input.mousePosition,
+            eventData.enterEventCamera))
         {
-            StopCoroutine(showTooltipCoroutine);
-            showTooltipCoroutine = null;
+            if (showTooltipCoroutine != null)
+            {
+                StopCoroutine(showTooltipCoroutine);
+                showTooltipCoroutine = null;
+            }
+            tooltip.SetActive(false);
         }
-        tooltip.SetActive(false);
     }
 
     private IEnumerator ShowTooltip()

@@ -3,27 +3,27 @@ using UnityEngine.UI;
 using TMPro;
 using static technology_manager;
 
-public class bonus_ui : MonoBehaviour
+public class tech_effect_ui : MonoBehaviour
 {
     [SerializeField] private Image icon;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text valueText;
 
-    public void SetBonus(Bonus bonus)
+    public void SetEffect(TechEffect effect)
     {
-        icon.sprite = bonus.Icon;
-        string nameWithRoman = bonus.Name;
-        if (bonus.Name.StartsWith("Building") || bonus.Name.Contains("tax law") && bonus.IntValue.HasValue)
+        icon.sprite = effect.Icon;
+        string nameWithRoman = effect.Name;
+        if (effect.Name.StartsWith("Building") || effect.Name.Contains("tax law") && effect.IntValue.HasValue)
         {
-            nameWithRoman += $" {ToRoman(bonus.IntValue.Value)}";
+            nameWithRoman += $" {ToRoman(effect.IntValue.Value)}";
         }
         nameText.text = nameWithRoman + ":";
-        valueText.text = bonus.GetFormattedValue();
+        valueText.text = effect.GetFormattedValue();
 
-        float? value = bonus.NumericValue ?? bonus.IntValue;
+        float? value = effect.NumericValue ?? effect.IntValue;
         if (value.HasValue) 
         {
-            valueText.color = (bonus.IsBonusPositive ^ value < 0) ? 
+            valueText.color = (effect.IsEffectPositive ^ value < 0) ? 
                 new Color32(0, 159, 18, 255) : // green
                 new Color32(180, 25, 37, 255); // red
         }

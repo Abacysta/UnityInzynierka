@@ -64,44 +64,45 @@ public class technology_manager : MonoBehaviour
     [SerializeField] private Sprite occupation_production_factor_sprite;
     [SerializeField] private Sprite penalties_from_temporary_statuses_sprite;
     [SerializeField] private Sprite supressing_the_rebelion_sprite;
+    [SerializeField] private Sprite population_sprite;
 
-    public class Bonus
+    public class TechEffect
     {
         public string Name { get; private set; }
         public float? NumericValue { get; private set; } 
         public int? IntValue { get; private set; }
         public bool? BoolValue { get; private set; }
         public Sprite Icon { get; private set; }
-        public bool IsBonusPositive { get; private set; }
+        public bool IsEffectPositive { get; private set; }
 
-        public Bonus(string name, float value, Sprite icon, bool isPositiveBonus)
+        public TechEffect(string name, float value, Sprite icon, bool isEffectPositive)
         {
             Name = name;
             NumericValue = value;
             IntValue = null;
             BoolValue = null;
             Icon = icon;
-            IsBonusPositive = isPositiveBonus;
+            IsEffectPositive = isEffectPositive;
         }
 
-        public Bonus(string name, int value, Sprite icon, bool isPositiveBonus)
+        public TechEffect(string name, int value, Sprite icon, bool isEffectPositive)
         {
             Name = name;
             NumericValue = null;
             IntValue = value;
             BoolValue = null;
             Icon = icon;
-            IsBonusPositive = isPositiveBonus;
+            IsEffectPositive = isEffectPositive;
         }
 
-        public Bonus(string name, bool value, Sprite icon, bool isPositiveBonus)
+        public TechEffect(string name, bool value, Sprite icon, bool isEffectPositive)
         {
             Name = name;
             NumericValue = null;
             IntValue = null;
             BoolValue = value;
             Icon = icon;
-            IsBonusPositive = isPositiveBonus;
+            IsEffectPositive = isEffectPositive;
         }
 
         public string GetFormattedValue()
@@ -134,17 +135,17 @@ public class technology_manager : MonoBehaviour
 
     public class TechLevel
     {
-        private List<Bonus> bonuses;
+        private List<TechEffect> effects;
 
-        public TechLevel(List<Bonus> bonuses)
+        public TechLevel(List<TechEffect> effects)
         {
-            this.bonuses = bonuses;
+            this.effects = effects;
         }
 
-        public List<Bonus> Bonuses
+        public List<TechEffect> Effects
         {
-            get { return bonuses; }
-            private set { bonuses = value; }
+            get { return effects; }
+            private set { effects = value; }
         }
     }
 
@@ -152,12 +153,11 @@ public class technology_manager : MonoBehaviour
     private List<TechLevel> economicTree;
     private List<TechLevel> administrativeTree;
 
+    private List<TechEffect> baseEffects;
+
     int militaryLevel = 0;
     int economicLevel = 0;
     int administrativeLevel = 0;
-
-    public float updateInterval = 0.1f;
-    private float timeSinceLastUpdate = 0f;
 
     void Awake()
     {
@@ -201,9 +201,9 @@ public class technology_manager : MonoBehaviour
 
     void OnEnable()
     {
-        ActiveButton(mil_tech_button);
-        ActiveButton(ec_tech_button);
-        ActiveButton(adm_tech_button);
+        SetButtonColorToGreen(mil_tech_button);
+        SetButtonColorToGreen(ec_tech_button);
+        SetButtonColorToGreen(adm_tech_button);
 
         SetButtonColorToGreen(mil_tech_button);
         SetButtonColorToGreen(ec_tech_button);
@@ -230,13 +230,13 @@ public class technology_manager : MonoBehaviour
 
         if (level == 0)
         {
-            tooltipText.text = "No active bonuses!";
+            tooltipText.text = "No active effects!";
         }
         else
         {
-            tooltipText.text = "Current bonuses:";
+            tooltipText.text = "Current effects:";
             var levelNodes = techTree.Take(level);
-            SumBonuses(levelNodes, tooltip);
+            SumEffects(levelNodes, tooltip);
         }
 
         // Panel
@@ -248,16 +248,16 @@ public class technology_manager : MonoBehaviour
         {
             nextLevelText.text = $"Level {level + 1}:";
 
-            foreach (var bonus in techTree[level].Bonuses)
+            foreach (var effect in techTree[level].Effects)
             {
-                GameObject bonus_row = Instantiate(tech_tooltip_row, nextLevelContainer.transform);
-                bonus_ui bonusUI = bonus_row.GetComponent<bonus_ui>();
-                bonusUI.SetBonus(bonus);
+                GameObject effectRow = Instantiate(tech_tooltip_row, nextLevelContainer.transform);
+                tech_effect_ui effectUI = effectRow.GetComponent<tech_effect_ui>();
+                effectUI.SetEffect(effect);
             }
         }
         else
         {
-            DeactivateButton(techButton);
+            SetButtonNonInteractable(techButton);
             nextLevelText.text = "Maximum level reached!";
         }
     }
@@ -285,14 +285,9 @@ public class technology_manager : MonoBehaviour
         }
     }
 
-    private void ActiveButton(Button techButton)
+    private void SetButtonNonInteractable(Button techButton)
     {
-        techButton.gameObject.SetActive(true);
-    }
-
-    private void DeactivateButton(Button techButton)
-    {
-        techButton.gameObject.SetActive(false);
+        techButton.interactable = false;
     }
 
     private void ClearChildren(Transform parent)
@@ -303,12 +298,12 @@ public class technology_manager : MonoBehaviour
         }
     }
 
-    void SumBonuses(IEnumerable<TechLevel> levelNodes, GameObject tooltip)
+    void SumEffects(IEnumerable<TechLevel> levelNodes, GameObject tooltip)
     {
-        var consolidatedBonuses = new List<Bonus>();
+        var consolidatedEffects = new List<TechEffect>();
 
-        var nonBuildingBonuses = levelNodes
-            .SelectMany(level => level.Bonuses)
+        var nonBuildingEffects = levelNodes
+            .SelectMany(level => level.Effects)
             .Where(b => !b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
             .Select(g => 
@@ -318,16 +313,16 @@ public class technology_manager : MonoBehaviour
                 int sumInt = g.Sum(b => b.IntValue ?? 0);
 
                 return hasFloat
-                    ? new Bonus(g.Key, sumFloat, g.First().Icon, g.All(b => b.IsBonusPositive))
-                    : new Bonus(g.Key, sumInt, g.First().Icon, g.All(b => b.IsBonusPositive));
+                    ? new TechEffect(g.Key, sumFloat, g.First().Icon, g.All(b => b.IsEffectPositive))
+                    : new TechEffect(g.Key, sumInt, g.First().Icon, g.All(b => b.IsEffectPositive));
             })
             .ToList();
 
-        var buildingBonuses = levelNodes
-            .SelectMany(level => level.Bonuses)
+        var buildingEffects = levelNodes
+            .SelectMany(level => level.Effects)
             .Where(b => b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
-            .Select(g => new Bonus(
+            .Select(g => new TechEffect(
                 g.Key,
                 g.Max(b => b.IntValue ?? 0),
                 g.OrderByDescending(b => b.IntValue).First().Icon,
@@ -335,67 +330,77 @@ public class technology_manager : MonoBehaviour
             ))
             .ToList();
 
-        consolidatedBonuses.AddRange(nonBuildingBonuses);
-        consolidatedBonuses.AddRange(buildingBonuses);
+        consolidatedEffects.AddRange(nonBuildingEffects);
+        consolidatedEffects.AddRange(buildingEffects);
 
-        foreach (var bonus in consolidatedBonuses)
+        foreach (var effect in consolidatedEffects)
         {
-            GameObject bonusRow = Instantiate(tech_tooltip_row, tooltip.transform);
-            bonus_ui bonusUI = bonusRow.GetComponent<bonus_ui>();
-            bonusUI.SetBonus(bonus);
+            GameObject effectRow = Instantiate(tech_tooltip_row, tooltip.transform);
+            tech_effect_ui effectUI = effectRow.GetComponent<tech_effect_ui>();
+            effectUI.SetEffect(effect);
         }
     }
 
     void InitializeLevels()
     {
+        baseEffects = new List<TechEffect>
+        {
+            new("Production factor", 0.05f, production_factor_sprite, true),
+            new("Tax revenue", 0.01f, tax_revenue_sprite, true),
+            new("Population", 0.03f, population_sprite, true),
+            new("Army combat power", 0.05f, army_combat_power_sprite, true),
+            new("Army upkeep cost", 0.03f, army_upkeep_cost_sprite, true),
+            new("Army cost", 0.05f, army_cost_sprite, true),
+        };
+
         militaryTree = new List<TechLevel>
         {
             // Level 1
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Army combat power", 0.01f, army_combat_power_sprite, true)
             }),
             // Level 2
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the fort", 1, building_the_fort_sprite[0], true),
                 new("Army cost", 0.05f, army_cost_sprite, false)
             }),
             // Level 3
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Army upkeep cost", -0.03f, army_upkeep_cost_sprite, false),
                 new("Occupation time", -1, occupation_time_sprite, false)
             }),
             // Level 4
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Army combat power", 0.1f, army_combat_power_sprite, true),
                 new("Army cost", 0.1f, army_cost_sprite, false)
             }),
             // Level 5
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the fort", 2, building_the_fort_sprite[1], true),
                 new("Army upkeep cost", 0.02f, army_upkeep_cost_sprite, false)
             }),
             // Level 6
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Army cost", -0.1f, army_cost_sprite, false),
                 new("Army move range", 1, army_move_range_sprite, true)
             }),
             // Level 7
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the fort", 3, building_the_fort_sprite[2], true),
                 new("Army upkeep cost", 0.02f, army_upkeep_cost_sprite, false)
             }),
             // Level 8
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Recruitable population", 0.05f, recruitable_population_sprite, true),
                 new("Army cost", -0.1f, army_cost_sprite, false),
                 new("Army upkeep cost", -0.15f, army_upkeep_cost_sprite, false),
             }),
             // Level 9
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Occupation penalty", -0.35f, occupation_penalty_sprite, false)
             }),
             // Level 10
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Army combat power", 0.15f, army_combat_power_sprite, true),
                 new("Water move factor", 0.5f, water_move_factor_sprite, true)
             }),
@@ -404,44 +409,44 @@ public class technology_manager : MonoBehaviour
         economicTree = new List<TechLevel>
         {
             // Level 1
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Production factor", 0.05f, production_factor_sprite, true)
             }),
             // Level 2
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Can boat", true, can_boat_sprite, true),
                 new("Building the mine", 1, building_the_mine_sprite[0], true)
             }),
             // Level 3
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Production factor", 0.05f, production_factor_sprite, true)
             }),
             // Level 4
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Choosing tax law", 1, choosing_new_tax_law_sprite, true)
             }),
             // Level 5
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Tax revenue", 0.15f, tax_revenue_sprite, true)
             }),
             // Level 6
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the mine", 2, building_the_mine_sprite[1], true)
             }),
             // Level 7
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Production factor", 0.1f, production_factor_sprite, true)
             }),
             // Level 8
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Tax revenue", 0.05f, tax_revenue_sprite, true)
             }),
             // Level 9
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Choosing tax law", 2, choosing_new_tax_law_sprite, true)
             }),
             // Level 10
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the mine", 3, building_the_mine_sprite[2], true),
                 new("Production factor", 0.05f, production_factor_sprite, true)
             }),
@@ -450,46 +455,46 @@ public class technology_manager : MonoBehaviour
         administrativeTree = new List<TechLevel>
         {
             // Level 1
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the infrastructure", 1, building_the_infrastructure_sprite[0], true)
             }),
             // Level 2
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the school", 1, building_the_school_sprite[0], true)
             }),
             // Level 3
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Holding the festival", true, holding_the_festival_sprite, true),
                 new("Tax revenue", 0.03f, tax_revenue_sprite, true)
             }),
             // Level 4
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Introducing the tax break", true, introducing_the_tax_break_sprite, true)
             }),
             // Level 5
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Building the infrastructure", 2, building_the_infrastructure_sprite[1], true)
             }),
             // Level 6
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Occupation production factor", 0.1f, occupation_production_factor_sprite, true)
             }),
             // Level 7
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Penalties from temporary statuses", -0.1f, null, false)
             }),
             // Level 8
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Tax revenue", 0.01f, tax_revenue_sprite, true),
                 new("Recruitable population", 0.02f, recruitable_population_sprite, true)
             }),
             // Level 9
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Suppressing the rebellion", true, supressing_the_rebelion_sprite, true),
                 new("Army cost", -0.05f, army_cost_sprite, false)
             }),
             // Level 10
-            new(new List<Bonus> {
+            new(new List<TechEffect> {
                 new("Occupation production factor", 0.4f, occupation_production_factor_sprite, true),
                 new("Building the infrastructure", 3, building_the_infrastructure_sprite[2], true)
             }),
