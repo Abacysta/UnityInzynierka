@@ -7,8 +7,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 
 
-public class Country
-{
+public class Country {
     public class TechnologyInterpreter {
         /// <summary>
         /// Able to build boats
@@ -45,7 +44,7 @@ public class Country
         /// <summary>
         /// Army strength multiplier
         /// </summary>
-        public float armyPower; 
+        public float armyPower;
         /// <summary>
         /// Army upkeep (cost at the beginning of the turn) multiplier
         /// </summary>
@@ -109,7 +108,7 @@ public class Country
                 mil = tech[Technology.Military],
                 adm = tech[Technology.Administrative];
 
-            prodFactor = 1 +  eco*0.05f;
+            prodFactor = 1 + eco * 0.05f;
             taxFactor = 1 + adm * 0.01f;
             popGrowth = 1 + adm * 0.03f;
             armyPower = 1 + mil * 0.05f;
@@ -126,36 +125,36 @@ public class Country
             switch(eco) {
                 case 1:
                     prodFactor += 0.05f;
-                    goto case 2;
+                    break;
                 case 2:
                     canBoats = true;
                     lvlMine += 1;
-                    goto case 3;
+                    goto case 1;
                 case 3:
                     prodFactor += 0.05f;
-                    goto case 4;
+                    goto case 2;
                 case 4:
                     lvlTax += 1;
-                    goto case 5;
+                    goto case 3;
                 case 5:
                     taxFactor += 0.15f;
-                    goto case 6;
+                    goto case 4;
                 case 6:
                     lvlMine += 1;
-                    goto case 7;
+                    goto case 5;
                 case 7:
                     prodFactor += 0.1f;
-                    goto case 8;
+                    goto case 6;
                 case 8:
                     taxFactor += 0.05f;
-                    goto case 9;
+                    goto case 7;
                 case 9:
                     lvlTax += 1;
-                    goto case 10;
+                    goto case 8;
                 case 10:
                     lvlMine += 1;
                     prodFactor += 0.05f;
-                    goto default;
+                    goto case 9;
                 default:
                     break;
             }
@@ -163,43 +162,43 @@ public class Country
             switch(mil) {
                 case 1:
                     armyPower += 0.1f;
-                    goto case 2;
+                    break;
                 case 2:
                     lvlFort += 1;
                     armyCost += 0.05f;
-                    goto case 3;
+                    goto case 1;
                 case 3:
                     armyUpkeep -= 0.03f;
                     occTime -= 1;
-                    goto case 4;
+                    goto case 2;
                 case 4:
                     armyPower += 0.1f;
                     armyCost += 0.1f;
-                    goto case 5;
+                    goto case 3;
                 case 5:
                     lvlFort += 1;
                     armyUpkeep += 0.02f;
-                    goto case 6;
+                    goto case 4;
                 case 6:
                     armyCost -= 0.1f;
                     moveRange += 1;
-                    goto case 7;
+                    goto case 5;
                 case 7:
                     lvlFort += 1;
                     armyUpkeep += 0.02f;
-                    goto case 8;
+                    goto case 6;
                 case 8:
                     recPop += 0.05f;
                     armyCost -= 0.10f;
                     armyUpkeep -= 0.15f;
-                    goto case 9;
+                    goto case 7;
                 case 9:
                     occPenalty -= 0.35f;
-                    goto case 10;
+                    goto case 8;
                 case 10:
                     armyPower += 0.15f;
                     waterMoveFactor += 0.5f;
-                    goto default;
+                    goto case 9;
                 default:
                     break;
             }
@@ -208,37 +207,37 @@ public class Country
                 case 1:
                     canInfrastructure = true;
                     lvlFoW += 1;
-                    goto case 2;
+                    break;
                 case 2:
                     lvlSchool += 1;
-                    goto case 3;
+                    goto case 1;
                 case 3:
                     canFestival = true;
                     taxFactor += 0.03f;
-                    goto case 4;
+                    goto case 2;
                 case 4:
                     canTaxBreak = true;
-                    goto case 5;
+                    goto case 3;
                 case 5:
                     lvlFoW += 1;
-                    goto case 6;
+                    goto case 4;
                 case 6:
                     occProd += 0.1f;
-                    goto case 7;
+                    goto case 5;
                 case 7:
-                    goto case 8;
+                    goto case 6;
                 case 8:
                     taxFactor += 0.01f;
                     recPop += 0.02f;
-                    goto case 9;
+                    goto case 7;
                 case 9:
                     canRebelSupp = true;
                     occPenalty -= 0.05f;
-                    goto case 10;
+                    goto case 8;
                 case 10:
                     occProd += 0.4f;
                     lvlFoW += 2;
-                    goto default;
+                    goto case 9;
                 default:
                     break;
             }
@@ -257,47 +256,49 @@ public class Country
     /// Container for all stats modified by technology
     /// </summary>
     public TechnologyInterpreter techStats;
-    [SerializeField] private HashSet<(int, int)> provinces;
+    [SerializeField] private HashSet<Province> provinces;
     [SerializeField] private Color color;
 
     private HashSet<(int, int)> revealedTiles;
     private HashSet<(int, int)> seenTiles;
-
-    private HashSet<Country> alliedCountries;
+    private List<Event_> events;
     public Country(int id, string name, (int, int) capital, Color color, Map map) {
         this.id = id;
         this.name = name;
-        this.capital = id==0 ? (-1, -1) : capital;
+        this.capital = id == 0 ? (-1, -1) : capital;
         this.color = id == 0 ? Color.white : color;
         this.resources = new(technicalDefaultResources.defaultValues);
         this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
         this.techStats = new TechnologyInterpreter(this.technology);
-        this.provinces = new HashSet<(int, int)> { capital };
+        this.provinces = new HashSet<Province> { map.getProvince(capital) };
         revealedTiles = new HashSet<(int, int)>();
         this.actions = new(map);
         seenTiles = new HashSet<(int, int)>();
-        alliedCountries = new HashSet<Country>();
+        events = new List<Event_> ();
     }
 
-    public void addProvince((int, int) coordinates) {
-        provinces.Add(coordinates);
+    public void addProvince(Province province) {
+        provinces.Add(province);
     }
-    public void removeProvince((int, int) coordinates) { 
-        
-        if(coordinates != capital) provinces.Remove(coordinates);
+    public void removeProvince((int, int) coordinates) {
+        if(coordinates != capital) provinces.RemoveWhere(p => p.coordinates == coordinates);
     }
-
+    public void removeProvince(Province province) {
+        if(province.coordinates != capital) provinces.Remove(province);
+    }
     public int Id { get { return id; } }
     public string Name { get { return name; } } 
     public int Priority { get { return prio; } set => prio = value; }
     public Color Color { get { return color; } }
     public Dictionary<Resource, float> Resources { get { return resources; } }
-    public HashSet<(int, int)> Provinces { get { return provinces; } }
+    public HashSet<Province> Provinces { get { return provinces; } }
     public (int, int) Capital {  get { return capital; } }
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
-    public HashSet<Country> AlliedCountries { get { return alliedCountries; } }
     public actionContainer Actions { get { return actions; } }
+
+    public List<Event_> Events { get => events; set => events = value; }
+
     public void modifyResource((Resource, float) values) {
         Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] += values.Item2;
@@ -305,6 +306,16 @@ public class Country
 
     public void modifyResource(Resource resource, float value) {
         modifyResource((resource, value));
+    }
+
+    public void modifyResources(Dictionary<Resource, float> values) {
+        modifyResources(values, true);
+    }
+
+    public void modifyResources(Dictionary<Resource, float> values, bool mode) {
+        if(values != null) foreach(var kvp in values) {
+                Resources[kvp.Key] += mode ? kvp.Value : -kvp.Value;
+            }
     }
 
     public void setResource((Resource, float) values) {
@@ -320,9 +331,9 @@ public class Country
         resources = null;
     }
 
-    public void changeCapital((int, int) coordinates) {
-        if(provinces.Contains(coordinates)) {
-            capital = coordinates;
+    public void changeCapital(Province province) {
+        if(provinces.Contains(province)) {
+            capital = province.coordinates;
         }
     }
     public void RevealTile((int,int) coordinates)

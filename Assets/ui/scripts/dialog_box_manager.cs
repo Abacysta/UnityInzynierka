@@ -162,6 +162,10 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(title, message, onConfirm, onCancel);
     }
 
+    public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel) {
+        ShowConfirmBox(title, message, onConfirm, onCancel);
+    }
+
     private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
     {
         close_button.onClick.RemoveAllListeners();

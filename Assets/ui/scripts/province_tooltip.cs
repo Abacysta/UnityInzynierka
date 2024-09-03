@@ -22,8 +22,8 @@ public class province_tooltip : MonoBehaviour
 
     private void Update() {
         Vector3 mousePos = Input.mousePosition; 
-        mousePos.x += 120f;
-        mousePos.y -= 65f;
+        mousePos.x += 20f;
+        mousePos.y -= 20f;
         transform.position = mousePos;
     }
 

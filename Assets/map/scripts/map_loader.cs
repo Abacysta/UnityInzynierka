@@ -23,6 +23,7 @@ public class map_loader : MonoBehaviour
     [SerializeField] private TileBase capital_tile;
 
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
+    [SerializeField] private dialog_box_manager kurwa_mac;
 
 
     void Start()
@@ -78,6 +79,7 @@ public class map_loader : MonoBehaviour
         map.getProvince(0, 0).addStatus(new Disaster(2));
         map.getProvince(1, 0).addStatus(new ProdBoom(3));
         map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
+        map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], kurwa_mac));
         Army testArmy = new Army(1, 100, (1, 0), (1, 0));
         map.addArmy(testArmy);
         SetPolitical();

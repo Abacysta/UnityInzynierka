@@ -31,12 +31,12 @@ public class production_tab_manager : MonoBehaviour
 
     private int CalculateCountryPopulation()
     {
-        return map.CurrentPlayer.Provinces.Sum(p => map.getProvince(p).Population);
+        return map.CurrentPlayer.Provinces.Sum(p => p.Population);
     }
 
     private int CalculateCountryHappiness()
     {
-        return (int)map.CurrentPlayer.Provinces.Average(p => map.getProvince(p).Happiness);
+        return (int)map.CurrentPlayer.Provinces.Average(p => p.Happiness);
     }
 
     public void SetCountryPopulationText(int countryPopulation)

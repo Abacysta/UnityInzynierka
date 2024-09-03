@@ -25,6 +25,7 @@ public class game_manager : MonoBehaviour
     void Awake()
     {
         LoadData();
+        //fog_Of_War.StartTurn();
     }
 
     void LoadData()
@@ -66,6 +67,10 @@ public class game_manager : MonoBehaviour
         //{
         //    map.mergeArmies(c);
         //}
+    }
+
+    public void invokeEvent(int id) {
+        map.Countries[id].Events[0].call();
     }
 
     public void undoLast() {
@@ -111,7 +116,6 @@ public class game_manager : MonoBehaviour
         }
 
         turnCntTxt.SetText("" + ++turnCnt);
-        fog_Of_War.StartTurn();
         loading_box.SetActive(false);
         Debug.Log("stopped bar");
     }
@@ -147,9 +151,8 @@ public class game_manager : MonoBehaviour
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
 
         foreach(var p in map.Countries[i].Provinces) {
-            var province = map.getProvince(p);
-            tax += province.Population / 200 * 1f * province.Tax_mod;//0.1f = temp 100% tax rate
-            resources[province.ResourcesT] += province.ResourcesP;
+            tax += p.Population / 200 * 1f * p.Tax_mod;//0.1f = temp 100% tax rate
+            resources[p.ResourcesT] += p.ResourcesP;
             resources[Resource.AP] += 0.1f;
         }
 

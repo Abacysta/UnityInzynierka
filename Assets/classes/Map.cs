@@ -98,9 +98,13 @@ public class Map:ScriptableObject {
     }
 
     public void assignProvince((int, int) coordinates, int id) {
-        getProvince(coordinates).Owner_id = id;
-        if(!countries[id].Provinces.Contains(coordinates)){
-            countries[id].addProvince(coordinates);
+        var p = getProvince(coordinates);
+        assignProvince(p, id);
+    }
+    public void assignProvince(Province province, int id) {
+        province.Owner_id = id;
+        if(!countries[id].Provinces.Contains(province)) {
+            countries[id].addProvince(province);
         }
     }
 
@@ -374,10 +378,10 @@ public class Map:ScriptableObject {
         else
         {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-            if (!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.OccupationInfo.OccupyingCountryId))
-            {
-                occupationStatus = new Occupation(country.techStats.occTime, army.OwnerId);
-            }
+            //if (!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.OccupationInfo.OccupyingCountryId))
+            //{
+            //    occupationStatus = new Occupation(country.techStats.occTime, army.OwnerId);
+            //}
         }
 
         if (occupationStatus != null && province.Type == "land")

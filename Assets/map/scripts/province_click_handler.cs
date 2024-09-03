@@ -112,27 +112,27 @@ public class province_click_handler : cursor_helper
         if (province != null)
         {
             map.Selected_province = (province.X, province.Y);
+            province_interface.SetActive(true);
         }
     }
-    //private void DisplayProvinceTooltip(int x, int y)
-    //{
-    //    Province province = map.getProvince(x, y);
+    private void DisplayProvinceTooltip(int x, int y) {
+        Province province = map.getProvince(x, y);
 
-    //    if(province != null)
-    //    {
-    //        province_tooltip;
-    //    }
-    //}
+        if(province != null) {
+            province_tooltip.OnMouseExitProvince();
+        }
+    }
     private bool IsProvinceRevealed(int x, int y)
     {
-        Province province = map.getProvince(x, y);
-        if (province != null)
-        {
-            foreach(Country country in map.Countries)
-            {
-                if (country.RevealedTiles.Contains((x, y))) return true;
-            }
-        }
-        return false;
+        //Province province = map.getProvince(x, y);
+        //if (province != null)
+        //{
+        //    foreach(Country country in map.Countries)
+        //    {
+        //        if (country.RevealedTiles.Contains((x, y))) return true;
+        //    }
+        //}
+        //return false;
+        return true;
     }
 }
