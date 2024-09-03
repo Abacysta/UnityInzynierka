@@ -258,10 +258,11 @@ public class Country {
     public TechnologyInterpreter techStats;
     [SerializeField] private HashSet<Province> provinces;
     [SerializeField] private Color color;
-
     private HashSet<(int, int)> revealedTiles;
     private HashSet<(int, int)> seenTiles;
     private List<Event_> events;
+    private Dictionary<int, int> opinions;
+    private bool atWar;
     public Country(int id, string name, (int, int) capital, Color color, Map map) {
         this.id = id;
         this.name = name;
@@ -275,6 +276,8 @@ public class Country {
         this.actions = new(map);
         seenTiles = new HashSet<(int, int)>();
         events = new List<Event_> ();
+        this.atWar = false;
+        this.opinions = new Dictionary<int, int> { { 0, 0 } };
     }
 
     public void addProvince(Province province) {
@@ -298,6 +301,8 @@ public class Country {
     public actionContainer Actions { get { return actions; } }
 
     public List<Event_> Events { get => events; set => events = value; }
+    public Dictionary<int, int> Opinions { get => opinions; set => opinions = value; }
+    public bool AtWar { get => atWar; set => atWar = value; }
 
     public void modifyResource((Resource, float) values) {
         Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
