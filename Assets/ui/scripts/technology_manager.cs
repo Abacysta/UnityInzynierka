@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -53,6 +54,7 @@ public class technology_manager : MonoBehaviour
     [SerializeField] private Sprite tax_revenue_sprite;
     [SerializeField] private Sprite can_boat_sprite;
     [SerializeField] private Sprite choosing_new_tax_law_sprite;
+    [SerializeField] private Sprite fog_of_war_sprite;
 
     [SerializeField] private List<Sprite> building_the_fort_sprite;
     [SerializeField] private List<Sprite> building_the_mine_sprite;
@@ -62,18 +64,17 @@ public class technology_manager : MonoBehaviour
     [SerializeField] private Sprite holding_the_festival_sprite;
     [SerializeField] private Sprite introducing_the_tax_break_sprite;
     [SerializeField] private Sprite occupation_production_factor_sprite;
-    [SerializeField] private Sprite penalties_from_temporary_statuses_sprite;
     [SerializeField] private Sprite supressing_the_rebelion_sprite;
-    [SerializeField] private Sprite population_sprite;
+    [SerializeField] private Sprite population_growth_sprite;
 
     public class TechEffect
     {
-        public string Name { get; private set; }
-        public float? NumericValue { get; private set; } 
-        public int? IntValue { get; private set; }
-        public bool? BoolValue { get; private set; }
-        public Sprite Icon { get; private set; }
-        public bool IsEffectPositive { get; private set; }
+        public string Name { get; set; }
+        public float? NumericValue { get; set; } 
+        public int? IntValue { get; set; }
+        public bool? BoolValue { get; set; }
+        public Sprite Icon { get; set; }
+        public bool IsEffectPositive { get; set; }
 
         public TechEffect(string name, float value, Sprite icon, bool isEffectPositive)
         {
@@ -107,7 +108,7 @@ public class technology_manager : MonoBehaviour
 
         public string GetFormattedValue()
         {
-            if (Name.StartsWith("Building") || Name.Contains("tax law"))
+            if (Name.StartsWith("Building"))
             {
                 return "YES";
             }
@@ -145,7 +146,7 @@ public class technology_manager : MonoBehaviour
         public List<TechEffect> Effects
         {
             get { return effects; }
-            private set { effects = value; }
+            set { effects = value; }
         }
     }
 
@@ -153,7 +154,9 @@ public class technology_manager : MonoBehaviour
     private List<TechLevel> economicTree;
     private List<TechLevel> administrativeTree;
 
-    private List<TechEffect> baseEffects;
+    private List<TechEffect> milBaseEffects;
+    private List<TechEffect> ecBaseEffects;
+    private List<TechEffect> admBaseEffects;
 
     int militaryLevel = 0;
     int economicLevel = 0;
@@ -217,11 +220,6 @@ public class technology_manager : MonoBehaviour
             adm_next_level_container, adm_tech_button, adm_current_level_text, adm_next_level_text);
     }
 
-    void Update()
-    {
-        ForceRebuildLayout();
-    }
-
     public void SetTechnologyData(GameObject tooltip, TMP_Text tooltipText, int level, List<TechLevel> techTree, GameObject nextLevelContainer, 
         Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText)
     {
@@ -260,6 +258,8 @@ public class technology_manager : MonoBehaviour
             SetButtonNonInteractable(techButton);
             nextLevelText.text = "Maximum level reached!";
         }
+
+        StartCoroutine(RefreshUITemporarily(5f));
     }
 
     private void SetButtonColorToRed(Button techButton)
@@ -273,6 +273,7 @@ public class technology_manager : MonoBehaviour
             buttonText.text = "Not enough funds";
         }
     }
+
     private void SetButtonColorToGreen(Button techButton)
     {
         techButton.interactable = true;
@@ -306,15 +307,16 @@ public class technology_manager : MonoBehaviour
             .SelectMany(level => level.Effects)
             .Where(b => !b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
-            .Select(g => 
+            .Select(g =>
             {
                 bool hasFloat = g.Any(b => b.NumericValue.HasValue);
-                float sumFloat = g.Sum(b => b.NumericValue ?? 0f);
-                int sumInt = g.Sum(b => b.IntValue ?? 0);
+                bool hasInt = g.Any(b => b.IntValue.HasValue);
 
                 return hasFloat
-                    ? new TechEffect(g.Key, sumFloat, g.First().Icon, g.All(b => b.IsEffectPositive))
-                    : new TechEffect(g.Key, sumInt, g.First().Icon, g.All(b => b.IsEffectPositive));
+                    ? new TechEffect(g.Key, g.Sum(b => b.NumericValue ?? 0f), g.Last().Icon, g.All(b => b.IsEffectPositive))
+                    : hasInt
+                    ? new TechEffect(g.Key, g.Sum(b => b.IntValue ?? 0), g.Last().Icon, g.All(b => b.IsEffectPositive))
+                    : new TechEffect(g.Key, g.All(b => b.BoolValue == true), g.Last().Icon, g.All(b => b.IsEffectPositive));
             })
             .ToList();
 
@@ -328,7 +330,7 @@ public class technology_manager : MonoBehaviour
                 g.OrderByDescending(b => b.IntValue).First().Icon,
                 true
             ))
-            .ToList();
+        .ToList();
 
         consolidatedEffects.AddRange(nonBuildingEffects);
         consolidatedEffects.AddRange(buildingEffects);
@@ -343,21 +345,29 @@ public class technology_manager : MonoBehaviour
 
     void InitializeLevels()
     {
-        baseEffects = new List<TechEffect>
+        milBaseEffects = new List<TechEffect>
         {
-            new("Production factor", 0.05f, production_factor_sprite, true),
-            new("Tax revenue", 0.01f, tax_revenue_sprite, true),
-            new("Population", 0.03f, population_sprite, true),
             new("Army combat power", 0.05f, army_combat_power_sprite, true),
             new("Army upkeep cost", 0.03f, army_upkeep_cost_sprite, true),
             new("Army cost", 0.05f, army_cost_sprite, true),
+        };
+
+        ecBaseEffects = new List<TechEffect>
+        {
+            new("Production factor", 0.05f, production_factor_sprite, true),
+        };
+
+        admBaseEffects = new List<TechEffect>
+        {
+            new("Tax revenue", 0.01f, tax_revenue_sprite, true),
+            new("Population growth", 0.03f, population_growth_sprite, true),
         };
 
         militaryTree = new List<TechLevel>
         {
             // Level 1
             new(new List<TechEffect> {
-                new("Army combat power", 0.01f, army_combat_power_sprite, true)
+                new("Army combat power", 0.1f, army_combat_power_sprite, true)
             }),
             // Level 2
             new(new List<TechEffect> {
@@ -423,7 +433,7 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 4
             new(new List<TechEffect> {
-                new("Choosing tax law", 1, choosing_new_tax_law_sprite, true)
+                new("Choosing tax law I", true, choosing_new_tax_law_sprite, true)
             }),
             // Level 5
             new(new List<TechEffect> {
@@ -443,7 +453,7 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 9
             new(new List<TechEffect> {
-                new("Choosing tax law", 2, choosing_new_tax_law_sprite, true)
+                new("Choosing tax law II", true, choosing_new_tax_law_sprite, true)
             }),
             // Level 10
             new(new List<TechEffect> {
@@ -456,7 +466,8 @@ public class technology_manager : MonoBehaviour
         {
             // Level 1
             new(new List<TechEffect> {
-                new("Building the infrastructure", 1, building_the_infrastructure_sprite[0], true)
+                new("Building the infrastructure", 1, building_the_infrastructure_sprite[0], true),
+                new("Fog of war", 1, fog_of_war_sprite, true)
             }),
             // Level 2
             new(new List<TechEffect> {
@@ -473,16 +484,15 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 5
             new(new List<TechEffect> {
-                new("Building the infrastructure", 2, building_the_infrastructure_sprite[1], true)
+                new("Building the infrastructure", 2, building_the_infrastructure_sprite[1], true),
+                new("Fog of war", 1, fog_of_war_sprite, true)
             }),
             // Level 6
             new(new List<TechEffect> {
                 new("Occupation production factor", 0.1f, occupation_production_factor_sprite, true)
             }),
             // Level 7
-            new(new List<TechEffect> {
-                new("Penalties from temporary statuses", -0.1f, null, false)
-            }),
+            new(new List<TechEffect> {}),
             // Level 8
             new(new List<TechEffect> {
                 new("Tax revenue", 0.01f, tax_revenue_sprite, true),
@@ -496,9 +506,57 @@ public class technology_manager : MonoBehaviour
             // Level 10
             new(new List<TechEffect> {
                 new("Occupation production factor", 0.4f, occupation_production_factor_sprite, true),
-                new("Building the infrastructure", 3, building_the_infrastructure_sprite[2], true)
+                new("Building the infrastructure", 3, building_the_infrastructure_sprite[2], true),
+                new("Fog of war", 1, fog_of_war_sprite, true)
             }),
         };
+
+        AddBaseEffectsToTree(militaryTree, milBaseEffects);
+        AddBaseEffectsToTree(economicTree, ecBaseEffects);
+        AddBaseEffectsToTree(administrativeTree, admBaseEffects);
+    }
+
+    void AddBaseEffectsToTree(List<TechLevel> techTree, List<TechEffect> baseEffects)
+    {
+        foreach (var level in techTree)
+        {
+            foreach (var baseEffect in baseEffects)
+            {
+                var existingEffect = level.Effects.FirstOrDefault(e => e.Name == baseEffect.Name);
+                if (existingEffect != null)
+                {
+                    if (baseEffect.NumericValue.HasValue && existingEffect.NumericValue.HasValue)
+                    {
+                        existingEffect.NumericValue += baseEffect.NumericValue.Value;
+                    }
+                    else if (baseEffect.IntValue.HasValue && existingEffect.IntValue.HasValue)
+                    {
+                        existingEffect.IntValue += baseEffect.IntValue.Value;
+                    }
+                    else if (baseEffect.BoolValue.HasValue && existingEffect.BoolValue.HasValue)
+                    {
+                        existingEffect.BoolValue = baseEffect.BoolValue.Value;
+                    }
+                }
+                else
+                {
+                    TechEffect newEffect;
+                    if (baseEffect.NumericValue.HasValue)
+                    {
+                        newEffect = new TechEffect(baseEffect.Name, baseEffect.NumericValue.Value, baseEffect.Icon, baseEffect.IsEffectPositive);
+                    }
+                    else if (baseEffect.IntValue.HasValue)
+                    {
+                        newEffect = new TechEffect(baseEffect.Name, baseEffect.IntValue.Value, baseEffect.Icon, baseEffect.IsEffectPositive);
+                    }
+                    else
+                    {
+                        newEffect = new TechEffect(baseEffect.Name, baseEffect.BoolValue.Value, baseEffect.Icon, baseEffect.IsEffectPositive);
+                    }
+                    level.Effects.Add(newEffect);
+                }
+            }
+        }
     }
 
     void ForceRebuildLayout()
@@ -510,5 +568,18 @@ public class technology_manager : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(mil_next_level_container.GetComponent<RectTransform>());
         LayoutRebuilder.ForceRebuildLayoutImmediate(ec_next_level_container.GetComponent<RectTransform>());
         LayoutRebuilder.ForceRebuildLayoutImmediate(adm_next_level_container.GetComponent<RectTransform>());
+    }
+
+    private IEnumerator RefreshUITemporarily(float duration)
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            ForceRebuildLayout();
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
     }
 }

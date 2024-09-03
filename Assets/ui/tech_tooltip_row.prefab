@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7012301354441931030}
   - component: {fileID: 1380595247830255259}
   m_Layer: 5
-  m_Name: bonus_name
+  m_Name: effect_name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 82.396805, y: -9.5245}
-  m_SizeDelta: {x: 0, y: 19.683}
+  m_AnchoredPosition: {x: 91.6018, y: -9.5245}
+  m_SizeDelta: {x: 138.14, y: 19.683}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4792125129687205363
 CanvasRenderer:
@@ -93,8 +93,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 13
-  m_fontSizeBase: 13
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 261608823144859062}
   - component: {fileID: 4003327643719611449}
   m_Layer: 5
-  m_Name: bonus_value
+  m_Name: effect_value
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -184,8 +184,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 163.8768, y: -9.5245}
-  m_SizeDelta: {x: 0, y: 19.447}
+  m_AnchoredPosition: {x: 185.0818, y: -9.5245}
+  m_SizeDelta: {x: 41.88, y: 19.447}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4193995890785054021
 CanvasRenderer:
@@ -242,8 +242,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 13
-  m_fontSizeBase: 13
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -310,7 +310,7 @@ GameObject:
   - component: {fileID: 4084749517482607002}
   - component: {fileID: 3760051298207118622}
   m_Layer: 5
-  m_Name: bonus_icon
+  m_Name: effect_icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -411,7 +411,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 91.01099, y: -9.524475}
+  m_AnchoredPosition: {x: 103.01, y: -9.524475}
   m_SizeDelta: {x: 0, y: 19.049}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &-4015612075587493196
@@ -426,9 +426,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2fb60b6d44a46440a96201127ad08b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 3760051298207118622}
-  nameText: {fileID: 7012301354441931030}
-  valueText: {fileID: 261608823144859062}
+  effect_icon: {fileID: 3760051298207118622}
+  effect_name: {fileID: 7012301354441931030}
+  effect_value: {fileID: 261608823144859062}
 --- !u!114 &5518544925485469507
 MonoBehaviour:
   m_ObjectHideFlags: 0

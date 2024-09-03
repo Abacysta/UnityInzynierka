@@ -5,25 +5,31 @@ using static technology_manager;
 
 public class tech_effect_ui : MonoBehaviour
 {
-    [SerializeField] private Image icon;
-    [SerializeField] private TMP_Text nameText;
-    [SerializeField] private TMP_Text valueText;
+    [SerializeField] private Image effect_icon;
+    [SerializeField] private TMP_Text effect_name;
+    [SerializeField] private TMP_Text effect_value;
 
     public void SetEffect(TechEffect effect)
     {
-        icon.sprite = effect.Icon;
-        string nameWithRoman = effect.Name;
-        if (effect.Name.StartsWith("Building") || effect.Name.Contains("tax law") && effect.IntValue.HasValue)
+        effect_icon.sprite = effect.Icon;
+        string name = effect.Name;
+        if (effect.IntValue.HasValue && effect.Name.StartsWith("Building"))
         {
-            nameWithRoman += $" {ToRoman(effect.IntValue.Value)}";
+            name += $" {ToRoman(effect.IntValue.Value)}";
         }
-        nameText.text = nameWithRoman + ":";
-        valueText.text = effect.GetFormattedValue();
+        effect_name.text = name + ":";
+        effect_value.text = effect.GetFormattedValue();
 
         float? value = effect.NumericValue ?? effect.IntValue;
         if (value.HasValue) 
         {
-            valueText.color = (effect.IsEffectPositive ^ value < 0) ? 
+            effect_value.color = (effect.IsEffectPositive ^ value < 0) ? 
+                new Color32(0, 159, 18, 255) : // green
+                new Color32(180, 25, 37, 255); // red
+        }
+        else if (effect.BoolValue.HasValue)
+        {
+            effect_value.color = effect.IsEffectPositive ^ !effect.BoolValue.Value ?
                 new Color32(0, 159, 18, 255) : // green
                 new Color32(180, 25, 37, 255); // red
         }

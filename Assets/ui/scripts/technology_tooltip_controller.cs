@@ -7,10 +7,15 @@ public class technology_tooltip_controller : MonoBehaviour, IPointerEnterHandler
     [SerializeField] private GameObject tooltip;
 
     private Coroutine showTooltipCoroutine;
+    private RectTransform tooltipRectTransform;
+    private RectTransform iconRectTransform;
+    private Vector2 tooltipOffset = new(40f, 0f);
 
     void Start()
     {
         tooltip.SetActive(false);
+        tooltipRectTransform = tooltip.GetComponent<RectTransform>();
+        iconRectTransform = GetComponent<RectTransform>();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -41,6 +46,9 @@ public class technology_tooltip_controller : MonoBehaviour, IPointerEnterHandler
     private IEnumerator ShowTooltip()
     {
         yield return new WaitForSeconds(0.5f);
+
+        Vector3 tooltipPosition = iconRectTransform.position + (Vector3)tooltipOffset;
+        tooltipRectTransform.position = tooltipPosition;
         tooltip.SetActive(true);
     }
 }
