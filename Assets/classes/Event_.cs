@@ -1,10 +1,6 @@
 ﻿using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static dialog_box_manager.dialog_box_precons;
 
 namespace Assets.classes {
     public class Event_ {
@@ -23,7 +19,8 @@ namespace Assets.classes {
             public virtual void reject() { }
             public virtual string msg { get { return ""; } }
             public override void call() {
-                dialog_box.invokeConfirmBox("", msg, accept, reject);
+                var cost = this.cost();
+                dialog_box.invokeConfirmBox("", msg, accept, reject, cost);
             }
             public void zoom() {
                 // Implement zoom to capital or whatever, using the country object
@@ -97,7 +94,8 @@ namespace Assets.classes {
                 // Implement zoom to province or whatever
             }
             public override void call() {
-                dialog_box.invokeConfirmBox("", msg, accept, reject);
+                var cost = this.cost();
+                dialog_box.invokeConfirmBox("", msg, accept, reject, cost);
             }
 
             public virtual Dictionary<Resource, float> cost() {
