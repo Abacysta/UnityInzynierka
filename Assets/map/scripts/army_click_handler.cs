@@ -25,14 +25,11 @@ public class army_click_handler : cursor_helper
     private bool increasing = true;
     private bool isHighlighted = false;
 
-
-    private void Start()
+    void Start()
     {
-        startColor = army_movement_layer.color;
-        startColor.a = 20.0f / 255.0f;
-        endColor = startColor;
-        endColor.a = 150.0f / 255.0f;
+        InitializeColors();
     }
+
     void Update()
     {
         if (isHighlighted)
@@ -40,10 +37,13 @@ public class army_click_handler : cursor_helper
             AnimateHighlitedTiles();
         }
 
-        if (IsCursorOverUIObject()) return;
-
         if (Input.GetMouseButtonDown(0))
         {
+            if (IsCursorOverUIObject())
+            {
+                ResetSelectedArmy();
+                return;
+            }
             HandleLeftClick();
         }
     }
@@ -173,5 +173,13 @@ public class army_click_handler : cursor_helper
         Vector3Int cellPosition = base_layer.WorldToCell(mouseWorldPos);
 
         return highlightedCells.Contains(cellPosition);
+    }
+
+    private void InitializeColors()
+    {
+        startColor = army_movement_layer.color;
+        startColor.a = 20.0f / 255.0f;
+        endColor = startColor;
+        endColor.a = 150.0f / 255.0f;
     }
 }

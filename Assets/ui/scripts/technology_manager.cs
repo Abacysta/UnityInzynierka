@@ -348,8 +348,8 @@ public class technology_manager : MonoBehaviour
         milBaseEffects = new List<TechEffect>
         {
             new("Army combat power", 0.05f, army_combat_power_sprite, true),
-            new("Army upkeep cost", 0.03f, army_upkeep_cost_sprite, true),
-            new("Army cost", 0.05f, army_cost_sprite, true),
+            new("Army upkeep cost", 0.03f, army_upkeep_cost_sprite, false),
+            new("Army cost", 0.05f, army_cost_sprite, false),
         };
 
         ecBaseEffects = new List<TechEffect>
@@ -580,6 +580,5 @@ public class technology_manager : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-
     }
 }
