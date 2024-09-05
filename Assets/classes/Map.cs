@@ -105,6 +105,7 @@ public class Map:ScriptableObject {
         if(!countries[id].assignProvince(province)) {
             var c = countries.Find(c => c.Id == province.Owner_id);
             c.unassignProvince(province);
+            countries[id].assignProvince(province);
         }
     }
 

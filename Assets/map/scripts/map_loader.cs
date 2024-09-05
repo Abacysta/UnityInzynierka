@@ -75,10 +75,6 @@ public class map_loader : MonoBehaviour
                     new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
                     new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
                 };
-
-                if(p.Owner_id != 0) {
-                    map.assignProvince(p.coordinates, p.Owner_id);
-                }
                 p.OccupationInfo = new OccupationInfo();
                 p.calcStatuses();
             }
