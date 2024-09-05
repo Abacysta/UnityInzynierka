@@ -102,9 +102,9 @@ public class Map:ScriptableObject {
         assignProvince(p, id);
     }
     public void assignProvince(Province province, int id) {
-        province.Owner_id = id;
-        if(!countries[id].Provinces.Contains(province)) {
-            countries[id].addProvince(province);
+        if(!countries[id].assignProvince(province)) {
+            var c = countries.Find(c => c.Id == province.Owner_id);
+            c.unassignProvince(province);
         }
     }
 

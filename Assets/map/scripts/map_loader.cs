@@ -9,6 +9,14 @@ using UnityEngine.Video;
 
 public class map_loader : MonoBehaviour
 {
+    private enum Mode {
+        Terrain,
+        Resource,
+        Happiness,
+        Population,
+        Political,
+        Diplomatic
+    }
     [SerializeField] private Map map;
 
     [SerializeField] private Tilemap base_layer;
@@ -24,7 +32,7 @@ public class map_loader : MonoBehaviour
 
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
     [SerializeField] private dialog_box_manager kurwa_mac;
-
+    private Mode mode;
 
     void Start()
     {
@@ -68,7 +76,7 @@ public class map_loader : MonoBehaviour
                     new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
                 };
 
-                if(p.Owner_id != 0 && p.Owner_id != null) {
+                if(p.Owner_id != 0) {
                     map.assignProvince(p.coordinates, p.Owner_id);
                 }
                 p.OccupationInfo = new OccupationInfo();
@@ -85,8 +93,24 @@ public class map_loader : MonoBehaviour
         SetPolitical();
     }
 
+    public void Reload() {
+        switch(mode) {
+            case Mode.Resource:
+                SetResources(); break;
+            case Mode.Happiness:
+                SetHappiness(); break;
+            case Mode.Population:
+                SetPopulation(); break;
+            case Mode.Political:
+                SetPolitical(); break;
+            default:
+                SetTerrain(); break;
+        }
+    }
+
     public void SetTerrain()
     {
+        mode = Mode.Terrain;
         filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces)
@@ -108,6 +132,7 @@ public class map_loader : MonoBehaviour
 
     public void SetResources()
     {
+        mode = Mode.Resource;
         filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces)
@@ -147,6 +172,7 @@ public class map_loader : MonoBehaviour
 
     public void SetHappiness()
     {
+        mode = Mode.Happiness;
         filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces)
@@ -168,6 +194,7 @@ public class map_loader : MonoBehaviour
 
     public void SetPopulation()
     {
+        mode = Mode.Population;
         filter_layer.ClearAllTiles();
 
         foreach (Province province in map.Provinces)
@@ -187,6 +214,7 @@ public class map_loader : MonoBehaviour
     }
 
      public void SetPolitical() {
+        mode = Mode.Political;
         filter_layer.ClearAllTiles();
         base_layer.ClearAllTiles();
         occupation_layer.ClearAllTiles();

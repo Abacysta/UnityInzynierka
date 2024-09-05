@@ -105,4 +105,13 @@ namespace Assets.classes.subclasses {
             province.OccupationInfo.OccupyingCountryId = this.Occupier_id;
         }
     }
+    internal class RecBoom:Status {
+        public RecBoom(int duration) : base(duration, StatusType.neutral, "More recruits appear, hindering your economic growth", 8) {
+        }
+
+        public override void applyEffect(Province province) {
+            province.Rec_pop += 0.02f;
+            province.Prod_mod -= 0.03f;
+        }
+    }
 }

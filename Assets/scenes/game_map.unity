@@ -4873,6 +4873,7 @@ GameObject:
   - component: {fileID: 311749112}
   - component: {fileID: 311749113}
   - component: {fileID: 311749114}
+  - component: {fileID: 311749116}
   - component: {fileID: 311749115}
   m_Layer: 0
   m_Name: game_manager
@@ -4920,6 +4921,7 @@ MonoBehaviour:
   loading_box: {fileID: 638296373}
   loading_bar: {fileID: 1704613929}
   loading_txt: {fileID: 1991473713}
+  loader: {fileID: 0}
 --- !u!114 &311749114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4942,10 +4944,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 311749111}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0845fddd9b3e45e48b84b869200eba67, type: 3}
+  m_Script: {fileID: 11500000, guid: af814bf5fb9d046489abe071084ec28f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
+--- !u!114 &311749116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 311749111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0adcf23142c6e204fb949929db0ddf9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
+  dialog_box: {fileID: 0}
 --- !u!1 &316045545
 GameObject:
   m_ObjectHideFlags: 0

@@ -304,6 +304,18 @@ public class Country {
     public Dictionary<int, int> Opinions { get => opinions; set => opinions = value; }
     public bool AtWar { get => atWar; set => atWar = value; }
 
+
+    public bool assignProvince(Province province) {
+        if(province.Owner_id != 0 || province.Owner_id == id) return false;
+        provinces.Add(province);
+        province.Owner_id = this.id;
+        return true;
+    }
+    public void unassignProvince(Province province) {
+        province.Owner_id = 0;
+        provinces.Remove(province);
+    }
+
     public void modifyResource((Resource, float) values) {
         Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] += values.Item2;

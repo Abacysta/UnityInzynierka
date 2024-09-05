@@ -12,8 +12,16 @@ namespace Assets.classes {
             public enum ActionType {
                 army_move,
                 army_recruitment,
-                war_declaration,
-                alliance_offer
+                war_offer,
+                war_end,
+                alliance_offer,
+                alliance_end,
+                milacc_offer,
+                milacc_end,
+                vasal_offer,
+                vasal_end,
+                subs_offer,
+                subs_end
             }
 
             public ActionType type;

@@ -20,6 +20,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private GameObject loading_box;
     [SerializeField] private Slider loading_bar;
     [SerializeField] private TMP_Text loading_txt;
+    [SerializeField] private map_loader loader;
 
     // Loading map data before all scripts
     void Awake()
@@ -91,7 +92,6 @@ public class game_manager : MonoBehaviour
     }
 
     private void turnCalculations() {
-        int it = 0;
         int pcnt = map.Provinces.Count, ccnt = map.Countries.Count;
         loading_txt.text = "txttt";
         loading_bar.value = 0;
@@ -183,7 +183,7 @@ public class game_manager : MonoBehaviour
         turn_sound.Play();
         executeActions();
         turnCalculations();
-
+        loader.Reload();
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
         //    Debug.Log(c.Actions.Count);
