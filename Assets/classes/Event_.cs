@@ -26,7 +26,7 @@ namespace Assets.classes {
             public virtual void reject() { accept(); }
             public virtual string msg { get { return ""; } }
             public override void call() {
-                dialog_box.invokeConfirmBox("", msg, accept, reject);
+                dialog_box.invokeConfirmBox("", msg, accept, reject, this.Cost);
             }
             public void zoom() {
                 // Implement zoom to capital or whatever, using the country object
@@ -78,7 +78,7 @@ namespace Assets.classes {
                 }
 
                 public override void reject() {
-                    this.accept(); // Calls accept on the same country
+                    this.accept();
                 }
             }
             internal class Plague:GlobalEvent {
@@ -127,7 +127,8 @@ namespace Assets.classes {
                 // Implement zoom to province or whatever
             }
             public override void call() {
-                dialog_box.invokeConfirmBox("", msg, accept, reject);
+                var cost = this.cost();
+                dialog_box.invokeConfirmBox("", msg, accept, reject, Cost);
             }
 
             protected virtual Dictionary<Resource, float> cost() {

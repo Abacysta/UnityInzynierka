@@ -3,6 +3,8 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using UnityEditor.Build;
+using System.Linq;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -31,7 +33,7 @@ public class dialog_box_manager : MonoBehaviour
         internal class DialogBox {
             public string title, message;
 
-            public DialogBox(string title, string message, Dictionary<Resource, float> cost=null) {
+            public DialogBox(string title, string message, Dictionary<Resource, float> cost = null) {
                 this.title = title;
                 this.message = message;
             }
@@ -57,7 +59,7 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
         Action onCancel = null;
-        ShowSliderBox(title, message, onConfirm, onCancel, army.Count, true);
+        ShowSliderBox(title, message, onConfirm, onCancel, army.Count);
     }
 
     void OnEnable()
@@ -74,7 +76,7 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[province.Owner_id].Actions.addAction(act);
         };
         Action onCancel= null;
-        ShowSliderBox(title, message, onConfirm, onCancel, province.RecruitablePopulation, true);
+        ShowSliderBox(title, message, onConfirm, onCancel, province.RecruitablePopulation);
     }
 
     public void invokeDisBox(Map map, Army army) {
@@ -85,7 +87,7 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
         Action onCancel= null;
-        ShowSliderBox(title, message, onConfirm, onCancel, army.count, true);
+        ShowSliderBox(title, message, onConfirm, onCancel, army.count);
     }
     
 
@@ -162,8 +164,9 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(title, message, onConfirm, onCancel);
     }
 
-    public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel) {
-        ShowConfirmBox(title, message, onConfirm, onCancel);
+    public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel, Dictionary<Resource, float> cost) {
+        bool confirmable = map.CurrentPlayer.canPay(cost);
+        ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost);
     }
 
     private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
@@ -177,8 +180,6 @@ public class dialog_box_manager : MonoBehaviour
         else txt_con.SetText("Ok");
         if(txtCancel != null) txt_can.SetText(txtCancel);
         else txt_can.SetText("Cancel");
-        dialog_slider.value = dialog_slider.minValue;
-        dialog_slider.onValueChanged.AddListener(OnSliderValueChanged);
 
         dialog_title.text = actionTitle;
 
@@ -206,26 +207,35 @@ public class dialog_box_manager : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    private void ShowSliderBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, int maxValue, bool confirmable)
+    private void ShowSliderBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, 
+        int maxValue, Dictionary<Resource, float> cost = null)
     {
-        choice_area.SetActive(true);
-        cost_area.SetActive(true);
-        cost_content.text = "";
+        dialog_slider.value = 0;
         dialog_slider.maxValue = maxValue;
         slider_max.text = maxValue.ToString();
         quantity_text.text = dialog_slider.value.ToString();
+        SetCostContent(cost, dialog_slider.value);
 
-        ShowDialogBox(actionTitle, message, onConfirm, onCancel);
+        dialog_slider.onValueChanged.AddListener((value) =>
+        {
+            quantity_text.text = value.ToString();
+            SetCostContent(cost, dialog_slider.value);
+            confirm_button.interactable = (value != 0);
+        });
+ 
+        choice_area.SetActive(true);
+        cost_area.SetActive(true);
+        ShowDialogBox(actionTitle, message, onConfirm, onCancel, false);
     }
 
-    private void ShowConfirmBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel)
+    private void ShowConfirmBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, 
+        bool confirmable = true, Dictionary<Resource, float> cost = null)
     {
-
+        SetCostContent(cost);
         choice_area.SetActive(false);
         cost_area.SetActive(true);
-        cost_content.text = "";
 
-        ShowDialogBox(actionTitle, message, onConfirm, onCancel);
+        ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable);
     }
 
     public void HideDialog()
@@ -234,21 +244,51 @@ public class dialog_box_manager : MonoBehaviour
         overlay.SetActive(false);
     }
 
-    public void OnSliderValueChanged(float value)
+    private void SetCostContent(Dictionary<Resource, float> cost)
     {
-        quantity_text.text = value.ToString();
+        if (cost != null)
+        {
+            var costLines = new List<string>();
+            foreach (var item in cost)
+            {
+                string resourceName = GetResourceName(item.Key);
+                costLines.Add($"{resourceName}: {item.Value}");
+            }
+            cost_content.text = string.Join("\n", costLines);
+        }
+        else
+        {
+            cost_content.text = "";
+        }
     }
 
-    public void SetCost(string costText) 
+    private void SetCostContent(Dictionary<Resource, float> baseCost, float sliderValue)
     {
-        cost_content.text = costText;
+        if (baseCost != null)
+        {
+            var costLines = new List<string>();
+            foreach (var item in baseCost)
+            {
+                string resourceName = GetResourceName(item.Key);
+                float costValue = (item.Key == Resource.AP) ? item.Value : item.Value * sliderValue;
+                costLines.Add($"{resourceName}: {costValue}");
+            }
+            cost_content.text = string.Join("\n", costLines);
+        }
+        else
+        {
+            cost_content.text = "";
+        }
     }
+
     public void addValue(int value) {
         dialog_slider.value += value;
     }
+
     public void subValue(int value) { 
         dialog_slider.value -= value;
     }
+
     public void percentValue(float percent) { 
         dialog_slider.value = dialog_slider.maxValue * percent;
     }
@@ -256,5 +296,24 @@ public class dialog_box_manager : MonoBehaviour
     public void SetCoatOfArmsColor()
     {
         db_country_color_img.color = map.CurrentPlayer.Color;
+    }
+
+    private string GetResourceName(Resource resource)
+    {
+        switch (resource)
+        {
+            case Resource.Gold:
+                return "Gold";
+            case Resource.Wood:
+                return "Wood";
+            case Resource.Iron:
+                return "Iron";
+            case Resource.SciencePoint:
+                return "Science points";
+            case Resource.AP:
+                return "Action points";
+            default:
+                return resource.ToString();
+        }
     }
 }
