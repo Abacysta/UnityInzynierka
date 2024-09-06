@@ -32,12 +32,13 @@ public class province_table_manager : MonoBehaviour
         sort_by_happiness_button.onClick.AddListener(() => ToggleSort("happiness"));
         sort_by_resources_button.onClick.AddListener(() => ToggleSort("resources"));
 
+        sortedProvinces = new List<Province>(map.CurrentPlayer.Provinces);
         SortData("population");
     }
 
     void OnEnable()
     {
-        sortedProvinces = new List<Province>(map.Provinces);
+        sortedProvinces = new List<Province>(map.CurrentPlayer.Provinces);
         SortData(currentSortCriteria);
     }
 
@@ -50,22 +51,19 @@ public class province_table_manager : MonoBehaviour
 
         foreach (var province in sortedProvinces)
         {
-            if (province.Owner_id == map.currentPlayer)
-            {
-                GameObject rowObj = Instantiate(province_row, content);
+            GameObject rowObj = Instantiate(province_row, content);
 
-                rowObj.transform.Find("name_text").GetComponent<TMP_Text>().text = province.Name;
-                rowObj.transform.Find("population_text").GetComponent<TMP_Text>().text = province.Population.ToString();
-                TMP_Text happinessText = rowObj.transform.Find("happiness_text").GetComponent<TMP_Text>();
+            rowObj.transform.Find("name_text").GetComponent<TMP_Text>().text = province.Name;
+            rowObj.transform.Find("population_text").GetComponent<TMP_Text>().text = province.Population.ToString();
+            TMP_Text happinessText = rowObj.transform.Find("happiness_text").GetComponent<TMP_Text>();
 
-                happinessText.text = province.Happiness.ToString() + "%";
-                happinessText.color = province.Happiness < 9 ? new Color32(255, 41, 35, 255) : // red
-                                       province.Happiness < 50 ? new Color32(255, 162, 0, 255) : // orange
-                                       Color.green;
+            happinessText.text = province.Happiness.ToString() + "%";
+            happinessText.color = province.Happiness < 9 ? new Color32(255, 41, 35, 255) : // red
+                                    province.Happiness < 50 ? new Color32(255, 162, 0, 255) : // orange
+                                    Color.green;
 
-                Image resourceImage = rowObj.transform.Find("resource/resource_img").GetComponent<Image>();
-                resourceImage.sprite = GetResourceSprite(province.Resources);
-            }
+            Image resourceImage = rowObj.transform.Find("resource/resource_img").GetComponent<Image>();
+            resourceImage.sprite = GetResourceSprite(province.Resources);
         }
     }
 
