@@ -143,7 +143,7 @@ public class Map:ScriptableObject {
 
     public void recArmy((int, int) coordinates, int amount) {
         var province = getProvince(coordinates);
-        var exitsing = armies.Find(a => a.position == coordinates && a.position == a.destination);
+        var exitsing = armies.Find(a => a.Position == coordinates && a.Position == a.Destination);
         if(province.RecruitablePopulation >= amount) { 
             province.Population -= amount;
             province.RecruitablePopulation -= amount;
@@ -151,22 +151,22 @@ public class Map:ScriptableObject {
                 addArmy(new(province.Owner_id, amount, coordinates, coordinates));
             }
             else {
-                exitsing.count += amount;
+                exitsing.Count += amount;
             }
         }
     }
 
     public void disArmy((int, int) coordinates, int amount) {
         var province = getProvince(coordinates);
-        var army = armies.Find(a => a.position == coordinates);
+        var army = armies.Find(a => a.Position == coordinates);
         if(army != null) {
-            if(army.count == amount) {
+            if(army.Count == amount) {
                 removeArmy(army);
             }
             else {
-                army.count -= amount;
+                army.Count -= amount;
             }
-            province.Population += army.count / 2;
+            province.Population += army.Count / 2;
         }
     }
 
@@ -185,12 +185,12 @@ public class Map:ScriptableObject {
     }
     public void updateArmyDestination(Army army, (int,int) coordinates)
     {
-        army.destination = coordinates;
+        army.Destination = coordinates;
     }
     public float calcArmyCombatPower(Army army)
     {
         var stats = countries[army.OwnerId].techStats;
-        return army.count + (army.count * stats.armyPower);
+        return army.Count + (army.Count * stats.armyPower);
     }
     public void moveArmies()
     {
@@ -198,43 +198,43 @@ public class Map:ScriptableObject {
         foreach(var army in armies)
         {
             
-            if(army.position != army.destination)
+            if(army.Position != army.Destination)
             {
                 MoveArmy(army);   
             }
-            Debug.Log(army.position != army.destination ? ("army" + it++ + "in" + army.position.ToString() + "hasn't moved") : ("army" + it++ + "in" + army.position.ToString() + "has moved to" + army.destination.ToString()));
+            Debug.Log(army.Position != army.Destination ? ("army" + it++ + "in" + army.Position.ToString() + "hasn't moved") : ("army" + it++ + "in" + army.Position.ToString() + "has moved to" + army.Destination.ToString()));
 
         }
     }
 
     public void MoveArmy(Army army) {
-        updateArmyPosition(army, army.destination);
-        updateArmyDestination(army, army.position);
+        updateArmyPosition(army, army.Destination);
+        updateArmyDestination(army, army.Position);
     }
 
     public void undoSetMoveArmy(Army army) { 
         army_view view = getView(army);
         if(view != null) {
-            view.ReturnTo(army.position);
+            view.ReturnTo(army.Position);
         }
         mergeToProvince(getProvince(army.Position), army);
     }
 
 
     public Army setMoveArmy(Army army, int count, (int, int) destination) {
-        if(count <= army.count) {
+        if(count <= army.Count) {
             Army moved_army;
 
-            if(count == army.count) {
+            if(count == army.Count) {
                 updateArmyDestination(army, destination);
                 moved_army = army;
             }
             else {
                 moved_army = new Army(army) {
-                    destination = destination
+                    Destination = destination
                 };
-                army.count -= count;
-                moved_army.count = count;
+                army.Count -= count;
+                moved_army.Count = count;
 
                 addArmy(moved_army);
                 
@@ -281,8 +281,8 @@ public class Map:ScriptableObject {
     public List<(int, int)> getPossibleMoveCells(Army army)
     {
         List<(int, int)> possibleCells = new List<(int, int)>();
-        (int startX, int startY) = army.position;
-        Country country = Countries.FirstOrDefault(c => c.Id == army.ownerId);
+        (int startX, int startY) = army.Position;
+        Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
         int moveRangeLand = country.techStats.moveRange;
         int moveRangeWater = (int)Math.Floor(country.techStats.moveRange + country.techStats.moveRange * country.techStats.waterMoveFactor);
 
@@ -374,7 +374,7 @@ public class Map:ScriptableObject {
 
         if (province.Owner_id == 0)
         {
-            occupationStatus = new Occupation(1, army.ownerId);
+            occupationStatus = new Occupation(1, army.OwnerId);
         }
         else
         {

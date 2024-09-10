@@ -135,11 +135,11 @@ namespace Assets.classes {
                     this.count = count;
                 }
 
-                public override string desc { get => count + " units disbanded in " + army.position; }
+                public override string desc { get => count + " units disbanded in " + army.Position; }
 
                 public override void execute(Map map) {
                     base.execute(map);
-                    map.disArmy(army.position, count);
+                    map.disArmy(army.Position, count);
                 }
                 public override void preview(Map map) {
                     base.preview(map);
