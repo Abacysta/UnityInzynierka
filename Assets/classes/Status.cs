@@ -114,4 +114,29 @@ namespace Assets.classes.subclasses {
             province.Prod_mod -= 0.03f;
         }
     }
+    internal class Flood:Status
+    {
+        public Flood(int duration) : base(duration, StatusType.negative, "This province is flooded.", 9)
+        {
+        }
+
+        public override void applyEffect(Province province)
+        {
+            province.Rec_pop -= 0.05f;
+            province.Prod_mod -= 0.5f;
+        }
+    }
+    internal class Fire : Status
+    {
+        public Fire(int duration) : base(duration, StatusType.negative, "This province is on fire!", 10)
+        {
+        }
+
+        public override void applyEffect(Province province)
+        {
+            province.Rec_pop -= 0.15f;
+            province.Prod_mod -= 1.5f;
+        }
+    }
 }
+
