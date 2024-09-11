@@ -111,7 +111,7 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class EconomicReccesion : GlobalEvent
+            internal class EconomicReccesion : GlobalEvent // jak jest wojna w sąsiednim królestwie? albo jak jestes w stanie wojny
             {
                 public EconomicReccesion(Country country, dialog_box_manager dialog) : base(country, dialog)
                 {
@@ -376,7 +376,7 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class WorkersStrike1:LocalEvent
+            internal class WorkersStrike1:LocalEvent // turmoil mass migration
             {
                 public WorkersStrike1(Province province, dialog_box_manager dialog_box) : base(province, dialog_box) { 
                 }

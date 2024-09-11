@@ -360,9 +360,9 @@ public class Map:ScriptableObject {
         int previousOwnerId = province.Owner_id;
         int newOwnerId = province.OccupationInfo.OccupyingCountryId;
 
-        Countries.FirstOrDefault(c => c.Id == previousOwnerId)?.removeProvince(province.coordinates);
+        Countries.FirstOrDefault(c => c.Id == previousOwnerId).removeProvince(province);
 
-        assignProvince(province.coordinates, newOwnerId);
+        assignProvince(province, newOwnerId);
         CancelOccupation(province);
     }
 

@@ -143,16 +143,15 @@ public class province_click_handler : cursor_helper
 
     private bool IsProvinceRevealed(int x, int y)
     {
-        //Province province = map.getProvince(x, y);
-        //if (province != null)
-        //{
-        //    foreach(Country country in map.Countries)
-        //    {
-        //        if (country.RevealedTiles.Contains((x, y))) return true;
-        //    }
-        //}
-        //return false;
-        return true;
+        Province province = map.getProvince(x, y);
+        if (province != null)
+        {
+            foreach(Country country in map.Countries)
+            {
+                if (country.RevealedTiles.Contains((x, y))) return true;
+            }
+        }
+        return false;
     }
     private void SelectProvince(int x, int y)
     {
