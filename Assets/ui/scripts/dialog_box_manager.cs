@@ -87,7 +87,7 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
         Action onCancel= null;
-        ShowSliderBox(title, message, onConfirm, onCancel, army.count);
+        ShowSliderBox(title, message, onConfirm, onCancel, army.Count);
     }
     
 

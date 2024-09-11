@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class army_view : MonoBehaviour
@@ -6,6 +7,7 @@ public class army_view : MonoBehaviour
     private PolygonCollider2D army_collider;
     private SpriteRenderer spriteRenderer;
     private AudioSource move_army_sound;
+    private TMP_Text army_count_text;
     private Vector3 targetPosition;
 
     private readonly float moveSpeed = 2f;
@@ -16,6 +18,7 @@ public class army_view : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         army_collider = GetComponent<PolygonCollider2D>();
         move_army_sound = GetComponent<AudioSource>(); 
+        army_count_text = transform.Find("army_counter_background/army_count_text").GetComponent<TMP_Text>();
     }
 
     void Update()
@@ -35,19 +38,21 @@ public class army_view : MonoBehaviour
     public void Initialize(Army armyData)
     {
         ArmyData = armyData;
+        UpdateArmyCounter(ArmyData.Count);
+        ArmyData.OnArmyCountChanged += UpdateArmyCounter;
         UpdatePosition();
     }
 
     public void UpdatePosition()
     {
-        Vector3 position = HexToWorldPosition(ArmyData.position.Item1, ArmyData.position.Item2);
+        Vector3 position = HexToWorldPosition(ArmyData.Position.Item1, ArmyData.Position.Item2);
         transform.position = position;
     }
 
     public void MoveTo((int, int) newPosition)
     {
         UpdatePosition();
-        ArmyData.position = newPosition;
+        ArmyData.Position = newPosition;
         targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         isMoving = true;
         move_army_sound.Play();
@@ -88,5 +93,10 @@ public class army_view : MonoBehaviour
         }
 
         return new Vector3(X, Y, 0);
+    }
+
+    private void UpdateArmyCounter(int newCount)
+    {
+        army_count_text.text = newCount.ToString();
     }
 }

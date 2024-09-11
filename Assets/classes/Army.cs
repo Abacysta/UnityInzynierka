@@ -1,13 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 public class Army
 {
-    public int ownerId;
-    public int count;
-    public (int,int) position;
-    public (int,int) destination;
+    private int ownerId;
+    private int count;
+    private (int,int) position;
+    private (int,int) destination;
+    public event Action<int> OnArmyCountChanged;
 
     public Army(int ownerId, int count, (int, int) position, (int, int) destination)
     {
@@ -25,7 +26,18 @@ public class Army
     }
 
     public int OwnerId { get => ownerId; set => ownerId = value; }
-    public int Count { get => count; set => count = value; }
+    public int Count
+    {
+        get { return count; }
+        set
+        {
+            if (count != value)
+            {
+                count = value;
+                OnArmyCountChanged?.Invoke(count);
+            }
+        }
+    }
     public (int,int) Position { get => position; set => position = value;  }
     public (int,int) Destination { get => destination; set => destination = value; }
 

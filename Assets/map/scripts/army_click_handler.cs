@@ -63,8 +63,8 @@ public class army_click_handler : cursor_helper
                 HighlightPossibleMoveCells(selectedArmy.ArmyData);
 
                 army_click.Play();
-                Debug.Log($"Selected Army: ({armyView.ArmyData.position.Item1}, {armyView.ArmyData.position.Item2}), " +
-                          $"Count: {armyView.ArmyData.count} origin:{armyView.ArmyData.position} destination:{armyView.ArmyData.destination}");
+                Debug.Log($"Selected Army: ({armyView.ArmyData.Position.Item1}, {armyView.ArmyData.Position.Item2}), " +
+                          $"Count: {armyView.ArmyData.Count} origin:{armyView.ArmyData.Position} destination:{armyView.ArmyData.Destination}");
             }
         }
         else
@@ -110,7 +110,7 @@ public class army_click_handler : cursor_helper
 
         highlightedCells.Clear();
 
-        Vector3Int currentArmyPosition = new Vector3Int(army.position.Item1, army.position.Item2, 0);
+        Vector3Int currentArmyPosition = new Vector3Int(army.Position.Item1, army.Position.Item2, 0);
 
         foreach (var cell in possibleCells)
         {

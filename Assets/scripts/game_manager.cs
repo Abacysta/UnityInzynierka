@@ -26,7 +26,7 @@ public class game_manager : MonoBehaviour
     void Awake()
     {
         LoadData();
-        //fog_Of_War.StartTurn();
+        fog_Of_War.StartTurn();
     }
 
     void LoadData()
@@ -114,7 +114,7 @@ public class game_manager : MonoBehaviour
         foreach(var a in map.Armies) {
             map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.armyUpkeep);
         }
-
+        fog_Of_War.StartTurn();
         turnCntTxt.SetText("" + ++turnCnt);
         loading_box.SetActive(false);
         Debug.Log("stopped bar");
