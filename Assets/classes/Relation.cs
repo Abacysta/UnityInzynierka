@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 namespace Assets.classes {
     internal abstract class Relation {
         private Country[] countries;
-        private RelationType type;
+        public RelationType type;
         private int initialChange, constChange;
+        public Country[] Sides { get { return countries; } }
         public virtual void turnEffect() {
             countries[0].Opinions[countries[1].Id] += constChange;
             countries[1].Opinions[countries[0].Id] += constChange;
@@ -32,17 +33,20 @@ namespace Assets.classes {
         }
 
         internal class War:Relation {
+            public HashSet<Country> participants1, participants2;
             public War(Country c1, Country c2) : base(c1, c2, RelationType.War, -100, -15) {
                 countries[0].AtWar = true;
                 countries[1].AtWar = true;
+                participants1 = new HashSet<Country> { c1 };
+                participants2 = new HashSet<Country>{c2};
             }
-
+            
             public override void turnEffect() {
                 base.turnEffect();
             }
         }
         internal class Alliance:Relation {
-            public Alliance(Country c1, Country c2, RelationType type, int initalChange, int constChange) : base(c1, c2, RelationType.Alliance, 100, 10) {
+            public Alliance(Country c1, Country c2) : base(c1, c2, RelationType.Alliance, 100, 10) {
                 foreach(var p in countries[0].Provinces) {
                     p.Happiness += 3;
                 }
@@ -56,16 +60,19 @@ namespace Assets.classes {
             }
         }
         internal class Truce:Relation {
-            public Truce(Country c1, Country c2, RelationType type, int initalChange, int constChange) : base(c1, c2, RelationType.Truce, 10, 0) {
-                
+            private int d;
+            public int Duration {  get { return d; } }
+            public Truce(Country c1, Country c2, int duration) : base(c1, c2, RelationType.Truce, 10, 0) {
+                this.d = duration;
             }
 
             public override void turnEffect() {
                 base.turnEffect();
+                if(d > 0) d--;
             }
         }
         internal class Vassalage:Relation {
-            public Vassalage(Country c1, Country c2, RelationType type, int initalChange, int constChange) : base(c1, c2, RelationType.Vassalage, -30, 5) {
+            public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, -30, 5) {
                 countries[0].Opinions[countries[1].Id] -= constChange;
             }
 
@@ -74,15 +81,35 @@ namespace Assets.classes {
             }
         }
         internal class Subsidies:Relation {
-            public Subsidies(Country c1, Country c2, RelationType type, int initalChange, int constChange) : base(c1, c2, RelationType.Subsidies, 20, 5) {
+            private int amount;
+            private int duration;
+            public int Amount { get { return amount; } }
+            public int Duration { get { return duration; } }
+            public float fAmount { get { return (float)amount; } }
+            public Subsidies(Country c1, Country c2, int amount) : base(c1, c2, RelationType.Subsidies, 20, 5) {
+                this.amount = amount;
+                this.duration = -1;
             }
-
+            public Subsidies(Country c1, Country c2, int amount, int duration) : base(c1, c2, RelationType.Subsidies, 20, 5) {
+                this.amount = amount;
+                this.duration = duration;
+            }
             public override void turnEffect() {
                 base.turnEffect();
+                if(duration>0) {
+                    duration--;
+                    if(countries[0].Resources[Resource.Gold] >= amount) {
+                        countries[0].Resources[Resource.Gold] -= amount;
+                        countries[1].Resources[Resource.Gold] += amount;
+                    }
+                    else {
+                        duration = 0;
+                    }
+                }
             }
         }
         internal class MilitaryAccess:Relation {
-            public MilitaryAccess(Country c1, Country c2, RelationType type, int initalChange, int constChange) : base(c1, c2, RelationType.MilitaryAccess, 0, 0) {
+            public MilitaryAccess(Country c1, Country c2) : base(c1, c2, RelationType.MilitaryAccess, 0, 0) {
             }
 
             public override void turnEffect() {

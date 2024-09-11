@@ -1,3 +1,4 @@
+using Assets.classes;
 using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ public class Map:ScriptableObject {
     [SerializeField] private List<Army> armies = new List<Army>();
     [SerializeField] private GameObject army_prefab;
     private List<army_view> armyViews = new List<army_view>();
+    private HashSet<Relation> relations = new HashSet<Relation>();
     public int currentPlayer;
 
     public string Map_name { get => map_name; set => map_name = value; }
@@ -28,6 +30,7 @@ public class Map:ScriptableObject {
     public (int, int) Pop_extremes { get => pop_extremes; set => pop_extremes = value; }
     public List<Army> Armies { get => armies; set => armies = value; }
     public Country CurrentPlayer { get => countries[currentPlayer]; }
+    internal HashSet<Relation> Relations { get => relations; set => relations = value; }
 
     public Province getProvince(int x, int y) {
         return Provinces.Find(p => p.X == x && p.Y == y);
