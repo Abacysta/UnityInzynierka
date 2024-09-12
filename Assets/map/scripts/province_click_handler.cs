@@ -146,10 +146,7 @@ public class province_click_handler : cursor_helper
         Province province = map.getProvince(x, y);
         if (province != null)
         {
-            foreach(Country country in map.Countries)
-            {
-                if (country.RevealedTiles.Contains((x, y))) return true;
-            }
+            if (map.CurrentPlayer.RevealedTiles.Contains((x, y))) return true;
         }
         return false;
     }

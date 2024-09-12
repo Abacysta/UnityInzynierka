@@ -1,22 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class fog_of_war : MonoBehaviour
 {
     [SerializeField] private Tilemap fogTilemap;
     [SerializeField] private Tilemap fogMemoryTilemap;
     [SerializeField] private TileBase tileFog;
-
-    private int playerCountryId = 1;
     [SerializeField] private Map map;
+
     public void Start() 
     {
         StartTurn();
     }
+
     public void ApplyFogOfWar()
     {
         fogTilemap.ClearAllTiles();
@@ -25,29 +23,22 @@ public class fog_of_war : MonoBehaviour
 
     public void UpdateFogOfWar()
     {
-        foreach (Country country in map.Countries)
+        foreach (Province province in map.Provinces)
         {
-            if (country.Id == playerCountryId) 
+            if (map.CurrentPlayer.RevealedTiles.Contains((province.X, province.Y)))
             {
-                foreach (Province province in map.Provinces)
+                RevealTile((province.X, province.Y));
+                HideMemoryTile((province.X, province.Y));  
+            }
+            else
+            {
+                if(map.CurrentPlayer.SeenTiles.Contains((province.X, province.Y)))
                 {
-                    if (country.RevealedTiles.Contains((province.X, province.Y)))
-                    {
-                        RevealTile((province.X, province.Y));
-                        HideMemoryTile((province.X, province.Y));
-
-                    }
-                    else
-                    {
-                        if(country.SeenTiles.Contains((province.X, province.Y)))
-                        {
-                            MemoryTile((province.X, province.Y));
-                        }
-                        else
-                        {
-                            HideTile((province.X, province.Y));
-                        }
-                    }
+                    MemoryTile((province.X, province.Y));
+                }
+                else
+                {
+                    HideTile((province.X, province.Y));
                 }
             }
         }
@@ -69,11 +60,13 @@ public class fog_of_war : MonoBehaviour
         Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
         fogTilemap.SetTile(position, tileFog);
     }
+
     public void MemoryTile((int x, int y) coordinates)
     {
         Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
         fogMemoryTilemap.SetTile(position, tileFog);
     }
+
     public void HideMemoryTile((int x, int y) coordinates)
     {
         Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
@@ -87,7 +80,6 @@ public class fog_of_war : MonoBehaviour
             CalculateVisibilityForCountry(country);
         }
         CalculateVisibilityForArmies();
-        UpdateFogOfWar();
     }
 
     public void CalculateVisibilityForCountry(Country country)
@@ -143,6 +135,7 @@ public class fog_of_war : MonoBehaviour
             }
         }
     }
+
     private void UpdateVisibilityAroundArmy(Army army)
     {
         Province province = map.getProvince(army.Position.Item1, army.Position.Item2);
@@ -172,6 +165,7 @@ public class fog_of_war : MonoBehaviour
             }
         }
     }
+
     private void CalculateVisibilityForArmies()
     {
         List<Army>armies = map.Armies;

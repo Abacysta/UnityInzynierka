@@ -1,5 +1,3 @@
-using Assets.classes.subclasses;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -21,12 +19,12 @@ public class game_manager : MonoBehaviour
     [SerializeField] private Slider loading_bar;
     [SerializeField] private TMP_Text loading_txt;
     [SerializeField] private map_loader loader;
+    [SerializeField] private camera_controller camera_controller;
 
     // Loading map data before all scripts
     void Awake()
     {
         LoadData();
-        fog_Of_War.StartTurn();
     }
 
     void LoadData()
@@ -195,6 +193,8 @@ public class game_manager : MonoBehaviour
             loader.Reload();
         }
         Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
+        camera_controller.ZoomCameraToCountry();
+        fog_Of_War.UpdateFogOfWar();
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
         //    Debug.Log(c.Actions.Count);
