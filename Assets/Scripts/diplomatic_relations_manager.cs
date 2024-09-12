@@ -78,11 +78,11 @@ namespace Assets.map.scripts {
             //dodaj wszyskie kratki sojusznika byly odkryte po zawarciu sojuszu, chyba to:
             foreach(var tile in c1.Provinces) {
                 c2.SeenTiles.Add(tile.coordinates);
-                c2.RevealedTiles.Add(tile.coordinates);
+                //c2.RevealedTiles.Add(tile.coordinates);
             }
             foreach(var tile in c2.Provinces) {
                 c1.SeenTiles.Add(tile.coordinates);
-                c1.RevealedTiles.Add(tile.coordinates);
+                //c1.RevealedTiles.Add(tile.coordinates);
             }
         }
         private void endAlliace(Relation.Alliance relation) {
@@ -110,11 +110,11 @@ namespace Assets.map.scripts {
             //odkrycie kafelkow itp
             foreach(var tile in c1.Provinces) {
                 c2.SeenTiles.Add(tile.coordinates);
-                c2.RevealedTiles.Add(tile.coordinates);
+                //c2.RevealedTiles.Add(tile.coordinates);
             }
             foreach(var tile in c2.Provinces) {
                 c1.SeenTiles.Add(tile.coordinates);
-                c1.RevealedTiles.Add(tile.coordinates);
+                //c1.RevealedTiles.Add(tile.coordinates);
             }
         }
         public bool joinWar(Relation.War war, Country join, Country ally) {
@@ -149,10 +149,14 @@ namespace Assets.map.scripts {
         public void integrateVassal(Relation.Vassalage relation) {
             Country vassal = relation.Sides[1], master = relation.Sides[0];
             map.Relations.Remove(relation);
+            var toRemove = new HashSet<Province>();
             foreach(Province p in vassal.Provinces) {
                 p.Owner_id = master.Id;
+                toRemove.Add(p);
             }
-            map.Countries.Remove(vassal);
+            foreach(var p in toRemove) { 
+                vassal.unassignProvince(p);
+            }
         }
     }
 }

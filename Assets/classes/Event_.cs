@@ -1,7 +1,10 @@
 ﻿using Assets.classes.subclasses;
+using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Burst.Intrinsics;
@@ -737,6 +740,58 @@ namespace Assets.classes {
             }
         }
         public class DiploEvent:Event_ {
+            protected Country from, to;
+            private diplomatic_relations_manager diplomacy;
+            private dialog_box_manager dialog_box;
+            public virtual string msg { get { return ""; } }
+            public virtual void accept() { }
+            public virtual void reject() { accept(); }
+            public virtual void zoom() { }
+            public override void call() {
+                dialog_box.invokeConfirmBox("", msg, accept, reject, null);
+            }
+            DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) {
+                this.from = from;
+                this.to = to;
+                this.diplomacy = diplomacy;
+                this.dialog_box = dialog_box;
+            }
+            //internal class WarDeclaration:DiploEvent {
+            //    WarDeclaration(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+            //        diplomacy.startWar(from, to);
+            //    }
+            //    public override void accept() {
+            //        diplomacy.startWar(from, to);
+            //    }
+            //    public override void reject() { }
+            //    public override string msg { get { return "Are you sure you want to declare war on " + to.Name; } }
+            //}
+            internal class WarDeclared:DiploEvent {
+                public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return from.Name + " has declared a war on you!"; } }
+            }
+            internal class CallToWar:DiploEvent {
+                private Relation.War war;
+                public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, Relation.War war) : base(from, to, diplomacy, dialog_box) {
+                    this.war = war;
+                }
+
+                public override string msg { get { return from.Name + " has called you to war against " + (war.Sides[0] == from ? war.Sides[0].Name : war.Sides[1].Name); } }
+
+                public override void accept() {
+                    diplomacy.joinWar(war, to, from);
+                }
+
+                public override void reject() {
+                    diplomacy.declineWar(to, from);
+                }
+            }
+            internal class TruceEnd:DiploEvent {
+                public TruceEnd(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return "A truce with " + from.Name + " has ended"; } }
+            }
 
         }
     }

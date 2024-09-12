@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.map.scripts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,8 @@ using UnityEngine;
 namespace Assets.classes {
     public class actionContainer : MonoBehaviour{
         [SerializeField] private Map map;
+
+        internal interface IInstantAction { }
         public class TurnAction {
             public enum ActionType {
                 army_move,
@@ -148,6 +151,33 @@ namespace Assets.classes {
                 public override void revert(Map map) {
                     base.revert(map);
                     //army.count += this.count;
+                }
+            }
+            internal class start_war:TurnAction, IInstantAction {
+                private Country c1, c2;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+                public start_war(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(ActionType.war_offer, 1, null) {
+                    this.c1 = c1;
+                    this.c2 = c2;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+                public override void execute(Map map) {
+                    diplomacy.startWar(c1, c2);
+                    c2.Events.Add(new Event_.DiploEvent.WarDeclared(c1, c2, diplomacy, dialog_box));
+                }
+            }
+            internal class integrate_vassal:TurnAction, IInstantAction {
+                private Relation.Vassalage vassalage;
+                private diplomatic_relations_manager diplomacy;
+                public integrate_vassal(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy):base(ActionType.vasal_end, (int)vassalage.Sides[1].Provinces.Count/10) {
+                    this.vassalage = vassalage;
+                    this.diplomacy = diplomacy;
+                }
+
+                public override void execute(Map map) {
+                    diplomacy.integrateVassal(vassalage);
                 }
             }
         }
