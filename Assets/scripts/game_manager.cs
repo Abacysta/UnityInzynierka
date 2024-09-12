@@ -180,10 +180,21 @@ public class game_manager : MonoBehaviour
         //foreach(var c in map.Countries) {
         //    Debug.Log(c.Actions.Count);
         //}
-        turn_sound.Play();
-        executeActions();
-        turnCalculations();
-        loader.Reload();
+        if (map.currentPlayer < map.Countries.Count - 1)
+        {
+            map.currentPlayer++;
+            Debug.Log($"Sending actions.");
+        }
+        else
+        {
+            Debug.Log($"Executing actions and performing calculations.");
+            turn_sound.Play();
+            executeActions();
+            turnCalculations();
+            map.currentPlayer = 1;
+            loader.Reload();
+        }
+        Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
         //    Debug.Log(c.Actions.Count);
