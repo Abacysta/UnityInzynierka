@@ -26,8 +26,7 @@ public class camera_controller : cursor_helper
     private readonly float mapMinX = 0f, mapMinY = 0f;
     private float mapMaxX = 200f, mapMaxY = 200f;
     private float cameraSizeForMap;
-    private float mapCenterX;
-    private float mapCenterY;
+    private float mapCenterX, mapCenterY;
 
     private Vector3 panOrigin;
     private Vector3 lastPanPosition;
@@ -35,8 +34,7 @@ public class camera_controller : cursor_helper
 
     private float countryMinX, countryMinY, countryMaxX, countryMaxY;
     private float cameraSizeForCountry;
-    private float countryCenterX;
-    private float countryCenterY;
+    private float countryCenterX, countryCenterY;
 
     public bool IsPanning { get => isPanning; private set => isPanning = value; }
 
@@ -238,5 +236,19 @@ public class camera_controller : cursor_helper
         {
             CenterAndScaleCamera();
         }
+    }
+
+    public void ZoomCameraToProvince(Province province)
+    {
+        Vector3Int provincePosition = new(province.X, province.Y, 0);
+        Vector3 worldPosition = tile_map_layer_1.CellToWorld(provincePosition);
+        mainCamera.transform.position = new Vector3(worldPosition.x, worldPosition.y, mainCamera.transform.position.z);
+        mainCamera.orthographicSize = minZoom;
+    }
+
+    public void ZoomToProvinceTest()
+    {
+        Province province = map.CurrentPlayer.Provinces.FirstOrDefault();
+        ZoomCameraToProvince(province);
     }
 }

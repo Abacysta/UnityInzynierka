@@ -13,6 +13,7 @@ public class fog_of_war : MonoBehaviour
     public void Start() 
     {
         StartTurn();
+        UpdateFogOfWar();
     }
 
     public void ApplyFogOfWar()
