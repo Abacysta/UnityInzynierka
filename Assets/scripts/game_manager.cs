@@ -21,12 +21,17 @@ public class game_manager : MonoBehaviour
     [SerializeField] private Slider loading_bar;
     [SerializeField] private TMP_Text loading_txt;
     [SerializeField] private map_loader loader;
-
+    public army_visibility_manager armyVisibilityManager;
     // Loading map data before all scripts
     void Awake()
     {
         LoadData();
         fog_Of_War.StartTurn();
+        armyVisibilityManager.Initialize(map);
+        foreach (Country country in map.Countries)
+        {
+            country.SetArmyVisibilityManager(armyVisibilityManager);
+        }
     }
 
     void LoadData()
@@ -183,6 +188,7 @@ public class game_manager : MonoBehaviour
         turn_sound.Play();
         executeActions();
         turnCalculations();
+        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
         loader.Reload();
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
