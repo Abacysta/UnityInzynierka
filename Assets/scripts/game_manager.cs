@@ -26,6 +26,7 @@ public class game_manager : MonoBehaviour
     void Awake()
     {
         LoadData();
+
     }
 
     void LoadData()
@@ -196,6 +197,7 @@ public class game_manager : MonoBehaviour
         Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
         camera_controller.ZoomCameraToCountry();
         fog_Of_War.UpdateFogOfWar();
+        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
         //    Debug.Log(c.Actions.Count);
