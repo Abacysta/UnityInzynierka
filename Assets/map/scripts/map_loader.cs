@@ -31,6 +31,8 @@ public class map_loader : MonoBehaviour
     [SerializeField] private TileBase capital_tile;
 
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
+    [SerializeField] private TilemapRenderer province_select_layer_rnd;
+    [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
     [SerializeField] private dialog_box_manager kurwa_mac;
     private Mode mode;
 
@@ -123,7 +125,7 @@ public class map_loader : MonoBehaviour
                 SetWater(position);
             }
         }
-        mouse_hover_layer_rnd.sortingOrder = 8;
+        SetProvinceHoverAndSelectAboveFilterLayer();
     }
 
     public void SetResources()
@@ -163,7 +165,7 @@ public class map_loader : MonoBehaviour
                 SetWater(position);
             }
         }
-        mouse_hover_layer_rnd.sortingOrder = 8;
+        SetProvinceHoverAndSelectAboveFilterLayer();
     }
 
     public void SetHappiness()
@@ -185,7 +187,7 @@ public class map_loader : MonoBehaviour
                 SetWater(position);
             }
         }
-        mouse_hover_layer_rnd.sortingOrder = 8;
+        SetProvinceHoverAndSelectAboveFilterLayer();
     }
 
     public void SetPopulation()
@@ -206,7 +208,7 @@ public class map_loader : MonoBehaviour
                 SetWater(position);
             }
         }
-        mouse_hover_layer_rnd.sortingOrder = 8;
+        SetProvinceHoverAndSelectAboveFilterLayer();
     }
 
      public void SetPolitical() {
@@ -235,6 +237,7 @@ public class map_loader : MonoBehaviour
                 SetWater(position);
             }
         }
+        province_select_layer_rnd.sortingOrder = 4;
         mouse_hover_layer_rnd.sortingOrder = 5;
     }
 
@@ -287,5 +290,11 @@ public class map_loader : MonoBehaviour
     Color ChooseRGBColor(int r, int g, int b, int a = 255)
     {
         return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
+    }
+
+    private void SetProvinceHoverAndSelectAboveFilterLayer()
+    {
+        province_select_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 1;
+        mouse_hover_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 2;
     }
 }

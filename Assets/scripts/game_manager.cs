@@ -1,5 +1,3 @@
-using Assets.classes.subclasses;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -21,17 +19,13 @@ public class game_manager : MonoBehaviour
     [SerializeField] private Slider loading_bar;
     [SerializeField] private TMP_Text loading_txt;
     [SerializeField] private map_loader loader;
+    [SerializeField] private camera_controller camera_controller;
+
     public army_visibility_manager armyVisibilityManager;
     // Loading map data before all scripts
     void Awake()
     {
         LoadData();
-        fog_Of_War.StartTurn();
-        armyVisibilityManager.Initialize(map);
-        foreach (Country country in map.Countries)
-        {
-            country.SetArmyVisibilityManager(armyVisibilityManager);
-        }
     }
 
     void LoadData()
@@ -185,11 +179,23 @@ public class game_manager : MonoBehaviour
         //foreach(var c in map.Countries) {
         //    Debug.Log(c.Actions.Count);
         //}
-        turn_sound.Play();
-        executeActions();
-        turnCalculations();
-        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
-        loader.Reload();
+        if (map.currentPlayer < map.Countries.Count - 1)
+        {
+            map.currentPlayer++;
+            Debug.Log($"Sending actions.");
+        }
+        else
+        {
+            Debug.Log($"Executing actions and performing calculations.");
+            turn_sound.Play();
+            executeActions();
+            turnCalculations();
+            map.currentPlayer = 1;
+            loader.Reload();
+        }
+        Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
+        camera_controller.ZoomCameraToCountry();
+        fog_Of_War.UpdateFogOfWar();
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
         //    Debug.Log(c.Actions.Count);

@@ -54,9 +54,10 @@ public class army_click_handler : cursor_helper
 
         if (hit.collider != null)
         {
-            province_tooltip.OnMouseExitProvince();
             if (hit.collider.TryGetComponent<army_view>(out var armyView))
             {
+                if (armyView.ArmyData.OwnerId != map.currentPlayer) return;
+
                 ResetSelectedArmy(); // Resetuj wybran¹ armiê przed przypisaniem nowej
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;

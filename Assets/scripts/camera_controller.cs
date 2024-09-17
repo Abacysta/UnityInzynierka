@@ -21,28 +21,32 @@ public class camera_controller : cursor_helper
 
     private Vector2 baseResolution = new(1920, 1080);
     private float resolutionScaleFactor;
-    private float minX = -200f, maxX = 200f, minY = -200f, maxY = 200f;
-    private float mapWorldHeight;
-    private float mapWorldWidth;
-    private float cameraSizeAfterScaling;
-    private float centerX;
-    private float centerY;
+    private Camera mainCamera;
+
+    private readonly float mapMinX = 0f, mapMinY = 0f;
+    private float mapMaxX = 200f, mapMaxY = 200f;
+    private float cameraSizeForMap;
+    private float mapCenterX, mapCenterY;
 
     private Vector3 panOrigin;
     private Vector3 lastPanPosition;
     private bool isPanning = false;
 
+    private float countryMinX, countryMinY, countryMaxX, countryMaxY;
+    private float cameraSizeForCountry;
+    private float countryCenterX, countryCenterY;
+
     public bool IsPanning { get => isPanning; private set => isPanning = value; }
 
     void Start()
     {
-        resolutionScaleFactor = (Screen.width / baseResolution.x + Screen.height / baseResolution.y) / 2f;
+        resolutionScaleFactor = ((float)Screen.width / baseResolution.x + (float)Screen.height / baseResolution.y) / 2f;
+        mainCamera = Camera.main;
 
-        CalculateMapCenter();
-        CalculateCameraBounds();
-        CalculateCameraScalingSize();
+        CalculateMapCenterAndBounds();
+        CalculateCameraSizeForMap();
 
-        CenterAndScaleCamera();
+        ZoomCameraToCountry();
     }
 
     void Update()
@@ -59,7 +63,7 @@ public class camera_controller : cursor_helper
         HandleCameraZoom();
     }
 
-    void CalculateMapCenter()
+    private void CalculateMapCenterAndBounds()
     {
         int mapHexGridHeight = 80, mapHexGridWidth = 80;
 
@@ -73,39 +77,29 @@ public class camera_controller : cursor_helper
         Vector3Int maxCellPosition = new(mapHexGridWidth, mapHexGridHeight, 0);
 
         // Max world coordinates
-        mapWorldWidth = tile_map_layer_1.CellToWorld(maxCellPosition).x;
-        mapWorldHeight = tile_map_layer_1.CellToWorld(maxCellPosition).y;
+        mapMaxX = tile_map_layer_1.CellToWorld(maxCellPosition).x;
+        mapMaxY = tile_map_layer_1.CellToWorld(maxCellPosition).y;
 
-        centerX = mapWorldWidth / 2f;
-        centerY = mapWorldHeight / 2f;
+        mapCenterX = mapMaxX / 2f;
+        mapCenterY = mapMaxY / 2f;
     }
 
-    void CalculateCameraBounds()
+    private void CalculateCameraSizeForMap()
     {
-        minX = 0f;
-        maxX = mapWorldWidth;
-        minY = 0f;
-        maxY = mapWorldHeight;
-    }
+        float mapHeightWithMargin = mapMaxY * (1f + minScalingMargin * 0.01f);
+        float mapWidthWithMargin = mapMaxX * (1f + minScalingMargin * 0.01f);
 
-    void CalculateCameraScalingSize()
-    {
-        Camera camera = Camera.main;
-
-        float mapHeightWithMargin = mapWorldHeight * (1f + minScalingMargin * 0.01f);
-        float mapWidthWithMargin = mapWorldWidth * (1f + minScalingMargin * 0.01f);
-
-        float aspectRatio = camera.aspect;
+        float aspectRatio = mainCamera.aspect;
         float orthographicSizeHeight = mapHeightWithMargin / 2f;
         float orthographicSizeWidth = mapWidthWithMargin / (2f * aspectRatio);
 
-        cameraSizeAfterScaling = Mathf.Max(orthographicSizeHeight, orthographicSizeWidth);
+        cameraSizeForMap = Mathf.Max(orthographicSizeHeight, orthographicSizeWidth);
 
         // Additional setting the maximum size of zooming out based on the map size
-        maxZoom = cameraSizeAfterScaling * 2.5f;
+        maxZoom = cameraSizeForMap * 2.5f;
     }
 
-    void HandleCameraPan()
+    private void HandleCameraPan()
     {
         // onMouseDown
         if (Input.GetMouseButtonDown(1))
@@ -134,8 +128,8 @@ public class camera_controller : cursor_helper
                                       difference.y * panSpeed * Time.deltaTime * resolutionScaleFactor, 0);
                 Vector3 newPosition = transform.position + move;
 
-                newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
-                newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
+                newPosition.x = Mathf.Clamp(newPosition.x, mapMinX, mapMaxX);
+                newPosition.y = Mathf.Clamp(newPosition.y, mapMinY, mapMaxY);
 
                 transform.position = newPosition;
 
@@ -144,7 +138,7 @@ public class camera_controller : cursor_helper
         }
     }
 
-    void HandleKeyboardPan()
+    private void HandleKeyboardPan()
     {
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -153,28 +147,28 @@ public class camera_controller : cursor_helper
         Vector3 move = new(horizontal * adjustedPanSpeed * Time.deltaTime, vertical * adjustedPanSpeed * Time.deltaTime, 0);
         Vector3 newPosition = transform.position + move;
 
-        newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
-        newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
+        newPosition.x = Mathf.Clamp(newPosition.x, mapMinX, mapMaxX);
+        newPosition.y = Mathf.Clamp(newPosition.y, mapMinY, mapMaxY);
 
         transform.position = newPosition;
     }
 
-    void HandleCameraZoom()
+    private void HandleCameraZoom()
     {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (scroll != 0.0f)
         {
-            float size = Camera.main.orthographicSize - scroll * zoomSpeed;
-            Camera.main.orthographicSize = Mathf.Clamp(size, minZoom, maxZoom);
+            float size = mainCamera.orthographicSize - scroll * zoomSpeed;
+            mainCamera.orthographicSize = Mathf.Clamp(size, minZoom, maxZoom);
         }
 
         UpdateSpeedSettings();
     }
 
-    void UpdateSpeedSettings()
+    private void UpdateSpeedSettings()
     {
-        float cameraSize = Camera.main.orthographicSize;
+        float cameraSize = mainCamera.orthographicSize;
 
         float zoomFactor = Mathf.InverseLerp(maxZoom, minZoom, cameraSize);
         float steepFactor = Mathf.Pow(zoomFactor, 2); 
@@ -183,19 +177,78 @@ public class camera_controller : cursor_helper
         zoomSpeed = Mathf.Lerp(maxZoomSpeed, minZoomSpeed, zoomFactor);
     }
 
-    public void CenterCamera()
-    {
-        Camera.main.transform.position = new Vector3(centerX, centerY, transform.position.z);
-    }
-
-    public void ScaleCameraToMapSize()
-    {
-        Camera.main.orthographicSize = cameraSizeAfterScaling;
-    }
-
     public void CenterAndScaleCamera()
     {
-        CenterCamera();
-        ScaleCameraToMapSize();
+        mainCamera.transform.position = new Vector3(mapCenterX, mapCenterY, transform.position.z);
+        mainCamera.orthographicSize = cameraSizeForMap;
+    }
+
+    private void CalculateCountryCenterAndBounds()
+    {
+        int hexCountryMinX = 0, hexCountryMinY = 0;
+        int hexCountryMaxX = 80, hexCountryMaxY = 80;
+
+        // Max country tilemap coordinates
+        hexCountryMinX = map.CurrentPlayer.Provinces.Min(p => p.X);
+        hexCountryMinY = map.CurrentPlayer.Provinces.Min(p => p.Y);
+        hexCountryMaxX = map.CurrentPlayer.Provinces.Max(p => p.X);
+        hexCountryMaxY = map.CurrentPlayer.Provinces.Max(p => p.Y);
+
+        Vector3Int minCellPosition = new(hexCountryMinX, hexCountryMinY, 0);
+        Vector3Int maxCellPosition = new(hexCountryMaxX, hexCountryMaxY, 0);
+
+        // Max world coordinates
+        countryMinX = tile_map_layer_1.CellToWorld(minCellPosition).x;
+        countryMinY = tile_map_layer_1.CellToWorld(minCellPosition).y;
+        countryMaxX = tile_map_layer_1.CellToWorld(maxCellPosition).x;
+        countryMaxY = tile_map_layer_1.CellToWorld(maxCellPosition).y;
+
+        countryCenterX = (countryMinX + countryMaxX) / 2f;
+        countryCenterY = (countryMinY + countryMaxY) / 2f;
+    }
+
+    private void CalculateCameraSizeForCountry()
+    {
+        float countryWidth = countryMaxX - countryMinX;
+        float countryHeight = countryMaxY - countryMinY;
+
+        float countryHeightWithMargin = countryHeight * (1f + minScalingMargin * 0.01f);
+        float countryWidthWithMargin = countryWidth * (1f + minScalingMargin * 0.01f);
+
+        float aspectRatio = mainCamera.aspect;
+        float orthographicSizeHeight = countryHeightWithMargin / 2f;
+        float orthographicSizeWidth = countryWidthWithMargin / (2f * aspectRatio);
+
+        var cameraSize = Mathf.Max(orthographicSizeHeight, orthographicSizeWidth);
+        cameraSizeForCountry = cameraSize >= minZoom ? Mathf.Max(orthographicSizeHeight, orthographicSizeWidth) : minZoom;
+    }
+
+    public void ZoomCameraToCountry()
+    {
+        if (map.CurrentPlayer.Provinces.Any())
+        {
+            CalculateCountryCenterAndBounds();
+            CalculateCameraSizeForCountry();
+            mainCamera.transform.position = new Vector3(countryCenterX, countryCenterY, transform.position.z);
+            mainCamera.orthographicSize = cameraSizeForCountry;
+        }
+        else
+        {
+            CenterAndScaleCamera();
+        }
+    }
+
+    public void ZoomCameraToProvince(Province province)
+    {
+        Vector3Int provincePosition = new(province.X, province.Y, 0);
+        Vector3 worldPosition = tile_map_layer_1.CellToWorld(provincePosition);
+        mainCamera.transform.position = new Vector3(worldPosition.x, worldPosition.y, mainCamera.transform.position.z);
+        mainCamera.orthographicSize = minZoom;
+    }
+
+    public void ZoomToProvinceTest()
+    {
+        Province province = map.CurrentPlayer.Provinces.FirstOrDefault();
+        ZoomCameraToProvince(province);
     }
 }

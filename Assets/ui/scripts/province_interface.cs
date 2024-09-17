@@ -111,6 +111,7 @@ public class province_interface : MonoBehaviour
             pop_.Txt.SetText("" + p.Population);
             rec_pop_.Txt.SetText("" + p.RecruitablePopulation);
 
+            building_interface.SetActive(p.Owner_id == map.CurrentPlayer.Id);
             recruitment_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
             recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
 
