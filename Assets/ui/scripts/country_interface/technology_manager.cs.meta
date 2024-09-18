@@ -1,9 +1,51 @@
 fileFormatVersion: 2
-guid: db1e9b45ac2b8344e834da3e1e29e4f9
+guid: 68969ac0ac363b447bdcdb5014bc56ef
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
+  - tech_tooltip_row: {fileID: 6697672680512778382, guid: 0281378b10aabee45a4b5befe66d8041, type: 3}
+  - dialog_box: {instanceID: 0}
+  - mil_tooltip_text: {instanceID: 0}
+  - ec_tooltip_text: {instanceID: 0}
+  - adm_tooltip_text: {instanceID: 0}
+  - mil_tooltip_container: {instanceID: 0}
+  - ec_tooltip_container: {instanceID: 0}
+  - adm_tooltip_container: {instanceID: 0}
+  - mil_tech_button: {instanceID: 0}
+  - ec_tech_button: {instanceID: 0}
+  - adm_tech_button: {instanceID: 0}
+  - mil_current_level_text: {instanceID: 0}
+  - ec_current_level_text: {instanceID: 0}
+  - adm_current_level_text: {instanceID: 0}
+  - mil_next_level_text: {instanceID: 0}
+  - ec_next_level_text: {instanceID: 0}
+  - adm_next_level_text: {instanceID: 0}
+  - mil_next_level_container: {instanceID: 0}
+  - adm_next_level_container: {instanceID: 0}
+  - ec_next_level_container: {instanceID: 0}
+  - mil_cost_text: {instanceID: 0}
+  - ec_cost_text: {instanceID: 0}
+  - adm_cost_text: {instanceID: 0}
+  - army_combat_power_sprite: {fileID: 21300000, guid: ea6b91f6655369a4caa3994f38d3c511, type: 3}
+  - army_cost_sprite: {instanceID: 0}
+  - army_upkeep_cost_sprite: {instanceID: 0}
+  - army_move_range_sprite: {instanceID: 0}
+  - recruitable_population_sprite: {instanceID: 0}
+  - occupation_penalty_sprite: {instanceID: 0}
+  - occupation_time_sprite: {instanceID: 0}
+  - water_move_factor_sprite: {instanceID: 0}
+  - production_factor_sprite: {instanceID: 0}
+  - tax_revenue_sprite: {instanceID: 0}
+  - can_boat_sprite: {instanceID: 0}
+  - choosing_new_tax_law_sprite: {instanceID: 0}
+  - fog_of_war_sprite: {instanceID: 0}
+  - holding_the_festival_sprite: {instanceID: 0}
+  - introducing_the_tax_break_sprite: {instanceID: 0}
+  - occupation_production_factor_sprite: {instanceID: 0}
+  - supressing_the_rebelion_sprite: {instanceID: 0}
+  - population_growth_sprite: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

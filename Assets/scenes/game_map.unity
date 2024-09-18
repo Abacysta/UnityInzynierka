@@ -1143,7 +1143,7 @@ GameObject:
   - component: {fileID: 76499913}
   - component: {fileID: 76499916}
   - component: {fileID: 76499915}
-  - component: {fileID: 76499914}
+  - component: {fileID: 76499917}
   m_Layer: 5
   m_Name: production_panel
   m_TagString: Untagged
@@ -1173,27 +1173,6 @@ RectTransform:
   m_AnchoredPosition: {x: -0.0022583008, y: 0}
   m_SizeDelta: {x: 0.0045776, y: -0.0001}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &76499914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 76499912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 937362fb0b9c0a04b84a48eb477d032d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
-  country_population_text: {fileID: 1051846537}
-  country_happiness_text: {fileID: 1149278918}
-  tax_law_buttons_list:
-  - {fileID: 239479052}
-  - {fileID: 1771145327}
-  - {fileID: 724475074}
-  - {fileID: 380318276}
-  - {fileID: 1360446670}
 --- !u!114 &76499915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1232,6 +1211,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 76499912}
   m_CullTransparentMesh: 1
+--- !u!114 &76499917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76499912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43eda5af5fec13a43a70debf6e45794f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
+  country_population_text: {fileID: 1051846537}
+  country_happiness_text: {fileID: 1149278918}
+  tax_law_buttons_list:
+  - {fileID: 239479052}
+  - {fileID: 1771145327}
+  - {fileID: 724475074}
+  - {fileID: 380318276}
+  - {fileID: 1360446670}
 --- !u!1 &81983821
 GameObject:
   m_ObjectHideFlags: 0
@@ -1867,7 +1867,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 137839853}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 388b8139ad949c7418a480e3e3cb4f16, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d2ce7604e1f3d54598520ae9b0fb20e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
@@ -3221,7 +3221,7 @@ GameObject:
   - component: {fileID: 197323422}
   - component: {fileID: 197323421}
   m_Layer: 5
-  m_Name: adm_next_level_content
+  m_Name: adm_next_level_container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8110,7 +8110,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 418351064}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f8f91bf560d0604b9881bfc73bb9da8, type: 3}
+  m_Script: {fileID: 11500000, guid: d26ad5b1217fa024299e6c3dec5c2f35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tooltip: {fileID: 406617111}
@@ -11372,7 +11372,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 615880300}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f8f91bf560d0604b9881bfc73bb9da8, type: 3}
+  m_Script: {fileID: 11500000, guid: d26ad5b1217fa024299e6c3dec5c2f35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tooltip: {fileID: 2143678722}
@@ -14204,7 +14204,7 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1201985134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.3759085}
+  m_AnchorMin: {x: 0, y: 0.37590846}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -14342,12 +14342,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 807383020}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db1e9b45ac2b8344e834da3e1e29e4f9, type: 3}
+  m_Script: {fileID: 11500000, guid: 68969ac0ac363b447bdcdb5014bc56ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   tech_tooltip_row: {fileID: 6697672680512778382, guid: 0281378b10aabee45a4b5befe66d8041, type: 3}
-  dialog_box: {fileID: 0}
+  dialog_box: {fileID: 316045547}
   mil_tooltip_text: {fileID: 522821391}
   ec_tooltip_text: {fileID: 1120474803}
   adm_tooltip_text: {fileID: 559503480}
@@ -14372,28 +14372,28 @@ MonoBehaviour:
   army_combat_power_sprite: {fileID: 21300000, guid: ea6b91f6655369a4caa3994f38d3c511, type: 3}
   army_cost_sprite: {fileID: 21300000, guid: 9e63791496d757f4b9ed1b3ac3ef47e2, type: 3}
   army_upkeep_cost_sprite: {fileID: 21300000, guid: 13021c244a1cd554cb8e436ed16da868, type: 3}
-  army_move_range_sprite: {fileID: 21300000, guid: 3d26b3349718a5f468fc2e13f3d93549, type: 3}
-  recruitable_population_sprite: {fileID: 21300000, guid: b412948edcd762c4db504769d3791c6a, type: 3}
+  army_move_range_sprite: {fileID: 21300000, guid: c9f745e8c6a178d4398198edfecd1787, type: 3}
+  recruitable_population_sprite: {fileID: 21300000, guid: baa350e5333b116448b99716d317db56, type: 3}
   occupation_penalty_sprite: {fileID: 21300000, guid: 38a221d1740d9bb42b4720b5c8854405, type: 3}
   occupation_time_sprite: {fileID: 21300000, guid: 4bf9289265a27e04eafd1004ca504a9b, type: 3}
   water_move_factor_sprite: {fileID: 21300000, guid: c9f745e8c6a178d4398198edfecd1787, type: 3}
   production_factor_sprite: {fileID: 21300000, guid: c97a0b1d50e5af148a7431c198638af2, type: 3}
   tax_revenue_sprite: {fileID: 21300000, guid: 2b914fca972dce04ebff213aa2df935f, type: 3}
   can_boat_sprite: {fileID: 21300000, guid: 7ef3f526025b06d45bee131bdee49c6c, type: 3}
-  choosing_new_tax_law_sprite: {fileID: 21300000, guid: a8e35034266538b4ba2fcb50d2e7aed1, type: 3}
+  choosing_new_tax_law_sprite: {fileID: 21300000, guid: fc4f99d4bec9c1a40b40d8cbc67f544c, type: 3}
   fog_of_war_sprite: {fileID: -1195541432, guid: 15fa8c95e51cea34f936c3f5840323ef, type: 3}
   building_the_fort_sprite:
   - {fileID: 21300000, guid: eae19a8bb665b7c4f8677c34c019a720, type: 3}
   - {fileID: 21300000, guid: 4b5ad49d1156dbc4c8a9e05ba987b774, type: 3}
   - {fileID: 21300000, guid: 032966c5da1a16f48a2820c05a651bf5, type: 3}
   building_the_mine_sprite:
-  - {fileID: 21300000, guid: 2a9cad791d994a14f9a9e11a7370a53b, type: 3}
-  - {fileID: 21300000, guid: a7045e3999879d446a777c32c6c42271, type: 3}
-  - {fileID: 21300000, guid: 6f6f97a3524196348b650ff26f8daca2, type: 3}
-  building_the_infrastructure_sprite:
   - {fileID: 21300000, guid: 9a6cd2a139364484ba582d3cda365481, type: 3}
   - {fileID: 21300000, guid: e06a09e4a482d434b92db2b4b4511377, type: 3}
   - {fileID: 21300000, guid: ce6e25d60f17c2a47bdbda73533fa7c1, type: 3}
+  building_the_infrastructure_sprite:
+  - {fileID: 21300000, guid: 2a9cad791d994a14f9a9e11a7370a53b, type: 3}
+  - {fileID: 21300000, guid: a7045e3999879d446a777c32c6c42271, type: 3}
+  - {fileID: 21300000, guid: 6f6f97a3524196348b650ff26f8daca2, type: 3}
   building_the_school_sprite:
   - {fileID: 21300000, guid: 2aa1c7f8c79a3c04a828d6b86f9e198b, type: 3}
   - {fileID: 21300000, guid: 306b454697c02714da040a7483328870, type: 3}
@@ -19738,7 +19738,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1171842714}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f8f91bf560d0604b9881bfc73bb9da8, type: 3}
+  m_Script: {fileID: 11500000, guid: d26ad5b1217fa024299e6c3dec5c2f35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tooltip: {fileID: 1552914500}
@@ -26195,7 +26195,7 @@ GameObject:
   - component: {fileID: 1523852284}
   - component: {fileID: 1523852283}
   m_Layer: 5
-  m_Name: ec_next_level_content
+  m_Name: ec_next_level_container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33768,7 +33768,7 @@ GameObject:
   - component: {fileID: 1932280469}
   - component: {fileID: 1932280468}
   m_Layer: 5
-  m_Name: mil_next_level_content
+  m_Name: mil_next_level_container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39740,11 +39740,11 @@ MonoBehaviour:
   alliance_sprite: {fileID: 21300000, guid: fbc7c3d94f0809c4bbd78e129fb6aaea, type: 3}
   truce_sprite: {fileID: 21300000, guid: a3e478d584c7e344fa79717d6af082bc, type: 3}
   vassalage_sprite_1: {fileID: 21300000, guid: 009034509a17a924896f83e4c6838ea2, type: 3}
-  vassalage_sprite_2: {fileID: 0}
+  vassalage_sprite_2: {fileID: 21300000, guid: 2ed4c0d6cad201a4a9bb806f10a372e3, type: 3}
   subsidies_sprite_1: {fileID: 21300000, guid: 2127edc08bfb4fd41970ba5417fa01c1, type: 3}
-  subsidies_sprite_2: {fileID: 0}
+  subsidies_sprite_2: {fileID: 21300000, guid: 6cfed048341d28c4592e483b22e58992, type: 3}
   military_access_sprite_1: {fileID: 21300000, guid: 12631002e9f4328458e86f944a34c025, type: 3}
-  military_access_sprite_2: {fileID: 0}
+  military_access_sprite_2: {fileID: 21300000, guid: 57e61981ba2e225448e20cc68d4fd3fc, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

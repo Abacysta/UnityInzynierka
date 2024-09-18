@@ -1,9 +1,12 @@
 fileFormatVersion: 2
-guid: 937362fb0b9c0a04b84a48eb477d032d
+guid: 43eda5af5fec13a43a70debf6e45794f
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
+  - country_population_text: {instanceID: 0}
+  - country_happiness_text: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
