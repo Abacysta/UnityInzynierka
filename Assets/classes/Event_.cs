@@ -477,6 +477,46 @@ namespace Assets.classes {
                     }
                 }
             }
+            internal class Battlefield : LocalEvent // po bitwie na prowincji jak np jest wiecej 100+ poległych
+            {
+                public Battlefield(Province province, dialog_box_manager dialog_box) : base(province, dialog_box)
+                {
+                }
+
+                public override string msg
+                {
+                    get { return "On this province was recently huge battle  " + province.Name; }
+                }
+
+                public override void call()
+                {
+                    base.call();
+                }
+
+                public override void accept()
+                {
+                    int rand = UnityEngine.Random.Range(0, 3);
+                    switch (rand)
+                    {
+                        case 0:
+                            province.addStatus(new ProdDown(4)); break;
+                        case 1:
+                            province.addStatus(new Disaster(4)); break;
+                        case 2:
+                            province.addStatus(new Illness(4)); break;
+                        case 3:
+                            break;
+                    }
+
+                    province.Happiness -= 10;
+                    base.accept();
+                }
+
+                public override void reject()
+                {
+                    base.reject();
+                }
+            }
             internal class StrangeRuins : LocalEvent
             {
                 public StrangeRuins(Province province, dialog_box_manager dialog_box) : base(province, dialog_box)

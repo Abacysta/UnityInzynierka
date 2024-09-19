@@ -212,7 +212,7 @@ public class camera_controller : cursor_helper
         float countryWidth = countryMaxX - countryMinX;
         float countryHeight = countryMaxY - countryMinY;
 
-        float countryHeightWithMargin = countryHeight * (1f + minScalingMargin * 0.01f);
+        float countryHeightWithMargin = countryHeight * (1.5f + minScalingMargin * 0.01f);
         float countryWidthWithMargin = countryWidth * (1f + minScalingMargin * 0.01f);
 
         float aspectRatio = mainCamera.aspect;

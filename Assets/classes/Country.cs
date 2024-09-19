@@ -263,6 +263,7 @@ public class Country {
     private List<Event_> events;
     private Dictionary<int, int> opinions;
     private bool atWar;
+    private army_visibility_manager armyVisibilityManager;
     public Country(int id, string name, (int, int) capital, Color color, Map map) {
         this.id = id;
         this.name = name;
@@ -373,6 +374,10 @@ public class Country {
                 }
             }
         return can;
+    }
+    public void SetArmyVisibilityManager(army_visibility_manager manager)
+    {
+        this.armyVisibilityManager = manager;
     }
 }
 
