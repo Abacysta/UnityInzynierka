@@ -180,6 +180,126 @@ namespace Assets.classes {
                     diplomacy.integrateVassal(vassalage);
                 }
             }
+            internal class end_war:TurnAction, IInstantAction {
+                private Country offer;
+                private Relation.War war;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+
+                public end_war(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.war_end, 0, null) {
+                    this.offer = offer;
+                    this.war = war;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+
+                public override void execute(Map map) {
+                    var to = war.Sides[0] == offer ? war.Sides[1] : war.Sides[0];
+                    to.Events.Add( new Event_.DiploEvent.PeaceOffer(war, offer, diplomacy, dialog_box));
+                }
+            }
+            internal class alliance_offer:TurnAction, IInstantAction {
+                private Country c1, c2;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+
+                public alliance_offer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) :base(ActionType.alliance_offer, 1){
+                    this.c1 = c1;
+                    this.c2 = c2;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+                public override void execute(Map map) {
+                    base.execute(map);
+                    c2.Events.Add(new Event_.DiploEvent.AllianceOffer(c1, c2, diplomacy, dialog_box));
+                }
+            }
+            internal class alliance_end:TurnAction, IInstantAction {
+                private Country from;
+                private Relation.Alliance alliance;
+                private diplomatic_relations_manager diplomacy; 
+                private dialog_box_manager dialog_box;
+
+                public alliance_end(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.alliance_end, 1) {
+                    this.from = from;
+                    this.alliance = alliance;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+
+                public override void execute(Map map) {
+                    base.execute(map);
+                    Country to = alliance.Sides.FirstOrDefault(c=>c!=from);
+                    to.Events.Add(new Event_.DiploEvent.AllianceBroken(from, to, diplomacy, dialog_box));
+                    diplomacy.endRelation(alliance);
+                }
+            }
+            internal class access_offer:TurnAction, IInstantAction {
+                private Country from, to;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+
+                public access_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.milacc_offer, 1) {
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+                public override void execute(Map map) {
+                    base.execute(map);
+                    to.Events.Add(new Event_.DiploEvent.AccessOffer(from, to, diplomacy, dialog_box));
+                }
+            }
+            internal class subs_offer:TurnAction, IInstantAction {
+                private Country from, to;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+                private int amount, duration;
+
+                public subs_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration):base(ActionType.subs_offer, 1) {
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                    this.amount = amount;
+                    this.duration = duration;
+                }
+
+                public override void execute(Map map) {
+                    base.execute(map);
+                    to.Events.Add(new Event_.DiploEvent.SubsOffer(from, to, diplomacy, dialog_box));
+                }
+            }
+            internal class vassal_offer:TurnAction, IInstantAction {
+                private Country from, to;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+
+                public vassal_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.vasal_offer, 1) {
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+            }
+            internal class vassal_rebel:TurnAction, IInstantAction {
+                private Relation.Vassalage vassalage;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+
+                public vassal_rebel(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.war_offer, 2) {
+                    this.vassalage = vassalage;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+
+                public override void execute(Map map) {
+                    base.execute(map);
+                    vassalage.Sides[0].Events.Add(new Event_.DiploEvent.VassalRebel(vassalage.Sides[1], vassalage.Sides[0], diplomacy, dialog_box));
+                    diplomacy.endRelation(vassalage);
+                    diplomacy.startWar(vassalage.Sides[1], vassalage.Sides[0]);
+                }
+            }
         }
         private List<TurnAction> actions;
 

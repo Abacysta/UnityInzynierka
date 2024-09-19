@@ -8,6 +8,10 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Burst.Intrinsics;
+using Unity.VisualScripting;
+using UnityEditor.Tilemaps;
+using UnityEngine;
+using static Assets.classes.Relation;
 using static dialog_box_manager.dialog_box_precons;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
@@ -745,7 +749,7 @@ namespace Assets.classes {
             private dialog_box_manager dialog_box;
             public virtual string msg { get { return ""; } }
             public virtual void accept() { }
-            public virtual void reject() { accept(); }
+            public virtual void reject() { }
             public virtual void zoom() { }
             public override void call() {
                 dialog_box.invokeConfirmBox("", msg, accept, reject, null);
@@ -766,6 +770,25 @@ namespace Assets.classes {
             //    public override void reject() { }
             //    public override string msg { get { return "Are you sure you want to declare war on " + to.Name; } }
             //}
+            internal class PeaceOffer:DiploEvent {
+                private Country offer;
+                private Relation.War war;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+                public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box) { 
+                    this.offer = offer;
+                    this.war = war;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+                public override string msg { get { return (offer == war.Sides[0] ? war.Sides[1].Name : war.Sides[0].Name) + " has offered peace."; } }
+                public override void accept() {
+                    diplomacy.endRelation(war);
+                }
+                public override void reject() { 
+                    
+                }
+            }
             internal class WarDeclared:DiploEvent {
                 public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
                 }
@@ -792,7 +815,94 @@ namespace Assets.classes {
                 }
                 public override string msg { get { return "A truce with " + from.Name + " has ended"; } }
             }
+            internal class AllianceOffer:DiploEvent {
+                public AllianceOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
 
+                }
+                public override string msg { get { return from.Name + " has sent you an alliance offer"; } }
+                public override void accept() {
+                    base.accept();
+                    from.Events.Add(new AllianceAccepted(to, from, diplomacy, dialog_box));
+                    diplomacy.startAlliance(to, from);
+                }
+                public override void reject() {
+                    from.Events.Add(new AllianceDenied(to, from, diplomacy, dialog_box));
+                }
+            }
+            internal class AllianceAccepted:DiploEvent {
+                public AllianceAccepted(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return from.Name + " has accepted the alliance offer"; } }
+            }
+            internal class AllianceDenied:DiploEvent {
+                public AllianceDenied(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return from.Name + " has denied our alliance offer"; } }
+            }
+            internal class AllianceBroken:DiploEvent {
+                public AllianceBroken(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return from.Name + " has broken our pact"; } }
+            }
+            internal class SubsOffer:DiploEvent {
+                private int amount, duration;
+                public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+
+                }
+                public override void accept() {
+                    base.accept();
+                    if(duration != 0) {
+                        diplomacy.startSub(from, to, amount, false, duration);
+                    }
+                    else {
+                        diplomacy.startSub(from, to, amount);
+                    }
+                }
+                public override void reject() {
+                    
+                }
+            }
+            internal class SubsEndMaster:DiploEvent {
+                public SubsEndMaster(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return "Subsidies from " + from.Name + " have stopped."; } }
+            }
+            internal class SubsEndSlave:DiploEvent {
+                public SubsEndSlave(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return "We ended subsidizing " + to.Name; } }
+            }
+            internal class AccessOffer:DiploEvent {
+                public AccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+                public override string msg { get { return from.Name + " wants access to our territory"; } }
+                public override void accept() {
+                    diplomacy.startAccess(to, from);
+                }
+                public override void reject() {
+                    
+                }
+            }
+            internal class VassalOffer:DiploEvent {
+                public VassalOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return from.Name + " demands our submission"; } }
+                public override void accept() {
+                    diplomacy.startVassalage(from, to);
+                }
+                public override void reject() {
+                    diplomacy.startWar(from, to);
+                }
+            }
+            internal class VassalRebel:DiploEvent {
+                public VassalRebel(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                }
+                public override string msg { get { return from.Name + " has rebelled against us"; } }
+            }
         }
     }
     
