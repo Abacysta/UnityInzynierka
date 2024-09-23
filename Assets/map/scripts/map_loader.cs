@@ -45,7 +45,11 @@ public class map_loader : MonoBehaviour
         map.Countries = new System.Collections.Generic.List<Country> {
             new Country(i++, "", (-1, -1), Color.white, map),
             new Country(i++, "Kingdom", (0, 0), Color.gray, map),
-            new Country(i++, "TestFog", (9,9), Color.red, map)
+            new Country(i++, "Gauls", (9,9), Color.red, map),
+            new Country(i++, "Berbers", (10, 0), Color.cyan, map),
+            new Country(i++, "Egyptians", (20, 0), Color.blue, map),
+            new Country(i++, "Vikings", (30, 0), Color.green, map),
+            new Country(i++, "Huns", (40, 0), Color.yellow, map)
         };
         i = 0;
         Debug.Log(map.CurrentPlayer.Name);
@@ -53,6 +57,13 @@ public class map_loader : MonoBehaviour
             country.Priority = i++;
             Debug.Log(country.Id);
         }
+
+        map.Countries[1].Opinions = new Dictionary<int, int> { { 0, 0 }, { 2, -2 }, { 3, 1 }, { 4, 0 }, { 5, 2 }, { 6, -1 } };
+        map.Countries[2].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 3 }, { 3, 0 }, { 4, 1 }, { 5, -2 }, { 6, 2 } };
+        map.Countries[3].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, -1 }, { 2, 1 }, { 4, 3 }, { 5, -1 }, { 6, -2 } };
+        map.Countries[4].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 0 }, { 2, -1 }, { 3, -2 }, { 5, 1 }, { 6, 3 } };
+        map.Countries[5].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 1 }, { 2, 0 }, { 3, 2 }, { 4, -1 }, { 6, 0 } };
+        map.Countries[6].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, -3 }, { 2, 1 }, { 3, 0 }, { 4, 2 }, { 5, -1 } };
 
         map.Countries[0].nullifyResources();
         map.getProvince((0, 0)).Owner_id = 1;

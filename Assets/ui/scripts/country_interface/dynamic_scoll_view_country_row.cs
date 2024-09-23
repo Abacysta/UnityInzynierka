@@ -9,6 +9,7 @@ using static Assets.classes.Relation;
 public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewItem
 {
     [SerializeField] private country_relations_table_manager country_relations_table_manager;
+    [SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 
     [SerializeField] private Image cn_in_country_color_img;
     [SerializeField] private TMP_Text country_name_text;
@@ -27,15 +28,19 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
     [SerializeField] private Sprite military_access_sprite_1;
     [SerializeField] private Sprite military_access_sprite_2;
 
+    private int countryId;
+
     public void onUpdateItem(int index)
     {
         Country country = country_relations_table_manager.SortedCountries[index];
         Country currentPlayer = country_relations_table_manager.Map.CurrentPlayer;
 
+        countryId = country.Id;
+
         country_name_text.text = country.Name;
         cn_in_country_color_img.color = country.Color;
         int theirOpinion = country.Opinions.ContainsKey(currentPlayer.Id) ? country.Opinions[currentPlayer.Id] : 0;
-        int ourOpinion = currentPlayer.Opinions.ContainsKey(country.Id) ? currentPlayer.Opinions[country.Id] : 0;
+        int ourOpinion = currentPlayer.Opinions.ContainsKey(countryId) ? currentPlayer.Opinions[countryId] : 0;
 
         SetOpinionText(their_opinion_text, theirOpinion);
         SetOpinionText(our_opinion_text, ourOpinion);
@@ -82,5 +87,10 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
             default:
                 return null;
         }
+    }
+
+    public void OnCountryRowClick()
+    {
+        diplomatic_actions_manager.ShowDiplomaticActionsInterface(countryId);
     }
 }
