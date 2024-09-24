@@ -557,7 +557,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -0.04850006, y: 356.7933}
+  m_SizeDelta: {x: -0.04850006, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &30749718
 MonoBehaviour:
@@ -881,7 +881,7 @@ GameObject:
   - component: {fileID: 45142436}
   - component: {fileID: 45142435}
   m_Layer: 5
-  m_Name: quantity_text
+  m_Name: amount_text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -903,8 +903,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.54554576, y: 0}
   m_AnchorMax: {x: 0.73136383, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -0.55875015}
-  m_SizeDelta: {x: 0.050899506, y: -0.45200014}
+  m_AnchoredPosition: {x: 0.5, y: 0.15652}
+  m_SizeDelta: {x: 0.0509, y: -0.31293}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &45142435
 MonoBehaviour:
@@ -989,7 +989,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: -0.27731323, z: -0.10058594, w: -0.144104}
+  m_margin: {x: 0, y: 0.10821533, z: -0.10058594, w: -0.144104}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -17142,7 +17142,7 @@ RectTransform:
   m_Father: {fileID: 580527288}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 3.7614, y: 0}
   m_SizeDelta: {x: 12.4772, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -18814,7 +18814,7 @@ GameObject:
   - component: {fileID: 850945385}
   - component: {fileID: 850945384}
   m_Layer: 5
-  m_Name: quantity_title
+  m_Name: amount_title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20903,8 +20903,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1272292685}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.01, y: 0}
-  m_AnchorMax: {x: 0.01, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -24001,8 +24001,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1832284635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.008163512}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0.000024438, y: -5.7095337}
   m_SizeDelta: {x: 8.6231, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -24225,10 +24225,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 926788034}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.55700004, y: 0}
+  m_AnchorMin: {x: 0.54800004, y: 0}
   m_AnchorMax: {x: 0.70900005, y: 1}
-  m_AnchoredPosition: {x: -0.3070984, y: -0.023921967}
-  m_SizeDelta: {x: 0.7623997, y: 0.0469}
+  m_AnchoredPosition: {x: -0.3906, y: -0.023921967}
+  m_SizeDelta: {x: 0.7812, y: 0.0469}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1121429574
 MonoBehaviour:
@@ -27081,10 +27081,10 @@ RectTransform:
   - {fileID: 745372062}
   m_Father: {fileID: 556862419}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 17.504223, y: -11.1185465}
-  m_SizeDelta: {x: 35.008446, y: 22.237093}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1251291669
 MonoBehaviour:
@@ -30093,7 +30093,7 @@ GameObject:
   - component: {fileID: 1361226021}
   - component: {fileID: 1361226022}
   m_Layer: 5
-  m_Name: dialog_slider
+  m_Name: subsidy_slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31345,10 +31345,10 @@ RectTransform:
   - {fileID: 979301073}
   m_Father: {fileID: 556862419}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 52.51267, y: -11.1185465}
-  m_SizeDelta: {x: 35.008446, y: 22.237093}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1411821591
 MonoBehaviour:
@@ -41961,7 +41961,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1839368321
 RectTransform:
   m_ObjectHideFlags: 0
@@ -42046,9 +42046,12 @@ MonoBehaviour:
   effect_area: {fileID: 2052031064}
   ap_text: {fileID: 1727753394}
   message_text: {fileID: 1486995298}
+  subsidy_slider: {fileID: 1361226022}
   slider_max: {fileID: 1041139586}
-  quantity_text: {fileID: 45142435}
+  amount_text: {fileID: 45142435}
   duration_text: {fileID: 1121429574}
+  less_button: {fileID: 1251291671}
+  more_button: {fileID: 1411821593}
   coat_of_arms_background: {fileID: 21300000, guid: 25420b29e95439240863e3c860e0674b, type: 3}
   country_dropdown: {fileID: 831279612}
   pattern_img: {fileID: 1864194566}
@@ -42068,6 +42071,7 @@ MonoBehaviour:
   mil_acc_offer_button: {fileID: 2139427300}
   mil_acc_end_button: {fileID: 1313945590}
   vasal_offer_button: {fileID: 62722113}
+  send_message_button: {fileID: 758652030}
 --- !u!1 &1841318595
 GameObject:
   m_ObjectHideFlags: 0
@@ -48539,7 +48543,7 @@ RectTransform:
   m_Father: {fileID: 908900635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.01, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -51419,10 +51423,10 @@ RectTransform:
   - {fileID: 2199256796617962490}
   m_Father: {fileID: 1372985524}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 157.43033, y: -11.72}
-  m_SizeDelta: {x: 314.86066, y: 23.44}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 23.44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5763182438781523814
 GameObject:

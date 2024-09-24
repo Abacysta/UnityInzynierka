@@ -5,10 +5,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.Event_.DiploEvent;
 using static Assets.classes.Relation;
+using Assets.map.scripts;
 
 public class diplomatic_actions_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
+    [SerializeField] private dialog_box_manager dialog_box;
+    [SerializeField] private diplomatic_relations_manager diplomatic_relations_manager;
 
     // country info
     [SerializeField] private Image country_color_img;
@@ -29,10 +32,14 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private TMP_Text ap_text;
     [SerializeField] private TMP_Text message_text;
 
-    // slider
+    // amount area
+    [SerializeField] private Slider subsidy_slider;
     [SerializeField] private TMP_Text slider_max;
-    [SerializeField] private TMP_Text quantity_text;
+    [SerializeField] private TMP_Text amount_text;
+
     [SerializeField] private TMP_Text duration_text;
+    [SerializeField] private Button less_button;
+    [SerializeField] private Button more_button;
 
     // dropdown
     [SerializeField] private Sprite coat_of_arms_background;
@@ -59,13 +66,19 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private Button mil_acc_end_button;
     [SerializeField] private Button vasal_offer_button;
 
+    [SerializeField] private Button send_message_button;
+
     private Dictionary<Color, int> countryColorToDropdownIndexMap = new();
     private int countryId;
+    private Country receiverCountry;
+    private Country currentPlayer;
+    private int goldValue = 0;
+    private int durationValue = 0;
+    private const int maxDurationValue = 1000;
 
     void Awake()
     {
         gameObject.SetActive(false);
-        DeactivateAreas();
     }
 
     void Start()
@@ -91,27 +104,27 @@ public class diplomatic_actions_manager : MonoBehaviour
     public void ShowDiplomaticActionsInterface(int countryId)
     {
         this.countryId = countryId;
+        receiverCountry = map.Countries[countryId];
+        currentPlayer = map.CurrentPlayer;
 
         SetCountryInfo();
-        SetDropdownCountries(countryId);
+        SetActionButtonStates();
 
         pattern_img.enabled = false;
+        send_message_button.interactable = false;
         DeactivateAreas();
         gameObject.SetActive(true);
     }
 
     private void SetCountryInfo()
     {
-        Country country = map.Countries[countryId];
-        Country currentPlayer = map.CurrentPlayer;
+        country_color_img.color = receiverCountry.Color;
+        country_name_txt.text = receiverCountry.Name;
 
-        country_color_img.color = country.Color;
-        country_name_txt.text = country.Name;
+        provinces_count_text.text = receiverCountry.Provinces.Count.ToString();
+        population_text.text = receiverCountry.Provinces.Sum(p => p.Population).ToString();
 
-        provinces_count_text.text = country.Provinces.Count.ToString();
-        population_text.text = country.Provinces.Sum(p => p.Population).ToString();
-
-        int theirOpinion = country.Opinions.ContainsKey(currentPlayer.Id) ? country.Opinions[currentPlayer.Id] : 0;
+        int theirOpinion = receiverCountry.Opinions.ContainsKey(currentPlayer.Id) ? receiverCountry.Opinions[currentPlayer.Id] : 0;
         int ourOpinion = currentPlayer.Opinions.ContainsKey(countryId) ? currentPlayer.Opinions[countryId] : 0;
 
         SetOpinionText(their_opinion_text, theirOpinion);
@@ -124,7 +137,78 @@ public class diplomatic_actions_manager : MonoBehaviour
         textElement.text = opinion == 0 ? "0" : (opinion > 0 ? "+" + opinion : opinion.ToString());
     }
 
-    private void SetDropdownCountries(int countryId)
+    private void SetActionButtonStates()
+    {
+        bool isVassal = map.Relations
+            .OfType<Vassalage>()
+            .Any(rel => rel.Sides[0] == currentPlayer && rel.Sides[1] == receiverCountry);
+
+        vasal_rebel_button.interactable = isVassal;
+    }
+
+    private void SetSlider()
+    {
+        int goldAmount = Mathf.FloorToInt(map.CurrentPlayer.Resources[Resource.Gold]);
+        
+        subsidy_slider.value = 0;
+        subsidy_slider.maxValue = goldAmount;
+        slider_max.text = goldAmount.ToString();
+        amount_text.text = subsidy_slider.value.ToString();
+
+        subsidy_slider.onValueChanged.RemoveAllListeners();
+        subsidy_slider.onValueChanged.AddListener((value) =>
+        {
+            goldValue = Mathf.RoundToInt(value);
+            amount_text.text = goldValue.ToString();
+            UpdateSendButton();
+        });
+
+        less_button.onClick.RemoveAllListeners();
+        more_button.onClick.RemoveAllListeners();
+
+        UpdateDurationArea();
+
+        less_button.onClick.AddListener(() =>
+        {
+            if (durationValue > 0)
+            {
+                durationValue--;
+                UpdateDurationArea();
+            }
+        });
+
+        more_button.onClick.AddListener(() =>
+        {
+            if (durationValue < maxDurationValue)
+            {
+                durationValue++;
+                UpdateDurationArea();
+            }
+        });
+    }
+
+    private void UpdateDurationArea()
+    {
+        duration_text.text = durationValue.ToString();
+        UpdateSendButton();
+    }
+
+    private void UpdateSendButton()
+    {
+        send_message_button.interactable = (goldValue > 0 && durationValue > 0);
+    }
+
+    private void UpdateSendButton(System.Action onSend)
+    {
+        send_message_button.onClick.RemoveAllListeners();
+        send_message_button.onClick.AddListener(() => {
+            onSend?.Invoke();
+            gameObject.SetActive(false);
+        });
+
+    }
+
+    private void SetDropdownCountries()
     {
         country_dropdown.ClearOptions();
         countryColorToDropdownIndexMap.Clear();
@@ -147,6 +231,11 @@ public class diplomatic_actions_manager : MonoBehaviour
         country_dropdown.RefreshShownValue();
     }
 
+    private void SetEffects()
+    {
+
+    }
+
     public void UpdateDropdownImagesColor()
     {
         Transform content = country_dropdown.transform.Find("Dropdown List/country_viewport/country_content");
@@ -167,6 +256,8 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void UpdateCaption()
     {
+        send_message_button.interactable = (country_dropdown.value > -1);
+
         int selectedIndex = country_dropdown.value;
         pattern_img.enabled = true;
 
@@ -183,98 +274,113 @@ public class diplomatic_actions_manager : MonoBehaviour
     {
         message_text.text = "I'm declaring a war on you!";
         ap_text.text = "-1.0";
-        SetBasicArea();
+        SetEffects();
+
+        void onSend()
+        {
+            Country receiverCountry = map.Countries[countryId];
+            receiverCountry.Events.Add(new WarDeclared(map.CurrentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box));
+        }
+
+        UpdateSendButton(onSend);
+        ShowPanelWithBasicArea();
     }
 
     private void SetVassalRebelMessagePanel()
     {
         message_text.text = "I don't want to be your vassal anymore. Time to fight for control!";
         ap_text.text = "-1.0";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetOfferPeaceMessagePanel()
     {
         message_text.text = "I seek peace. This could be our chance for a better tomorrow.";
         ap_text.text = "-1.0";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetDiplomaticMissionMessagePanel()
     {
         message_text.text = "I'm sending a diplomatic mission to you. I want to have good relations with you.";
         ap_text.text = "-1.0";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetInsultMessagePanel()
     {
         message_text.text = "You are nothing but a fool!";
         ap_text.text = "-1.0";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetOfferAllianceMessagePanel()
     {
         message_text.text = "I'm proposing an alliance. Together, we can be stronger!";
         ap_text.text = "-1.0";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetBreakAllianceMessagePanel()
     {
         message_text.text = "I am breaking the alliance with you!";
         ap_text.text = "-0.1";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetCallToWarMessagePanel()
     {
         message_text.text = "I'm calling upon you for help in the war. As my ally, we must support each other!";
         ap_text.text = "-0.1";
-        SetCountryChoiceArea();
+        SetDropdownCountries();
+        ShowPanelWithCountryChoiceArea();
     }
 
     private void SetSubsidizeMessagePanel()
     {
         message_text.text = "I'm going to subsidize you! Use these resources wisely.";
         ap_text.text = "-1.0";
-        SetSubsidyArea();
+        SetSlider();
+
+        ShowPanelWithSubsidyArea();
     }
 
     private void SetEndSubsidiesMessagePanel()
     {
         message_text.text = "I'm ending subsidizing you.";
         ap_text.text = "-0.1";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetRequestSubsidiesMessagePanel()
     {
         message_text.text = "I am asking for your support through subsidies.";
         ap_text.text = "-1.0";
-        SetSubsidyArea();
+        SetSlider();
+
+        ShowPanelWithSubsidyArea();
     }
 
     private void SetOfferMilitaryAccessMessagePanel()
     {
         message_text.text = "I'm offering you military access. Feel free to pass through my territories.";
         ap_text.text = "-1.0";
-        SetBasicArea();
+
+        ShowPanelWithBasicArea();
     }
 
     private void SetEndMilitaryAccessMessagePanel()
     {
         message_text.text = "-0.1"; 
         message_text.text = "Military access has been revoked. Stay vigilant!";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void SetOfferVassalizationMessagePanel()
     {
         message_text.text = "You have little choice but to accept my offer of vassalization.";
         ap_text.text = "-1.0";
-        SetBasicArea();
+        ShowPanelWithBasicArea();
     }
 
     private void DeactivateAreas()
@@ -285,24 +391,27 @@ public class diplomatic_actions_manager : MonoBehaviour
         effect_area.SetActive(false);
     }
 
-    private void SetBasicArea()
+    private void ShowPanelWithBasicArea()
     {
+        send_message_button.interactable = true;
         message_area.SetActive(true);
         amount_area.SetActive(false);
         country_choice_area.SetActive(false);
         effect_area.SetActive(true);
     }
 
-    private void SetCountryChoiceArea()
+    private void ShowPanelWithCountryChoiceArea()
     {
+        send_message_button.interactable = (country_dropdown.value > -1);
         message_area.SetActive(true);
         amount_area.SetActive(false);
         country_choice_area.SetActive(true);
         effect_area.SetActive(true);
     }
 
-    private void SetSubsidyArea()
+    private void ShowPanelWithSubsidyArea()
     {
+        send_message_button.interactable = (goldValue > 0 && durationValue > 0);
         message_area.SetActive(true);
         amount_area.SetActive(true);
         country_choice_area.SetActive(false);
