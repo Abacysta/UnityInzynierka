@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.classes {
-    public class actionContainer : MonoBehaviour{
+    public class actionContainer {
         [SerializeField] private Map map;
 
         internal interface IInstantAction { }

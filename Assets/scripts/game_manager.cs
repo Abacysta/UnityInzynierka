@@ -8,7 +8,7 @@ public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
     [SerializeField] private int turnCnt = 0;
-    [SerializeField] TMP_Text turnCntTxt;
+    [SerializeField] private TMP_Text turnCntTxt;
     [SerializeField] private AudioSource turn_sound;
     [SerializeField] private float RecruitablePopulationFactor = 0.2f;
     [SerializeField] private float PopulationFactor = 0.1f;
@@ -20,8 +20,8 @@ public class game_manager : MonoBehaviour
     [SerializeField] private TMP_Text loading_txt;
     [SerializeField] private map_loader loader;
     [SerializeField] private camera_controller camera_controller;
+    [SerializeField] private army_visibility_manager armyVisibilityManager;
 
-    public army_visibility_manager armyVisibilityManager;
     // Loading map data before all scripts
     void Awake()
     {

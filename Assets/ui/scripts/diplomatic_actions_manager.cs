@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using static Assets.classes.Event_.DiploEvent;
 using static Assets.classes.Relation;
 using Assets.map.scripts;
+using Assets.classes;
 
 public class diplomatic_actions_manager : MonoBehaviour
 {
@@ -139,11 +140,109 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void SetActionButtonStates()
     {
-        bool isVassal = map.Relations
-            .OfType<Vassalage>()
-            .Any(rel => rel.Sides[0] == currentPlayer && rel.Sides[1] == receiverCountry);
+        bool HasRelation(Relation.RelationType type)
+        {
+            return map.Relations.Any(rel => rel.type == type &&
+                ((rel.Sides[0] == currentPlayer && rel.Sides[1] == receiverCountry) ||
+                 (rel.Sides[1] == currentPlayer && rel.Sides[0] == receiverCountry)));
+        }
 
-        vasal_rebel_button.interactable = isVassal;
+        bool HasOrderedRelation(Relation.RelationType type, bool currentPlayerIsSide0)
+        {
+            if (currentPlayerIsSide0)
+            {
+                // Strona stratniejsza w relacji (side 0)
+                return map.Relations.Any(rel => rel.type == type &&
+                    rel.Sides[0] == currentPlayer && rel.Sides[1] == receiverCountry);
+            }
+            else
+            {
+                // Strona korzystniejsza w relacji  (side 1)
+                return map.Relations.Any(rel => rel.type == type &&
+                    rel.Sides[1] == currentPlayer && rel.Sides[0] == receiverCountry);
+            }
+        }
+
+        bool ArentBothAtSameWar()
+        {
+            return map.Relations.OfType<War>().All(war =>
+                (war.participants1.Contains(currentPlayer) || war.participants2.Contains(currentPlayer)) &&
+                !war.participants1.Contains(receiverCountry) && !war.participants2.Contains(receiverCountry));
+        }
+
+        // jesli currentPlayer jest wasalem nadawcy
+        vasal_rebel_button.interactable =
+            HasOrderedRelation(RelationType.Vassalage, currentPlayerIsSide0: true);
+
+        // jesli currentPlayer nie ma z nadawca wojny, rozejmu, dostepu wojskowego i wasalstwa
+        // DODAC POZNIEJ, ZE JESLI BOT, TO MUSI BYC TEZ OPINIA WYSTARCZAJACO NISKA
+        war_declare_button.interactable =
+            !HasRelation(RelationType.War) &&
+            !HasRelation(RelationType.Truce) &&
+            !HasRelation(RelationType.MilitaryAccess) &&
+            !HasRelation(RelationType.Vassalage);
+
+        // jesli currentPlayer ma z nadawca wojne
+        peace_offer_button.interactable = HasRelation(RelationType.War);
+
+        // jesli currentPlayer nie ma z nadawca wojny i rozejmu
+        diplomatic_mission_button.interactable =
+            !HasRelation(RelationType.War) &&
+            !HasRelation(RelationType.Truce);
+
+        // jesli currentPlayer nie ma z nadawca wojny i rozejmu
+        insult_button.interactable =
+            !HasRelation(RelationType.War) &&
+            !HasRelation(RelationType.Truce);
+
+        // jesli currentPlayer nie ma z nadawca wojny, rozejmu, wasalstwa
+        // DODAC POZNIEJ, ZE JESLI BOT, TO MUSI BYC TEZ OPINIA WYSTARCZAJACO WYSOKA
+        alliance_offer_button.interactable =
+            !HasRelation(RelationType.War) &&
+            !HasRelation(RelationType.Truce) &&
+            !HasRelation(RelationType.Vassalage);
+
+        // jesli currentPlayer ma z nadawca sojusz
+        alliance_break_button.interactable = HasRelation(RelationType.Alliance);
+
+        // jesli currentPlayer jest z nadawca w sojuszu i ma z kims wojne,
+        // ale sojusznik nie uczestniczy w tej wojnie na razie
+        call_to_war_button.interactable =
+            HasRelation(RelationType.Alliance) &&
+            ArentBothAtSameWar();
+
+        // jesli currentPlayer nie ma z nadawca wojny i rozejmu oraz
+        // currentPlayer jeszcze nie subsydiuje nadawcy
+        subsidize_button.interactable =
+            !HasRelation(RelationType.War) &&
+            !HasRelation(RelationType.Truce) &&
+            !HasOrderedRelation(RelationType.Subsidies, currentPlayerIsSide0: true);
+
+        // jesli currentPlayer subsydiuje nadawce
+        subs_end_button.interactable =
+            HasOrderedRelation(RelationType.Subsidies, currentPlayerIsSide0: true);
+
+        // jesli currentPlayer nie ma z nadawca wojny i rozejmu oraz
+        // currentPlayer jeszcze nie jest subsydiowany przez nadawce
+        subs_request_button.interactable =
+            !HasRelation(RelationType.War) &&
+            !HasRelation(RelationType.Truce) &&
+            !HasOrderedRelation(RelationType.Subsidies, currentPlayerIsSide0: false);
+
+        // jesli currentPlayer nie ma z nadawca wojny i rozejmu
+        // i nie ma dostepu wojskowego poprzez kraj nadawcy
+        mil_acc_offer_button.interactable =
+            !HasRelation(RelationType.War) &&
+            !HasRelation(RelationType.Truce) &&
+            !HasOrderedRelation(RelationType.MilitaryAccess, currentPlayerIsSide0: false);
+
+        // jesli currentPlayer daje juz dostep wojskowy nadawcy
+        mil_acc_end_button.interactable =
+            HasOrderedRelation(RelationType.MilitaryAccess, currentPlayerIsSide0: true);
+
+        // jesli currentPlayer nie ma relacji wasalstwo z nadawca
+        vasal_offer_button.interactable =
+            !HasRelation(RelationType.Vassalage);
     }
 
     private void SetSlider()

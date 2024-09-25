@@ -103,7 +103,7 @@ public class map_loader : MonoBehaviour
     }
 
     public void Reload() {
-        switch(mode) {
+        switch (mode) {
             case Mode.Resource:
                 SetResources(); break;
             case Mode.Happiness:
@@ -120,7 +120,7 @@ public class map_loader : MonoBehaviour
     public void SetTerrain()
     {
         mode = Mode.Terrain;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -142,7 +142,7 @@ public class map_loader : MonoBehaviour
     public void SetResources()
     {
         mode = Mode.Resource;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -182,7 +182,7 @@ public class map_loader : MonoBehaviour
     public void SetHappiness()
     {
         mode = Mode.Happiness;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -204,7 +204,7 @@ public class map_loader : MonoBehaviour
     public void SetPopulation()
     {
         mode = Mode.Population;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -224,9 +224,7 @@ public class map_loader : MonoBehaviour
 
      public void SetPolitical() {
         mode = Mode.Political;
-        filter_layer.ClearAllTiles();
-        base_layer.ClearAllTiles();
-        occupation_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces) {
             Country owner = map.Countries[province.Owner_id];
@@ -307,5 +305,13 @@ public class map_loader : MonoBehaviour
     {
         province_select_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 1;
         mouse_hover_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 2;
+    }
+
+    private void ClearLayers()
+    {
+        occupation_layer.ClearAllTiles();
+        terrain_feature_layer_1.ClearAllTiles();
+        terrain_feature_layer_2.ClearAllTiles();
+        filter_layer.ClearAllTiles();
     }
 }
