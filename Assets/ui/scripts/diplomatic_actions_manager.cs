@@ -3,10 +3,25 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static Assets.classes.Event_.DiploEvent;
-using static Assets.classes.Relation;
 using Assets.map.scripts;
 using Assets.classes;
+using static Assets.classes.Relation;
+
+public class Effect
+{
+    public Sprite Icon { get; set; }
+    public string Name { get; set; }
+    public string Value { get; set; }
+    public bool IsEffectPositive { get; set; }
+
+    public Effect(Sprite icon, string name, string value, bool isEffectPositive)
+    {
+        Icon = icon;
+        Name = name;
+        Value = value;
+        IsEffectPositive = isEffectPositive;
+    }
+}
 
 public class diplomatic_actions_manager : MonoBehaviour
 {
@@ -69,6 +84,9 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     [SerializeField] private Button send_message_button;
 
+    // effect sprites
+    [SerializeField] private Sprite happiness_sprite;
+
     private Dictionary<Color, int> countryColorToDropdownIndexMap = new();
     private int countryId;
     private Country receiverCountry;
@@ -76,6 +94,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private int goldValue = 0;
     private int durationValue = 0;
     private const int maxDurationValue = 1000;
+    private float apCost = 0f;
 
     void Awake()
     {
@@ -134,20 +153,19 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void SetOpinionText(TMP_Text textElement, int opinion)
     {
-        textElement.color = opinion == 0 ? Color.yellow : (opinion < 0 ? Color.red : Color.green);
+        textElement.color = opinion == 0 ? Color.yellow : (opinion < 0 ? new Color32(255, 83, 83, 255) : Color.green);
         textElement.text = opinion == 0 ? "0" : (opinion > 0 ? "+" + opinion : opinion.ToString());
     }
 
     private void SetActionButtonStates()
     {
-        bool HasRelation(Relation.RelationType type)
+        bool HasRelation(RelationType type)
         {
             return map.Relations.Any(rel => rel.type == type &&
-                ((rel.Sides[0] == currentPlayer && rel.Sides[1] == receiverCountry) ||
-                 (rel.Sides[1] == currentPlayer && rel.Sides[0] == receiverCountry)));
+                rel.Sides.Contains(currentPlayer) && rel.Sides.Contains(receiverCountry));
         }
 
-        bool HasOrderedRelation(Relation.RelationType type, bool currentPlayerIsSide0)
+        bool HasOrderedRelation(RelationType type, bool currentPlayerIsSide0)
         {
             if (currentPlayerIsSide0)
             {
@@ -165,8 +183,8 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         bool ArentBothAtSameWar()
         {
-            return map.Relations.OfType<War>().All(war =>
-                (war.participants1.Contains(currentPlayer) || war.participants2.Contains(currentPlayer)) &&
+            return map.Relations.OfType<War>().Any(war =>
+                war.Sides.Contains(currentPlayer) &&
                 !war.participants1.Contains(receiverCountry) && !war.participants2.Contains(receiverCountry));
         }
 
@@ -259,7 +277,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             goldValue = Mathf.RoundToInt(value);
             amount_text.text = goldValue.ToString();
-            UpdateSendButton();
+            UpdateSendButtonInteraction();
         });
 
         less_button.onClick.RemoveAllListeners();
@@ -289,15 +307,15 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void UpdateDurationArea()
     {
         duration_text.text = durationValue.ToString();
-        UpdateSendButton();
+        UpdateSendButtonInteraction();
     }
 
-    private void UpdateSendButton()
+    private void UpdateSendButtonInteraction()
     {
-        send_message_button.interactable = (goldValue > 0 && durationValue > 0);
+        send_message_button.interactable = (goldValue > 0 && durationValue > 0 && currentPlayer.Resources[Resource.AP] >= apCost);
     }
 
-    private void UpdateSendButton(System.Action onSend)
+    private void SetSendButtonAction(System.Action onSend)
     {
         send_message_button.onClick.RemoveAllListeners();
         send_message_button.onClick.AddListener(() => {
@@ -312,9 +330,12 @@ public class diplomatic_actions_manager : MonoBehaviour
         country_dropdown.ClearOptions();
         countryColorToDropdownIndexMap.Clear();
 
-        // zawezic pozniej do tylko tych krajow, z ktorymi currentPlayer ma wojne
         var options = map.Countries
-            .Where(c => c.Id != 0 && c.Id != countryId && c.Id != map.currentPlayer)
+            .Where(c => c.Id != currentPlayer.Id &&
+                map.Relations.Any(relation =>
+                    relation.type == RelationType.War &&
+                    relation.Sides.Contains(currentPlayer) &&
+                    relation.Sides.Contains(c)))
             .Select((country, index) =>
             {
                 countryColorToDropdownIndexMap[country.Color] = index;
@@ -330,9 +351,19 @@ public class diplomatic_actions_manager : MonoBehaviour
         country_dropdown.RefreshShownValue();
     }
 
-    private void SetEffects()
+    private void SetEffects(List<Effect> action_effects)
     {
+        foreach (Transform child in effect_content.transform)
+        {
+            Destroy(child.gameObject);
+        }
 
+        foreach (var effect in action_effects)
+        {
+            GameObject effectRow = Instantiate(effect_row_prefab, effect_content.transform);
+            effect_ui effectUI = effectRow.GetComponent<effect_ui>();
+            effectUI.SetEffect(effect);
+        }
     }
 
     public void UpdateDropdownImagesColor()
@@ -369,116 +400,267 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
     }
 
+    Relation HasRelation(RelationType type)
+    {
+        return map.Relations
+            .FirstOrDefault(relation => relation.type == type &&
+                relation.Sides.Contains(currentPlayer) &&
+                relation.Sides.Contains(receiverCountry));
+    }
+
     private void SetDeclareWarMessagePanel()
     {
         message_text.text = "I'm declaring a war on you!";
-        ap_text.text = "-1.0";
-        SetEffects();
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Happiness 1x", "-15%", false),
+            new(happiness_sprite, "Happiness Every Turn", "-2%", false),
+            new(happiness_sprite, "Happiness (Enemy)", "-1%", false)
+        };
+
+        SetEffects(action_effects);
 
         void onSend()
         {
-            Country receiverCountry = map.Countries[countryId];
-            receiverCountry.Events.Add(new WarDeclared(map.CurrentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box));
+            var action = new actionContainer.TurnAction.start_war(receiverCountry, currentPlayer, diplomatic_relations_manager, dialog_box);
+            action.execute(map);
         }
 
-        UpdateSendButton(onSend);
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetVassalRebelMessagePanel()
     {
         message_text.text = "I don't want to be your vassal anymore. Time to fight for control!";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Happiness 1x", "5%", true),
+            new(happiness_sprite, "Happiness (Enemy)", "-5%", false)
+        };
+
+        SetEffects(action_effects);
+
+        void onSend()
+        {
+            Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
+            var action = new actionContainer.TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box);
+            action.execute(map);
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetOfferPeaceMessagePanel()
     {
         message_text.text = "I seek peace. This could be our chance for a better tomorrow.";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+            War war = (War)HasRelation(RelationType.War);
+            var action = new actionContainer.TurnAction.end_war(currentPlayer, war, diplomatic_relations_manager, dialog_box);
+            action.execute(map);
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetDiplomaticMissionMessagePanel()
     {
         message_text.text = "I'm sending a diplomatic mission to you. I want to have good relations with you.";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetInsultMessagePanel()
     {
         message_text.text = "You are nothing but a fool!";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetOfferAllianceMessagePanel()
     {
         message_text.text = "I'm proposing an alliance. Together, we can be stronger!";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+            var action = new actionContainer.TurnAction.alliance_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            action.execute(map);
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetBreakAllianceMessagePanel()
     {
         message_text.text = "I am breaking the alliance with you!";
-        ap_text.text = "-0.1";
+        apCost = 0.1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+            Alliance alliance = (Alliance)HasRelation(RelationType.Alliance);
+            var action = new actionContainer.TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, dialog_box);
+            action.execute(map);
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetCallToWarMessagePanel()
     {
         message_text.text = "I'm calling upon you for help in the war. As my ally, we must support each other!";
-        ap_text.text = "-0.1";
+        apCost = 0.1f;
+        ap_text.text = $"-{apCost:0.0}";
         SetDropdownCountries();
+
+        void onSend()
+        {
+
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithCountryChoiceArea();
     }
 
     private void SetSubsidizeMessagePanel()
     {
         message_text.text = "I'm going to subsidize you! Use these resources wisely.";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
+        void onSend()
+        {
+            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box,
+                goldValue, durationValue);
+            action.execute(map);
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithSubsidyArea();
     }
 
     private void SetEndSubsidiesMessagePanel()
     {
         message_text.text = "I'm ending subsidizing you.";
-        ap_text.text = "-0.1";
+        apCost = 0.1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetRequestSubsidiesMessagePanel()
     {
         message_text.text = "I am asking for your support through subsidies.";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
+        void onSend()
+        {
+
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithSubsidyArea();
     }
 
     private void SetOfferMilitaryAccessMessagePanel()
     {
         message_text.text = "I'm offering you military access. Feel free to pass through my territories.";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
 
+        void onSend()
+        {
+            var action = new actionContainer.TurnAction.access_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            action.execute(map);
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetEndMilitaryAccessMessagePanel()
     {
-        message_text.text = "-0.1"; 
         message_text.text = "Military access has been revoked. Stay vigilant!";
+        apCost = 0.1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
     private void SetOfferVassalizationMessagePanel()
     {
         message_text.text = "You have little choice but to accept my offer of vassalization.";
-        ap_text.text = "-1.0";
+        apCost = 1f;
+        ap_text.text = $"-{apCost:0.0}";
+
+        void onSend()
+        {
+            var action = new actionContainer.TurnAction.vassal_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            action.execute(map);
+        }
+
+        UpdateSendButtonInteraction();
+        SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
 
@@ -492,7 +674,6 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void ShowPanelWithBasicArea()
     {
-        send_message_button.interactable = true;
         message_area.SetActive(true);
         amount_area.SetActive(false);
         country_choice_area.SetActive(false);
@@ -510,7 +691,6 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void ShowPanelWithSubsidyArea()
     {
-        send_message_button.interactable = (goldValue > 0 && durationValue > 0);
         message_area.SetActive(true);
         amount_area.SetActive(true);
         country_choice_area.SetActive(false);
