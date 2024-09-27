@@ -172,14 +172,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.23584908, g: 0.23584908, b: 0.23584908, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 0e3e47b88f7b7f942a2c4154e4a1a659, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4767,6 +4767,8 @@ MonoBehaviour:
   ResList: {fileID: 715132477}
   sliderSFX: {fileID: 1208650797}
   sliderMus: {fileID: 951093169}
+  toBlock: []
+  overlay: {fileID: 0}
 --- !u!1 &1804144942
 GameObject:
   m_ObjectHideFlags: 0

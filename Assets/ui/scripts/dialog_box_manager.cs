@@ -232,11 +232,12 @@ public class dialog_box_manager : MonoBehaviour
         quantity_text.text = dialog_slider.value.ToString();
         SetCostContent(cost, dialog_slider.value);
 
+        dialog_slider.onValueChanged.RemoveAllListeners();
         dialog_slider.onValueChanged.AddListener((value) =>
         {
             quantity_text.text = value.ToString();
             SetCostContent(cost, dialog_slider.value);
-            confirm_button.interactable = (value != 0);
+            confirm_button.interactable = (value > 0);
         });
  
         choice_area.SetActive(true);

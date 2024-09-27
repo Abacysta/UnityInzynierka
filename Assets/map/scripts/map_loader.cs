@@ -33,7 +33,7 @@ public class map_loader : MonoBehaviour
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
     [SerializeField] private TilemapRenderer province_select_layer_rnd;
     [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
-    [SerializeField] private dialog_box_manager kurwa_mac;
+    [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private camera_controller camera;
     private Mode mode;
 
@@ -46,7 +46,11 @@ public class map_loader : MonoBehaviour
         map.Countries = new System.Collections.Generic.List<Country> {
             new Country(i++, "", (-1, -1), Color.white, map),
             new Country(i++, "Kingdom", (0, 0), Color.gray, map),
-            new Country(i++, "TestFog", (9,9), Color.red, map)
+            new Country(i++, "Gauls", (9,9), Color.red, map),
+            new Country(i++, "Berbers", (10, 0), Color.cyan, map),
+            new Country(i++, "Egyptians", (20, 0), Color.blue, map),
+            new Country(i++, "Vikings", (30, 0), Color.green, map),
+            new Country(i++, "Huns", (40, 0), Color.yellow, map)
         };
         i = 0;
         Debug.Log(map.CurrentPlayer.Name);
@@ -54,6 +58,13 @@ public class map_loader : MonoBehaviour
             country.Priority = i++;
             Debug.Log(country.Id);
         }
+
+        map.Countries[1].Opinions = new Dictionary<int, int> { { 0, 0 }, { 2, -2 }, { 3, 1 }, { 4, 0 }, { 5, 2 }, { 6, -1 } };
+        map.Countries[2].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 3 }, { 3, 0 }, { 4, 1 }, { 5, -2 }, { 6, 2 } };
+        map.Countries[3].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, -1 }, { 2, 1 }, { 4, 3 }, { 5, -1 }, { 6, -2 } };
+        map.Countries[4].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 0 }, { 2, -1 }, { 3, -2 }, { 5, 1 }, { 6, 3 } };
+        map.Countries[5].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 1 }, { 2, 0 }, { 3, 2 }, { 4, -1 }, { 6, 0 } };
+        map.Countries[6].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, -3 }, { 2, 1 }, { 3, 0 }, { 4, 2 }, { 5, -1 } };
 
         map.Countries[0].nullifyResources();
         map.getProvince((0, 0)).Owner_id = 1;
@@ -86,15 +97,15 @@ public class map_loader : MonoBehaviour
         map.getProvince(0, 0).addStatus(new Disaster(2));
         map.getProvince(1, 0).addStatus(new ProdBoom(3));
         map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
-        map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], kurwa_mac, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.LocalEvent.PlagueFound(map.Countries[1].Provinces.Last(), kurwa_mac, camera));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], dialog_box, camera));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.LocalEvent.PlagueFound(map.Countries[1].Provinces.Last(), dialog_box, camera));
         Army testArmy = new Army(1, 100, (1, 0), (1, 0));
         map.addArmy(testArmy);
         SetPolitical();
     }
 
     public void Reload() {
-        switch(mode) {
+        switch (mode) {
             case Mode.Resource:
                 SetResources(); break;
             case Mode.Happiness:
@@ -111,7 +122,7 @@ public class map_loader : MonoBehaviour
     public void SetTerrain()
     {
         mode = Mode.Terrain;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -133,7 +144,7 @@ public class map_loader : MonoBehaviour
     public void SetResources()
     {
         mode = Mode.Resource;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -173,7 +184,7 @@ public class map_loader : MonoBehaviour
     public void SetHappiness()
     {
         mode = Mode.Happiness;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -195,7 +206,7 @@ public class map_loader : MonoBehaviour
     public void SetPopulation()
     {
         mode = Mode.Population;
-        filter_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
@@ -215,9 +226,7 @@ public class map_loader : MonoBehaviour
 
      public void SetPolitical() {
         mode = Mode.Political;
-        filter_layer.ClearAllTiles();
-        base_layer.ClearAllTiles();
-        occupation_layer.ClearAllTiles();
+        ClearLayers();
 
         foreach (Province province in map.Provinces) {
             Country owner = map.Countries[province.Owner_id];
@@ -298,5 +307,13 @@ public class map_loader : MonoBehaviour
     {
         province_select_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 1;
         mouse_hover_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 2;
+    }
+
+    private void ClearLayers()
+    {
+        occupation_layer.ClearAllTiles();
+        terrain_feature_layer_1.ClearAllTiles();
+        terrain_feature_layer_2.ClearAllTiles();
+        filter_layer.ClearAllTiles();
     }
 }

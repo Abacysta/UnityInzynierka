@@ -1,4 +1,5 @@
 using Mosframe;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,6 +10,7 @@ using static Assets.classes.Relation;
 public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewItem
 {
     [SerializeField] private country_relations_table_manager country_relations_table_manager;
+    [SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 
     [SerializeField] private Image cn_in_country_color_img;
     [SerializeField] private TMP_Text country_name_text;
@@ -27,34 +29,37 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
     [SerializeField] private Sprite military_access_sprite_1;
     [SerializeField] private Sprite military_access_sprite_2;
 
+    private int countryId;
+
     public void onUpdateItem(int index)
     {
         Country country = country_relations_table_manager.SortedCountries[index];
         Country currentPlayer = country_relations_table_manager.Map.CurrentPlayer;
 
+        countryId = country.Id;
+
         country_name_text.text = country.Name;
         cn_in_country_color_img.color = country.Color;
         int theirOpinion = country.Opinions.ContainsKey(currentPlayer.Id) ? country.Opinions[currentPlayer.Id] : 0;
-        int ourOpinion = currentPlayer.Opinions.ContainsKey(country.Id) ? currentPlayer.Opinions[country.Id] : 0;
+        int ourOpinion = currentPlayer.Opinions.ContainsKey(countryId) ? currentPlayer.Opinions[countryId] : 0;
 
         SetOpinionText(their_opinion_text, theirOpinion);
         SetOpinionText(our_opinion_text, ourOpinion);
 
-        /*
-        List<Relation> relations = country_relations_table_manager.Map.Relations
-            .Where(r => r.Countries.Contains(country) && r.Countries.Contains(map.CurrentPlayer))
-            .ToList();
-
-        foreach (var relation in relations)
+        foreach (Transform child in relations_container.transform)
         {
-            Sprite relationSprite = GetResourceSprite(relation.Type);
-            if (relationSprite != null)
-            {
-                GameObject relationImageObj = Instantiate(relation_type_img_prefab, relations_container.transform);
-                relationImageObj.GetComponent<Image>().sprite = relationSprite;
-            }
+            Destroy(child.gameObject);
         }
-        */
+
+        country_relations_table_manager.Map.Relations
+            .Where(r => r.Sides.Contains(currentPlayer) && r.Sides.Contains(country))
+            .Select(r => new { relationSprite = GetResourceSpriteForSide(r.type, r.Sides[0] == currentPlayer) })
+            .Where(r => r.relationSprite != null)
+            .ToList()
+            .ForEach(r => {
+                GameObject relationImageObj = Instantiate(relation_type_img_prefab, relations_container.transform);
+                relationImageObj.GetComponent<Image>().sprite = r.relationSprite;
+            });
     }
 
     void SetOpinionText(TMP_Text textElement, int opinion)
@@ -63,7 +68,7 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         textElement.text = opinion == 0 ? "0" : (opinion > 0 ? "+" + opinion : opinion.ToString());
     }
 
-    Sprite GetResourceSprite(RelationType relationType)
+    Sprite GetResourceSpriteForSide(RelationType relationType, bool isSide0)
     {
         switch (relationType)
         {
@@ -74,13 +79,18 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
             case RelationType.Truce:
                 return truce_sprite;
             case RelationType.Vassalage:
-                return vassalage_sprite_1;
+                return isSide0 ? vassalage_sprite_2 : vassalage_sprite_1;
             case RelationType.Subsidies:
-                return subsidies_sprite_1;
+                return isSide0 ? subsidies_sprite_2 : subsidies_sprite_1;
             case RelationType.MilitaryAccess:
-                return military_access_sprite_1;
+                return isSide0 ? military_access_sprite_2 : military_access_sprite_1;
             default:
                 return null;
         }
+    }
+
+    public void OnCountryRowClick()
+    {
+        diplomatic_actions_manager.ShowDiplomaticActionsInterface(countryId);
     }
 }
