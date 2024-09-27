@@ -9,6 +9,7 @@ namespace Assets.map.scripts {
     public class random_events_manager : MonoBehaviour{
         [SerializeField] private Map map;
         [SerializeField] private dialog_box_manager dialog_box;
+        [SerializeField] private camera_controller camera;
         private System.Random random;
         private void Start() {
             random = new System.Random();
@@ -53,10 +54,10 @@ namespace Assets.map.scripts {
             var c = chance;
             if(c < 3) {
                 if(province.ResourcesT == Resource.Gold) {
-                    country.Events.Add(new classes.Event_.LocalEvent.GoldRush(province, dialog_box));
+                    country.Events.Add(new classes.Event_.LocalEvent.GoldRush(province, dialog_box, camera));
                 }
                 else {
-                    country.Events.Add(new classes.Event_.LocalEvent.ProductionBoom1(province, dialog_box));
+                    country.Events.Add(new classes.Event_.LocalEvent.ProductionBoom1(province, dialog_box, camera));
                 }
             }
             //itd
@@ -64,7 +65,7 @@ namespace Assets.map.scripts {
         private void getRandomGlobalEvent(Country country) { 
             var c = chance;
             if(c < 4) {
-                country.Events.Add(new classes.Event_.GlobalEvent.Plague(country, dialog_box));
+                country.Events.Add(new classes.Event_.GlobalEvent.Plague(country, dialog_box, camera));
             }
             //itd
         }

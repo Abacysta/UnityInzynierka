@@ -168,6 +168,22 @@ public class dialog_box_manager : MonoBehaviour
         bool confirmable = map.CurrentPlayer.canPay(cost);
         ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost);
     }
+    public void invokeDisbandArmyBox(Map map, Army army)
+    {
+        (string title, string message) = dialog_box_precons.dis_box.toVars();
+
+        Action onConfirm = () =>
+        {
+            int unitsToDisband = (int)dialog_slider.value;
+
+            var act = new Assets.classes.actionContainer.TurnAction.army_disbandment(army, unitsToDisband);
+            map.Countries[army.OwnerId].Actions.addAction(act);
+        };
+
+        Action onCancel = null;
+
+        ShowSliderBox(title,message,onConfirm, onCancel, army.Count);
+    }
 
     private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
     {

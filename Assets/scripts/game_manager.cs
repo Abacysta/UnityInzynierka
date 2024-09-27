@@ -71,7 +71,7 @@ public class game_manager : MonoBehaviour
     }
 
     public void invokeEvent(int id) {
-        map.Countries[id].Events[0].call();
+        map.Countries[id].Events[1].call();
     }
 
     public void undoLast() {
@@ -173,6 +173,14 @@ public class game_manager : MonoBehaviour
             ccc(i);
         }
     }
+    public void armyReset()
+    {
+        foreach(Army army in map.Armies)
+        {
+            map.destroyArmyView(army);
+            map.createArmyView(army);
+        }
+    }
 
     public void TurnSimulation()
     {//id 0 is a 
@@ -197,10 +205,12 @@ public class game_manager : MonoBehaviour
         Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
         camera_controller.ZoomCameraToCountry();
         fog_Of_War.UpdateFogOfWar();
+        armyReset();
         armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
         //    Debug.Log(c.Actions.Count);
         //}
     }
+
 }

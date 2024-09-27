@@ -5621,6 +5621,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   dialog_box: {fileID: 316045547}
+  camera: {fileID: 1043393647}
 --- !u!1 &316045545
 GameObject:
   m_ObjectHideFlags: 0
@@ -11978,6 +11979,7 @@ MonoBehaviour:
   province_select_layer_rnd: {fileID: 1342113967}
   filter_hover_layer_rnd: {fileID: 1022513886}
   kurwa_mac: {fileID: 316045547}
+  camera: {fileID: 1043393647}
 --- !u!156049354 &653004897
 Grid:
   m_ObjectHideFlags: 0
@@ -12031,6 +12033,8 @@ MonoBehaviour:
   base_tile: {fileID: 11400000, guid: 93f9a5004e204dd4b8e31c6894d87e29, type: 2}
   army_click: {fileID: 1308276978}
   army_move_select: {fileID: 1308276978}
+  disbandButtonPrefab: {fileID: 2100879073294349009, guid: b034bcc663e2d6a429d06e557fea7a13, type: 3}
+  canvas: {fileID: 2034192573}
   dialog_box: {fileID: 316045547}
   province_tooltip: {fileID: 486171403}
 --- !u!1 &660708467

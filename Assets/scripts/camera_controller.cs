@@ -244,6 +244,7 @@ public class camera_controller : cursor_helper
         Vector3 worldPosition = tile_map_layer_1.CellToWorld(provincePosition);
         mainCamera.transform.position = new Vector3(worldPosition.x, worldPosition.y, mainCamera.transform.position.z);
         mainCamera.orthographicSize = minZoom;
+        map.Selected_province = (province.X,province.Y);
     }
 
     public void ZoomToProvinceTest()

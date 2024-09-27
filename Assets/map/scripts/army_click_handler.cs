@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class army_click_handler : cursor_helper
 {
@@ -12,7 +14,8 @@ public class army_click_handler : cursor_helper
 
     [SerializeField] private AudioSource army_click;
     [SerializeField] private AudioSource army_move_select;
-
+    [SerializeField] private GameObject disbandButtonPrefab;
+    [SerializeField] private Canvas canvas;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private province_tooltip province_tooltip;
     private army_view selectedArmy;
@@ -24,6 +27,8 @@ public class army_click_handler : cursor_helper
     private float timeElapsed = 0.0f;
     private bool increasing = true;
     private bool isHighlighted = false;
+
+    private GameObject disbandButtonInstance;
 
     void Start()
     {
@@ -41,7 +46,7 @@ public class army_click_handler : cursor_helper
         {
             if (IsCursorOverUIObject())
             {
-                ResetSelectedArmy();
+                //ResetSelectedArmy();
                 return;
             }
             HandleLeftClick();
@@ -62,10 +67,10 @@ public class army_click_handler : cursor_helper
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
                 HighlightPossibleMoveCells(selectedArmy.ArmyData);
-
                 army_click.Play();
                 Debug.Log($"Selected Army: ({armyView.ArmyData.Position.Item1}, {armyView.ArmyData.Position.Item2}), " +
                           $"Count: {armyView.ArmyData.Count} origin:{armyView.ArmyData.Position} destination:{armyView.ArmyData.Destination}");
+                CreateDisbandButton(armyView);
             }
         }
         else
@@ -102,6 +107,11 @@ public class army_click_handler : cursor_helper
         highlightedCells.Clear();
         selectedArmy = null;
         isHighlighted = false;
+
+        if(disbandButtonInstance != null)
+        {
+            Destroy(disbandButtonInstance);
+        }
     }
 
     private void HighlightPossibleMoveCells(Army army)
@@ -182,5 +192,29 @@ public class army_click_handler : cursor_helper
         startColor.a = 20.0f / 255.0f;
         endColor = startColor;
         endColor.a = 150.0f / 255.0f;
+    }
+    private void CreateDisbandButton(army_view armyView)
+    {
+        if(disbandButtonInstance == null)
+        {
+            Destroy(disbandButtonInstance);
+        }
+
+        disbandButtonInstance = Instantiate(disbandButtonPrefab, canvas.transform);
+
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(armyView.transform.position);
+        disbandButtonInstance.transform.position = screenPosition + new Vector3(-50, -50, 0);
+
+        Button disbandButton = disbandButtonInstance.GetComponent<Button>();
+        disbandButton.onClick.AddListener(() => DisbandArmy(armyView));
+
+    }
+    public void DisbandArmy(army_view armyView)
+    {
+        if (armyView != null)
+        {
+            dialog_box.invokeDisbandArmyBox(map, armyView.ArmyData);
+            ResetSelectedArmy();
+        }
     }
 }

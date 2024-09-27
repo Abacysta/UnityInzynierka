@@ -127,14 +127,14 @@ public class Map:ScriptableObject {
         armies.Remove(army);
         destroyArmyView(army);
     }
-    private void createArmyView(Army army)
+    public void createArmyView(Army army)
     {
         GameObject armyObject = Instantiate(army_prefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
         army_view armyView = armyObject.GetComponent<army_view>();
         armyView.Initialize(army);
         armyViews.Add(armyView);
     }
-    private void destroyArmyView(Army army)
+    public void destroyArmyView(Army army)
     {
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
         if(armyView != null)
@@ -159,7 +159,7 @@ public class Map:ScriptableObject {
         }
     }
 
-    public void disArmy((int, int) coordinates, int amount) {
+    public void disArmy((int, int) coordinates, int amount) { 
         var province = getProvince(coordinates);
         var army = armies.Find(a => a.Position == coordinates);
         if(army != null) {
