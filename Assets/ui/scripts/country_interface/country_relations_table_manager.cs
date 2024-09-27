@@ -33,7 +33,7 @@ public class country_relations_table_manager : MonoBehaviour
         SetData();
     }
 
-    private void SetData()
+    public void SetData()
     {
         sortedCountries = new List<Country>(map.Countries.Where(c => c.Id != 0 && c.Id != map.currentPlayer));
         dynamic_vscroll_countries_view.totalItemCount = SortedCountries.Count;

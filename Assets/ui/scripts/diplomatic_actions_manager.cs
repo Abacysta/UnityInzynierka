@@ -28,6 +28,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private Map map;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private diplomatic_relations_manager diplomatic_relations_manager;
+    [SerializeField] private country_relations_table_manager country_relations_table_manager;
 
     // country info
     [SerializeField] private Image country_color_img;
@@ -277,7 +278,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             goldValue = Mathf.RoundToInt(value);
             amount_text.text = goldValue.ToString();
-            UpdateSendButtonInteraction();
+            UpdateSendButtonInteractionForSliderAction();
         });
 
         less_button.onClick.RemoveAllListeners();
@@ -307,12 +308,22 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void UpdateDurationArea()
     {
         duration_text.text = durationValue.ToString();
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForSliderAction();
     }
 
-    private void UpdateSendButtonInteraction()
+    private void UpdateSendButtonInteractionForSliderAction()
     {
         send_message_button.interactable = (goldValue > 0 && durationValue > 0 && currentPlayer.Resources[Resource.AP] >= apCost);
+    }
+
+    private void UpdateSendButtonInteractionForDropdownAction()
+    {
+        send_message_button.interactable = (country_dropdown.value > -1 && currentPlayer.Resources[Resource.AP] >= apCost);
+    }
+
+    private void UpdateSendButtonInteractionForBasicAction()
+    {
+        send_message_button.interactable = currentPlayer.Resources[Resource.AP] >= apCost;
     }
 
     private void SetSendButtonAction(System.Action onSend)
@@ -321,6 +332,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         send_message_button.onClick.AddListener(() => {
             onSend?.Invoke();
             gameObject.SetActive(false);
+            country_relations_table_manager.SetData();
         });
 
     }
@@ -386,7 +398,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void UpdateCaption()
     {
-        send_message_button.interactable = (country_dropdown.value > -1);
+        UpdateSendButtonInteractionForDropdownAction();
 
         int selectedIndex = country_dropdown.value;
         pattern_img.enabled = true;
@@ -429,7 +441,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -455,7 +467,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -473,7 +485,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -489,7 +501,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -505,7 +517,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -522,7 +534,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -540,7 +552,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -557,7 +569,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForDropdownAction();
         SetSendButtonAction(onSend);
         ShowPanelWithCountryChoiceArea();
     }
@@ -576,7 +588,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForSliderAction();
         SetSendButtonAction(onSend);
         ShowPanelWithSubsidyArea();
     }
@@ -592,7 +604,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -609,7 +621,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForSliderAction();
         SetSendButtonAction(onSend);
         ShowPanelWithSubsidyArea();
     }
@@ -626,7 +638,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -642,7 +654,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -659,7 +671,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             action.execute(map);
         }
 
-        UpdateSendButtonInteraction();
+        UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
     }
@@ -674,6 +686,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void ShowPanelWithBasicArea()
     {
+        send_message_button.interactable = true;
         message_area.SetActive(true);
         amount_area.SetActive(false);
         country_choice_area.SetActive(false);
@@ -682,7 +695,6 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void ShowPanelWithCountryChoiceArea()
     {
-        send_message_button.interactable = (country_dropdown.value > -1);
         message_area.SetActive(true);
         amount_area.SetActive(false);
         country_choice_area.SetActive(true);
