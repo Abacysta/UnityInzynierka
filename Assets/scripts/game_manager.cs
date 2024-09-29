@@ -23,6 +23,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
     [SerializeField] private alerts_manager alerts;
+    [SerializeField] private diplomatic_actions_manager diplomaticActionsManager;
 
     // Loading map data before all scripts
     void Awake()
@@ -198,6 +199,7 @@ public class game_manager : MonoBehaviour
         if (map.currentPlayer < map.Countries.Count - 1)
         {
             map.currentPlayer++;
+            diplomaticActionsManager.ResetRecevierButtonStates();
             Debug.Log($"Sending actions.");
         }
         else
