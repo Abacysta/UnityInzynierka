@@ -1038,7 +1038,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.93689847, y: 0.09218047}
   m_AnchorMax: {x: 0.9915584, y: 0.8938422}
-  m_AnchoredPosition: {x: -0.10003662, y: -0.8427353}
+  m_AnchoredPosition: {x: -0.10003662, y: -0.84273624}
   m_SizeDelta: {x: 0, y: -1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &53280553
@@ -14726,6 +14726,7 @@ MonoBehaviour:
   filter_hover_layer_rnd: {fileID: 1022513886}
   dialog_box: {fileID: 316045547}
   camera: {fileID: 1043393647}
+  diplomacy: {fileID: 0}
 --- !u!156049354 &653004897
 Grid:
   m_ObjectHideFlags: 0
