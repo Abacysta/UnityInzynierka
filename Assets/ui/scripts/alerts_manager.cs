@@ -48,14 +48,52 @@ namespace Assets.Scripts {
                 Vector3 pos = dummy.transform.position;
                 var i = 0;
                 foreach (Event_ e in sortedevents) {
+                    if (i > 10) break;
                     Vector3 newPos = pos + new Vector3(dummy.GetComponent<RectTransform>().sizeDelta.x * ++i, 0, 0);
                     GameObject alert = Instantiate(dummy, newPos, Quaternion.identity);
                     alert.transform.SetParent(dummy.transform.parent);
                     alert.name = "alert" + i;
                     alert.GetComponentInChildren<Button>().onClick.AddListener(() => e.call());
+                    setAlertView(alert, e);
+                    setSprite(alert, e);
                     alert.SetActive(true);
                 }
                 dummy.SetActive(false);
+            }
+        }
+
+        private void setAlertView(GameObject alert, Event_ event_) {
+            var img = alert.transform.Find("Button").GetComponent<Image>();
+            Debug.Log(img != null ? "foundalert" : "notfoundalert");
+            if (img != null) {
+                Color org = img.color;
+                float h, s, v;
+                Color.RGBToHSV(org, out h, out s, out v);
+                if (event_ is Event_.DiploEvent)
+                    h = 0.5f;
+                if (event_ is Event_.GlobalEvent)
+                    h = 0.8f;
+                if (event_ is Event_.LocalEvent)
+                    h = 0.2f;
+                Color neww = Color.HSVToRGB(h, 1f, 1f);
+                img.color = neww;
+            }
+        }
+
+        private void setSprite(GameObject alert, Event_ event_) {
+            var sprite = alert.transform.Find("Button").Find("img").GetComponent<Image>();
+            if (sprite != null) {
+                Sprite set;
+                if (event_ is Event_.DiploEvent.WarDeclared || event_ is Event_.DiploEvent.VassalRebel
+                    || event_ is Event_.GlobalEvent.Plague || event_ is Event_.LocalEvent.PlagueFound)
+                    set = Resources.Load<Sprite>("sprites/alerts/danger");
+                else if (event_ is Event_.DiploEvent)
+                    set = Resources.Load<Sprite>("sprites/alerts/diplo");
+                else if (event_ is Event_.GlobalEvent.Happiness || event_ is Event_.GlobalEvent.TechnologicalBreakthrough)
+                    set = Resources.Load<Sprite>("sprites/alerts/positive");
+                else set = null;
+                if(set != null)
+                    sprite.sprite = set;
             }
         }
     }

@@ -54,6 +54,23 @@ public class dialog_box_manager : MonoBehaviour
         internal static DialogBox tech_box = new("Upgrade Technology", "Do you want to upgrade ");
     };
 
+    private void Update() {
+        if (gameObject.activeSelf) {
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                gameObject.SetActive(false);
+                overlay.SetActive(false);
+            }
+            if (Input.GetKeyDown(KeyCode.LeftShift)) {
+                cancel_button.onClick.Invoke();
+                overlay.SetActive(false);
+            }
+            if (Input.GetKeyDown(KeyCode.Return)) {
+                confirm_button.onClick.Invoke();
+                overlay.SetActive(false);
+            }
+        }
+    }
+
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
         (string title, string message) = dialog_box_precons.army_box.toVars();
         
