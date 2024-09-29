@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using UnityEditor.Build;
 using System.Linq;
+using Assets.classes;
+using Assets.Scripts;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -28,6 +30,8 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Button confirm_button;
 
     [SerializeField] private AudioSource click_sound;
+    [SerializeField] private alerts_manager alerts;
+    
 
     public class dialog_box_precons {
         internal class DialogBox {
@@ -183,6 +187,23 @@ public class dialog_box_manager : MonoBehaviour
         Action onCancel = null;
 
         ShowSliderBox(title,message,onConfirm, onCancel, army.Count);
+    }
+
+    public void invokeEventBox(Event_ _event) {
+        bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
+        Action onConfirm = () => {
+            _event.accept();
+            map.CurrentPlayer.Events.Remove(_event);
+            alerts.sortedevents.Remove(_event);
+            alerts.reloadAlerts();
+        };
+        Action onCancel = () => {
+            _event.reject();
+            map.CurrentPlayer.Events.Remove(_event);
+            alerts.sortedevents.Remove(_event);
+            alerts.reloadAlerts();
+        };
+        ShowConfirmBox("", _event.msg, onConfirm, onCancel, confirmable, _event.Cost);
     }
 
     private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)

@@ -1,3 +1,4 @@
+using Assets.Scripts;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -21,6 +22,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private map_loader loader;
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
+    [SerializeField] private alerts_manager alerts;
 
     // Loading map data before all scripts
     void Awake()
@@ -207,6 +209,7 @@ public class game_manager : MonoBehaviour
         fog_Of_War.UpdateFogOfWar();
         armyReset();
         armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
+        alerts.loadEvents(map.CurrentPlayer);
         //Debug.Log(map.Countries.ToString());
         //foreach(var c in map.Countries) { 
         //    Debug.Log(c.Actions.Count);

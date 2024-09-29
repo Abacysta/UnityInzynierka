@@ -17,12 +17,16 @@ using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCou
 
 namespace Assets.classes {
     public class Event_ {
+
+        public Dictionary<Resource, float> Cost;
         public virtual void call() { }
+        public virtual void accept() { }
+        public virtual void reject() { }
+        public virtual string msg { get { return ""; } }
         public class GlobalEvent:Event_ {
             protected Country country;
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
-            public Dictionary<Resource, float> Cost;
             public GlobalEvent(Country country, dialog_box_manager dialog, camera_controller camera) {
                 this.country = country;
                 this.dialog_box = dialog;
@@ -30,14 +34,12 @@ namespace Assets.classes {
                 this.Cost = cost();
             }
 
-            public virtual void accept() {
+            public override void accept() {
                 country.modifyResources(cost(), false);
             }
-            public virtual void reject() { accept(); }
-            public virtual string msg { get { return ""; } }
+            public override void reject() { accept(); }
             public override void call() {
-                dialog_box.invokeConfirmBox("", msg, accept, reject, this.Cost);
-                zoom();
+                dialog_box.invokeEventBox(this);
             }
             public void zoom() {
                 // Implement zoom to capital or whatever, using the country object
@@ -318,7 +320,6 @@ namespace Assets.classes {
             protected Map map;
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
-            public Dictionary<Resource, float> Cost;
             public LocalEvent(Province province, dialog_box_manager dialog_box, camera_controller camera)
             {
                 this.province = province;
@@ -326,17 +327,16 @@ namespace Assets.classes {
                 this.Cost = cost();
                 this.camera = camera;
             }
-            public virtual void accept() { /*tbd*/}
-            public virtual void reject() { accept(); }
-            public virtual string msg { get { return ""; } }
+            public override void accept() { /*tbd*/}
+            public override void reject() { accept(); }
+            public override string msg { get { return ""; } }
             public void zoom() {
                 // Implement zoom to province or whatever
                 camera.ZoomCameraToProvince(province);
             }
             public override void call() {
                 var cost = this.cost();
-                dialog_box.invokeConfirmBox("", msg, accept, reject, Cost);
-                zoom();
+                dialog_box.invokeEventBox(this);
             }
 
             protected virtual Dictionary<Resource, float> cost() {
@@ -797,18 +797,18 @@ namespace Assets.classes {
             protected Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
-            public virtual string msg { get { return ""; } }
-            public virtual void accept() { }
-            public virtual void reject() { }
+            public override string msg { get { return ""; } }
+            
             public virtual void zoom() { }
             public override void call() {
-                dialog_box.invokeConfirmBox("", msg, accept, reject, null);
+                dialog_box.invokeEventBox(this);
             }
             DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
                 this.dialog_box = dialog_box;
+                this.Cost = new Dictionary<Resource, float> { { Resource.AP, 1 } };
             }
             //internal class WarDeclaration:DiploEvent {
             //    WarDeclaration(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
@@ -823,8 +823,6 @@ namespace Assets.classes {
             internal class PeaceOffer:DiploEvent {
                 private Country offer;
                 private Relation.War war;
-                private diplomatic_relations_manager diplomacy;
-                private dialog_box_manager dialog_box;
                 public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box) { 
                     this.offer = offer;
                     this.war = war;
