@@ -1,4 +1,5 @@
 using Assets.Scripts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -91,9 +92,15 @@ public class game_manager : MonoBehaviour
     }
 
     private void executeActions() {
+        foreach(var c in map.Countries) {
+            List<Assets.classes.actionContainer.TurnAction> instants = c.Actions.extractInstants();
+            foreach (var inst in instants) {
+                inst.execute(map);
+            }
+        }
         int acmax = map.Countries.Max(a => a.Actions.Count);
         for(int i = 0; i < acmax; i++) {
-            foreach(var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
+            foreach (var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
                 c.Actions.execute();
             }
         }

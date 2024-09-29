@@ -1,6 +1,7 @@
 ﻿using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -306,6 +307,15 @@ namespace Assets.classes {
         public actionContainer(Map map) {
             this.map = map;
             actions = new List<TurnAction>();
+        }
+
+        public List<TurnAction> extractInstants() {
+            List<TurnAction> instants = new List<TurnAction>();
+            if (actions != null) {
+                instants = actions.FindAll(a => a is IInstantAction);
+            }
+            actions = actions.Except(instants).ToList();
+            return instants;
         }
 
         public TurnAction last { get => actions[actions.Count - 1]; }

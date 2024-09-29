@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Assets.classes {
-    internal abstract class Relation {
+    public abstract class Relation {
         private Country[] countries;
         public RelationType type;
         private int initialChange, constChange;

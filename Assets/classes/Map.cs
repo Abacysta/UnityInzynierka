@@ -401,4 +401,20 @@ public class Map:ScriptableObject {
         province.OccupationInfo.OccupyingCountryId = -1; 
     }
 
+    public HashSet<Relation> getRelationsOfType(Country country, Relation.RelationType type) {
+        HashSet<Relation> result = new HashSet<Relation>();
+        foreach(var r in relations) {
+            if(r.type == type && r.Sides.Contains(country))
+                result.Add(r);
+        }
+        return result;
+    }
+
+    public Relation.RelationType? GetHardRelationType(Country c1, Country c2) {
+        var rr = relations.First(r => r.Sides.Contains(c1) && r.Sides.Contains(c2) && (r.type == Relation.RelationType.War || r.type == Relation.RelationType.Alliance || r.type == Relation.RelationType.Vassalage));
+        if (rr != null) {
+            return rr.type;
+        }
+        else return null;
+    }
 }

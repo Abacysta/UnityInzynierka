@@ -1,3 +1,4 @@
+using Assets.classes;
 using Assets.classes.subclasses;
 using Assets.Scripts;
 using System.Collections.Generic;
@@ -103,17 +104,6 @@ public class map_loader : MonoBehaviour
         map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
         map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], dialog_box, camera));
         map.Countries[1].Events.Add(new Assets.classes.Event_.LocalEvent.PlagueFound(map.Countries[1].Provinces.Last(), dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
         map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
 
         map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.AccessOffer(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
@@ -275,7 +265,38 @@ public class map_loader : MonoBehaviour
     public void SetDiplomatic() {
         mode = Mode.Diplomatic;
         ClearLayers();
+        HashSet<Relation> alliances = map.getRelationsOfType(map.CurrentPlayer, Assets.classes.Relation.RelationType.Alliance),
+            wars = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.War),
+            vassalages = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage);
+        foreach(Province province in map.Provinces) {
+            Vector3Int position = new(province.X, province.Y, 0);
+            if(province.Type == "land") {
 
+                base_layer.SetTile(position, base_tile);
+                if (province.Owner_id == map.CurrentPlayer.Id) {
+                    base_layer.SetColor(position, map.CurrentPlayer.Color);
+                }
+                else if(province.Owner_id == 0) {
+                    base_layer.SetColor(position, Color.white);
+                }
+                else {
+                    switch(map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.Owner_id])) {
+                        case Relation.RelationType.War:
+                            base_layer.SetColor(position, Color.red); break;
+                        case Relation.RelationType.Alliance:
+                            base_layer.SetColor(position, Color.blue); break;
+                        case Relation.RelationType.Vassalage:
+                            base_layer.SetColor(position, Color.green); break;
+                        default:
+                            base_layer.SetColor(position, Color.yellow); break;
+                    }
+                }
+            }
+            else {
+                SetWater(position);
+            }
+        }
+        SetProvinceHoverAndSelectAboveFilterLayer();
     }
 
     private void SetWater(Vector3Int position)
