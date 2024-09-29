@@ -31,6 +31,10 @@ public class game_manager : MonoBehaviour
 
     }
 
+    private void Start() {
+        alerts.loadEvents(map.CurrentPlayer);
+    }
+
     void LoadData()
     {
         map.Map_name = "map1";
@@ -46,6 +50,7 @@ public class game_manager : MonoBehaviour
         {
             Debug.LogError("JSON map file not found in Resources!");
         }
+
     }
 
     public void UndoAll()
