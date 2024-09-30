@@ -21,10 +21,11 @@ namespace Assets.Scripts {
                 List<Army> enemyarmies = enemyArmiesInProvince(army);
                 if (enemyarmies != null) {
                     var it = 0;
-                    while (army.Count > 0 && enemyarmies.Count > 0) { 
+                    while (army.Count > 0 && enemyarmies.Sum(a=>a.Count) > 0) { 
                         if(battle(army, enemyarmies[it]))
-                            enemyarmies.RemoveAt(it++);
+                            enemyarmies[it++].Count=0;
                     }
+                    enemyarmies.RemoveAll(a => a.Count == 0);
                     if (army.Count == 0) map.removeArmy(army);
                 }
             }
