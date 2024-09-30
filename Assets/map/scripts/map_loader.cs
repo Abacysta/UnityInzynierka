@@ -77,8 +77,20 @@ public class map_loader : MonoBehaviour
         map.assignProvince((1, 0), 1);
         map.assignProvince((2, 0), 1);
         map.assignProvince((3, 0), 1);
+        map.assignProvince((2, 1), 1);
+        map.assignProvince((3, 2), 1);
+
         map.getProvince((9, 9)).Owner_id = 2;
         map.assignProvince((8, 9), 2);
+        map.assignProvince((8, 8), 2);
+        map.assignProvince((7, 8), 2);
+        map.assignProvince((7, 7), 2);
+        map.assignProvince((6, 7), 2);
+        map.assignProvince((6, 6), 2);
+        map.assignProvince((6, 5), 2);
+        map.assignProvince((5, 5), 2);
+        map.assignProvince((4, 5), 2);
+        map.assignProvince((4, 4), 2);
 
         int mapWidth = map.Provinces.Max(p => p.X);
 
@@ -110,6 +122,9 @@ public class map_loader : MonoBehaviour
         map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
         Army testArmy = new Army(1, 100, (1, 0), (1, 0));
         map.addArmy(testArmy);
+        map.addArmy(new Army(1, 10, (3, 3), (3, 3)));
+        map.addArmy(new Army(2, 5, (4, 4), (4, 4)));
+        map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[2]));
         SetPolitical();
         loading = false;
     }

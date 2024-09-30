@@ -547,7 +547,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.start_war(receiverCountry, currentPlayer, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.start_war(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:

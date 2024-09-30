@@ -234,7 +234,6 @@ public class dialog_box_manager : MonoBehaviour
         else txt_con.SetText("Ok");
         if(txtCancel != null) txt_can.SetText(txtCancel);
         else txt_can.SetText("Cancel");
-
         dialog_title.text = actionTitle;
 
         close_button.onClick.AddListener(() =>
@@ -288,8 +287,8 @@ public class dialog_box_manager : MonoBehaviour
     {
         SetCostContent(cost);
         choice_area.SetActive(false);
+        //cost_area.SetActive(cost!=null);
         cost_area.SetActive(true);
-
         ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable);
     }
 

@@ -337,7 +337,7 @@ public class Country {
     }
 
     public void setResource((Resource, float) values) {
-        Debug.Log("set " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
+        //Debug.Log("set " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] = values.Item2;
     }
 

@@ -11,7 +11,7 @@ namespace Assets.Scripts {
     internal class alerts_manager : MonoBehaviour{
         private Country curr;
         [SerializeField] private GameObject dummy;
-        public List<Event_> sortedevents;
+        public List<Event_> sortedevents = new List<Event_>();
         internal class eventComparer:IComparer<Event_> {
             public int Compare(Event_ a, Event_ b) {
                 int aprio = prio(a);

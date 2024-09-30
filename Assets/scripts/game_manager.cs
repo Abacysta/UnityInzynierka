@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static Assets.classes.actionContainer;
 
 public class game_manager : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private army_visibility_manager armyVisibilityManager;
     [SerializeField] private alerts_manager alerts;
     [SerializeField] private diplomatic_actions_manager diplomaticActionsManager;
+    [SerializeField] private battle_manager battle_manager;
 
     // Loading map data before all scripts
     void Awake()
@@ -101,7 +103,16 @@ public class game_manager : MonoBehaviour
         int acmax = map.Countries.Max(a => a.Actions.Count);
         for(int i = 0; i < acmax; i++) {
             foreach (var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
+                bool bswitch = false;
+                Army att = null;
+                if(c.Actions.Count > 0 && c.Actions.last is TurnAction.army_move) {
+                    bswitch = true;
+                    att = (c.Actions.last as TurnAction.army_move).Army;
+                }
                 c.Actions.execute();
+                if(bswitch && att != null) {
+                    battle_manager.checkBattle(att);
+                }
             }
         }
     }
@@ -197,6 +208,13 @@ public class game_manager : MonoBehaviour
         }
     }
 
+    private void alertClear() {
+        foreach(var event_ in map.CurrentPlayer.Events) {
+            event_.reject();
+        }
+        map.CurrentPlayer.Events.Clear();
+    }
+
     public void TurnSimulation()
     {//id 0 is a 
         //Debug.Log(map.Countries.ToString());
@@ -205,8 +223,10 @@ public class game_manager : MonoBehaviour
         //}
         if (map.currentPlayer < map.Countries.Count - 1)
         {
+            alertClear();
             map.currentPlayer++;
             diplomaticActionsManager.ResetRecevierButtonStates();
+            
             Debug.Log($"Sending actions.");
         }
         else

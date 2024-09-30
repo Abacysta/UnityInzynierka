@@ -98,6 +98,7 @@ namespace Assets.classes {
                     map.undoSetMoveArmy(army);
 
                 }
+                public Army Army { get { return army; } }
             }
             internal class army_recruitment :TurnAction {
                 private (int, int) coordinates;

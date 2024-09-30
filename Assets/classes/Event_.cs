@@ -808,7 +808,7 @@ namespace Assets.classes {
                 this.to = to;
                 this.diplomacy = diplomacy;
                 this.dialog_box = dialog_box;
-                this.Cost = new Dictionary<Resource, float> { { Resource.AP, 1 } };
+                this.Cost = null;
             }
             //internal class WarDeclaration:DiploEvent {
             //    WarDeclaration(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
