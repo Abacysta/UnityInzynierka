@@ -129,9 +129,10 @@ public class Map:ScriptableObject {
     }
     public void createArmyView(Army army)
     {
+        var rtype = GetHardRelationType(CurrentPlayer, countries[army.OwnerId]);
         GameObject armyObject = Instantiate(army_prefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
         army_view armyView = armyObject.GetComponent<army_view>();
-        armyView.Initialize(army);
+        armyView.Initialize(army, rtype);
         armyViews.Add(armyView);
     }
     public void destroyArmyView(Army army)
@@ -411,10 +412,28 @@ public class Map:ScriptableObject {
     }
 
     public Relation.RelationType? GetHardRelationType(Country c1, Country c2) {
-        var rr = relations.First(r => r.Sides.Contains(c1) && r.Sides.Contains(c2) && (r.type == Relation.RelationType.War || r.type == Relation.RelationType.Alliance || r.type == Relation.RelationType.Vassalage));
+        var rr = relations.FirstOrDefault(r =>
+            r.Sides.Contains(c1) && r.Sides.Contains(c2) &&
+            (r.type == Relation.RelationType.War ||
+             r.type == Relation.RelationType.Alliance ||
+             r.type == Relation.RelationType.Vassalage ||
+             r.type == Relation.RelationType.Truce)
+        );
+
         if (rr != null) {
-            return rr.type;
+            if (rr.type == Relation.RelationType.War) {
+                var war = rr as Relation.War;
+
+                if ((war.participants1.Contains(c1) && war.participants2.Contains(c2)) ||
+                    (war.participants2.Contains(c1) && war.participants1.Contains(c2))) {
+                    return Relation.RelationType.War;
+                }
+            }
+            else {
+                return rr.type;
+            }
         }
-        else return null;
+
+        return null;
     }
 }

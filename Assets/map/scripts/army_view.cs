@@ -1,3 +1,4 @@
+using Assets.classes;
 using TMPro;
 using UnityEngine;
 
@@ -35,11 +36,14 @@ public class army_view : MonoBehaviour
         }
     }
 
-    public void Initialize(Army armyData)
+    public void Initialize(Army armyData, Relation.RelationType? type)
     {
         ArmyData = armyData;
         UpdateArmyCounter(ArmyData.Count);
+        int tval = type != null ? (int)type.Value : 50;
+        UpdateArmyCounterColor(tval);
         ArmyData.OnArmyCountChanged += UpdateArmyCounter;
+        ArmyData.OnArmyCountChanged += UpdateArmyCounterColor;
         UpdatePosition();
     }
 
@@ -98,5 +102,28 @@ public class army_view : MonoBehaviour
     private void UpdateArmyCounter(int newCount)
     {
         army_count_text.text = newCount.ToString();
+    }
+    private void UpdateArmyCounterColor(int type) {
+        Debug.Log("rtype=" + type);
+        Color adjusted;
+        switch (type) {
+            case -1://war
+                adjusted = new Color(1f, 0.27f, 0);//orange
+                break;
+            case 0://truce
+                adjusted = Color.white;
+                break;
+            case 3://alliance
+                adjusted = Color.cyan;
+                break;
+            case 4://vassalage
+                adjusted = new Color(0.7f, 0, 1);
+                break;
+            default:
+                adjusted = Color.yellow;
+                break;
+        }
+        army_count_text.color = adjusted;
+
     }
 }
