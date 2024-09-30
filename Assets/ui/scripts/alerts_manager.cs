@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ namespace Assets.Scripts {
     internal class alerts_manager : MonoBehaviour{
         private Country curr;
         [SerializeField] private GameObject dummy;
+        [SerializeField] private GameObject counter;
         public List<Event_> sortedevents = new List<Event_>();
         internal class eventComparer:IComparer<Event_> {
             public int Compare(Event_ a, Event_ b) {
@@ -38,7 +40,7 @@ namespace Assets.Scripts {
 
         public void reloadAlerts() {
             foreach(Transform child in transform) {
-                if (child.name != "dummy")
+                if (child.name != "dummy" && child.name != "counter")
                 {
                     Destroy(child.gameObject);
                 }
@@ -48,7 +50,14 @@ namespace Assets.Scripts {
                 Vector3 pos = dummy.transform.position;
                 var i = 0;
                 foreach (Event_ e in sortedevents) {
-                    if (i > 10) break;
+                    if (i > 10) {
+                        displayCounter(sortedevents.Count-11, dummy.GetComponent<RectTransform>().sizeDelta.x * (i+1));
+                        break;
+                    }
+                    else {
+                        counter.SetActive(false);
+                    }
+                        
                     Vector3 newPos = pos + new Vector3(dummy.GetComponent<RectTransform>().sizeDelta.x * ++i, 0, 0);
                     GameObject alert = Instantiate(dummy, newPos, Quaternion.identity);
                     alert.transform.SetParent(dummy.transform.parent);
@@ -60,6 +69,13 @@ namespace Assets.Scripts {
                 }
                 dummy.SetActive(false);
             }
+        }
+
+        private void displayCounter(int additional, float coordinate) {
+            TMP_Text txt = counter.GetComponentInChildren<TMP_Text>();
+            txt.text = "+" + additional;
+            counter.transform.position = new Vector3(coordinate, 0, 0) + dummy.transform.position;
+            counter.SetActive(true);
         }
 
         private void setAlertView(GameObject alert, Event_ event_) {
