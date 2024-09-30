@@ -215,12 +215,12 @@ public class game_manager : MonoBehaviour
         map.CurrentPlayer.Events.Clear();
     }
 
+    private void aiTurn() {
+
+    }
+
     public void TurnSimulation()
-    {//id 0 is a 
-        //Debug.Log(map.Countries.ToString());
-        //foreach(var c in map.Countries) {
-        //    Debug.Log(c.Actions.Count);
-        //}
+    {
         if (map.currentPlayer < map.Countries.Count - 1)
         {
             alertClear();
@@ -238,15 +238,19 @@ public class game_manager : MonoBehaviour
             map.currentPlayer = 1;
             loader.Reload();
         }
-        Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-        camera_controller.ZoomCameraToCountry();
-        fog_Of_War.UpdateFogOfWar();
-        armyReset();
-        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
-        alerts.loadEvents(map.CurrentPlayer);
-        //Debug.Log(map.Countries.ToString());
-        //foreach(var c in map.Countries) { 
-        //    Debug.Log(c.Actions.Count);
+        if (map.countryControllers[map.currentPlayer] != Map.CountryController.Local) {
+            aiTurn();
+            TurnSimulation();
+        }
+        else {
+            Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
+            camera_controller.ZoomCameraToCountry();
+            fog_Of_War.UpdateFogOfWar();
+            armyReset();
+            armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
+            alerts.loadEvents(map.CurrentPlayer);
+        }
+        
         //}
     }
 

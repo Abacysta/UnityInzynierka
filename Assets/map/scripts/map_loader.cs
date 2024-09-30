@@ -48,15 +48,22 @@ public class map_loader : MonoBehaviour
         int i = 0;
 
         map.calcPopExtremes();
-        map.Countries = new System.Collections.Generic.List<Country> {
-            new Country(i++, "", (-1, -1), Color.white, map),
-            new Country(i++, "Kingdom", (0, 0), Color.gray, map),
-            new Country(i++, "Gauls", (9,9), Color.red, map),
-            new Country(i++, "Berbers", (10, 0), Color.cyan, map),
-            new Country(i++, "Egyptians", (20, 0), Color.blue, map),
-            new Country(i++, "Vikings", (30, 0), Color.green, map),
-            new Country(i++, "Huns", (40, 0), Color.yellow, map)
-        };
+        //map.Countries = new System.Collections.Generic.List<Country> {
+        //    new Country(i++, "", (-1, -1), Color.white, map),
+        //    new Country(i++, "Kingdom", (0, 0), Color.gray, map),
+        //    new Country(i++, "Gauls", (9,9), Color.red, map),
+        //    new Country(i++, "Berbers", (10, 0), Color.cyan, map),
+        //    new Country(i++, "Egyptians", (20, 0), Color.blue, map),
+        //    new Country(i++, "Vikings", (30, 0), Color.green, map),
+        //    new Country(i++, "Huns", (40, 0), Color.yellow, map)
+        //};
+        map.addCountry(new Country(i++, "", (-1, -1), Color.white, map), Map.CountryController.Ai);
+        map.addCountry(new Country(i++, "Kingdom", (0, 0), Color.gray, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "Gauls", (9, 9), Color.red, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "Berbers", (10, 0), Color.cyan, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "Egyptians", (20, 0), Color.blue, map), Map.CountryController.Ai);
+        map.addCountry(new Country(i++, "Vikings", (30, 0), Color.green, map), Map.CountryController.Ai);
+        map.addCountry(new Country(i++, "Huns", (40, 0), Color.yellow, map), Map.CountryController.Ai);
         i = 0;
         Debug.Log(map.CurrentPlayer.Name);
         foreach(Country country in map.Countries) {
