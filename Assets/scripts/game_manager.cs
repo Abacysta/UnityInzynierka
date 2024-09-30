@@ -27,17 +27,16 @@ public class game_manager : MonoBehaviour
     [SerializeField] private alerts_manager alerts;
     [SerializeField] private diplomatic_actions_manager diplomaticActionsManager;
     [SerializeField] private battle_manager battle_manager;
+    [SerializeField] private GameObject start_screen;
 
     // Loading map data before all scripts
     void Awake()
     {
         LoadData();
-
+        welcomeScreen();
     }
 
-    private void Start() {
-        alerts.loadEvents(map.CurrentPlayer);
-    }
+    
 
     void LoadData()
     {
@@ -219,6 +218,21 @@ public class game_manager : MonoBehaviour
 
     }
 
+    private void welcomeScreen() {
+        if(turnCnt == 0){
+            start_screen.SetActive(true);
+            start_screen.transform.Find("window").GetComponentInChildren<TMP_Text>().text = "You're playing as " + "takie jajca bo mapa sie jeszcze nie zaladowala xd";//map.CurrentPlayer.Name;
+            var button = start_screen.transform.Find("window").GetComponentInChildren<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => alerts.loadEvents(map.CurrentPlayer));
+            button.onClick.AddListener(() => alerts.reloadAlerts());
+            button.onClick.AddListener(() => start_screen.SetActive(false));
+        }
+        else {
+            start_screen.SetActive(false);
+        }
+    }
+
     public void TurnSimulation()
     {
         if (map.currentPlayer < map.Countries.Count - 1)
@@ -244,6 +258,7 @@ public class game_manager : MonoBehaviour
         }
         else {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
+            welcomeScreen();
             camera_controller.ZoomCameraToCountry();
             fog_Of_War.UpdateFogOfWar();
             armyReset();
