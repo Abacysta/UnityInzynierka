@@ -51,13 +51,8 @@ namespace Assets.Scripts {
                 var i = 0;
                 foreach (Event_ e in sortedevents) {
                     if (i > 10) {
-                        displayCounter(sortedevents.Count-11, dummy.GetComponent<RectTransform>().sizeDelta.x * (i+1));
                         break;
-                    }
-                    else {
-                        counter.SetActive(false);
-                    }
-                        
+                    }   
                     Vector3 newPos = pos + new Vector3(dummy.GetComponent<RectTransform>().sizeDelta.x * ++i, 0, 0);
                     GameObject alert = Instantiate(dummy, newPos, Quaternion.identity);
                     alert.transform.SetParent(dummy.transform.parent);
@@ -66,6 +61,12 @@ namespace Assets.Scripts {
                     setAlertView(alert, e);
                     setSprite(alert, e);
                     alert.SetActive(true);
+                }
+                if (sortedevents.Count > 10) {
+                    displayCounter(sortedevents.Count - 11, dummy.GetComponent<RectTransform>().sizeDelta.x * (i + 1));
+                }
+                else {
+                    counter.SetActive(false);
                 }
                 dummy.SetActive(false);
             }

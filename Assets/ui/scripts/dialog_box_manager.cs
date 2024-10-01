@@ -187,6 +187,8 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel, Dictionary<Resource, float> cost) {
         bool confirmable = map.CurrentPlayer.canPay(cost);
+        if (cost == null) cost_area.SetActive(false);
+        else cost_area.SetActive(true);
         ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost);
     }
     public void invokeDisbandArmyBox(Map map, Army army)
@@ -208,6 +210,8 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeEventBox(Event_ _event) {
         bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
+        if (_event.Cost == null) cost_area.SetActive(false);
+        else cost_area.SetActive(true);
         Action onConfirm = () => {
             _event.accept();
             map.CurrentPlayer.Events.Remove(_event);
@@ -287,7 +291,7 @@ public class dialog_box_manager : MonoBehaviour
     {
         SetCostContent(cost);
         choice_area.SetActive(false);
-        //cost_area.SetActive(cost!=null);
+        cost_area.SetActive(cost!=null);
         cost_area.SetActive(true);
         ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable);
     }

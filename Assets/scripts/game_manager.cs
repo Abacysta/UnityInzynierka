@@ -25,6 +25,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private map_loader loader;
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
+    [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private alerts_manager alerts;
     [SerializeField] private diplomatic_actions_manager diplomaticActionsManager;
     [SerializeField] private battle_manager battle_manager;
@@ -237,6 +238,15 @@ public class game_manager : MonoBehaviour
     //        start_screen.SetActive(false);
     //    }
     //}
+
+    public void LocalTurnSimulation() {
+        if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+            TurnSimulation();
+            return;
+        }
+        Action a = () => TurnSimulation();
+        dialog_box.invokeConfirmBox("Pass the turn", "Do you want to pass the turn?", a, null, null);
+    }
 
     public void TurnSimulation()
     {

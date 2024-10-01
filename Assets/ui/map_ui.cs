@@ -35,31 +35,31 @@ public class map_ui : MonoBehaviour
                 loader.SetTerrain();
             }
         }
-            else if (Input.GetKeyDown(KeyCode.O)) {
-                if (loader.CurrentMode != map_loader.MapMode.Resource) {
-                    loader.SetResources();
-                }
+        if (Input.GetKeyDown(KeyCode.O)) {
+            if (loader.CurrentMode != map_loader.MapMode.Resource) {
+                loader.SetResources();
             }
-            else if (Input.GetKeyDown(KeyCode.P)) {
-                if (loader.CurrentMode != map_loader.MapMode.Happiness) {
-                    loader.SetHappiness();
-                }
+        }
+        if (Input.GetKeyDown(KeyCode.P)) {
+            if (loader.CurrentMode != map_loader.MapMode.Happiness) {
+                loader.SetHappiness();
             }
-            else if (Input.GetKeyDown(KeyCode.J)) {
-                if (loader.CurrentMode != map_loader.MapMode.Population) {
-                    loader.SetPopulation();
-                }
+        }
+        if (Input.GetKeyDown(KeyCode.J)) {
+            if (loader.CurrentMode != map_loader.MapMode.Population) {
+                loader.SetPopulation();
             }
-            else if (Input.GetKeyDown(KeyCode.K)) {
-                if (loader.CurrentMode != map_loader.MapMode.Political) {
-                    loader.SetPolitical();
-                }
+        }
+        if (Input.GetKeyDown(KeyCode.K)) {
+            if (loader.CurrentMode != map_loader.MapMode.Political) {
+                loader.SetPolitical();
             }
-            else if (Input.GetKeyDown(KeyCode.L)) { 
-                if(loader.CurrentMode != map_loader.MapMode.Diplomatic) {
-                    loader.SetDiplomatic();
-                }
+        }
+        if (Input.GetKeyDown(KeyCode.L)) { 
+            if(loader.CurrentMode != map_loader.MapMode.Diplomatic) {
+                loader.SetDiplomatic();
             }
+        }
         
     }
 }

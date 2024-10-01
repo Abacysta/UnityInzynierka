@@ -7263,6 +7263,7 @@ MonoBehaviour:
   loader: {fileID: 653004896}
   camera_controller: {fileID: 1043393647}
   armyVisibilityManager: {fileID: 1158450263}
+  dialog_box: {fileID: 316045547}
   alerts: {fileID: 2130663927}
   diplomaticActionsManager: {fileID: 1839368325}
   battle_manager: {fileID: 311749117}
@@ -16940,7 +16941,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 311749113}
         m_TargetAssemblyTypeName: game_manager, Assembly-CSharp
-        m_MethodName: TurnSimulation
+        m_MethodName: LocalTurnSimulation
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
