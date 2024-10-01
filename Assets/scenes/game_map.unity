@@ -15002,6 +15002,7 @@ MonoBehaviour:
   filter_hover_layer_rnd: {fileID: 1022513886}
   dialog_box: {fileID: 316045547}
   camera: {fileID: 1043393647}
+  mapmodes_buttons: {fileID: 1758574782}
   diplomacy: {fileID: 0}
   loading: 0
 --- !u!156049354 &653004897
@@ -48291,6 +48292,7 @@ MonoBehaviour:
   province_interface: {fileID: 888877804}
   dialog_box: {fileID: 316045545}
   box_manager: {fileID: 316045547}
+  loader: {fileID: 653004896}
 --- !u!1 &2036618649
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst.Intrinsics;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
@@ -22,7 +23,7 @@ public class Map:ScriptableObject {
     [SerializeField] private List<Country> countries = new List<Country>();
     [SerializeField] private List<Army> armies = new List<Army>();
     [SerializeField] private GameObject army_prefab;
-    public List<CountryController> countryControllers = new List<CountryController>();
+    private List<CountryController> countryControllers = new List<CountryController>();
     private List<army_view> armyViews = new List<army_view>();
     private HashSet<Relation> relations = new HashSet<Relation>();
     public int currentPlayer;
@@ -38,7 +39,7 @@ public class Map:ScriptableObject {
     public List<Army> Armies { get => armies; set => armies = value; }
     public Country CurrentPlayer { get => countries[currentPlayer]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
-
+    public List<CountryController> Controllers { get { return countryControllers; } }
     public void addCountry(Country country, CountryController ptype) {
         countries.Add(country);
         countryControllers.Add(ptype);

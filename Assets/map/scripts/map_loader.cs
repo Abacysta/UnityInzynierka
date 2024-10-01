@@ -8,10 +8,11 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 using UnityEngine.Video;
+using UnityEngine.UI;
 
 public class map_loader : MonoBehaviour
 {
-    private enum Mode {
+    public enum MapMode {
         Terrain,
         Resource,
         Happiness,
@@ -37,9 +38,12 @@ public class map_loader : MonoBehaviour
     [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private camera_controller camera;
+    [SerializeField] private GameObject mapmodes_buttons;
     [SerializeField] private Assets.map.scripts.diplomatic_relations_manager diplomacy;
-    private Mode mode;
+    private MapMode mode;
     public bool loading;
+
+    public MapMode CurrentMode { get => mode; set => mode = value; }
 
     void Start()
     {
@@ -153,13 +157,13 @@ public class map_loader : MonoBehaviour
 
     public void Reload() {
         switch (mode) {
-            case Mode.Resource:
+            case MapMode.Resource:
                 SetResources(); break;
-            case Mode.Happiness:
+            case MapMode.Happiness:
                 SetHappiness(); break;
-            case Mode.Population:
+            case MapMode.Population:
                 SetPopulation(); break;
-            case Mode.Political:
+            case MapMode.Political:
                 SetPolitical(); break;
             default:
                 SetTerrain(); break;
@@ -168,7 +172,8 @@ public class map_loader : MonoBehaviour
 
     public void SetTerrain()
     {
-        mode = Mode.Terrain;
+        mode = MapMode.Terrain;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -190,7 +195,8 @@ public class map_loader : MonoBehaviour
 
     public void SetResources()
     {
-        mode = Mode.Resource;
+        mode = MapMode.Resource;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -230,7 +236,8 @@ public class map_loader : MonoBehaviour
 
     public void SetHappiness()
     {
-        mode = Mode.Happiness;
+        mode = MapMode.Happiness;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -252,7 +259,8 @@ public class map_loader : MonoBehaviour
 
     public void SetPopulation()
     {
-        mode = Mode.Population;
+        mode = MapMode.Population;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -272,7 +280,8 @@ public class map_loader : MonoBehaviour
     }
 
      public void SetPolitical() {
-        mode = Mode.Political;
+        mode = MapMode.Political;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces) {
@@ -300,7 +309,8 @@ public class map_loader : MonoBehaviour
     }
 
     public void SetDiplomatic() {
-        mode = Mode.Diplomatic;
+        mode = MapMode.Diplomatic;
+        greyOutUnused(mode);
         ClearLayers();
         HashSet<Relation> alliances = map.getRelationsOfType(map.CurrentPlayer, Assets.classes.Relation.RelationType.Alliance),
             wars = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.War),
@@ -391,6 +401,41 @@ public class map_loader : MonoBehaviour
     {
         province_select_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 1;
         mouse_hover_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 2;
+    }
+
+    private void greyOutUnused(map_loader.MapMode mapMode) {
+        string name;
+        switch (mapMode) {
+            case MapMode.Terrain:
+                name = "terrain";
+                break;
+            case MapMode.Resource:
+                name = "res";
+                break;
+            case MapMode.Happiness:
+                name = "happiness";
+                break;
+            case MapMode.Population:
+                name = "population";
+                break;
+            case MapMode.Political:
+                name = "political";
+                break;
+            case MapMode.Diplomatic:
+                name = "diplo";
+                break;
+            default:
+                name = "terrain";
+                break;
+        }
+        foreach(Transform child in mapmodes_buttons.transform) {
+            if(child.name != name + "_button") {
+                child.GetChild(0).GetComponent<UnityEngine.UI.Image>().color = Color.HSVToRGB(0, 0, 0.2f);
+            }
+            else {
+                child.GetChild(0).GetComponent<UnityEngine.UI.Image>().color = Color.HSVToRGB(0, 0, 1);
+            }
+        }
     }
 
     private void ClearLayers()

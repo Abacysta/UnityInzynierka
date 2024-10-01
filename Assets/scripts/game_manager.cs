@@ -257,13 +257,13 @@ public class game_manager : MonoBehaviour
             map.currentPlayer = 1;
             loader.Reload();
         }
-        if (map.countryControllers[map.currentPlayer] != Map.CountryController.Local) {
+        if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
             aiTurn();
             TurnSimulation();
         }
         else {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-            if (turnCnt == 0)
+            if (turnCnt == 0 && map.Controllers[map.currentPlayer]==Map.CountryController.Local)
                 start_screen.welcomeScreen();
             else if(turnCnt == 1)
                 start_screen.unHide();
