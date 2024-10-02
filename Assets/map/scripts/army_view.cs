@@ -1,6 +1,7 @@
 using Assets.classes;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class army_view : MonoBehaviour
 {
@@ -14,12 +15,22 @@ public class army_view : MonoBehaviour
     private readonly float moveSpeed = 2f;
     private bool isMoving = false;
 
+    public Button disbandButton;
+    [SerializeField] Map map;
+    private dialog_box_manager dialog_box;
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         army_collider = GetComponent<PolygonCollider2D>();
         move_army_sound = GetComponent<AudioSource>(); 
         army_count_text = transform.Find("army_counter_background/army_count_text").GetComponent<TMP_Text>();
+
+        disbandButton = transform.Find("disbandButton").GetComponent<Button>();
+        disbandButton.gameObject.SetActive(false);
+
+        disbandButton.onClick.AddListener(DisbandArmy);
+
+        dialog_box = GetComponent<dialog_box_manager>();
     }
 
     void Update()
@@ -128,5 +139,14 @@ public class army_view : MonoBehaviour
         }
         army_count_text.color = adjusted;
 
+    }
+    public void DisbandArmy(){
+        army_click_handler click_Handler = FindObjectOfType<army_click_handler>();
+        if(click_Handler != null){
+            click_Handler.DisbandArmy(ArmyData);
+        }
+        else {
+            Debug.Log("click handler is empty");    
+        }
     }
 }
