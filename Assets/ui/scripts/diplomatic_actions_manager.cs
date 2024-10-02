@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Assets.map.scripts;
 using Assets.classes;
 using static Assets.classes.Relation;
+using UnityEngineInternal.XR.WSA;
 
 public class Effect
 {
@@ -661,6 +662,8 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
+            actionContainer.TurnAction.praise action = new actionContainer.TurnAction.praise(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            currentPlayer.Actions.addAction(action);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // diplomatic mission, declare war, send an insult, offer alliance, demand vassalization
             receiverCountryButtonStates[countryId].DiplomaticMissionButtonState = false;
@@ -683,6 +686,8 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
+            actionContainer.TurnAction.insult action = new actionContainer.TurnAction.insult(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            currentPlayer.Actions.addAction(action);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // send an insult, declare war, diplomatic mission, offer alliance, subsidize
             // request subsidy, request military access, demand vassalization
@@ -758,8 +763,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         ap_text.text = $"-{apCost:0.0}";
         SetDropdownCountries();
 
-        void onSend()
-        {
+        void onSend() { 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // call to war (jesli to ostatni wybrany kraj w dropdown), break alliance
 
@@ -773,6 +777,9 @@ public class diplomatic_actions_manager : MonoBehaviour
             if (selectedEntry.Key != default) country_dropdown.captionImage.color = map.Countries[selectedEntry.Key].Color;
 
             receiverCountryButtonStates[countryId].CountriesToSkip.Add(selectedEntry.Key);
+            Relation.War war = map.getRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;
+            var action = new actionContainer.TurnAction.call_to_war(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager);
+            currentPlayer.Actions.addAction(action);
         }
 
         UpdateSendButtonInteractionForDropdownAction();
@@ -789,6 +796,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
+            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, goldValue, durationValue);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // subsidize, declare war, integrate vassal, send an insult, end subsidies
             receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
@@ -811,6 +819,9 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
+            var relation = map.getRelationsOfType(currentPlayer, RelationType.Subsidies).First(r => r.Sides[1] == receiverCountry);
+            if (relation != null)
+                diplomatic_relations_manager.endRelation(relation);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // end subsidies, subsidize
             receiverCountryButtonStates[countryId].SubsEndButtonState = false;
@@ -831,9 +842,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, 
-                diplomatic_relations_manager, dialog_box, goldValue, durationValue);
-            currentPlayer.Actions.addAction(action);
+            receiverCountry.Events.Add(new Event_.DiploEvent.SubsRequest(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, (int)subsidy_slider.value, durationValue));
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // request subsidy
@@ -877,6 +886,9 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
+            Relation.MilitaryAccess variable = map.getRelationsOfType(receiverCountry, RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as Relation.MilitaryAccess; ;
+            var action = new Event_.DiploEvent.AccessEndMaster(variable, currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            receiverCountry.Events.Add(action);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // end military access
             receiverCountryButtonStates[countryId].MilAccEndButtonState = false;

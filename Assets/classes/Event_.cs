@@ -894,9 +894,11 @@ namespace Assets.classes {
             }
             internal class SubsOffer:DiploEvent {
                 private int amount, duration;
-                public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
-
+                public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration) : base(from, to, diplomacy, dialog_box) {
+                    this.duration = duration;
+this.amount = amount;
                 }
+                public override string msg { get { return from.Name + " has offered you subsidies."; } }
                 public override void accept() {
                     base.accept();
                     if(duration != 0) {
@@ -910,6 +912,27 @@ namespace Assets.classes {
                     
                 }
             }
+            internal class SubsRequest : DiploEvent {
+                private int amount, duration;
+                public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration): base(from, to, diplomacy, dialog_box) {
+                    this.amount = amount;
+                    this.duration = duration;
+                }
+                public override string msg { get { return from.Name + " has requested our subsidies of " + amount + " gold for " + duration + " turns"; } }
+                public override void accept() {
+                    base.accept();
+                    if (duration != 0) { 
+                        diplomacy.startSub(to, from, amount, false, duration);
+                    }
+                    else {
+                        diplomacy.startSub(to, from, amount);
+                    }
+                }
+                public override void reject() {
+                    
+                }
+            }
+
             internal class SubsEndMaster:DiploEvent {
                 public SubsEndMaster(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
                 }
@@ -934,6 +957,42 @@ namespace Assets.classes {
                 public override void reject() {
                     
                 }
+            }
+            internal class AccessRequest : DiploEvent {
+                public AccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(from, to, diplomacy, dialog_box) {
+
+                }
+                public override string msg { get { return from.Name + " asks for military access to our teritorry"; } }
+                public override void accept() {
+                    diplomacy.startAccess(from, to);
+                }
+                public override void reject() {
+                }
+            }
+            internal class AccessEndMaster : DiploEvent {
+                private Relation.MilitaryAccess access;
+                public AccessEndMaster(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                    this.access = access;
+                }
+                public override string msg { get { return from.Name + " has stopped giving us the military access"; } }
+                public override void accept() {
+                    diplomacy.endRelation(access);
+                }
+                public override void reject() {
+                    
+                }
+            }
+            internal class AccessEndSlave : DiploEvent {
+                private Relation.MilitaryAccess access;
+
+                public AccessEndSlave(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                    this.access = access;
+                }
+                public override string msg { get { return from.Name + " stopped using our military access"; } }
+                public override void accept() {
+                    diplomacy.endRelation(access);
+                }
+                public override void reject() { }
             }
             internal class VassalOffer:DiploEvent {
                 public VassalOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {

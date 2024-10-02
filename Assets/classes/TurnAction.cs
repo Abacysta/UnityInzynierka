@@ -25,7 +25,8 @@ namespace Assets.classes {
                 vasal_offer,
                 vasal_end,
                 subs_offer,
-                subs_end
+                subs_end,
+                message
             }
 
             public ActionType type;
@@ -252,6 +253,7 @@ namespace Assets.classes {
                     to.Events.Add(new Event_.DiploEvent.AccessOffer(from, to, diplomacy, dialog_box));
                 }
             }
+            
             internal class subs_offer:TurnAction, IInstantAction {
                 private Country from, to;
                 private diplomatic_relations_manager diplomacy;
@@ -269,7 +271,7 @@ namespace Assets.classes {
 
                 public override void execute(Map map) {
                     base.execute(map);
-                    to.Events.Add(new Event_.DiploEvent.SubsOffer(from, to, diplomacy, dialog_box));
+                    to.Events.Add(new Event_.DiploEvent.SubsOffer(from, to, diplomacy, dialog_box, amount, duration));
                 }
             }
             internal class vassal_offer:TurnAction, IInstantAction {
@@ -300,6 +302,63 @@ namespace Assets.classes {
                     vassalage.Sides[0].Events.Add(new Event_.DiploEvent.VassalRebel(vassalage.Sides[1], vassalage.Sides[0], diplomacy, dialog_box));
                     diplomacy.endRelation(vassalage);
                     diplomacy.startWar(vassalage.Sides[1], vassalage.Sides[0]);
+                }
+            }
+            internal class insult:TurnAction, IInstantAction {
+                private Country from, to;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+
+                public insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.message, 1) {
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+
+                public override void preview(Map map) {
+                    base.preview(map);
+                    to.Opinions[from.Id] -= 25;
+                }
+                public override void revert(Map map) {
+                    base.revert(map);
+                    to.Opinions[from.Id] += 25;
+                }
+            }
+            internal class praise:TurnAction, IInstantAction {
+                private Country from, to;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+                public praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) :base(ActionType.message, 1){
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                }
+                public override void preview(Map map) {
+                    base.preview(map);
+                    to.Opinions[from.Id] += 20;
+                }
+                public override void revert(Map map) {
+                    base.revert(map);
+                    to.Opinions[from.Id] -= 20;
+                }
+            }
+            internal class call_to_war:TurnAction, IInstantAction {
+                private Country from, to;
+                private Relation.War war;
+                private dialog_box_manager dialog_box;
+                private diplomatic_relations_manager diplomacy;
+                public call_to_war(Country from, Country to, Relation.War war, dialog_box_manager dialog_box, diplomatic_relations_manager diplomacy):base(ActionType.alliance_offer, 1) {
+                    this.from = from;
+                    this.to = to;
+                    this.war = war;
+                    this.dialog_box = dialog_box;
+                    this.diplomacy = diplomacy;
+                }
+                public override void execute(Map map) {
+                    base.execute(map);
+                    to.Events.Add(new Event_.DiploEvent.CallToWar(from, to, diplomacy, dialog_box, war));
                 }
             }
         }
