@@ -46,6 +46,7 @@ namespace Assets.Scripts {
             }
             var armies = map.Armies.FindAll(a => a.Position == army.Position && a != army);
             List<Army> enemyarmies = armies.FindAll(a => enemyCountries.Contains(a.OwnerId));
+            enemyarmies.AddRange(armies.FindAll(a => a.OwnerId == 0));
             return enemyarmies;
         }
 

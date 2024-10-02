@@ -149,7 +149,9 @@ public class Map:ScriptableObject {
         var rtype = GetHardRelationType(CurrentPlayer, countries[army.OwnerId]);
         GameObject armyObject = Instantiate(army_prefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
         army_view armyView = armyObject.GetComponent<army_view>();
-        armyView.Initialize(army, rtype);
+        if (army.OwnerId != 0)
+            armyView.Initialize(army, rtype);
+        else armyView.Initialize(army, Relation.RelationType.Rebellion);
         armyViews.Add(armyView);
     }
     public void destroyArmyView(Army army)

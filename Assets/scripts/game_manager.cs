@@ -1,3 +1,4 @@
+using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
 using System;
@@ -29,6 +30,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private alerts_manager alerts;
     [SerializeField] private diplomatic_actions_manager diplomaticActionsManager;
     [SerializeField] private battle_manager battle_manager;
+    [SerializeField] private random_events_manager random_events;
     [SerializeField] private start_screen start_screen;
 
     // Loading map data before all scripts
@@ -220,6 +222,13 @@ public class game_manager : MonoBehaviour
         map.CurrentPlayer.Events.Clear();
     }
 
+    private void rebellionCheck() {
+        foreach(var p in map.Provinces) {
+            random_events.checkRebellion(p);
+            //^ = bool wiec mozna potem dodac event
+        }
+    }
+
     private void aiTurn() {
 
     }
@@ -264,6 +273,7 @@ public class game_manager : MonoBehaviour
             turn_sound.Play();
             executeActions();
             turnCalculations();
+            rebellionCheck();
             map.currentPlayer = 1;
             loader.Reload();
         }

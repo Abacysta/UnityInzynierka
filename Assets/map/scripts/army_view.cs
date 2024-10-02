@@ -119,6 +119,9 @@ public class army_view : MonoBehaviour
             case 4://vassalage
                 adjusted = new Color(0.7f, 0, 1);
                 break;
+            case -2://rebellion
+                adjusted = Color.magenta;
+                break;
             default:
                 adjusted = Color.yellow;
                 break;
