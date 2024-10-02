@@ -18,6 +18,7 @@ public class army_click_handler : cursor_helper
     [SerializeField] private Canvas canvas;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private province_tooltip province_tooltip;
+
     private army_view selectedArmy;
     private List<Vector3Int> highlightedCells = new();
 
@@ -51,6 +52,8 @@ public class army_click_handler : cursor_helper
             }
             HandleLeftClick();
         }
+
+        UpdateDisbandButtonPosition();
     }
 
     private void HandleLeftClick()
@@ -108,7 +111,7 @@ public class army_click_handler : cursor_helper
         selectedArmy = null;
         isHighlighted = false;
 
-        if(disbandButtonInstance != null)
+        if (disbandButtonInstance != null)
         {
             Destroy(disbandButtonInstance);
         }
@@ -153,8 +156,8 @@ public class army_click_handler : cursor_helper
         }
     }
 
-    //https://www.redblobgames.com/grids/hexagons/#line-drawing do przyszlego pathfindingu? 
-    //https://www.redblobgames.com/grids/hexagons/#pathfinding
+    // https://www.redblobgames.com/grids/hexagons/#line-drawing do przyszlego pathfindingu? 
+    // https://www.redblobgames.com/grids/hexagons/#pathfinding
 
     private void AnimateHighlitedTiles()
     {
@@ -193,22 +196,35 @@ public class army_click_handler : cursor_helper
         endColor = startColor;
         endColor.a = 150.0f / 255.0f;
     }
+
     private void CreateDisbandButton(army_view armyView)
     {
-        if(disbandButtonInstance == null)
+        if (disbandButtonInstance != null)
         {
             Destroy(disbandButtonInstance);
         }
 
         disbandButtonInstance = Instantiate(disbandButtonPrefab, canvas.transform);
 
-        Vector3 screenPosition = Camera.main.WorldToScreenPoint(armyView.transform.position);
+        Vector3 worldPosition = base_layer.CellToWorld(new Vector3Int(armyView.ArmyData.Position.Item1, armyView.ArmyData.Position.Item2, 0));
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
+
         disbandButtonInstance.transform.position = screenPosition + new Vector3(-50, -50, 0);
 
         Button disbandButton = disbandButtonInstance.GetComponent<Button>();
         disbandButton.onClick.AddListener(() => DisbandArmy(armyView));
-
     }
+
+    private void UpdateDisbandButtonPosition()
+    {
+        if (selectedArmy != null && disbandButtonInstance != null)
+        {
+            Vector3 worldPosition = base_layer.CellToWorld(new Vector3Int(selectedArmy.ArmyData.Position.Item1, selectedArmy.ArmyData.Position.Item2, 0));
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
+            disbandButtonInstance.transform.position = screenPosition + new Vector3(-50, -50, 0);
+        }
+    }
+
     public void DisbandArmy(army_view armyView)
     {
         if (armyView != null)

@@ -369,6 +369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72c588caa05f1554c9897ae0a036bd7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  disbandButton: {fileID: 0}
 --- !u!60 &6752522919145164563
 PolygonCollider2D:
   m_ObjectHideFlags: 0
