@@ -34,5 +34,7 @@ public class country_info : MonoBehaviour
         iron.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Iron],1));
         tech.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.SciencePoint], 1));
         ap.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.AP], 1));
+        transform.Find("country_button").GetComponent<Image>().sprite = map.CurrentPlayer.getCoat();
+        transform.Find("country_button").GetComponent<Image>().color = map.CurrentPlayer.Color;
     }
 }

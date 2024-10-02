@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 public class Country {
@@ -258,17 +259,19 @@ public class Country {
     public TechnologyInterpreter techStats;
     [SerializeField] private HashSet<Province> provinces;
     [SerializeField] private Color color;
+    private int coat;
     private HashSet<(int, int)> revealedTiles;
     private HashSet<(int, int)> seenTiles;
     private List<Event_> events;
     private Dictionary<int, int> opinions;
     private bool atWar;
     private army_visibility_manager armyVisibilityManager;
-    public Country(int id, string name, (int, int) capital, Color color, Map map) {
+    public Country(int id, string name, (int, int) capital, Color color, int coat, Map map) {
         this.id = id;
         this.name = name;
         this.capital = id == 0 ? (-1, -1) : capital;
         this.color = id == 0 ? Color.white : color;
+        this.coat = coat;
         this.resources = new(technicalDefaultResources.defaultValues);
         this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
         this.techStats = new TechnologyInterpreter(this.technology);
@@ -305,7 +308,15 @@ public class Country {
     public Dictionary<int, int> Opinions { get => opinions; set => opinions = value; }
     public bool AtWar { get => atWar; set => atWar = value; }
 
+    public int Coat { get => coat; }
 
+    public Sprite getCoat() {
+        int res;
+        if (coat == 1 || coat == 2 || coat == 3)
+            res = coat;
+        else res = 1;
+        return UnityEngine.Resources.Load<Sprite>("sprites/coat_" + res);
+    }
     public bool assignProvince(Province province) {
         if(province.Owner_id != 0 || province.Owner_id == id) return false;
         provinces.Add(province);
