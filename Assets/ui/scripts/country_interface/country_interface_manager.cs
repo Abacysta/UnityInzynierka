@@ -8,6 +8,7 @@ public class country_interface_manager : MonoBehaviour
     [SerializeField] private Image cn_in_country_color_img;
     [SerializeField] private GameObject[] tab_buttons;
     [SerializeField] private GameObject[] tab_panels;
+    [SerializeField] private GameObject[] subwindows;
 
     [SerializeField] Color activeColor = new Color32(92, 92, 92, 255);
     [SerializeField] Color inactiveColor = new Color32(77, 77, 77, 255);
@@ -26,7 +27,9 @@ public class country_interface_manager : MonoBehaviour
     void Start()
     {
         ActivateTab(activeTab);
-
+        foreach(var window in subwindows) {
+            window.SetActive(false);
+        }
         for (int i = 0; i < tab_buttons.Length; i++)
         {
             int index = i;

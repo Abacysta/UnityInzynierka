@@ -1,8 +1,13 @@
+using Assets.map.scripts;
+using Assets.Scripts;
+using Assets.ui.scripts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static Assets.classes.actionContainer;
 
 public class game_manager : MonoBehaviour
 {
@@ -21,12 +26,24 @@ public class game_manager : MonoBehaviour
     [SerializeField] private map_loader loader;
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
+    [SerializeField] private dialog_box_manager dialog_box;
+    [SerializeField] private alerts_manager alerts;
+    [SerializeField] private diplomatic_actions_manager diplomaticActionsManager;
+    [SerializeField] private battle_manager battle_manager;
+    [SerializeField] private random_events_manager random_events;
+    [SerializeField] private start_screen start_screen;
 
     // Loading map data before all scripts
     void Awake()
     {
         LoadData();
+    }
 
+    private void Start() {
+        while (loader == null) ;
+        while (loader.loading) ;
+        while (start_screen == null) ;
+        start_screen.welcomeScreen();
     }
 
     void LoadData()
@@ -44,6 +61,7 @@ public class game_manager : MonoBehaviour
         {
             Debug.LogError("JSON map file not found in Resources!");
         }
+
     }
 
     public void UndoAll()
@@ -83,10 +101,25 @@ public class game_manager : MonoBehaviour
     }
 
     private void executeActions() {
+        foreach(var c in map.Countries) {
+            List<Assets.classes.actionContainer.TurnAction> instants = c.Actions.extractInstants();
+            foreach (var inst in instants) {
+                inst.execute(map);
+            }
+        }
         int acmax = map.Countries.Max(a => a.Actions.Count);
         for(int i = 0; i < acmax; i++) {
-            foreach(var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
+            foreach (var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
+                bool bswitch = false;
+                Army att = null;
+                if(c.Actions.Count > 0 && c.Actions.last is TurnAction.army_move) {
+                    bswitch = true;
+                    att = (c.Actions.last as TurnAction.army_move).Army;
+                }
                 c.Actions.execute();
+                if(bswitch && att != null) {
+                    battle_manager.checkBattle(att);
+                }
             }
         }
     }
@@ -182,15 +215,56 @@ public class game_manager : MonoBehaviour
         }
     }
 
+    private void alertClear() {
+        foreach(var event_ in map.CurrentPlayer.Events) {
+            event_.reject();
+        }
+        map.CurrentPlayer.Events.Clear();
+    }
+
+    private void rebellionCheck() {
+        foreach(var p in map.Provinces) {
+            random_events.checkRebellion(p);
+            //^ = bool wiec mozna potem dodac event
+        }
+    }
+
+    private void aiTurn() {
+
+    }
+
+    //private void welcomeScreen() {
+    //    if(turnCnt == 0){
+    //        start_screen.SetActive(true);
+    //        start_screen.transform.Find("window").GetComponentInChildren<TMP_Text>().text = "You're playing as " + "takie jajca bo mapa sie jeszcze nie zaladowala xd";//map.CurrentPlayer.Name;
+    //        var button = start_screen.transform.Find("window").GetComponentInChildren<Button>();
+    //        button.onClick.RemoveAllListeners();
+    //        button.onClick.AddListener(() => alerts.loadEvents(map.CurrentPlayer));
+    //        button.onClick.AddListener(() => alerts.reloadAlerts());
+    //        button.onClick.AddListener(() => start_screen.SetActive(false));
+    //    }
+    //    else {
+    //        start_screen.SetActive(false);
+    //    }
+    //}
+
+    public void LocalTurnSimulation() {
+        if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+            TurnSimulation();
+            return;
+        }
+        Action a = () => TurnSimulation();
+        dialog_box.invokeConfirmBox("Pass the turn", "Do you want to pass the turn?", a, null, null);
+    }
+
     public void TurnSimulation()
-    {//id 0 is a 
-        //Debug.Log(map.Countries.ToString());
-        //foreach(var c in map.Countries) {
-        //    Debug.Log(c.Actions.Count);
-        //}
+    {
         if (map.currentPlayer < map.Countries.Count - 1)
         {
+            alertClear();
             map.currentPlayer++;
+            diplomaticActionsManager.ResetRecevierButtonStates();
+            
             Debug.Log($"Sending actions.");
         }
         else
@@ -199,17 +273,27 @@ public class game_manager : MonoBehaviour
             turn_sound.Play();
             executeActions();
             turnCalculations();
+            rebellionCheck();
             map.currentPlayer = 1;
             loader.Reload();
         }
-        Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-        camera_controller.ZoomCameraToCountry();
-        fog_Of_War.UpdateFogOfWar();
-        armyReset();
-        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
-        //Debug.Log(map.Countries.ToString());
-        //foreach(var c in map.Countries) { 
-        //    Debug.Log(c.Actions.Count);
+        if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
+            aiTurn();
+            TurnSimulation();
+        }
+        else {
+            Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
+            if (turnCnt == 0 && map.Controllers[map.currentPlayer]==Map.CountryController.Local)
+                start_screen.welcomeScreen();
+            else if(turnCnt == 1)
+                start_screen.unHide();
+            camera_controller.ZoomCameraToCountry();
+            fog_Of_War.UpdateFogOfWar();
+            armyReset();
+            armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
+            alerts.loadEvents(map.CurrentPlayer);
+        }
+        
         //}
     }
 

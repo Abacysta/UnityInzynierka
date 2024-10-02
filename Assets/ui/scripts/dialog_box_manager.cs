@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using UnityEditor.Build;
 using System.Linq;
+using Assets.classes;
+using Assets.Scripts;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -28,6 +30,8 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Button confirm_button;
 
     [SerializeField] private AudioSource click_sound;
+    [SerializeField] private alerts_manager alerts;
+    
 
     public class dialog_box_precons {
         internal class DialogBox {
@@ -49,6 +53,23 @@ public class dialog_box_manager : MonoBehaviour
         internal static DialogBox downBuilding_box = new("Raze ", "Do you want to raze ");
         internal static DialogBox tech_box = new("Upgrade Technology", "Do you want to upgrade ");
     };
+
+    private void Update() {
+        if (gameObject.activeSelf) {
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                gameObject.SetActive(false);
+                overlay.SetActive(false);
+            }
+            if (Input.GetKeyDown(KeyCode.LeftShift)) {
+                cancel_button.onClick.Invoke();
+                overlay.SetActive(false);
+            }
+            if (Input.GetKeyDown(KeyCode.Return)) {
+                confirm_button.onClick.Invoke();
+                overlay.SetActive(false);
+            }
+        }
+    }
 
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
         (string title, string message) = dialog_box_precons.army_box.toVars();
@@ -166,6 +187,8 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel, Dictionary<Resource, float> cost) {
         bool confirmable = map.CurrentPlayer.canPay(cost);
+        if (cost == null) cost_area.SetActive(false);
+        else cost_area.SetActive(true);
         ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost);
     }
     public void invokeDisbandArmyBox(Map map, Army army)
@@ -185,6 +208,25 @@ public class dialog_box_manager : MonoBehaviour
         ShowSliderBox(title,message,onConfirm, onCancel, army.Count);
     }
 
+    public void invokeEventBox(Event_ _event) {
+        bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
+        if (_event.Cost == null) cost_area.SetActive(false);
+        else cost_area.SetActive(true);
+        Action onConfirm = () => {
+            _event.accept();
+            map.CurrentPlayer.Events.Remove(_event);
+            alerts.sortedevents.Remove(_event);
+            alerts.reloadAlerts();
+        };
+        Action onCancel = () => {
+            _event.reject();
+            map.CurrentPlayer.Events.Remove(_event);
+            alerts.sortedevents.Remove(_event);
+            alerts.reloadAlerts();
+        };
+        ShowConfirmBox("", _event.msg, onConfirm, onCancel, confirmable, _event.Cost);
+    }
+
     private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
     {
         close_button.onClick.RemoveAllListeners();
@@ -196,7 +238,6 @@ public class dialog_box_manager : MonoBehaviour
         else txt_con.SetText("Ok");
         if(txtCancel != null) txt_can.SetText(txtCancel);
         else txt_can.SetText("Cancel");
-
         dialog_title.text = actionTitle;
 
         close_button.onClick.AddListener(() =>
@@ -250,8 +291,8 @@ public class dialog_box_manager : MonoBehaviour
     {
         SetCostContent(cost);
         choice_area.SetActive(false);
+        cost_area.SetActive(cost!=null);
         cost_area.SetActive(true);
-
         ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable);
     }
 

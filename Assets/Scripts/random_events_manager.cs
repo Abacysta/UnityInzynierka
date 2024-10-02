@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Assets.classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static Assets.classes.actionContainer;
 
 namespace Assets.map.scripts {
     public class random_events_manager : MonoBehaviour{
@@ -68,6 +70,28 @@ namespace Assets.map.scripts {
                 country.Events.Add(new classes.Event_.GlobalEvent.Plague(country, dialog_box, camera));
             }
             //itd
+        }
+
+        public bool checkRebellion(Province province) {
+            if(province.Owner_id != 0 && map.Countries[province.Owner_id].Capital != province.coordinates) {
+                int happ = province.Happiness;
+                if(happ < 40) {
+                    if(chance > 2 * happ) {
+                        startRebellion(province);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private void startRebellion(Province province) {
+            int count = province.RecruitablePopulation + (int)((province.Population - province.RecruitablePopulation) * 0.05);
+            if (count > 0) {
+                Army rebels = new Army(0, count, (-1, -1), province.coordinates);
+                map.addArmy(rebels);
+                TurnAction rebellion = new TurnAction.army_move((-1, -1), province.coordinates, count, rebels);
+                rebellion.execute(map);
+            }
         }
     }
 }

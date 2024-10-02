@@ -4,10 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst.Intrinsics;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 public class Map:ScriptableObject {
+    public enum CountryController {
+        Local,
+        Ai,
+        Net
+    }
+    
     [SerializeField] private string map_name;
     [SerializeField] private string file_name;
     [SerializeField] private List<Province> provinces;
@@ -16,6 +23,7 @@ public class Map:ScriptableObject {
     [SerializeField] private List<Country> countries = new List<Country>();
     [SerializeField] private List<Army> armies = new List<Army>();
     [SerializeField] private GameObject army_prefab;
+    private List<CountryController> countryControllers = new List<CountryController>();
     private List<army_view> armyViews = new List<army_view>();
     private HashSet<Relation> relations = new HashSet<Relation>();
     public int currentPlayer;
@@ -31,7 +39,16 @@ public class Map:ScriptableObject {
     public List<Army> Armies { get => armies; set => armies = value; }
     public Country CurrentPlayer { get => countries[currentPlayer]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
-
+    public List<CountryController> Controllers { get { return countryControllers; } }
+    public void addCountry(Country country, CountryController ptype) {
+        countries.Add(country);
+        countryControllers.Add(ptype);
+    }
+    public void removeCountry(Country country) {
+        var idx = countries.FindIndex(c=>c==country);
+        countryControllers.RemoveAt(idx);
+        countries.RemoveAt(idx);
+    }
     public Province getProvince(int x, int y) {
         return Provinces.Find(p => p.X == x && p.Y == y);
     }
@@ -129,9 +146,12 @@ public class Map:ScriptableObject {
     }
     public void createArmyView(Army army)
     {
+        var rtype = GetHardRelationType(CurrentPlayer, countries[army.OwnerId]);
         GameObject armyObject = Instantiate(army_prefab, new Vector3(army.Position.Item1, army.Position.Item2, 0), Quaternion.identity);
         army_view armyView = armyObject.GetComponent<army_view>();
-        armyView.Initialize(army);
+        if (army.OwnerId != 0)
+            armyView.Initialize(army, rtype);
+        else armyView.Initialize(army, Relation.RelationType.Rebellion);
         armyViews.Add(armyView);
     }
     public void destroyArmyView(Army army)
@@ -401,4 +421,38 @@ public class Map:ScriptableObject {
         province.OccupationInfo.OccupyingCountryId = -1; 
     }
 
+    public HashSet<Relation> getRelationsOfType(Country country, Relation.RelationType type) {
+        HashSet<Relation> result = new HashSet<Relation>();
+        foreach(var r in relations) {
+            if(r.type == type && r.Sides.Contains(country))
+                result.Add(r);
+        }
+        return result;
+    }
+
+    public Relation.RelationType? GetHardRelationType(Country c1, Country c2) {
+        var rr = relations.FirstOrDefault(r =>
+            r.Sides.Contains(c1) && r.Sides.Contains(c2) &&
+            (r.type == Relation.RelationType.War ||
+             r.type == Relation.RelationType.Alliance ||
+             r.type == Relation.RelationType.Vassalage ||
+             r.type == Relation.RelationType.Truce)
+        );
+
+        if (rr != null) {
+            if (rr.type == Relation.RelationType.War) {
+                var war = rr as Relation.War;
+
+                if ((war.participants1.Contains(c1) && war.participants2.Contains(c2)) ||
+                    (war.participants2.Contains(c1) && war.participants1.Contains(c2))) {
+                    return Relation.RelationType.War;
+                }
+            }
+            else {
+                return rr.type;
+            }
+        }
+
+        return null;
+    }
 }

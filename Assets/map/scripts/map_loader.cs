@@ -1,4 +1,6 @@
+using Assets.classes;
 using Assets.classes.subclasses;
+using Assets.Scripts;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -6,10 +8,11 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 using UnityEngine.Video;
+using UnityEngine.UI;
 
 public class map_loader : MonoBehaviour
 {
-    private enum Mode {
+    public enum MapMode {
         Terrain,
         Resource,
         Happiness,
@@ -35,23 +38,36 @@ public class map_loader : MonoBehaviour
     [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private camera_controller camera;
-    private Mode mode;
+    [SerializeField] private GameObject mapmodes_buttons;
+    [SerializeField] private Assets.map.scripts.diplomatic_relations_manager diplomacy;
+    private MapMode mode;
+    public bool loading;
+
+    public MapMode CurrentMode { get => mode; set => mode = value; }
 
     void Start()
     {
+        loading = true;
         map.currentPlayer = 1;
         int i = 0;
 
         map.calcPopExtremes();
-        map.Countries = new System.Collections.Generic.List<Country> {
-            new Country(i++, "", (-1, -1), Color.white, map),
-            new Country(i++, "Kingdom", (0, 0), Color.gray, map),
-            new Country(i++, "Gauls", (9,9), Color.red, map),
-            new Country(i++, "Berbers", (10, 0), Color.cyan, map),
-            new Country(i++, "Egyptians", (20, 0), Color.blue, map),
-            new Country(i++, "Vikings", (30, 0), Color.green, map),
-            new Country(i++, "Huns", (40, 0), Color.yellow, map)
-        };
+        //map.Countries = new System.Collections.Generic.List<Country> {
+        //    new Country(i++, "", (-1, -1), Color.white, map),
+        //    new Country(i++, "Kingdom", (0, 0), Color.gray, map),
+        //    new Country(i++, "Gauls", (9,9), Color.red, map),
+        //    new Country(i++, "Berbers", (10, 0), Color.cyan, map),
+        //    new Country(i++, "Egyptians", (20, 0), Color.blue, map),
+        //    new Country(i++, "Vikings", (30, 0), Color.green, map),
+        //    new Country(i++, "Huns", (40, 0), Color.yellow, map)
+        //};
+        map.addCountry(new Country(i++, "", (-1, -1), Color.white, map), Map.CountryController.Ai);
+        map.addCountry(new Country(i++, "Kingdom", (0, 0), Color.gray, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "Gauls", (9, 9), Color.red, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "Berbers", (10, 0), Color.cyan, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "Egyptians", (20, 0), Color.blue, map), Map.CountryController.Ai);
+        map.addCountry(new Country(i++, "Vikings", (30, 0), Color.green, map), Map.CountryController.Ai);
+        map.addCountry(new Country(i++, "Huns", (40, 0), Color.yellow, map), Map.CountryController.Ai);
         i = 0;
         Debug.Log(map.CurrentPlayer.Name);
         foreach(Country country in map.Countries) {
@@ -72,8 +88,20 @@ public class map_loader : MonoBehaviour
         map.assignProvince((1, 0), 1);
         map.assignProvince((2, 0), 1);
         map.assignProvince((3, 0), 1);
+        map.assignProvince((2, 1), 1);
+        map.assignProvince((3, 2), 1);
+
         map.getProvince((9, 9)).Owner_id = 2;
         map.assignProvince((8, 9), 2);
+        map.assignProvince((8, 8), 2);
+        map.assignProvince((7, 8), 2);
+        map.assignProvince((7, 7), 2);
+        map.assignProvince((6, 7), 2);
+        map.assignProvince((6, 6), 2);
+        map.assignProvince((6, 5), 2);
+        map.assignProvince((5, 5), 2);
+        map.assignProvince((4, 5), 2);
+        map.assignProvince((4, 4), 2);
 
         int mapWidth = map.Provinces.Max(p => p.X);
 
@@ -99,20 +127,43 @@ public class map_loader : MonoBehaviour
         map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
         map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], dialog_box, camera));
         map.Countries[1].Events.Add(new Assets.classes.Event_.LocalEvent.PlagueFound(map.Countries[1].Provinces.Last(), dialog_box, camera));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.AccessOffer(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box));
+
+        map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[2]));
+        map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[3]));
         Army testArmy = new Army(1, 100, (1, 0), (1, 0));
         map.addArmy(testArmy);
+        map.addArmy(new Army(1, 10, (3, 3), (3, 3)));
+        map.addArmy(new Army(2, 5, (4, 4), (4, 4)));
+        map.addArmy(new Army(3, 5, (4, 4), (4, 4)));
         SetPolitical();
+        loading = false;
     }
 
     public void Reload() {
         switch (mode) {
-            case Mode.Resource:
+            case MapMode.Resource:
                 SetResources(); break;
-            case Mode.Happiness:
+            case MapMode.Happiness:
                 SetHappiness(); break;
-            case Mode.Population:
+            case MapMode.Population:
                 SetPopulation(); break;
-            case Mode.Political:
+            case MapMode.Political:
                 SetPolitical(); break;
             default:
                 SetTerrain(); break;
@@ -121,7 +172,8 @@ public class map_loader : MonoBehaviour
 
     public void SetTerrain()
     {
-        mode = Mode.Terrain;
+        mode = MapMode.Terrain;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -143,7 +195,8 @@ public class map_loader : MonoBehaviour
 
     public void SetResources()
     {
-        mode = Mode.Resource;
+        mode = MapMode.Resource;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -183,7 +236,8 @@ public class map_loader : MonoBehaviour
 
     public void SetHappiness()
     {
-        mode = Mode.Happiness;
+        mode = MapMode.Happiness;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -205,7 +259,8 @@ public class map_loader : MonoBehaviour
 
     public void SetPopulation()
     {
-        mode = Mode.Population;
+        mode = MapMode.Population;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -225,7 +280,8 @@ public class map_loader : MonoBehaviour
     }
 
      public void SetPolitical() {
-        mode = Mode.Political;
+        mode = MapMode.Political;
+        greyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces) {
@@ -250,6 +306,44 @@ public class map_loader : MonoBehaviour
         }
         province_select_layer_rnd.sortingOrder = 4;
         mouse_hover_layer_rnd.sortingOrder = 5;
+    }
+
+    public void SetDiplomatic() {
+        mode = MapMode.Diplomatic;
+        greyOutUnused(mode);
+        ClearLayers();
+        HashSet<Relation> alliances = map.getRelationsOfType(map.CurrentPlayer, Assets.classes.Relation.RelationType.Alliance),
+            wars = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.War),
+            vassalages = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage);
+        foreach(Province province in map.Provinces) {
+            Vector3Int position = new(province.X, province.Y, 0);
+            if(province.Type == "land") {
+
+                base_layer.SetTile(position, base_tile);
+                if (province.Owner_id == map.CurrentPlayer.Id) {
+                    base_layer.SetColor(position, map.CurrentPlayer.Color);
+                }
+                else if(province.Owner_id == 0) {
+                    base_layer.SetColor(position, Color.white);
+                }
+                else {
+                    switch(map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.Owner_id])) {
+                        case Relation.RelationType.War:
+                            base_layer.SetColor(position, Color.red); break;
+                        case Relation.RelationType.Alliance:
+                            base_layer.SetColor(position, Color.blue); break;
+                        case Relation.RelationType.Vassalage:
+                            base_layer.SetColor(position, Color.green); break;
+                        default:
+                            base_layer.SetColor(position, Color.yellow); break;
+                    }
+                }
+            }
+            else {
+                SetWater(position);
+            }
+        }
+        SetProvinceHoverAndSelectAboveFilterLayer();
     }
 
     private void SetWater(Vector3Int position)
@@ -307,6 +401,41 @@ public class map_loader : MonoBehaviour
     {
         province_select_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 1;
         mouse_hover_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 2;
+    }
+
+    private void greyOutUnused(map_loader.MapMode mapMode) {
+        string name;
+        switch (mapMode) {
+            case MapMode.Terrain:
+                name = "terrain";
+                break;
+            case MapMode.Resource:
+                name = "res";
+                break;
+            case MapMode.Happiness:
+                name = "happiness";
+                break;
+            case MapMode.Population:
+                name = "population";
+                break;
+            case MapMode.Political:
+                name = "political";
+                break;
+            case MapMode.Diplomatic:
+                name = "diplo";
+                break;
+            default:
+                name = "terrain";
+                break;
+        }
+        foreach(Transform child in mapmodes_buttons.transform) {
+            if(child.name != name + "_button") {
+                child.GetChild(0).GetComponent<UnityEngine.UI.Image>().color = Color.HSVToRGB(0, 0, 0.2f);
+            }
+            else {
+                child.GetChild(0).GetComponent<UnityEngine.UI.Image>().color = Color.HSVToRGB(0, 0, 1);
+            }
+        }
     }
 
     private void ClearLayers()
