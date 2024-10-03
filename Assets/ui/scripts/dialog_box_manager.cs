@@ -3,8 +3,6 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
-using UnityEditor.Build;
-using System.Linq;
 using Assets.classes;
 using Assets.Scripts;
 
@@ -19,8 +17,8 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Button close_button;
 
     [SerializeField] private TMP_Text dialog_message;
-    [SerializeField] private GameObject choice_area;
-    [SerializeField] private GameObject cost_area;
+    [SerializeField] private GameObject choice_element;
+    [SerializeField] private GameObject cost_element;
     [SerializeField] private TMP_Text quantity_text;
     [SerializeField] private Slider dialog_slider;
     [SerializeField] private TMP_Text slider_max;
@@ -31,7 +29,6 @@ public class dialog_box_manager : MonoBehaviour
 
     [SerializeField] private AudioSource click_sound;
     [SerializeField] private alerts_manager alerts;
-    
 
     public class dialog_box_precons {
         internal class DialogBox {
@@ -187,8 +184,8 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel, Dictionary<Resource, float> cost) {
         bool confirmable = map.CurrentPlayer.canPay(cost);
-        if (cost == null) cost_area.SetActive(false);
-        else cost_area.SetActive(true);
+        if (cost == null) cost_element.SetActive(false);
+        else cost_element.SetActive(true);
         ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost);
     }
     public void invokeDisbandArmyBox(Map map, Army army)
@@ -210,8 +207,8 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeEventBox(Event_ _event) {
         bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
-        if (_event.Cost == null) cost_area.SetActive(false);
-        else cost_area.SetActive(true);
+        if (_event.Cost == null) cost_element.SetActive(false);
+        else cost_element.SetActive(true);
         Action onConfirm = () => {
             _event.accept();
             map.CurrentPlayer.Events.Remove(_event);
@@ -260,6 +257,7 @@ public class dialog_box_manager : MonoBehaviour
             HideDialog();
         });
 
+        CenterDialogBox();
         overlay.SetActive(true);
         gameObject.SetActive(true);
     }
@@ -281,8 +279,8 @@ public class dialog_box_manager : MonoBehaviour
             confirm_button.interactable = (value > 0);
         });
  
-        choice_area.SetActive(true);
-        cost_area.SetActive(true);
+        choice_element.SetActive(true);
+        cost_element.SetActive(true);
         ShowDialogBox(actionTitle, message, onConfirm, onCancel, false);
     }
 
@@ -290,9 +288,9 @@ public class dialog_box_manager : MonoBehaviour
         bool confirmable = true, Dictionary<Resource, float> cost = null)
     {
         SetCostContent(cost);
-        choice_area.SetActive(false);
-        cost_area.SetActive(cost!=null);
-        cost_area.SetActive(true);
+        choice_element.SetActive(false);
+        cost_element.SetActive(cost!=null);
+        //cost_element.SetActive(true);
         ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable);
     }
 
@@ -373,5 +371,12 @@ public class dialog_box_manager : MonoBehaviour
             default:
                 return resource.ToString();
         }
+    }
+
+    private void CenterDialogBox()
+    {
+        RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+        rectTransform.offsetMax = new Vector2(0f, 0f);
+        rectTransform.offsetMin = new Vector2(0f, 0f);
     }
 }
