@@ -17,7 +17,7 @@ public class DraggableUI : MonoBehaviour, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 newPosition = uiRectTransform.anchoredPosition + eventData.delta / canvas.scaleFactor;
+        Vector3 newPosition = uiRectTransform.localPosition + (Vector3)eventData.delta / canvas.scaleFactor;
 
         float boxWidth = uiRectTransform.rect.width * uiRectTransform.localScale.x;
         float boxHeight = uiRectTransform.rect.height * uiRectTransform.localScale.y;
@@ -28,6 +28,6 @@ public class DraggableUI : MonoBehaviour, IDragHandler
         float clampedX = Mathf.Clamp(newPosition.x, -canvasWidth / 2 + boxWidth / 2, canvasWidth / 2 - boxWidth / 2);
         float clampedY = Mathf.Clamp(newPosition.y, -canvasHeight / 2 + boxHeight / 2, canvasHeight / 2 - boxHeight / 2);
 
-        uiRectTransform.anchoredPosition = new Vector2(clampedX, clampedY);
+        uiRectTransform.localPosition = new Vector2(clampedX, clampedY);
     }
 }

@@ -51,7 +51,7 @@ public class draggable_dialog_box : MonoBehaviour, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 newPosition = boxRectTransform.anchoredPosition + eventData.delta / canvas.scaleFactor;
+        Vector3 newPosition = boxRectTransform.localPosition + (Vector3)eventData.delta / canvas.scaleFactor;
 
         float areaWidth = draggable_area.rect.width * draggable_area.localScale.x;
         float areaHeight = draggable_area.rect.height * draggable_area.localScale.y;
@@ -67,6 +67,6 @@ public class draggable_dialog_box : MonoBehaviour, IDragHandler
             canvasHeight / 2 - areaHeight / 2 - invisibleHeightAdjustment
         );
 
-        boxRectTransform.anchoredPosition = new Vector2(clampedX, clampedY);
+        boxRectTransform.localPosition = new Vector2(clampedX, clampedY);
     }
 }
