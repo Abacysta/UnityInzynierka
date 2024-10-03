@@ -29,6 +29,7 @@ public class dialog_box_manager : MonoBehaviour
 
     [SerializeField] private AudioSource click_sound;
     [SerializeField] private alerts_manager alerts;
+    [SerializeField] private technology_manager technology_manager;
 
     public class dialog_box_precons {
         internal class DialogBox {
@@ -48,7 +49,7 @@ public class dialog_box_manager : MonoBehaviour
         internal static DialogBox dis_box = new("Disband Army", "Select how many units you want to disband");
         internal static DialogBox upBuilding_box = new("Build ", "Do you want to build ");
         internal static DialogBox downBuilding_box = new("Raze ", "Do you want to raze ");
-        internal static DialogBox tech_box = new("Upgrade Technology", "Do you want to upgrade ");
+        internal static DialogBox tech_box = new("Upgrade ", "Do you want to upgrade ");
     };
 
     private void Update() {
@@ -171,12 +172,33 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(title, message, onConfirm, onCancel);
     }
 
-    public void invokeTechUpgradeBox()
+    public void invokeTechUpgradeBox(Technology type)
     {
         (string title, string message) = dialog_box_precons.tech_box.toVars();
 
+        switch (type)
+        {
+            case Technology.Military:
+                title += "Military Technology";
+                message += $"Military Technology to level {map.CurrentPlayer.Technology_[Technology.Military] + 1}?";
+                break;
+
+            case Technology.Economic:
+                title += "Economic Technology";
+                message += $"Economic Technology to level {map.CurrentPlayer.Technology_[Technology.Economic] + 1}?";
+                break;
+
+            case Technology.Administrative:
+                title += "Administrative Technology";
+                message += $"Administrative Technology to level {map.CurrentPlayer.Technology_[Technology.Administrative] + 1}?";
+                break;
+            default:
+                break;
+        }
+
         Action onConfirm = () => {
-            Debug.Log("Upgraded the technology");
+            map.CurrentPlayer.Technology_[type]++;
+            technology_manager.UpdateData();
         };
         Action onCancel = null;
         ShowConfirmBox(title, message, onConfirm, onCancel);
@@ -184,8 +206,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel, Dictionary<Resource, float> cost) {
         bool confirmable = map.CurrentPlayer.canPay(cost);
-        if (cost == null) cost_element.SetActive(false);
-        else cost_element.SetActive(true);
+        cost_element.SetActive(cost != null);
         ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost);
     }
     public void invokeDisbandArmyBox(Map map, Army army)

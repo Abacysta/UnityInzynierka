@@ -7453,6 +7453,7 @@ MonoBehaviour:
   confirm_button: {fileID: 1880359992}
   click_sound: {fileID: 1259754806}
   alerts: {fileID: 2130663927}
+  technology_manager: {fileID: 807383022}
 --- !u!1 &320481200
 GameObject:
   m_ObjectHideFlags: 0

@@ -309,6 +309,7 @@ public class Country {
     public bool AtWar { get => atWar; set => atWar = value; }
 
     public int Coat { get => coat; }
+    public Dictionary<Technology, int> Technology_ { get => technology; set => technology = value; }
 
     public Sprite getCoat() {
         int res;

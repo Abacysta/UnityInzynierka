@@ -169,48 +169,32 @@ public class technology_manager : MonoBehaviour
 
     void Start()
     {
-        /*
-         
-        int militaryLevel = map.Countries[0].Technology[Technology.Military];
-        int economicLevel = map.Countries[0].Technology[Technology.Economic];
-        int administrativeLevel = map.Countries[0].Technology[Technology.Administrative]; 
-         
-        military_tech_button.onClick.AddListener(() => dialog_box.invokeTechUpgradeBox());
-        economic_tech_button.onClick.AddListener(() => dialog_box.invokeTechUpgradeBox());
-        administrative_tech_button.onClick.AddListener(() => dialog_box.invokeTechUpgradeBox());
-        */
-
         mil_tech_button.onClick.AddListener(() =>
         {
-            militaryLevel++;
-            SetTechnologyData(mil_tooltip_container, mil_tooltip_text, militaryLevel, militaryTree,
-                mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text);
+            dialog_box.invokeTechUpgradeBox(Technology.Military);
         });
 
         ec_tech_button.onClick.AddListener(() =>
         {
-            economicLevel++;
-            SetTechnologyData(ec_tooltip_container, ec_tooltip_text, economicLevel, economicTree,
-                ec_next_level_container, ec_tech_button, ec_current_level_text, ec_next_level_text);
+            dialog_box.invokeTechUpgradeBox(Technology.Economic);
         });
 
         adm_tech_button.onClick.AddListener(() =>
         {
-            administrativeLevel++;
-            SetTechnologyData(adm_tooltip_container, adm_tooltip_text, administrativeLevel, administrativeTree,
-                adm_next_level_container, adm_tech_button, adm_current_level_text, adm_next_level_text);
+            dialog_box.invokeTechUpgradeBox(Technology.Administrative);
         });
     }
 
     void OnEnable()
     {
-        SetButtonColorToGreen(mil_tech_button);
-        SetButtonColorToGreen(ec_tech_button);
-        SetButtonColorToGreen(adm_tech_button);
+        UpdateData();
+    }
 
-        SetButtonColorToGreen(mil_tech_button);
-        SetButtonColorToGreen(ec_tech_button);
-        SetButtonColorToGreen(adm_tech_button);
+    public void UpdateData()
+    {
+        int militaryLevel = map.CurrentPlayer.Technology_[Technology.Military];
+        int economicLevel = map.CurrentPlayer.Technology_[Technology.Economic];
+        int administrativeLevel = map.CurrentPlayer.Technology_[Technology.Administrative];
 
         SetTechnologyData(mil_tooltip_container, mil_tooltip_text, militaryLevel, militaryTree,
             mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text);
@@ -244,6 +228,7 @@ public class technology_manager : MonoBehaviour
 
         if (level < 10)
         {
+            SetButtonColorToGreen(techButton);
             nextLevelText.text = $"Level {level + 1}:";
 
             foreach (var effect in techTree[level].Effects)
