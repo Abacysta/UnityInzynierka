@@ -1,3 +1,4 @@
+using Assets.ui.scripts;
 using TMPro;
 using UnityEngine;
 
@@ -5,12 +6,13 @@ public class map_ui : MonoBehaviour
 {
     [SerializeField] private settings_menu settings_menu_scr;
     [SerializeField] private GameObject settings_menu_ui;
-    [SerializeField] private GameObject province_interface;
+    [SerializeField] private province_interface province_interface;
     [SerializeField] private GameObject dialog_box;
     [SerializeField] private dialog_box_manager box_manager;
     [SerializeField] private map_loader loader;
     [SerializeField] private game_manager game_manager;
     [SerializeField] private country_interface_manager country_interface;
+    [SerializeField] private start_screen start_screen;
 
     void Start()
     {
@@ -24,8 +26,11 @@ public class map_ui : MonoBehaviour
             if(dialog_box.activeSelf) {
                 box_manager.HideDialog();
             }
-            else if(province_interface.activeSelf) {
-                province_interface.SetActive(false);
+            else if (country_interface.gameObject.activeSelf) {
+                country_interface.HideCountryInterface();
+            }
+            else if(province_interface.gameObject.activeSelf) {
+                province_interface.gameObject.SetActive(false);
             }
             else {
                 settings_menu_ui.SetActive(settings_menu_ui.activeSelf);
@@ -70,7 +75,8 @@ public class map_ui : MonoBehaviour
                 game_manager.undoLast();
             }
         }
-        if (Input.GetKeyDown(KeyCode.Q)) {
+        if(!isBlocked)
+        {if (Input.GetKeyDown(KeyCode.Q)) {
             if (country_interface.gameObject.activeSelf && country_interface.ActiveTab == 0) {
                 country_interface.HideCountryInterface();
             }
@@ -97,15 +103,23 @@ public class map_ui : MonoBehaviour
                 country_interface.ActivateTab(2);
             }
         }
-        if (Input.GetKeyDown(KeyCode.R)) {
-            if(country_interface.gameObject.activeSelf && country_interface.ActiveTab == 3) {
-                country_interface.HideCountryInterface();
+            if (Input.GetKeyDown(KeyCode.R)) {
+                if (country_interface.gameObject.activeSelf && country_interface.ActiveTab == 3) {
+                    country_interface.HideCountryInterface();
+                }
+                else if (!dialog_box.activeSelf) {
+                    country_interface.ShowCountryInterface();
+                    country_interface.ActivateTab(3);
+                }
             }
-            else if (!dialog_box.activeSelf) {
-                country_interface.ShowCountryInterface();
-                country_interface.ActivateTab(3);
+        }
+        if (Input.GetKeyDown(KeyCode.F)) { 
+            if(province_interface.gameObject.activeSelf && province_interface.Recruitable) {
+                province_interface.recruit();
             }
         }
 
     }
+
+    public bool isBlocked { get { return !(settings_menu_ui.activeSelf || dialog_box.activeSelf || country_interface.gameObject.activeSelf || start_screen.gameObject.activeSelf); } }
 }

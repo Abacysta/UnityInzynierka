@@ -66,6 +66,11 @@ public class dialog_box_manager : MonoBehaviour
                 confirm_button.onClick.Invoke();
                 overlay.SetActive(false);
             }
+            //if (Input.GetKeyDown(KeyCode.Space)) {
+            //    gameObject.SetActive(false);
+            //    overlay.SetActive(false);
+                
+            //}
         }
     }
 

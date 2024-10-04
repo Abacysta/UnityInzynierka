@@ -238,6 +238,20 @@ public class camera_controller : cursor_helper
         }
     }
 
+    public void ZoomCameraToCountry(int countryid) {
+        ZoomCameraToCountry(map.Countries[countryid]);
+    }
+
+    public void ZoomCameraToCountry(Country country) {
+        if (country.Provinces.Any()) {
+            //jaja jak berety
+            
+        }
+        else {
+            CenterAndScaleCamera();
+        }
+    }
+
     public void ZoomCameraToProvince(Province province)
     {
         Vector3Int provincePosition = new(province.X, province.Y, 0);

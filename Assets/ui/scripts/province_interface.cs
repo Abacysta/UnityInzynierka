@@ -67,6 +67,7 @@ public class province_interface : MonoBehaviour
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
     private int prov;
 
+    public bool Recruitable{ get { return map.getProvince(map.Selected_province).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
     private void Start() {
         id_ = new ProvinceInfoField(id);
         type_ = new ProvinceInfoField(type);
@@ -163,6 +164,10 @@ public class province_interface : MonoBehaviour
 
     public void hide() {
         gameObject.SetActive(false);
+    }
+
+    public void recruit() {
+        recruitment_button.GetComponent<Button>().onClick.Invoke();
     }
 }
 
