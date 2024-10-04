@@ -15,6 +15,8 @@ public class country_interface_manager : MonoBehaviour
 
     private int activeTab = 0;
 
+    public int ActiveTab { get => activeTab; set => activeTab = value; }
+
     void Awake()
     {
         gameObject.SetActive(false);

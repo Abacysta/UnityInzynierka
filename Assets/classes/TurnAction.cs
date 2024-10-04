@@ -393,9 +393,11 @@ namespace Assets.classes {
             actions[0].execute(map);
             actions.RemoveAt(0);
         }
-        public void revert() { 
-            last.revert(map);
-            actions.Remove(last);
+        public void revert() {
+            if(actions.Count>0){
+                last.revert(map);
+                actions.Remove(last);
+            }
         }
     }
 }

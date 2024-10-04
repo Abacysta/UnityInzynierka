@@ -9,6 +9,8 @@ public class map_ui : MonoBehaviour
     [SerializeField] private GameObject dialog_box;
     [SerializeField] private dialog_box_manager box_manager;
     [SerializeField] private map_loader loader;
+    [SerializeField] private game_manager game_manager;
+    [SerializeField] private country_interface_manager country_interface;
 
     void Start()
     {
@@ -60,6 +62,50 @@ public class map_ui : MonoBehaviour
                 loader.SetDiplomatic();
             }
         }
-        
+        if (Input.GetKeyDown(KeyCode.Backspace)) {
+            if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+                game_manager.UndoAll();
+            }
+            else {
+                game_manager.undoLast();
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            if (country_interface.gameObject.activeSelf && country_interface.ActiveTab == 0) {
+                country_interface.HideCountryInterface();
+            }
+            else if(!dialog_box.activeSelf) {
+                country_interface.ShowCountryInterface();
+                country_interface.ActivateTab(0);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.W)) {
+            if (country_interface.gameObject.activeSelf && country_interface.ActiveTab == 1) {
+                country_interface.HideCountryInterface();
+            }
+            else if (!dialog_box.activeSelf) {
+                country_interface.ShowCountryInterface();
+                country_interface.ActivateTab(1);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.E)) { 
+            if(country_interface.gameObject.activeSelf && country_interface.ActiveTab == 2) {
+                country_interface.HideCountryInterface();
+            }
+            else if (!dialog_box.activeSelf) {
+                country_interface.ShowCountryInterface();
+                country_interface.ActivateTab(2);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.R)) {
+            if(country_interface.gameObject.activeSelf && country_interface.ActiveTab == 3) {
+                country_interface.HideCountryInterface();
+            }
+            else if (!dialog_box.activeSelf) {
+                country_interface.ShowCountryInterface();
+                country_interface.ActivateTab(3);
+            }
+        }
+
     }
 }
