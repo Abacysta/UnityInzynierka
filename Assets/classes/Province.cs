@@ -9,6 +9,9 @@ using UnityEngine;
 
 [System.Serializable]
 public class Province {
+    public enum TerrainType {
+
+    }
     [SerializeField] private string id;
     [SerializeField] private string name;
     [SerializeField] private int x;
@@ -23,15 +26,17 @@ public class Province {
     [SerializeField] private OccupationInfo occupationInfo;
     [SerializeField] private int owner_id;
     [SerializeField] private List<Building> buildings;
+    private TerrainType terrain;
     private List<Status> statuses;
     private float prod_mod = 1, pop_mod = 1, pop_static = 0, happ_mod = 1, happ_static = 0, tax_mod = 1, rec_pop = 1; 
 
-    public Province(string id, string name, int x, int y, string type, string resources, int resources_amount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id) {
+    public Province(string id, string name, int x, int y, string type, TerrainType terrain, string resources, int resources_amount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id) {
         this.id = id;
         this.name = name;
         this.x = x;
         this.y = y;
         this.type = type;
+        this.terrain = terrain;
         this.resources = resources;
         this.resources_amount = resources_amount;
         this.population = population;
@@ -70,6 +75,7 @@ public class Province {
     public float Tax_mod { get => tax_mod; set => tax_mod = value; }
     public float Rec_pop { get => rec_pop; set => rec_pop = value; }
     public List<Status> Statuses { get => statuses; set => statuses = value; }
+    internal TerrainType Terrain { get => terrain; set => terrain = value; }
 
     private Resource RealResource() {
         switch(Resources) {
