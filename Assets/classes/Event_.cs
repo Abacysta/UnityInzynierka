@@ -43,8 +43,7 @@ namespace Assets.classes {
             }
             public void zoom() {
                 // Implement zoom to capital or whatever, using the country object
-                camera.ZoomCameraToCountry();
-                
+                camera.ZoomCameraOnCountry(country);
             }
 
             protected virtual Dictionary<Resource, float> cost() {
@@ -331,8 +330,7 @@ namespace Assets.classes {
             public override void reject() { accept(); }
             public override string msg { get { return ""; } }
             public void zoom() {
-                // Implement zoom to province or whatever
-                camera.ZoomCameraToProvince(province);
+                camera.ZoomCameraOnProvince(province);
             }
             public override void call() {
                 var cost = this.cost();

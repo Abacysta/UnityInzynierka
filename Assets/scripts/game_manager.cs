@@ -287,7 +287,7 @@ public class game_manager : MonoBehaviour
                 start_screen.welcomeScreen();
             else if(turnCnt == 1)
                 start_screen.unHide();
-            camera_controller.ZoomCameraToCountry();
+            camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();
             armyReset();
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);

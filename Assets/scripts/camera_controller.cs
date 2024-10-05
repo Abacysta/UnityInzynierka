@@ -1,6 +1,7 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class camera_controller : cursor_helper
 {
@@ -46,7 +47,7 @@ public class camera_controller : cursor_helper
         CalculateMapCenterAndBounds();
         CalculateCameraSizeForMap();
 
-        ZoomCameraToCountry();
+        ZoomCameraOnCountry(map.currentPlayer);
     }
 
     void Update()
@@ -183,16 +184,16 @@ public class camera_controller : cursor_helper
         mainCamera.orthographicSize = cameraSizeForMap;
     }
 
-    private void CalculateCountryCenterAndBounds()
+    private void CalculateCountryCenterAndBounds(Country country)
     {
         int hexCountryMinX = 0, hexCountryMinY = 0;
         int hexCountryMaxX = 80, hexCountryMaxY = 80;
 
         // Max country tilemap coordinates
-        hexCountryMinX = map.CurrentPlayer.Provinces.Min(p => p.X);
-        hexCountryMinY = map.CurrentPlayer.Provinces.Min(p => p.Y);
-        hexCountryMaxX = map.CurrentPlayer.Provinces.Max(p => p.X);
-        hexCountryMaxY = map.CurrentPlayer.Provinces.Max(p => p.Y);
+        hexCountryMinX = country.Provinces.Min(p => p.X);
+        hexCountryMinY = country.Provinces.Min(p => p.Y);
+        hexCountryMaxX = country.Provinces.Max(p => p.X);
+        hexCountryMaxY = country.Provinces.Max(p => p.Y);
 
         Vector3Int minCellPosition = new(hexCountryMinX, hexCountryMinY, 0);
         Vector3Int maxCellPosition = new(hexCountryMaxX, hexCountryMaxY, 0);
@@ -207,7 +208,7 @@ public class camera_controller : cursor_helper
         countryCenterY = (countryMinY + countryMaxY) / 2f;
     }
 
-    private void CalculateCameraSizeForCountry()
+    private void CalculateCameraSizeForCountry(Country country)
     {
         float countryWidth = countryMaxX - countryMinX;
         float countryHeight = countryMaxY - countryMinY;
@@ -223,12 +224,17 @@ public class camera_controller : cursor_helper
         cameraSizeForCountry = cameraSize >= minZoom ? Mathf.Max(orthographicSizeHeight, orthographicSizeWidth) : minZoom;
     }
 
-    public void ZoomCameraToCountry()
+    public void ZoomCameraOnCountry(int countryid)
     {
-        if (map.CurrentPlayer.Provinces.Any())
+        ZoomCameraOnCountry(map.Countries[countryid]);
+    }
+
+    public void ZoomCameraOnCountry(Country country)
+    {
+        if (country.Provinces.Any())
         {
-            CalculateCountryCenterAndBounds();
-            CalculateCameraSizeForCountry();
+            CalculateCountryCenterAndBounds(country);
+            CalculateCameraSizeForCountry(country);
             mainCamera.transform.position = new Vector3(countryCenterX, countryCenterY, transform.position.z);
             mainCamera.orthographicSize = cameraSizeForCountry;
         }
@@ -238,21 +244,7 @@ public class camera_controller : cursor_helper
         }
     }
 
-    public void ZoomCameraToCountry(int countryid) {
-        ZoomCameraToCountry(map.Countries[countryid]);
-    }
-
-    public void ZoomCameraToCountry(Country country) {
-        if (country.Provinces.Any()) {
-            //jaja jak berety
-            
-        }
-        else {
-            CenterAndScaleCamera();
-        }
-    }
-
-    public void ZoomCameraToProvince(Province province)
+    public void ZoomCameraOnProvince(Province province)
     {
         Vector3Int provincePosition = new(province.X, province.Y, 0);
         Vector3 worldPosition = tile_map_layer_1.CellToWorld(provincePosition);
@@ -261,9 +253,9 @@ public class camera_controller : cursor_helper
         map.Selected_province = (province.X,province.Y);
     }
 
-    public void ZoomToProvinceTest()
+    public void ZoomOnProvinceTest()
     {
         Province province = map.CurrentPlayer.Provinces.FirstOrDefault();
-        ZoomCameraToProvince(province);
+        ZoomCameraOnProvince(province);
     }
 }
