@@ -22,7 +22,8 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private TMP_Text quantity_text;
     [SerializeField] private Slider dialog_slider;
     [SerializeField] private TMP_Text slider_max;
-    [SerializeField] private TMP_Text cost_content;
+    [SerializeField] private GameObject cost_content;
+    [SerializeField] private GameObject effect_row_prefab;
 
     [SerializeField] private Button cancel_button;
     [SerializeField] private Button confirm_button;
@@ -30,6 +31,13 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private AudioSource click_sound;
     [SerializeField] private alerts_manager alerts;
     [SerializeField] private technology_manager technology_manager;
+
+    [SerializeField] private Sprite gold_sprite;
+    [SerializeField] private Sprite wood_sprite;
+    [SerializeField] private Sprite iron_sprite;
+    [SerializeField] private Sprite science_point_sprite;
+    [SerializeField] private Sprite ap_sprite;
+    [SerializeField] private Sprite happiness_sprite;
 
     public class dialog_box_precons {
         internal class DialogBox {
@@ -289,7 +297,7 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     private void ShowSliderBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, 
-        int maxValue, Dictionary<Resource, float> cost = null)
+        int maxValue, Dictionary<Resource, float> cost = null, List<Effect> effects = null)
     {
         dialog_slider.value = 0;
         dialog_slider.maxValue = maxValue;
@@ -311,9 +319,9 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     private void ShowConfirmBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, 
-        bool confirmable = true, Dictionary<Resource, float> cost = null)
+        bool confirmable = true, Dictionary<Resource, float> cost = null, List<Effect> effects = null)
     {
-        SetCostContent(cost);
+        SetCostContent(cost, effects: effects);
         choice_element.SetActive(false);
         cost_element.SetActive(cost!=null);
         //cost_element.SetActive(true);
@@ -326,40 +334,46 @@ public class dialog_box_manager : MonoBehaviour
         overlay.SetActive(false);
     }
 
-    private void SetCostContent(Dictionary<Resource, float> cost)
+    private void SetCostContent(Dictionary<Resource, float> cost = null, float? sliderValue = null, List<Effect> effects = null)
     {
-        if (cost != null)
+        var costRows = new List<Effect>();
+
+        if (cost != null && cost.Count > 0)
         {
-            var costLines = new List<string>();
             foreach (var item in cost)
             {
-                string resourceName = GetResourceName(item.Key);
-                costLines.Add($"{resourceName}: {item.Value}");
+                var (resourceName, resourceSprite) = GetResourceDetails(item.Key);
+                string costValue = sliderValue.HasValue && item.Key != Resource.AP
+                    ? (item.Value * sliderValue.Value).ToString()
+                    : item.Value.ToString();
+
+                costRows.Add(new Effect(resourceSprite, $"{resourceName}:", $"-{costValue}", false));
             }
-            cost_content.text = string.Join("\n", costLines);
         }
-        else
+
+        if (effects != null && effects.Count > 0)
         {
-            cost_content.text = "";
+            costRows.AddRange(effects);
+        }
+
+        if (costRows.Count > 0)
+        {
+            SetEffects(costRows);
         }
     }
 
-    private void SetCostContent(Dictionary<Resource, float> baseCost, float sliderValue)
+    private void SetEffects(List<Effect> actionEffects)
     {
-        if (baseCost != null)
+        foreach (Transform child in cost_content.transform)
         {
-            var costLines = new List<string>();
-            foreach (var item in baseCost)
-            {
-                string resourceName = GetResourceName(item.Key);
-                float costValue = (item.Key == Resource.AP) ? item.Value : item.Value * sliderValue;
-                costLines.Add($"{resourceName}: {costValue}");
-            }
-            cost_content.text = string.Join("\n", costLines);
+            Destroy(child.gameObject);
         }
-        else
+
+        foreach (var effect in actionEffects)
         {
-            cost_content.text = "";
+            GameObject effectRow = Instantiate(effect_row_prefab, cost_content.transform);
+            var effectUI = effectRow.GetComponent<effect_ui>();
+            effectUI.SetEffect(effect);
         }
     }
 
@@ -380,22 +394,22 @@ public class dialog_box_manager : MonoBehaviour
         db_country_color_img.color = map.CurrentPlayer.Color;
     }
 
-    private string GetResourceName(Resource resource)
+    private (string name, Sprite sprite) GetResourceDetails(Resource resource)
     {
         switch (resource)
         {
             case Resource.Gold:
-                return "Gold";
+                return ("Gold", gold_sprite);
             case Resource.Wood:
-                return "Wood";
+                return ("Wood", wood_sprite);
             case Resource.Iron:
-                return "Iron";
+                return ("Iron", iron_sprite);
             case Resource.SciencePoint:
-                return "Science points";
+                return ("Science points", science_point_sprite);
             case Resource.AP:
-                return "Action points";
+                return ("Action points", ap_sprite);
             default:
-                return resource.ToString();
+                return (resource.ToString(), null);
         }
     }
 
