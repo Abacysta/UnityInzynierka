@@ -10,22 +10,30 @@ public class country_info : MonoBehaviour
     public GameObject info_cont;
     public Map map;
     private TMP_Text gold, wood, iron, tech, ap;
+    private TMP_Text goldG, woodG, ironG, techG, apG;
     [SerializeField] private GameObject main_button;
     [SerializeField] private country_interface_manager country_interface;
     [SerializeField] private province_interface province_interface;
+    [SerializeField] game_manager game_manager;
     // Start is called before the first frame update
     void Start()
     {
-        gold = info_cont.transform.Find("gold").GetComponentInChildren<TMP_Text>();
-        wood = info_cont.transform.Find("wood").GetComponentInChildren<TMP_Text>();
-        iron = info_cont.transform.Find("iron").GetComponentInChildren<TMP_Text>();
-        tech = info_cont.transform.Find("tech").GetComponentInChildren<TMP_Text>();
-        ap = info_cont.transform.Find("ap").GetComponentInChildren<TMP_Text>();
+        gold = info_cont.transform.Find("gold").Find("txt").GetComponent<TMP_Text>();
+        wood = info_cont.transform.Find("wood").Find("txt").GetComponent<TMP_Text>();
+        iron = info_cont.transform.Find("iron").Find("txt").GetComponent<TMP_Text>();
+        tech = info_cont.transform.Find("tech").Find("txt").GetComponent<TMP_Text>();
+        ap = info_cont.transform.Find("ap").Find("txt").GetComponent<TMP_Text>();
+        goldG = info_cont.transform.Find("gold").Find("gain").GetComponent<TMP_Text>();
+        woodG = info_cont.transform.Find("wood").Find("gain").GetComponent<TMP_Text>();
+        ironG = info_cont.transform.Find("iron").Find("gain").GetComponent<TMP_Text>();
+        techG = info_cont.transform.Find("tech").Find("gain").GetComponent<TMP_Text>();
+        apG = info_cont.transform.Find("tech").Find("gain").GetComponent<TMP_Text>();
         displayInfo();
-        InvokeRepeating("displayInfo", 0.5f, 0.15f);
+        InvokeRepeating("displayInfo", 0.5f, 0.5f);
     }
 
     public void displayInfo() {
+        var gains = game_manager.getGain(map.CurrentPlayer);
         main_button.GetComponent<Image>().color = map.CurrentPlayer.Color;
         main_button.GetComponent<Button>().onClick.AddListener(() => country_interface.ShowCountryInterface());
         main_button.GetComponent<Button>().onClick.AddListener(() => province_interface.hide());
@@ -34,6 +42,11 @@ public class country_info : MonoBehaviour
         iron.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Iron],1));
         tech.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.SciencePoint], 1));
         ap.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.AP], 1));
+        goldG.SetText("" + Math.Round(gains[Resource.Gold], 1));
+        woodG.SetText("" + Math.Round(gains[Resource.Wood], 1));
+        ironG.SetText("" + Math.Round(gains[Resource.Iron], 1));
+        techG.SetText("" + Math.Round(gains[Resource.SciencePoint], 1));
+        apG.SetText("" + Math.Round(gains[Resource.AP], 1));
         map.CurrentPlayer.setCoatandColor(transform.Find("country_button").GetComponent<Image>());
         
     }

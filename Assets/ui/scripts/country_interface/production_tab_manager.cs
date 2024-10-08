@@ -9,9 +9,11 @@ using UnityEngine.UI;
 public class production_tab_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
+    [SerializeField] private game_manager game_manager;
     [SerializeField] private TMP_Text country_population_text, country_happiness_text;
     [SerializeField] private List<Toggle> toggles;
     [SerializeField] private TMP_Text tax_text, happ_text;
+    [SerializeField] private GameObject panel;
 
     void Start()
     {
@@ -35,6 +37,7 @@ public class production_tab_manager : MonoBehaviour
         SetCountryHappinessText(countryHappiness);
         setTaxButtons();
         updateTaxInfo();
+        updateGainInfo();
     }
 
     private int CalculateCountryPopulation()
@@ -91,6 +94,7 @@ public class production_tab_manager : MonoBehaviour
         happ_text.text = tax_happ + "%";
         if (tax_happ > 0) happ_text.color = Color.green;
         else happ_text.color=Color.red;
+        updateGainInfo();
     }
 
     private void setTaxType(int it) {
@@ -126,5 +130,17 @@ public class production_tab_manager : MonoBehaviour
             default:
                 return 0;
         }
+    }
+
+    private void updateGainInfo() {
+        var gains = game_manager.getGain(map.CurrentPlayer);
+        var gold = panel.transform.Find("gold_text").GetComponent<TMP_Text>();
+        var wood = panel.transform.Find("wood_text").GetComponent<TMP_Text>();
+        var iron = panel.transform.Find("iron_text").GetComponent<TMP_Text>();
+        var sp = panel.transform.Find("science_points_text").GetComponent<TMP_Text>();
+        gold.SetText((gains[Resource.Gold] > 0 ? "+" : "") + gains[Resource.Gold]);
+        wood.SetText((gains[Resource.Wood] > 0 ? "+" : "") + gains[Resource.Wood]);
+        iron.SetText((gains[Resource.Iron] > 0 ? "+" : "") + gains[Resource.Iron]);
+        sp.SetText((gains[Resource.SciencePoint] > 0 ? "+" : "") + gains[Resource.SciencePoint]);
     }
 }

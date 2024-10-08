@@ -360,7 +360,9 @@ public class Map:ScriptableObject {
         return possibleCells;
     }
 
-    
+    public List<Army> getCountryArmies(Country country) {
+        return armies.FindAll(a => a.OwnerId == country.Id);
+    }
 
     public bool IsValidPosition(int x, int y)
     {
