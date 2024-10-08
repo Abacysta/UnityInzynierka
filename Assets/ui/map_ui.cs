@@ -75,6 +75,14 @@ public class map_ui : MonoBehaviour
                 game_manager.undoLast();
             }
         }
+        if (Input.GetKeyDown(KeyCode.Space)) { 
+            if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+                game_manager.TurnSimulation();
+            }
+            else {
+                game_manager.LocalTurnSimulation();
+            }
+        }
         if(!isBlocked)
         {if (Input.GetKeyDown(KeyCode.Q)) {
             if (country_interface.gameObject.activeSelf && country_interface.ActiveTab == 0) {
