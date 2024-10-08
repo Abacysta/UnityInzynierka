@@ -200,26 +200,23 @@ public class technology_manager : MonoBehaviour
         int economicLevel = map.CurrentPlayer.Technology_[Technology.Economic];
         int administrativeLevel = map.CurrentPlayer.Technology_[Technology.Administrative];
 
-        Dictionary<Resource, float> milCost = map.CurrentPlayer.techStats.milCost;
-        Dictionary<Resource, float> ecCost = map.CurrentPlayer.techStats.ecCost;
-        Dictionary<Resource, float> admCost = map.CurrentPlayer.techStats.admCost;
-
         SetTechnologyData(mil_tooltip_container, mil_tooltip_text, militaryLevel, militaryTree,
             mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text, 
-            mil_ap_value, mil_sp_value, mil_cost_content, milCost);
+            mil_ap_value, mil_sp_value, mil_cost_content, Technology.Military);
         SetTechnologyData(ec_tooltip_container, ec_tooltip_text, economicLevel, economicTree,
             ec_next_level_container, ec_tech_button, ec_current_level_text, ec_next_level_text, 
-            ec_ap_value, ec_sp_value, ec_cost_content, ecCost);
+            ec_ap_value, ec_sp_value, ec_cost_content, Technology.Economic);
         SetTechnologyData(adm_tooltip_container, adm_tooltip_text, administrativeLevel, administrativeTree,
             adm_next_level_container, adm_tech_button, adm_current_level_text, adm_next_level_text, 
-            adm_ap_value, adm_sp_value, adm_cost_content, admCost);
+            adm_ap_value, adm_sp_value, adm_cost_content, Technology.Administrative);
     }
 
     public void SetTechnologyData(GameObject tooltip, TMP_Text tooltipText, int level, List<TechLevel> techTree, 
         GameObject nextLevelContainer, Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText, 
-        TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Dictionary<Resource, float> cost)
+        TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Technology type)
     {
         map.CurrentPlayer.techStats.Calculate(map.CurrentPlayer.Technology_);
+        Dictionary<Resource, float> cost = map.CurrentPlayer.techStats.TechCost(map.CurrentPlayer.Technology_, type);
 
         // Tooltip
         ClearChildren(tooltip.transform);

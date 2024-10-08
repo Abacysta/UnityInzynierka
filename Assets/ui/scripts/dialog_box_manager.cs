@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Assets.classes;
 using Assets.Scripts;
+using Assets.classes.subclasses;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -189,30 +190,25 @@ public class dialog_box_manager : MonoBehaviour
     {
         (string title, string message) = dialog_box_precons.tech_box.toVars();
 
-        Dictionary<Resource, float> cost = null;
-
         switch (type)
         {
             case Technology.Military:
                 title += "Military Technology";
                 message += $"Military Technology to level {map.CurrentPlayer.Technology_[Technology.Military] + 1}?";
-                cost = map.CurrentPlayer.techStats.milCost;
                 break;
-
             case Technology.Economic:
                 title += "Economic Technology";
                 message += $"Economic Technology to level {map.CurrentPlayer.Technology_[Technology.Economic] + 1}?";
-                cost = map.CurrentPlayer.techStats.ecCost;
                 break;
-
             case Technology.Administrative:
                 title += "Administrative Technology";
                 message += $"Administrative Technology to level {map.CurrentPlayer.Technology_[Technology.Administrative] + 1}?";
-                cost = map.CurrentPlayer.techStats.admCost;
                 break;
             default:
                 break;
         }
+
+        Dictionary<Resource, float> cost = map.CurrentPlayer.techStats.TechCost(map.CurrentPlayer.Technology_, type);
 
         float costAP = cost.ContainsKey(Resource.AP) ? cost[Resource.AP] : 0;
         float costSP = cost.ContainsKey(Resource.SciencePoint) ? cost[Resource.SciencePoint] : 0;
@@ -224,6 +220,7 @@ public class dialog_box_manager : MonoBehaviour
             technology_manager.UpdateData();
         };
         Action onCancel = null;
+
         ShowConfirmBox(title, message, onConfirm, onCancel);
     }
 

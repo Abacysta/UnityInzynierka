@@ -3,6 +3,7 @@ using Assets.classes.subclasses;
 using Assets.classes.Tax;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -101,18 +102,19 @@ public class Country {
         /// </summary>
         public float waterMoveFactor;
 
-        public Dictionary<Resource, float> milCost = new();
-        public Dictionary<Resource, float> ecCost = new();
-        public Dictionary<Resource, float> admCost = new();
+        public Dictionary<Resource, float> TechCost(Dictionary<Technology, int> tech, Technology type)
+        {
+            int techLvl = tech[type];
+            int allTechLvl = tech.Values.Sum();
+
+            return new Dictionary<Resource, float> {
+                { Resource.AP, 0.1f },
+                { Resource.SciencePoint, 10 + (10 * techLvl) + (5 * allTechLvl) }
+            };
+        }
 
         public TechnologyInterpreter(Dictionary<Technology, int> tech) {
             Calculate(tech);
-        }
-
-        private void CalculateCost(Dictionary<Resource, float> cost, int techLvl, int allTechLvl)
-        {
-            cost[Resource.AP] = 0.1f;
-            cost[Resource.SciencePoint] = 10 + (10 * techLvl) + (5 * allTechLvl);
         }
 
         public void Calculate(Dictionary<Technology, int> tech) {
@@ -133,10 +135,6 @@ public class Country {
             occTime = 3;
             lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 2; moveRange = 1;
             waterMoveFactor = 0.5f;
-
-            CalculateCost(milCost, mil, eco + mil + adm);
-            CalculateCost(ecCost, eco, eco + mil + adm);
-            CalculateCost(admCost, adm, eco + mil + adm);
 
             //economic
             switch (eco) {
