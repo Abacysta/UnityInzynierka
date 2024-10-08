@@ -131,12 +131,14 @@ public class province_interface : MonoBehaviour
             b_3.sprite = b_3_spr[bld[2].BuildingLevel];
             b_4.sprite = b_4_spr[bld[3].BuildingLevel];
             if (p.Owner_id == 0) emblem.SetActive(false);
-            else emblem.SetActive(true);
+            else {
+                map.Countries[p.Owner_id].setCoatandColor(emblem);
+                emblem.SetActive(true);
+            }
             if(map.CurrentPlayer.Id == p.Owner_id) foreach(var bt in new List<(Transform, int)> { (b_1_m, 0), (b_2_m, 1), (b_3_m, 2), (b_4_m, 3)}) {
                 bt.Item1.Find("add").GetComponent<Button>().interactable = bld[bt.Item2].BuildingLevel < 3 ? true : false;
                 bt.Item1.Find("remove").GetComponent<Button>().interactable = bld[bt.Item2].BuildingLevel > 0 && bld[bt.Item2].BuildingLevel < 4? true : false;
             }
-            emblem.GetComponent<Image>().color = map.Countries[p.Owner_id].Color;
             if(map.CurrentPlayer.Id == p.Owner_id) {
                 emblem.GetComponent<Button>().onClick.AddListener(() => country_interface.ShowCountryInterface());
             }

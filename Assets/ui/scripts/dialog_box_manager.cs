@@ -260,6 +260,7 @@ public class dialog_box_manager : MonoBehaviour
 
     private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
     {
+        map.CurrentPlayer.setCoatandColor(db_country_color_img);
         close_button.onClick.RemoveAllListeners();
         confirm_button.onClick.RemoveAllListeners();
         cancel_button.onClick.RemoveAllListeners();
