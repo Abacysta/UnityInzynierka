@@ -1,3 +1,4 @@
+using Assets.classes.Tax;
 using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
@@ -9,6 +10,7 @@ using Unity.Loading;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.actionContainer;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class game_manager : MonoBehaviour
 {
@@ -203,7 +205,6 @@ public class game_manager : MonoBehaviour
         }
     }
     private void ccc(int i) {
-        float tax = 0;
         Dictionary<Resource, float> resources = new Dictionary<Resource, float> {
                 { Resource.Gold, 0 },
                 { Resource.Wood, 0 },
@@ -214,19 +215,22 @@ public class game_manager : MonoBehaviour
 
         loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
-
-        foreach(var p in map.Countries[i].Provinces) {
+        map.Countries[i].Tax.applyCountryTax(map.Countries[i]);
+        foreach (var p in map.Countries[i].Provinces) {
+            p.Happiness += 3;
+            if (p.Buildings.Any(b => b.BuildingType == BuildingType.School) && p.getBuilding(BuildingType.School).BuildingLevel < 4) resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
             resources[p.ResourcesT] += p.ResourcesP;
             resources[Resource.AP] += 0.1f;
         }
-
-        tax *= map.Countries[i].techStats.taxFactor;
+        
         resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
-        map.Countries[i].modifyResource(Resource.Gold, tax);
+        foreach (var army in map.getCountryArmies(map.CurrentPlayer)) {
+            resources[Resource.Gold] -= (army.Count / 10 + 1) * map.Countries[i].techStats.armyUpkeep;
+        }
 
-        foreach(var res in resources) {
+        foreach (var res in resources) {
             map.Countries[i].modifyResource(res.Key, res.Value);
         }
         map.Countries[i].setResource(Resource.AP, resources[Resource.AP]);
