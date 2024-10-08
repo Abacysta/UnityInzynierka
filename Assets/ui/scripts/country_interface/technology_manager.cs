@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,9 +38,16 @@ public class technology_manager : MonoBehaviour
     [SerializeField] private GameObject adm_next_level_container;
     [SerializeField] private GameObject ec_next_level_container;
 
-    [SerializeField] private TMP_Text mil_cost_text;
-    [SerializeField] private TMP_Text ec_cost_text;
-    [SerializeField] private TMP_Text adm_cost_text;
+    [SerializeField] private TMP_Text mil_ap_value;
+    [SerializeField] private TMP_Text mil_sp_value;
+    [SerializeField] private TMP_Text ec_ap_value;
+    [SerializeField] private TMP_Text ec_sp_value;
+    [SerializeField] private TMP_Text adm_ap_value;
+    [SerializeField] private TMP_Text adm_sp_value;
+
+    [SerializeField] private GameObject mil_cost_content;
+    [SerializeField] private GameObject ec_cost_content;
+    [SerializeField] private GameObject adm_cost_content;
 
     [SerializeField] private Sprite army_combat_power_sprite;
     [SerializeField] private Sprite army_cost_sprite;
@@ -158,10 +166,6 @@ public class technology_manager : MonoBehaviour
     private List<TechEffect> ecBaseEffects;
     private List<TechEffect> admBaseEffects;
 
-    int militaryLevel = 0;
-    int economicLevel = 0;
-    int administrativeLevel = 0;
-
     void Awake()
     {
         InitializeLevels();
@@ -196,17 +200,27 @@ public class technology_manager : MonoBehaviour
         int economicLevel = map.CurrentPlayer.Technology_[Technology.Economic];
         int administrativeLevel = map.CurrentPlayer.Technology_[Technology.Administrative];
 
+        Dictionary<Resource, float> milCost = map.CurrentPlayer.techStats.milCost;
+        Dictionary<Resource, float> ecCost = map.CurrentPlayer.techStats.ecCost;
+        Dictionary<Resource, float> admCost = map.CurrentPlayer.techStats.admCost;
+
         SetTechnologyData(mil_tooltip_container, mil_tooltip_text, militaryLevel, militaryTree,
-            mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text);
+            mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text, 
+            mil_ap_value, mil_sp_value, mil_cost_content, milCost);
         SetTechnologyData(ec_tooltip_container, ec_tooltip_text, economicLevel, economicTree,
-            ec_next_level_container, ec_tech_button, ec_current_level_text, ec_next_level_text);
+            ec_next_level_container, ec_tech_button, ec_current_level_text, ec_next_level_text, 
+            ec_ap_value, ec_sp_value, ec_cost_content, ecCost);
         SetTechnologyData(adm_tooltip_container, adm_tooltip_text, administrativeLevel, administrativeTree,
-            adm_next_level_container, adm_tech_button, adm_current_level_text, adm_next_level_text);
+            adm_next_level_container, adm_tech_button, adm_current_level_text, adm_next_level_text, 
+            adm_ap_value, adm_sp_value, adm_cost_content, admCost);
     }
 
-    public void SetTechnologyData(GameObject tooltip, TMP_Text tooltipText, int level, List<TechLevel> techTree, GameObject nextLevelContainer, 
-        Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText)
+    public void SetTechnologyData(GameObject tooltip, TMP_Text tooltipText, int level, List<TechLevel> techTree, 
+        GameObject nextLevelContainer, Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText, 
+        TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Dictionary<Resource, float> cost)
     {
+        map.CurrentPlayer.techStats.Calculate(map.CurrentPlayer.Technology_);
+
         // Tooltip
         ClearChildren(tooltip.transform);
 
@@ -228,8 +242,9 @@ public class technology_manager : MonoBehaviour
 
         if (level < 10)
         {
-            SetButtonColorToGreen(techButton);
-            nextLevelText.text = $"Level {level + 1}:";
+            SetButtonColor(techButton, map.CurrentPlayer.canPay(cost));
+
+            nextLevelText.text = $"Level {level + 1} effects:";
 
             foreach (var effect in techTree[level].Effects)
             {
@@ -244,30 +259,36 @@ public class technology_manager : MonoBehaviour
             nextLevelText.text = "Maximum level reached!";
         }
 
+        ap_value.text = cost.ContainsKey(Resource.AP)
+            ? ($"-{Math.Round(cost[Resource.AP], 1)}") : "?";
+        sp_value.text = cost.ContainsKey(Resource.SciencePoint)
+            ? ($"-{Math.Round(cost[Resource.SciencePoint], 1)}") : "?";
+        cost_content.SetActive(level < 10);
+
         StartCoroutine(RefreshUITemporarily(5f));
     }
 
-    private void SetButtonColorToRed(Button techButton)
+    private void SetButtonColor(Button techButton, bool isGreen)
     {
-        techButton.interactable = false;
-        techButton.GetComponent<Image>().color = new Color32(176, 41, 23, 255); // red color
         TMP_Text buttonText = techButton.GetComponentInChildren<TMP_Text>();
 
-        if (buttonText != null)
+        if (isGreen)
         {
-            buttonText.text = "Not enough funds";
+            techButton.interactable = true;
+            techButton.GetComponent<Image>().color = new Color32(35, 82, 29, 255); // green color
+            if (buttonText != null)
+            {
+                buttonText.text = "Upgrade technology";
+            }
         }
-    }
-
-    private void SetButtonColorToGreen(Button techButton)
-    {
-        techButton.interactable = true;
-        TMP_Text buttonText = techButton.GetComponentInChildren<TMP_Text>();
-        techButton.GetComponent<Image>().color = new Color32(35, 82, 29, 255); // green color
-
-        if (buttonText != null)
+        else
         {
-            buttonText.text = "Upgrade technology";
+            techButton.interactable = false;
+            techButton.GetComponent<Image>().color = new Color32(118, 32, 23, 255); // red color
+            if (buttonText != null)
+            {
+                buttonText.text = "Not enough funds";
+            }
         }
     }
 
