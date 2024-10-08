@@ -168,7 +168,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void SetCountryInfo()
     {
-        country_color_img.color = receiverCountry.Color;
+        receiverCountry.setCoatandColor(country_color_img);
         country_name_txt.text = receiverCountry.Name;
 
         provinces_count_text.text = receiverCountry.Provinces.Count.ToString();

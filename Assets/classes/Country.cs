@@ -1,5 +1,6 @@
 using Assets.classes;
 using Assets.classes.subclasses;
+using Assets.classes.Tax;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -266,6 +267,7 @@ public class Country {
     private Dictionary<int, int> opinions;
     private bool atWar;
     private army_visibility_manager armyVisibilityManager;
+    private ITax tax;
     public Country(int id, string name, (int, int) capital, Color color, int coat, Map map) {
         this.id = id;
         this.name = name;
@@ -282,6 +284,7 @@ public class Country {
         events = new List<Event_> ();
         this.atWar = false;
         this.opinions = new Dictionary<int, int> { { 0, 0 } };
+        this.tax = new MediumTaxes();
     }
 
     public void addProvince(Province province) {
@@ -310,6 +313,7 @@ public class Country {
 
     public int Coat { get => coat; }
     public Dictionary<Technology, int> Technology_ { get => technology; set => technology = value; }
+    public ITax Tax { get => tax; set => tax = value; }
 
     public Sprite getCoat() {
         int res;
@@ -318,6 +322,16 @@ public class Country {
         else res = 1;
         return UnityEngine.Resources.Load<Sprite>("sprites/coat_" + res);
     }
+
+    public void setCoatandColor(Image image) {
+        image.sprite = getCoat();
+        image.color = this.color;
+    }
+
+    public void setCoatandColor(GameObject obj) {
+        setCoatandColor(obj.GetComponent<Image>());
+    }
+
     public bool assignProvince(Province province) {
         if(province.Owner_id != 0 || province.Owner_id == id) return false;
         provinces.Add(province);

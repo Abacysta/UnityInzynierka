@@ -39,7 +39,7 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         countryId = country.Id;
 
         country_name_text.text = country.Name;
-        cn_in_country_color_img.color = country.Color;
+        country.setCoatandColor(cn_in_country_color_img);
         int theirOpinion = country.Opinions.ContainsKey(currentPlayer.Id) ? country.Opinions[currentPlayer.Id] : 0;
         int ourOpinion = currentPlayer.Opinions.ContainsKey(countryId) ? currentPlayer.Opinions[countryId] : 0;
 

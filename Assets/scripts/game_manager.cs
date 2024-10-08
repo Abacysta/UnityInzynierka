@@ -43,7 +43,7 @@ public class game_manager : MonoBehaviour
         while (loader == null) ;
         while (loader.loading) ;
         while (start_screen == null) ;
-        start_screen.welcomeScreen();
+        //start_screen.welcomeScreen();
     }
 
     void LoadData()
@@ -146,7 +146,7 @@ public class game_manager : MonoBehaviour
             loading_bar.value += 0.1f  * 100 / ccnt;
             map.mergeArmies(c);
         }
-        foreach(var a in map.Armies) {
+        foreach(var a in map.Armies.Where(a=>a.OwnerId != 0)) {
             map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.armyUpkeep);
         }
         fog_Of_War.StartTurn();
@@ -215,7 +215,6 @@ public class game_manager : MonoBehaviour
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
 
         foreach(var p in map.Countries[i].Provinces) {
-            tax += p.Population / 200 * 1f * p.Tax_mod;//0.1f = temp 100% tax rate
             resources[p.ResourcesT] += p.ResourcesP;
             resources[Resource.AP] += 0.1f;
         }
@@ -314,10 +313,10 @@ public class game_manager : MonoBehaviour
         }
         else {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-            if (turnCnt == 0 && map.Controllers[map.currentPlayer]==Map.CountryController.Local)
-                start_screen.welcomeScreen();
-            else if(turnCnt == 1)
-                start_screen.unHide();
+            //if (turnCnt == 0 && map.Controllers[map.currentPlayer]==Map.CountryController.Local)
+            //    start_screen.welcomeScreen();
+            //else if(turnCnt == 1)
+            //    start_screen.unHide();
             camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();
             armyReset();

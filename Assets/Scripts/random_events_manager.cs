@@ -86,11 +86,12 @@ namespace Assets.map.scripts {
         }
         private void startRebellion(Province province) {
             int count = province.RecruitablePopulation + (int)((province.Population - province.RecruitablePopulation) * 0.05);
-            if (count > 0) {
+            if (count > 0 && !map.Armies.Any(a=>a.Position == province.coordinates && a.OwnerId == 0)) {
                 Army rebels = new Army(0, count, (-1, -1), province.coordinates);
                 map.addArmy(rebels);
                 TurnAction rebellion = new TurnAction.army_move((-1, -1), province.coordinates, count, rebels);
                 rebellion.execute(map);
+                province.Happiness += 25;
             }
         }
     }

@@ -60,7 +60,7 @@ public class country_interface_manager : MonoBehaviour
 
     public void SetCoatOfArmsColor()
     {
-        cn_in_country_color_img.color = map.CurrentPlayer.Color;
+        map.CurrentPlayer.setCoatandColor(cn_in_country_color_img);
     }
 
     public void HideCountryInterface()

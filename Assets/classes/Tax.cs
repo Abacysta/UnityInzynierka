@@ -32,7 +32,7 @@ namespace Assets.classes {
             }
         }
         internal class LowTaxes : ITax {
-            public float GoldP { get => 0.05f; }
+            public float GoldP { get => 0.02f; }
 
             public int HappP { get => 8; }
 
