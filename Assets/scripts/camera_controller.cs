@@ -9,6 +9,7 @@ public class camera_controller : cursor_helper
     [SerializeField] private Tilemap tile_map_layer_1;
     [SerializeField] private Texture2D default_cursor;
     [SerializeField] private Texture2D pan_cursor;
+    [SerializeField] private province_click_handler province_click_handler;
 
     [SerializeField] private float minZoom = 2f;
     [SerializeField] private float maxZoom = 100f;
@@ -250,7 +251,7 @@ public class camera_controller : cursor_helper
         Vector3 worldPosition = tile_map_layer_1.CellToWorld(provincePosition);
         mainCamera.transform.position = new Vector3(worldPosition.x, worldPosition.y, mainCamera.transform.position.z);
         mainCamera.orthographicSize = minZoom;
-        map.Selected_province = (province.X,province.Y);
+        province_click_handler.SelectProvince(province.X, province.Y);
     }
 
     public void ZoomOnProvinceTest()

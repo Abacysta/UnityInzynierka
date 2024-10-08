@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Assets.classes;
 using Assets.Scripts;
-using Assets.classes.subclasses;
+using System.Reflection;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -16,6 +16,7 @@ public class dialog_box_manager : MonoBehaviour
 
     [SerializeField] private TMP_Text dialog_title;
     [SerializeField] private Button close_button;
+    [SerializeField] private Button zoom_button;
 
     [SerializeField] private TMP_Text dialog_message;
     [SerializeField] private GameObject choice_element;
@@ -61,7 +62,7 @@ public class dialog_box_manager : MonoBehaviour
         internal static DialogBox tech_box = new("Upgrade ", "Do you want to upgrade ");
     };
 
-    private void Update() {
+    void Update() {
         if (gameObject.activeSelf) {
             if (Input.GetKeyDown(KeyCode.Escape)) {
                 gameObject.SetActive(false);
@@ -93,11 +94,6 @@ public class dialog_box_manager : MonoBehaviour
         };
         Action onCancel = null;
         ShowSliderBox(title, message, onConfirm, onCancel, army.Count);
-    }
-
-    void OnEnable()
-    {
-        SetCoatOfArmsColor();    
     }
 
     public void invokeRecBox(Map map, (int, int) coordinates) {
@@ -227,7 +223,7 @@ public class dialog_box_manager : MonoBehaviour
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel, Dictionary<Resource, float> cost) {
         bool confirmable = map.CurrentPlayer.canPay(cost);
         cost_element.SetActive(cost != null);
-        ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost);
+        ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost: cost);
     }
     public void invokeDisbandArmyBox(Map map, Army army)
     {
@@ -248,43 +244,53 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeEventBox(Event_ _event) {
         bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
-        if (_event.Cost == null) cost_element.SetActive(false);
-        else cost_element.SetActive(true);
+        bool rejectable = _event.GetType().GetMethod("reject", BindingFlags.Instance | BindingFlags.Public) != null;
+        
+        cost_element.SetActive(_event.Cost != null);
+
         Action onConfirm = () => {
             _event.accept();
             map.CurrentPlayer.Events.Remove(_event);
             alerts.sortedevents.Remove(_event);
             alerts.reloadAlerts();
         };
+
         Action onCancel = () => {
             _event.reject();
             map.CurrentPlayer.Events.Remove(_event);
             alerts.sortedevents.Remove(_event);
             alerts.reloadAlerts();
         };
-        ShowConfirmBox("", _event.msg, onConfirm, onCancel, confirmable, _event.Cost);
-    }
 
-    private void ShowDialogBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, bool confirmable = true, string txtConfirm = null, string txtCancel = null)
-    {
-        map.CurrentPlayer.setCoatandColor(db_country_color_img);
-        close_button.onClick.RemoveAllListeners();
-        confirm_button.onClick.RemoveAllListeners();
-        cancel_button.onClick.RemoveAllListeners();
-        var txt_con = confirm_button.GetComponentInChildren<TMP_Text>();
-        var txt_can = cancel_button.GetComponentInChildren<TMP_Text>();
-        if(txtConfirm != null) txt_con.SetText(txtConfirm);
-        else txt_con.SetText("Ok");
-        if(txtCancel != null) txt_can.SetText(txtCancel);
-        else txt_can.SetText("Cancel");
-        dialog_title.text = actionTitle;
-
-        close_button.onClick.AddListener(() =>
-        {
+        zoom_button.onClick.AddListener(() => {
+            _event.GetType().GetMethod("zoom").Invoke(_event, null);
             HideDialog();
         });
 
+        ShowConfirmBox("", _event.msg, onConfirm, onCancel, confirmable, rejectable, zoomable: true, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject");
+    }
+
+    private void ShowDialogBox(string actionTitle, string message, Action onConfirm, Action onCancel,
+        bool confirmable = true, bool rejectable = true, string confirmText = "OK", string cancelText = "Cancel", Action onClose = null)
+    {
+        map.CurrentPlayer.setCoatandColor(db_country_color_img);
+
+        close_button.onClick.RemoveAllListeners();
+        confirm_button.onClick.RemoveAllListeners();
+        cancel_button.onClick.RemoveAllListeners();
+
+        confirm_button.GetComponentInChildren<TMP_Text>().SetText(confirmText);
+        cancel_button.GetComponentInChildren<TMP_Text>().SetText(cancelText);
+
+        dialog_title.text = actionTitle;
         dialog_message.text = message;
+
+        close_button.onClick.AddListener(() =>
+        {
+            onClose?.Invoke();
+            HideDialog();
+        });
+
         confirm_button.interactable = confirmable;
         confirm_button.onClick.AddListener(() =>
         {
@@ -292,6 +298,7 @@ public class dialog_box_manager : MonoBehaviour
             HideDialog();
         });
 
+        cancel_button.interactable = rejectable;
         cancel_button.onClick.AddListener(() =>
         {
             onCancel?.Invoke();
@@ -300,17 +307,18 @@ public class dialog_box_manager : MonoBehaviour
         });
 
         CenterDialogBox();
-        overlay.SetActive(true);
-        gameObject.SetActive(true);
+        ShowDialog();
     }
 
-    private void ShowSliderBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, 
-        int maxValue, Dictionary<Resource, float> cost = null, List<Effect> effects = null)
+    private void ShowSliderBox(string actionTitle, string message, Action onConfirm, Action onCancel,
+        int maxValue, Dictionary<Resource, float> cost = null, List<Effect> effects = null,
+        string confirmText = "OK", string cancelText = "Cancel", Action onClose = null)
     {
         dialog_slider.value = 0;
         dialog_slider.maxValue = maxValue;
         slider_max.text = maxValue.ToString();
         quantity_text.text = dialog_slider.value.ToString();
+
         SetCostContent(cost, dialog_slider.value);
 
         dialog_slider.onValueChanged.RemoveAllListeners();
@@ -318,28 +326,41 @@ public class dialog_box_manager : MonoBehaviour
         {
             quantity_text.text = value.ToString();
             SetCostContent(cost, dialog_slider.value);
-            confirm_button.interactable = (value > 0);
+            confirm_button.interactable = value > 0;
         });
+
+
  
+        zoom_button.gameObject.SetActive(false);
         choice_element.SetActive(true);
         cost_element.SetActive(true);
+
         ShowDialogBox(actionTitle, message, onConfirm, onCancel, false);
     }
 
-    private void ShowConfirmBox(string actionTitle, string message, System.Action onConfirm, System.Action onCancel, 
-        bool confirmable = true, Dictionary<Resource, float> cost = null, List<Effect> effects = null)
+    private void ShowConfirmBox(string actionTitle, string message, Action onConfirm, Action onCancel,
+        bool confirmable = true, bool rejectable = true, bool zoomable = false, Dictionary<Resource, float> cost = null,
+        List<Effect> effects = null, string confirmText = "OK", string cancelText = "Cancel", Action onClose = null)
     {
         SetCostContent(cost, effects: effects);
+
+        zoom_button.gameObject.SetActive(zoomable);
         choice_element.SetActive(false);
         cost_element.SetActive(cost!=null);
-        //cost_element.SetActive(true);
-        ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable);
+
+        ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable, rejectable, confirmText, cancelText);
     }
 
     public void HideDialog()
     {
         gameObject.SetActive(false);
         overlay.SetActive(false);
+    }
+
+    public void ShowDialog()
+    {
+        gameObject.SetActive(true);
+        overlay.SetActive(true);
     }
 
     private void SetCostContent(Dictionary<Resource, float> cost = null, float? sliderValue = null, List<Effect> effects = null)
@@ -395,11 +416,6 @@ public class dialog_box_manager : MonoBehaviour
 
     public void percentValue(float percent) { 
         dialog_slider.value = dialog_slider.maxValue * percent;
-    }
-
-    public void SetCoatOfArmsColor()
-    {
-        db_country_color_img.color = map.CurrentPlayer.Color;
     }
 
     private (string name, Sprite sprite) GetResourceDetails(Resource resource)
