@@ -514,7 +514,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: c47153ee40928ae4db1ca06d648de84b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -560,6 +560,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   disbandButton: {fileID: 0}
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
+  armyMaterial: {fileID: 2100000, guid: c47153ee40928ae4db1ca06d648de84b, type: 2}
+  shipMaterial: {fileID: 2100000, guid: 7f1335f49823f734cb153524d008a26d, type: 2}
+  landSprite: {fileID: 21300000, guid: d83b1227c238b8a4198561cd69a5539a, type: 3}
+  oceanSprite: {fileID: 21300000, guid: 82c0a276a5ed2c5489d326260b4eb8b1, type: 3}
 --- !u!60 &6752522919145164563
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -594,7 +598,7 @@ PolygonCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 0.06, y: 0, z: 0, w: 0.03}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 0.64, y: 0.64}
     newSize: {x: 1, y: 1}

@@ -18,11 +18,18 @@ public class army_view : MonoBehaviour
     public Button disbandButton;
     [SerializeField] Map map;
     private dialog_box_manager dialog_box;
+    public Material armyMaterial;
+    public Material shipMaterial;
+    private Country country;
+
+    public Sprite landSprite;
+    public Sprite oceanSprite;
+
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         army_collider = GetComponent<PolygonCollider2D>();
-        move_army_sound = GetComponent<AudioSource>(); 
+        move_army_sound = GetComponent<AudioSource>();
         army_count_text = transform.Find("army_counter_background/army_count_text").GetComponent<TMP_Text>();
 
         disbandButton = transform.Find("disbandButton").GetComponent<Button>();
@@ -45,6 +52,21 @@ public class army_view : MonoBehaviour
                 isMoving = false;
             }
         }
+
+        string terrainType = map.getProvince(ArmyData.Position).Type;
+
+        if (terrainType == "land")
+        {
+            spriteRenderer.sprite = landSprite;
+            spriteRenderer.material = armyMaterial;
+
+        }
+        else if(terrainType == "ocean")
+        {
+            spriteRenderer.sprite = oceanSprite;
+            spriteRenderer.material = shipMaterial;
+
+        }
     }
 
     public void Initialize(Army armyData, Relation.RelationType? type)
@@ -56,6 +78,13 @@ public class army_view : MonoBehaviour
         ArmyData.OnArmyCountChanged += UpdateArmyCounter;
         ArmyData.OnArmyCountChanged += UpdateArmyCounterColor;
         UpdatePosition();
+
+        country = map.Countries[armyData.OwnerId];
+        armyMaterial = new Material(armyMaterial);
+        shipMaterial = new Material(shipMaterial);
+
+        armyMaterial.SetColor("_ColorChange", country.Color);
+        shipMaterial.SetColor("_ColorChange", country.Color);
     }
 
     public void UpdatePosition()
@@ -74,6 +103,7 @@ public class army_view : MonoBehaviour
         army_collider.enabled = true;
         spriteRenderer.color = Color.white;
     }
+
     public void ReturnTo((int, int) newPosition)
     {
         targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
@@ -114,10 +144,13 @@ public class army_view : MonoBehaviour
     {
         army_count_text.text = newCount.ToString();
     }
-    private void UpdateArmyCounterColor(int type) {
+
+    private void UpdateArmyCounterColor(int type)
+    {
         Debug.Log("rtype=" + type);
         Color adjusted;
-        switch (type) {
+        switch (type)
+        {
             case -1://war
                 adjusted = new Color(1f, 0.27f, 0);//orange
                 break;
@@ -138,15 +171,18 @@ public class army_view : MonoBehaviour
                 break;
         }
         army_count_text.color = adjusted;
-
     }
-    public void DisbandArmy(){
+
+    public void DisbandArmy()
+    {
         army_click_handler click_Handler = FindObjectOfType<army_click_handler>();
-        if(click_Handler != null){
+        if (click_Handler != null)
+        {
             click_Handler.DisbandArmy(ArmyData);
         }
-        else {
-            Debug.Log("click handler is empty");    
+        else
+        {
+            Debug.Log("click handler is empty");
         }
     }
 }

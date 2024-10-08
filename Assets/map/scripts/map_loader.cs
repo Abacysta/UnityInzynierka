@@ -151,6 +151,7 @@ public class map_loader : MonoBehaviour
         map.addArmy(new Army(1, 10, (3, 3), (3, 3)));
         map.addArmy(new Army(2, 5, (4, 4), (4, 4)));
         map.addArmy(new Army(3, 5, (4, 4), (4, 4)));
+        map.addArmy(new Army(3, 5, (0, 2), (0, 2))); // statek
         SetPolitical();
         loading = false;
     }

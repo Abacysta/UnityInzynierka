@@ -64,6 +64,14 @@ namespace Assets.map.scripts {
                 map.Relations.Remove(r);
             }
             map.Relations.Add(new Relation.War(c1, c2));
+            foreach(var p in c1.Provinces)
+            {
+                p.Happiness -= 15;
+            }
+            foreach(var p in c2.Provinces)
+            {
+                p.Happiness -= 5;
+            }
         }
         private void endWar(Relation.War relation) { 
             map.Relations.Remove(relation);
@@ -79,10 +87,12 @@ namespace Assets.map.scripts {
             foreach(var tile in c1.Provinces) {
                 c2.SeenTiles.Add(tile.coordinates);
                 //c2.RevealedTiles.Add(tile.coordinates);
+                tile.Happiness += 5;
             }
             foreach(var tile in c2.Provinces) {
                 c1.SeenTiles.Add(tile.coordinates);
                 //c1.RevealedTiles.Add(tile.coordinates);
+                tile.Happiness += 5;
             }
         }
         private void endAlliace(Relation.Alliance relation) {
@@ -111,10 +121,12 @@ namespace Assets.map.scripts {
             foreach(var tile in c1.Provinces) {
                 c2.SeenTiles.Add(tile.coordinates);
                 //c2.RevealedTiles.Add(tile.coordinates);
+                tile.Happiness -= 8;
             }
             foreach(var tile in c2.Provinces) {
                 c1.SeenTiles.Add(tile.coordinates);
                 //c1.RevealedTiles.Add(tile.coordinates);
+                tile.Happiness += 5;
             }
         }
         public bool joinWar(Relation.War war, Country join, Country ally) {

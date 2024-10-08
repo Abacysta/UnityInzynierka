@@ -132,6 +132,8 @@ public class game_manager : MonoBehaviour
         provinceCalc(pcnt);
         countryCalc();
 
+        loading_txt.text = "Calculating happiness from relations.";
+        happinnessFromRelations();
         
 
         //yield return new WaitForSeconds(2f);
@@ -167,6 +169,35 @@ public class game_manager : MonoBehaviour
             if(p.OccupationInfo.OccupyingCountryId != -1)
             {
                 map.ManageOccupationDuration(p);
+            }
+        }
+    }
+    private void happinnessFromRelations()
+    {
+        foreach(var country in map.Countries)
+        {
+            var wars = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.War);
+            foreach(var war in wars)
+            {
+                foreach( var province in country.Provinces) {
+                    province.Happiness -= 2;
+                }
+            }
+            var alliances = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Alliance);
+            foreach(var a in alliances)
+            {
+                foreach(var p in country.Provinces)
+                {
+                    p.Happiness += 1;
+                }
+            }
+            var vassalages = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Vassalage);
+            foreach(var v in vassalages)
+            {
+                foreach(var p in country.Provinces)
+                { 
+                p.Happiness += 1;
+                }
             }
         }
     }

@@ -3231,7 +3231,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 1
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -4872,15 +4872,15 @@ MonoBehaviour:
     type: land
     resources: wood
     resources_amount: 6
-    population: 602
+    population: 559
     recruitable_population: 30
-    happiness: 28
+    happiness: 18
     is_coast: 0
     occupationInfo:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 1
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -6586,7 +6586,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -6611,7 +6611,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -8267,7 +8267,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -9971,7 +9971,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -9996,7 +9996,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -10021,7 +10021,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -11765,7 +11765,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -11790,7 +11790,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -13550,7 +13550,7 @@ MonoBehaviour:
       isOccupied: 0
       occupationCount: 0
       occupyingCountryId: -1
-    owner_id: 0
+    owner_id: 2
     buildings:
     - buildingType: 2
       buildingLevel: 0
@@ -144359,5 +144359,5 @@ MonoBehaviour:
       occupyingCountryId: -1
     owner_id: 0
     buildings: []
-  army_prefab: {fileID: 8881007966899125626, guid: 79923ca259238ba4cb3faca8d13947cd, type: 3}
+  army_prefab: {fileID: 8881007966899125626, guid: 846aa32f85f24cf4d84c6e8fb004aa5a, type: 3}
   currentPlayer: 1
