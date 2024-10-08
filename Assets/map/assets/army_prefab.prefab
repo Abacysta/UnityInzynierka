@@ -563,7 +563,7 @@ MonoBehaviour:
   armyMaterial: {fileID: 2100000, guid: c47153ee40928ae4db1ca06d648de84b, type: 2}
   shipMaterial: {fileID: 2100000, guid: 7f1335f49823f734cb153524d008a26d, type: 2}
   landSprite: {fileID: 21300000, guid: d83b1227c238b8a4198561cd69a5539a, type: 3}
-  oceanSprite: {fileID: 21300000, guid: 82c0a276a5ed2c5489d326260b4eb8b1, type: 3}
+  oceanSprite: {fileID: 21300000, guid: ed51b35e5aef8f04faf215339864a67f, type: 3}
 --- !u!60 &6752522919145164563
 PolygonCollider2D:
   m_ObjectHideFlags: 0
