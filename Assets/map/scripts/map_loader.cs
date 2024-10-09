@@ -315,12 +315,9 @@ public class map_loader : MonoBehaviour
         greyOutUnused(mode);
         ClearLayers();
 
-        HashSet<Relation> alliances = map.getRelationsOfType(map.CurrentPlayer, Assets.classes.Relation.RelationType.Alliance),
-            wars = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.War),
-            vassalages = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage);
-
         foreach(Province province in map.Provinces) {
             Vector3Int position = new(province.X, province.Y, 0);
+
             if(province.Type == "land") {
 
                 filter_layer.SetTile(position, base_tile);
