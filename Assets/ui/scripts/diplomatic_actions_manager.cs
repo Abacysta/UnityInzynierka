@@ -303,6 +303,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         // interactable jesli currentPlayer nie ma z odbiorca wojny, sojuszu, rozejmu, wasalstwa
         // i currentPlayer nie jest wasalem jakiekolwiek kraju
+        //srodac srozniej mam gdzies ze bot, opinia tak czy siak powinna byc odpowiednia
         // DODAC POZNIEJ, ZE interactable jesli BOT, TO MUSI BYC TEZ OPINIA WYSTARCZAJACO WYSOKA
         alliance_offer_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&

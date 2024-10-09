@@ -138,6 +138,7 @@ public class army_click_handler : cursor_helper
             TileBase tile = base_layer.GetTile(cellPosition);
 
             // Sprawdzenie czy na danym tile'u nie znajduje si� bie��ca armia
+            //fajne polskie znaki xd
             if (cellPosition == currentArmyPosition)
             {
                 continue;
