@@ -20,7 +20,7 @@ public class province_click_handler : cursor_helper
     private Vector3Int previousCellPosition = new(-1, -1, -1);
     private Vector3Int cellPosition;
     private bool isHovering = false;
-
+    private Vector3Int selectedProvincePosition = new(-1, -1, -1);
     private bool isSelected = false;
     private bool isHighlighted = false;
     private float duration = 0.75f;
@@ -149,11 +149,11 @@ public class province_click_handler : cursor_helper
         }
         return false;
     }
-    public void SelectProvince(int x, int y)
+    private void SelectProvince(int x, int y)
     {
         DeselectProvince();
-        map.Selected_province = (x, y);
-        province_select_layer.SetTile(new Vector3Int(x, y, 0), base_tile);
+        selectedProvincePosition = new Vector3Int(x, y, 0);
+        province_select_layer.SetTile(selectedProvincePosition, base_tile);
         isSelected = true;
         isHighlighted = true;
         timeElapsed = 0.0f;
@@ -163,9 +163,8 @@ public class province_click_handler : cursor_helper
     {
         if (isSelected)
         {
-            var (x, y) = map.Selected_province;
-            province_select_layer.SetTile(new Vector3Int(x, y, 0), null);
-            map.Selected_province = (-1, -1);
+            province_select_layer.SetTile(selectedProvincePosition, null);
+            selectedProvincePosition = new Vector3Int(-1, -1, -1);
             isSelected = false;
             isHighlighted = false;
         }
