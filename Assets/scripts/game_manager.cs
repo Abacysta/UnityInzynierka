@@ -36,6 +36,8 @@ public class game_manager : MonoBehaviour
     [SerializeField] private random_events_manager random_events;
     [SerializeField] private start_screen start_screen;
 
+    private Map toSave;
+
     // Loading map data before all scripts
     void Awake()
     {
@@ -47,6 +49,7 @@ public class game_manager : MonoBehaviour
         while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
+        toSave = map.getSaveData();
     }
 
     void LoadData()
@@ -341,6 +344,9 @@ public class game_manager : MonoBehaviour
     //    }
     //}
 
+    public void saveGame() { 
+    }
+
     public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
             TurnSimulation();
@@ -368,6 +374,7 @@ public class game_manager : MonoBehaviour
             executeActions();
             turnCalculations();
             map.currentPlayer = 1;
+            toSave = map.getSaveData();
             loader.Reload();
         }
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
