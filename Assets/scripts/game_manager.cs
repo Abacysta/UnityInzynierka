@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using static Assets.classes.actionContainer;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
+//gej menadzer xd
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
@@ -345,6 +346,7 @@ public class game_manager : MonoBehaviour
     //}
 
     public void saveGame() { 
+
     }
 
     public void LocalTurnSimulation() {
