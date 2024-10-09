@@ -91,7 +91,7 @@ namespace Assets.map.scripts {
                 map.addArmy(rebels);
                 TurnAction rebellion = new TurnAction.army_move((-1, -1), province.coordinates, count, rebels);
                 rebellion.execute(map);
-                province.Happiness += 25;
+                province.Happiness = 45;
             }
         }
     }

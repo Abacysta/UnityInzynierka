@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst.Intrinsics;
+using Newtonsoft.Json;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
@@ -456,5 +457,8 @@ public class Map:ScriptableObject {
         }
 
         return null;
+    }
+    public Map getSaveData() {
+        return (Map)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(this));
     }
 }

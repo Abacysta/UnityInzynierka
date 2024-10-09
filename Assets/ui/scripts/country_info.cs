@@ -27,7 +27,7 @@ public class country_info : MonoBehaviour
         woodG = info_cont.transform.Find("wood").Find("gain").GetComponent<TMP_Text>();
         ironG = info_cont.transform.Find("iron").Find("gain").GetComponent<TMP_Text>();
         techG = info_cont.transform.Find("tech").Find("gain").GetComponent<TMP_Text>();
-        apG = info_cont.transform.Find("tech").Find("gain").GetComponent<TMP_Text>();
+        apG = info_cont.transform.Find("ap").Find("gain").GetComponent<TMP_Text>();
         displayInfo();
         InvokeRepeating("displayInfo", 0.5f, 0.5f);
     }
