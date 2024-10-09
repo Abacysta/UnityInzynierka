@@ -264,7 +264,8 @@ public class diplomatic_actions_manager : MonoBehaviour
             !HasCurrentPlayerRelationWithReceiver(RelationType.MilitaryAccess) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
-            buttonStates.WarDeclareButtonState;
+            buttonStates.WarDeclareButtonState &&
+            currentPlayer.Opinions[receiverCountry.Id] < 0;
 
         // interactable jesli currentPlayer jest wasalem odbiorcy
         vassal_rebel_button.interactable =
@@ -309,7 +310,8 @@ public class diplomatic_actions_manager : MonoBehaviour
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
-            buttonStates.AllianceOfferButtonState;
+            buttonStates.AllianceOfferButtonState &&
+            receiverCountry.Opinions[currentPlayer.Id] > 100;
 
         // interactable jesli currentPlayer ma z odbiorca sojusz
         alliance_break_button.interactable = 
