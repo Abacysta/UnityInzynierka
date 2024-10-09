@@ -249,7 +249,10 @@ public class game_manager : MonoBehaviour
         foreach(var res in gain.Keys.ToList()) {
             if (res == Resource.Gold) gain[res] += tax;
             gain[res] += prod[res];
+            gain[res] = (float)Math.Round(gain[res], 1);
         }
+        Debug.Log(gain[Resource.SciencePoint]);
+        Debug.Log(gain[Resource.AP]);
         return gain;
     }
 
@@ -260,7 +263,7 @@ public class game_manager : MonoBehaviour
         }
         tax *= country.techStats.taxFactor;
         
-        return tax;
+        return (float)Math.Round(tax, 1);
     }
 
     internal Dictionary<Resource, float> getResourceGain(Country country) {
@@ -283,6 +286,9 @@ public class game_manager : MonoBehaviour
         }
         foreach (var army in map.getCountryArmies(map.CurrentPlayer)) {
             prod[Resource.Gold] -= (army.Count/10 + 1)*country.techStats.armyUpkeep;
+        }
+        foreach(var type in prod.ToList()) {
+            prod[type.Key] = (float)Math.Round(prod[type.Key], 1);
         }
         return prod;
     }
@@ -358,9 +364,9 @@ public class game_manager : MonoBehaviour
         {
             Debug.Log($"Executing actions and performing calculations.");
             turn_sound.Play();
+            rebellionCheck();
             executeActions();
             turnCalculations();
-            rebellionCheck();
             map.currentPlayer = 1;
             loader.Reload();
         }
