@@ -2,18 +2,7 @@
 using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using System.Threading.Tasks;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
-using UnityEditor.Tilemaps;
-using UnityEngine;
-using static Assets.classes.Relation;
-using static dialog_box_manager.dialog_box_precons;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 namespace Assets.classes {
     public class Event_ {
@@ -22,6 +11,7 @@ namespace Assets.classes {
         public virtual void call() { }
         public virtual void accept() { }
         public virtual void reject() { }
+        public virtual void zoom() { }
         public virtual string msg { get { return ""; } }
         public class GlobalEvent:Event_ {
             protected Country country;
@@ -41,8 +31,7 @@ namespace Assets.classes {
             public override void call() {
                 dialog_box.invokeEventBox(this);
             }
-            public void zoom() {
-                // Implement zoom to capital or whatever, using the country object
+            public override void zoom() {
                 camera.ZoomCameraOnCountry(country);
             }
 
@@ -329,7 +318,7 @@ namespace Assets.classes {
             public override void accept() { /*tbd*/}
             public override void reject() { accept(); }
             public override string msg { get { return ""; } }
-            public void zoom() {
+            public override void zoom() {
                 camera.ZoomCameraOnProvince(province);
             }
             public override void call() {
@@ -794,17 +783,21 @@ namespace Assets.classes {
         public class DiploEvent:Event_ {
             protected Country from, to;
             private diplomatic_relations_manager diplomacy;
+            private camera_controller camera;
             private dialog_box_manager dialog_box;
             public override string msg { get { return ""; } }
             
-            public virtual void zoom() { }
+            public override void zoom() {
+                camera.ZoomCameraOnCountry(from);
+            }
             public override void call() {
                 dialog_box.invokeEventBox(this);
             }
-            DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) {
+            DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
+                this.camera = camera;
                 this.dialog_box = dialog_box;
                 this.Cost = null;
             }
@@ -821,7 +814,7 @@ namespace Assets.classes {
             internal class PeaceOffer:DiploEvent {
                 private Country offer;
                 private Relation.War war;
-                public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box) { 
+                public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box, camera) { 
                     this.offer = offer;
                     this.war = war;
                     this.diplomacy = diplomacy;
@@ -836,13 +829,13 @@ namespace Assets.classes {
                 }
             }
             internal class WarDeclared:DiploEvent {
-                public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
                 }
                 public override string msg { get { return from.Name + " has declared a war on you!"; } }
             }
             internal class CallToWar:DiploEvent {
                 private Relation.War war;
-                public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, Relation.War war) : base(from, to, diplomacy, dialog_box) {
+                public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, Relation.War war, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
                     this.war = war;
                 }
 
@@ -857,44 +850,46 @@ namespace Assets.classes {
                 }
             }
             internal class TruceEnd:DiploEvent {
-                public TruceEnd(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public TruceEnd(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
                 }
                 public override string msg { get { return "A truce with " + from.Name + " has ended"; } }
             }
             internal class AllianceOffer:DiploEvent {
-                public AllianceOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public AllianceOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
 
                 }
                 public override string msg { get { return from.Name + " has sent you an alliance offer"; } }
                 public override void accept() {
                     base.accept();
-                    from.Events.Add(new AllianceAccepted(to, from, diplomacy, dialog_box));
+                    from.Events.Add(new AllianceAccepted(to, from, diplomacy, dialog_box, camera));
                     diplomacy.startAlliance(to, from);
                 }
                 public override void reject() {
-                    from.Events.Add(new AllianceDenied(to, from, diplomacy, dialog_box));
+                    from.Events.Add(new AllianceDenied(to, from, diplomacy, dialog_box, camera));
                 }
             }
             internal class AllianceAccepted:DiploEvent {
-                public AllianceAccepted(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public AllianceAccepted(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
                 }
                 public override string msg { get { return from.Name + " has accepted the alliance offer"; } }
             }
             internal class AllianceDenied:DiploEvent {
-                public AllianceDenied(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public AllianceDenied(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
                 }
                 public override string msg { get { return from.Name + " has denied our alliance offer"; } }
             }
             internal class AllianceBroken:DiploEvent {
-                public AllianceBroken(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public AllianceBroken(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                 }
                 public override string msg { get { return from.Name + " has broken our pact"; } }
             }
             internal class SubsOffer:DiploEvent {
                 private int amount, duration;
-                public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration) : base(from, to, diplomacy, dialog_box) {
+                public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                     this.duration = duration;
-this.amount = amount;
+                    this.amount = amount;
                 }
                 public override string msg { get { return from.Name + " has offered you subsidies."; } }
                 public override void accept() {
@@ -912,7 +907,8 @@ this.amount = amount;
             }
             internal class SubsRequest : DiploEvent {
                 private int amount, duration;
-                public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration): base(from, to, diplomacy, dialog_box) {
+                public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                     this.amount = amount;
                     this.duration = duration;
                 }
@@ -932,17 +928,20 @@ this.amount = amount;
             }
 
             internal class SubsEndMaster:DiploEvent {
-                public SubsEndMaster(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public SubsEndMaster(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                 }
                 public override string msg { get { return "Subsidies from " + from.Name + " have stopped."; } }
             }
             internal class SubsEndSlave:DiploEvent {
-                public SubsEndSlave(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public SubsEndSlave(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                 }
                 public override string msg { get { return "We ended subsidizing " + to.Name; } }
             }
             internal class AccessOffer:DiploEvent {
-                public AccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public AccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -957,7 +956,8 @@ this.amount = amount;
                 }
             }
             internal class AccessRequest : DiploEvent {
-                public AccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(from, to, diplomacy, dialog_box) {
+                public AccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
 
                 }
                 public override string msg { get { return from.Name + " asks for military access to our teritorry"; } }
@@ -969,7 +969,8 @@ this.amount = amount;
             }
             internal class AccessEndMaster : DiploEvent {
                 private Relation.MilitaryAccess access;
-                public AccessEndMaster(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public AccessEndMaster(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                     this.access = access;
                 }
                 public override string msg { get { return from.Name + " has stopped giving us the military access"; } }
@@ -983,7 +984,8 @@ this.amount = amount;
             internal class AccessEndSlave : DiploEvent {
                 private Relation.MilitaryAccess access;
 
-                public AccessEndSlave(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public AccessEndSlave(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                     this.access = access;
                 }
                 public override string msg { get { return from.Name + " stopped using our military access"; } }
@@ -993,7 +995,8 @@ this.amount = amount;
                 public override void reject() { }
             }
             internal class VassalOffer:DiploEvent {
-                public VassalOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public VassalOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                 }
                 public override string msg { get { return from.Name + " demands our submission"; } }
                 public override void accept() {
@@ -1004,7 +1007,8 @@ this.amount = amount;
                 }
             }
             internal class VassalRebel:DiploEvent {
-                public VassalRebel(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+                public VassalRebel(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
+                {
                 }
                 public override string msg { get { return from.Name + " has rebelled against us"; } }
             }

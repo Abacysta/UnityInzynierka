@@ -263,7 +263,7 @@ public class dialog_box_manager : MonoBehaviour
         };
 
         zoom_button.onClick.AddListener(() => {
-            _event.GetType().GetMethod("zoom").Invoke(_event, null);
+            _event.zoom();
             HideDialog();
         });
 

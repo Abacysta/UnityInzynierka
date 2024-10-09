@@ -28,6 +28,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
     [SerializeField] private dialog_box_manager dialog_box;
+    [SerializeField] private camera_controller camera_controller;
     [SerializeField] private diplomatic_relations_manager diplomatic_relations_manager;
     [SerializeField] private country_relations_table_manager country_relations_table_manager;
 
@@ -552,7 +553,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.start_war(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.start_war(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
@@ -590,7 +591,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
-            var action = new actionContainer.TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
@@ -645,7 +646,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             War war = (War)HasRelation(RelationType.War);
-            var action = new actionContainer.TurnAction.end_war(currentPlayer, war, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.end_war(currentPlayer, war, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
@@ -666,7 +667,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            actionContainer.TurnAction.praise action = new actionContainer.TurnAction.praise(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            actionContainer.TurnAction.praise action = new actionContainer.TurnAction.praise(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // diplomatic mission, declare war, send an insult, offer alliance, demand vassalization
@@ -690,7 +691,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            actionContainer.TurnAction.insult action = new actionContainer.TurnAction.insult(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            actionContainer.TurnAction.insult action = new actionContainer.TurnAction.insult(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // send an insult, declare war, diplomatic mission, offer alliance, subsidize
@@ -718,7 +719,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.alliance_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.alliance_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
@@ -744,7 +745,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             Alliance alliance = (Alliance)HasRelation(RelationType.Alliance);
-            var action = new actionContainer.TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
@@ -782,7 +783,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
             receiverCountryButtonStates[countryId].CountriesToSkip.Add(selectedEntry.Key);
             Relation.War war = map.getRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;
-            var action = new actionContainer.TurnAction.call_to_war(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager);
+            var action = new actionContainer.TurnAction.call_to_war(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager, camera_controller);
             currentPlayer.Actions.addAction(action);
         }
 
@@ -800,7 +801,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, goldValue, durationValue);
+            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, goldValue, durationValue, camera_controller);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // subsidize, declare war, integrate vassal, send an insult, end subsidies
             receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
@@ -846,7 +847,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            receiverCountry.Events.Add(new Event_.DiploEvent.SubsRequest(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, (int)subsidy_slider.value, durationValue));
+            receiverCountry.Events.Add(new Event_.DiploEvent.SubsRequest(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, (int)subsidy_slider.value, durationValue, camera_controller));
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // request subsidy
@@ -866,7 +867,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.access_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.access_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
@@ -891,7 +892,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             Relation.MilitaryAccess variable = map.getRelationsOfType(receiverCountry, RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as Relation.MilitaryAccess; ;
-            var action = new Event_.DiploEvent.AccessEndMaster(variable, currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            var action = new Event_.DiploEvent.AccessEndMaster(variable, currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
             receiverCountry.Events.Add(action);
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
             // end military access
@@ -911,7 +912,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.vassal_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box);
+            var action = new actionContainer.TurnAction.vassal_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
