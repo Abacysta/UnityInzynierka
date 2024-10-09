@@ -458,7 +458,9 @@ public class Map:ScriptableObject {
 
         return null;
     }
+   /* 
     public Map getSaveData() {
         return (Map)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(this));
     }
+   */
 }

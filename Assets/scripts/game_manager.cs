@@ -50,7 +50,7 @@ public class game_manager : MonoBehaviour
         while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
-        toSave = map.getSaveData();
+        //toSave = map.getSaveData();
     }
 
     void LoadData()
@@ -376,7 +376,7 @@ public class game_manager : MonoBehaviour
             executeActions();
             turnCalculations();
             map.currentPlayer = 1;
-            toSave = map.getSaveData();
+            //toSave = map.getSaveData();
             loader.Reload();
         }
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
