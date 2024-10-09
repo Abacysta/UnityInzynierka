@@ -146,6 +146,7 @@ public class map_loader : MonoBehaviour
 
         map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[2]));
         map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[3]));
+        map.Relations.Add(new Relation.Alliance(map.Countries[1], map.Countries[4]));
         Army testArmy = new Army(1, 100, (1, 0), (1, 0));
         map.addArmy(testArmy);
         map.addArmy(new Army(1, 10, (3, 3), (3, 3)));

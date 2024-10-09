@@ -465,7 +465,8 @@ public class diplomatic_actions_manager : MonoBehaviour
                 return new TMP_Dropdown.OptionData
                 {
                     text = country.Name,
-                    image = coat_of_arms_background
+                    image = country.getCoat(),
+
                 };
             })
             .ToList();
