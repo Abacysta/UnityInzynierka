@@ -245,7 +245,7 @@ public class dialog_box_manager : MonoBehaviour
     public void invokeEventBox(Event_ _event) {
         bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
 
-        // wyszukaj metode niestatyczną, publiczną, nieodziedziczone o nazwie "reject"
+        // wyszukaj metode niestatyczna, publiczna, nieodziedziczona o nazwie "reject"
         MethodInfo rejectMethod = _event.GetType().GetMethod("reject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
         // jesli metoda reject nie jest pusta, to rejectable ustaw na true
         bool rejectable = rejectMethod != null && rejectMethod.GetMethodBody() != null;
