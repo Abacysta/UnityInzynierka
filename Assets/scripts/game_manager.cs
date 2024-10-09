@@ -46,7 +46,7 @@ public class game_manager : MonoBehaviour
         while (loader == null) ;
         while (loader.loading) ;
         while (start_screen == null) ;
-        //start_screen.welcomeScreen();
+        start_screen.welcomeScreen();
     }
 
     void LoadData()
@@ -321,7 +321,7 @@ public class game_manager : MonoBehaviour
     }
 
     //private void welcomeScreen() {
-    //    if(turnCnt == 0){
+    //    if (turnCnt == 0) {
     //        start_screen.SetActive(true);
     //        start_screen.transform.Find("window").GetComponentInChildren<TMP_Text>().text = "You're playing as " + "takie jajca bo mapa sie jeszcze nie zaladowala xd";//map.CurrentPlayer.Name;
     //        var button = start_screen.transform.Find("window").GetComponentInChildren<Button>();
@@ -370,10 +370,10 @@ public class game_manager : MonoBehaviour
         }
         else {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-            //if (turnCnt == 0 && map.Controllers[map.currentPlayer]==Map.CountryController.Local)
-            //    start_screen.welcomeScreen();
-            //else if(turnCnt == 1)
-            //    start_screen.unHide();
+            if (turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local)
+                start_screen.welcomeScreen();
+            else if (turnCnt == 1)
+                start_screen.unHide();
             camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();
             armyReset();

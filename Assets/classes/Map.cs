@@ -366,7 +366,7 @@ public class Map:ScriptableObject {
 
     public bool IsValidPosition(int x, int y)
     {
-        return x >= 0 && x <= 79 && y >= 0 && y <= 79;
+        return provinces.Any(p => p.coordinates.Item1 == x && p.coordinates.Item2 == y);
     }
     public void ManageOccupationDuration(Province province)
     {
