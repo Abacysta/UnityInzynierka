@@ -160,15 +160,17 @@ namespace Assets.classes {
                 private Country c1, c2;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
-                public start_war(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(ActionType.war_offer, 1, null) {
+                private camera_controller camera;
+                public start_war(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(ActionType.war_offer, 1, null) {
                     this.c1 = c1;
                     this.c2 = c2;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                 }
                 public override void execute(Map map) {
                     diplomacy.startWar(c1, c2);
-                    c2.Events.Add(new Event_.DiploEvent.WarDeclared(c1, c2, diplomacy, dialog_box));
+                    c2.Events.Add(new Event_.DiploEvent.WarDeclared(c1, c2, diplomacy, dialog_box, camera));
                 }
             }
             internal class integrate_vassal:TurnAction, IInstantAction {
@@ -188,33 +190,37 @@ namespace Assets.classes {
                 private Relation.War war;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
 
-                public end_war(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.war_end, 0, null) {
+                public end_war(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera):base(ActionType.war_end, 0, null) {
                     this.offer = offer;
                     this.war = war;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                 }
 
                 public override void execute(Map map) {
                     var to = war.Sides[0] == offer ? war.Sides[1] : war.Sides[0];
-                    to.Events.Add( new Event_.DiploEvent.PeaceOffer(war, offer, diplomacy, dialog_box));
+                    to.Events.Add( new Event_.DiploEvent.PeaceOffer(war, offer, diplomacy, dialog_box, camera));
                 }
             }
             internal class alliance_offer:TurnAction, IInstantAction {
                 private Country c1, c2;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
 
-                public alliance_offer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) :base(ActionType.alliance_offer, 1){
+                public alliance_offer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) :base(ActionType.alliance_offer, 1){
                     this.c1 = c1;
                     this.c2 = c2;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                 }
                 public override void execute(Map map) {
                     base.execute(map);
-                    c2.Events.Add(new Event_.DiploEvent.AllianceOffer(c1, c2, diplomacy, dialog_box));
+                    c2.Events.Add(new Event_.DiploEvent.AllianceOffer(c1, c2, diplomacy, dialog_box, camera));
                 }
             }
             internal class alliance_end:TurnAction, IInstantAction {
@@ -222,18 +228,20 @@ namespace Assets.classes {
                 private Relation.Alliance alliance;
                 private diplomatic_relations_manager diplomacy; 
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
 
-                public alliance_end(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.alliance_end, 1) {
+                public alliance_end(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera):base(ActionType.alliance_end, 1) {
                     this.from = from;
                     this.alliance = alliance;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                 }
 
                 public override void execute(Map map) {
                     base.execute(map);
                     Country to = alliance.Sides.FirstOrDefault(c=>c!=from);
-                    to.Events.Add(new Event_.DiploEvent.AllianceBroken(from, to, diplomacy, dialog_box));
+                    to.Events.Add(new Event_.DiploEvent.AllianceBroken(from, to, diplomacy, dialog_box, camera));
                     diplomacy.endRelation(alliance);
                 }
             }
@@ -241,16 +249,18 @@ namespace Assets.classes {
                 private Country from, to;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
 
-                public access_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.milacc_offer, 1) {
+                public access_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera):base(ActionType.milacc_offer, 1) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                 }
                 public override void execute(Map map) {
                     base.execute(map);
-                    to.Events.Add(new Event_.DiploEvent.AccessOffer(from, to, diplomacy, dialog_box));
+                    to.Events.Add(new Event_.DiploEvent.AccessOffer(from, to, diplomacy, dialog_box, camera));
                 }
             }
             
@@ -258,28 +268,31 @@ namespace Assets.classes {
                 private Country from, to;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
                 private int amount, duration;
 
-                public subs_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration):base(ActionType.subs_offer, 1) {
+                public subs_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration, camera_controller camera):base(ActionType.subs_offer, 1) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                     this.amount = amount;
                     this.duration = duration;
                 }
 
                 public override void execute(Map map) {
                     base.execute(map);
-                    to.Events.Add(new Event_.DiploEvent.SubsOffer(from, to, diplomacy, dialog_box, amount, duration));
+                    to.Events.Add(new Event_.DiploEvent.SubsOffer(from, to, diplomacy, dialog_box, amount, duration, camera));
                 }
             }
             internal class vassal_offer:TurnAction, IInstantAction {
                 private Country from, to;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
 
-                public vassal_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.vasal_offer, 1) {
+                public vassal_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera):base(ActionType.vasal_offer, 1) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -290,16 +303,18 @@ namespace Assets.classes {
                 private Relation.Vassalage vassalage;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
 
-                public vassal_rebel(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.war_offer, 2) {
+                public vassal_rebel(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(ActionType.war_offer, 2) {
                     this.vassalage = vassalage;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                 }
 
                 public override void execute(Map map) {
                     base.execute(map);
-                    vassalage.Sides[0].Events.Add(new Event_.DiploEvent.VassalRebel(vassalage.Sides[1], vassalage.Sides[0], diplomacy, dialog_box));
+                    vassalage.Sides[0].Events.Add(new Event_.DiploEvent.VassalRebel(vassalage.Sides[1], vassalage.Sides[0], diplomacy, dialog_box, camera));
                     diplomacy.endRelation(vassalage);
                     diplomacy.startWar(vassalage.Sides[1], vassalage.Sides[0]);
                 }
@@ -308,8 +323,9 @@ namespace Assets.classes {
                 private Country from, to;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
 
-                public insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box):base(ActionType.message, 1) {
+                public insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera):base(ActionType.message, 1) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -329,7 +345,8 @@ namespace Assets.classes {
                 private Country from, to;
                 private diplomatic_relations_manager diplomacy;
                 private dialog_box_manager dialog_box;
-                public praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) :base(ActionType.message, 1){
+                private camera_controller camera;
+                public praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) :base(ActionType.message, 1){
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -348,17 +365,19 @@ namespace Assets.classes {
                 private Country from, to;
                 private Relation.War war;
                 private dialog_box_manager dialog_box;
+                private camera_controller camera;
                 private diplomatic_relations_manager diplomacy;
-                public call_to_war(Country from, Country to, Relation.War war, dialog_box_manager dialog_box, diplomatic_relations_manager diplomacy):base(ActionType.alliance_offer, 1) {
+                public call_to_war(Country from, Country to, Relation.War war, dialog_box_manager dialog_box, diplomatic_relations_manager diplomacy, camera_controller camera) : base(ActionType.alliance_offer, 1) {
                     this.from = from;
                     this.to = to;
                     this.war = war;
                     this.dialog_box = dialog_box;
+                    this.camera = camera;
                     this.diplomacy = diplomacy;
                 }
                 public override void execute(Map map) {
                     base.execute(map);
-                    to.Events.Add(new Event_.DiploEvent.CallToWar(from, to, diplomacy, dialog_box, war));
+                    to.Events.Add(new Event_.DiploEvent.CallToWar(from, to, diplomacy, dialog_box, war, camera));
                 }
             }
         }
