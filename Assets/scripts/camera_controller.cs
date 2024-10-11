@@ -245,13 +245,18 @@ public class camera_controller : cursor_helper
         }
     }
 
-    public void ZoomCameraOnProvince(Province province)
+    public void ZoomCameraOnProvince((int, int) provinceCoordinates)
     {
-        Vector3Int provincePosition = new(province.X, province.Y, 0);
+        Vector3Int provincePosition = new(provinceCoordinates.Item1, provinceCoordinates.Item2, 0);
         Vector3 worldPosition = tile_map_layer_1.CellToWorld(provincePosition);
         mainCamera.transform.position = new Vector3(worldPosition.x, worldPosition.y, mainCamera.transform.position.z);
         mainCamera.orthographicSize = minZoom;
-        province_click_handler.SelectProvince(province.X, province.Y);
+        province_click_handler.SelectProvince(provinceCoordinates.Item1, provinceCoordinates.Item2);
+    }
+
+    public void ZoomCameraOnProvince(Province province)
+    {
+        ZoomCameraOnProvince((province.X, province.Y));
     }
 
     public void ZoomOnProvinceTest()

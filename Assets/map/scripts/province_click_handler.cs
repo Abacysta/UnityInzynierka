@@ -122,7 +122,7 @@ public class province_click_handler : cursor_helper
        }
     }
 
-    private void DisplayProvinceInterface(int x, int y)
+    public void DisplayProvinceInterface(int x, int y)
     {
         Province province = map.getProvince(x, y); 
 
