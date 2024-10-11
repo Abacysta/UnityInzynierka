@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Assets.classes {
+    [Serializable]
     public class Event_ {
 
         public Dictionary<Resource, float> Cost;

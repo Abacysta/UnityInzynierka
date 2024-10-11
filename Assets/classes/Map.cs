@@ -3,13 +3,13 @@ using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Burst.Intrinsics;
 using Newtonsoft.Json;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
+[Serializable]
 public class Map:ScriptableObject {
+    [Serializable]
     public enum CountryController {
         Local,
         Ai,
@@ -459,6 +459,9 @@ public class Map:ScriptableObject {
         return null;
     }
     public Map getSaveData() {
-        return (Map)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(this));
+        
+        return (Map)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        }));
     }
 }

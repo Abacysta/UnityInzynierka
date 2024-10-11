@@ -1,16 +1,16 @@
-using Assets.classes.Tax;
+using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using TMPro;
-using Unity.Loading;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.actionContainer;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 //gej menadzer xd
 public class game_manager : MonoBehaviour
@@ -37,7 +37,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private random_events_manager random_events;
     [SerializeField] private start_screen start_screen;
 
-    private Map toSave;
+    private Save toSave;
 
     // Loading map data before all scripts
     void Awake()
@@ -50,7 +50,6 @@ public class game_manager : MonoBehaviour
         while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
-        toSave = map.getSaveData();
     }
 
     void LoadData()
@@ -255,8 +254,6 @@ public class game_manager : MonoBehaviour
             gain[res] += prod[res];
             gain[res] = (float)Math.Round(gain[res], 1);
         }
-        Debug.Log(gain[Resource.SciencePoint]);
-        Debug.Log(gain[Resource.AP]);
         return gain;
     }
 
@@ -345,8 +342,12 @@ public class game_manager : MonoBehaviour
     //    }
     //}
 
-    public void saveGame() { 
-
+    public void saveGame() {
+        var path = Application.persistentDataPath + "/save.save";
+        BinaryFormatter form = new BinaryFormatter();
+        using(FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
+            form.Serialize(stream, toSave);
+        }
     }
 
     public void LocalTurnSimulation() {
@@ -376,7 +377,7 @@ public class game_manager : MonoBehaviour
             executeActions();
             turnCalculations();
             map.currentPlayer = 1;
-            toSave = map.getSaveData();
+            //toSave = new(map);
             loader.Reload();
         }
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {

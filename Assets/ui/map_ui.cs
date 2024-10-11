@@ -126,7 +126,13 @@ public class map_ui : MonoBehaviour
                 province_interface.recruit();
             }
         }
-
+        //ctrl actions
+        if(Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)){
+            //save
+            if (Input.GetKeyDown(KeyCode.S)) {
+                game_manager.saveGame();
+            }
+        }
     }
 
     public bool isBlocked { get { return !(settings_menu_ui.activeSelf || dialog_box.activeSelf || country_interface.gameObject.activeSelf || start_screen.gameObject.activeSelf); } }

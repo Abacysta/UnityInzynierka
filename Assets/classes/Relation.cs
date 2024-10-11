@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Assets.classes {
+    [Serializable]
     public abstract class Relation {
         private Country[] countries;
         public RelationType type;
@@ -15,6 +16,7 @@ namespace Assets.classes {
             countries[0].Opinions[countries[1].Id] += constChange;
             countries[1].Opinions[countries[0].Id] += constChange;
         }
+        [Serializable]
         public enum RelationType { 
             Rebellion = -2,//only for happ rebels, purely technical
             War = -1,

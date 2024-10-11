@@ -1,16 +1,13 @@
 using Assets.classes;
 using Assets.classes.subclasses;
 using Assets.classes.Tax;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UI;
-using static technology_manager;
 
-
+//[Serializable]
 public class Country {
     public class TechnologyInterpreter {
         /// <summary>
@@ -388,6 +385,9 @@ public class Country {
         resources = null;
     }
 
+    public void nullifyActions() {
+        actions = null;
+    }
     public void changeCapital(Province province) {
         if(provinces.Contains(province)) {
             capital = province.coordinates;

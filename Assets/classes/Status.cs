@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Assets.classes.subclasses {
+    [Serializable]
     public class Status {
         public enum StatusType {
             positive = 1,

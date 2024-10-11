@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditorInternal;
 
 namespace Assets.classes {
     namespace Tax {
+        
         public interface ITax {
             public abstract float GoldP { get; }
             public abstract int HappP { get; }
