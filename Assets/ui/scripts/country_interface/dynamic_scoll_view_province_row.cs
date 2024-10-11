@@ -7,6 +7,8 @@ using UnityEngine.EventSystems;
 public class dynamic_scoll_view_province_row : UIBehaviour, IDynamicScrollViewItem
 {
     [SerializeField] private province_table_manager province_table_manager;
+    [SerializeField] private camera_controller camera_controller;
+    [SerializeField] private province_click_handler province_click_handler;
 
     [SerializeField] private TMP_Text name_text;
     [SerializeField] private TMP_Text population_text;
@@ -18,8 +20,13 @@ public class dynamic_scoll_view_province_row : UIBehaviour, IDynamicScrollViewIt
     [SerializeField] private Sprite iron_sprite;
     [SerializeField] private Sprite ap_sprite;
 
+    private (int, int) provinceCoordinates;
+
     public void onUpdateItem(int index)
     {
+        Province province = province_table_manager.SortedProvinces[index];
+        provinceCoordinates = (province.X, province.Y);
+
         name_text.text = province_table_manager.SortedProvinces[index].Name;
         population_text.text = province_table_manager.SortedProvinces[index].Population.ToString();
 
@@ -51,5 +58,11 @@ public class dynamic_scoll_view_province_row : UIBehaviour, IDynamicScrollViewIt
             default:
                 return null;
         }
+    }
+
+    public void OnProvinceRowClick()
+    {
+        camera_controller.ZoomCameraOnProvince(provinceCoordinates);
+        province_click_handler.DisplayProvinceInterface(provinceCoordinates.Item1, provinceCoordinates.Item2);
     }
 }

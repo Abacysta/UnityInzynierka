@@ -15,7 +15,7 @@ public class Map:ScriptableObject {
         Ai,
         Net
     }
-    
+
     [SerializeField] private string map_name;
     [SerializeField] private string file_name;
     [SerializeField] private List<Province> provinces;
@@ -41,54 +41,64 @@ public class Map:ScriptableObject {
     public Country CurrentPlayer { get => countries[currentPlayer]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
     public List<CountryController> Controllers { get { return countryControllers; } }
-    public void addCountry(Country country, CountryController ptype) {
+    public void addCountry(Country country, CountryController ptype)
+    {
         countries.Add(country);
         countryControllers.Add(ptype);
     }
-    public void removeCountry(Country country) {
-        var idx = countries.FindIndex(c=>c==country);
+    public void removeCountry(Country country)
+    {
+        var idx = countries.FindIndex(c => c == country);
         countryControllers.RemoveAt(idx);
         countries.RemoveAt(idx);
     }
-    public Province getProvince(int x, int y) {
+    public Province getProvince(int x, int y)
+    {
         return Provinces.Find(p => p.X == x && p.Y == y);
     }
 
-    public Province getProvince((int, int) coordinates) {
+    public Province getProvince((int, int) coordinates)
+    {
         return getProvince(coordinates.Item1, coordinates.Item2);
     }
 
-    public int getProvinceIndex((int, int) coordinates) {
+    public int getProvinceIndex((int, int) coordinates)
+    {
         return Provinces.FindIndex(p => p.X == coordinates.Item1 && p.Y == coordinates.Item2);
     }
 
-    public int getProvinceIndex(int x, int y) { 
-        return Provinces.FindIndex(p=>p.X == x && p.Y == y);
+    public int getProvinceIndex(int x, int y)
+    {
+        return Provinces.FindIndex(p => p.X == x && p.Y == y);
     }
 
-    public void calcPopExtremes() {
-        int min = Provinces.Min(p=>p.Population), max = Provinces.Max(p=>p.Population);
-        Pop_extremes=(min,max);
+    public void calcPopExtremes()
+    {
+        int min = Provinces.Min(p => p.Population), max = Provinces.Max(p => p.Population);
+        Pop_extremes = (min, max);
     }
 
-    public void growPop((int, int) coordinates) {
+    public void growPop((int, int) coordinates)
+    {
         int prov = getProvinceIndex(coordinates);
         var stats = countries[Provinces[prov].Owner_id].techStats;
         Provinces[prov].Population += (int)Math.Floor(Provinces[prov].Population * stats.popGrowth);
     }
 
-    public void calcRecruitablePop((int, int) coordinates) {
+    public void calcRecruitablePop((int, int) coordinates)
+    {
         int prov = getProvinceIndex(coordinates);
         var stats = countries[Provinces[prov].Owner_id].techStats;
         Provinces[prov].RecruitablePopulation = (int)Math.Floor(Provinces[prov].Population * stats.recPop);
     }
 
-    public void growHap((int, int) coordinates, int value) {
+    public void growHap((int, int) coordinates, int value)
+    {
         int prov = getProvinceIndex(coordinates);
         Provinces[prov].Happiness += value;
     }
 
-    
+
     //jebnij sie w leb
 
     //public void addBuilding((int,int) coordinates, Building building)
@@ -105,32 +115,36 @@ public class Map:ScriptableObject {
     //    }
     //}
 
-    public void upgradeBuilding((int,int) coordinates, BuildingType buildingType)
+    public void upgradeBuilding((int, int) coordinates, BuildingType buildingType)
     {
         int prov = getProvinceIndex(coordinates);
         Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType).Upgrade();
         Debug.Log(getProvince(coordinates).Buildings.ToString());
     }
-    public void downgradeBuilding((int,int) coordinates, BuildingType buildingType)
+    public void downgradeBuilding((int, int) coordinates, BuildingType buildingType)
     {
         int prov = getProvinceIndex(coordinates);
         Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType).Downgrade();
         Debug.Log(getProvince(coordinates).Buildings.ToString());
     }
 
-    public void assignProvince((int, int) coordinates, int id) {
+    public void assignProvince((int, int) coordinates, int id)
+    {
         var p = getProvince(coordinates);
         assignProvince(p, id);
     }
-    public void assignProvince(Province province, int id) {
-        if(!countries[id].assignProvince(province)) {
+    public void assignProvince(Province province, int id)
+    {
+        if (!countries[id].assignProvince(province))
+        {
             var c = countries.Find(c => c.Id == province.Owner_id);
             c.unassignProvince(province);
             countries[id].assignProvince(province);
         }
     }
 
-    public (Resource, float) calcResources((int, int) coordinates, int id, float factor) {
+    public (Resource, float) calcResources((int, int) coordinates, int id, float factor)
+    {
         var p = getProvince(coordinates);
         return (p.ResourcesT, p.Resources_amount);
     }
@@ -158,56 +172,98 @@ public class Map:ScriptableObject {
     public void destroyArmyView(Army army)
     {
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
-        if(armyView != null)
+        if (armyView != null)
         {
             armyViews.Remove(armyView);
             Destroy(armyView.gameObject);
         }
     }
 
-    public void recArmy((int, int) coordinates, int amount) {
+    public void recArmy((int, int) coordinates, int amount)
+    {
         var province = getProvince(coordinates);
         var exitsing = armies.Find(a => a.Position == coordinates && a.Position == a.Destination);
-        if(province.RecruitablePopulation >= amount) { 
+        if (province.RecruitablePopulation >= amount)
+        {
             province.Population -= amount;
             province.RecruitablePopulation -= amount;
-            if(exitsing == null) { 
+            if (exitsing == null)
+            {
                 addArmy(new(province.Owner_id, amount, coordinates, coordinates));
             }
-            else {
+            else
+            {
                 exitsing.Count += amount;
             }
         }
     }
 
-    public void disArmy((int, int) coordinates, int amount) { 
+    public void disArmy((int, int) coordinates, int amount)
+    {
         var province = getProvince(coordinates);
         var army = armies.Find(a => a.Position == coordinates);
-        if(army != null) {
-            if(army.Count == amount) {
+        if (army != null)
+        {
+            if (army.Count == amount)
+            {
                 removeArmy(army);
             }
-            else {
+            else
+            {
                 army.Count -= amount;
             }
             province.Population += army.Count / 2;
         }
     }
 
-    public army_view getView(Army army) {
+    public army_view getView(Army army)
+    {
         return armyViews.Find(view => view.ArmyData == army);
     }
-
-    public void updateArmyPosition(Army army, (int,int) coordinates)
-    { 
+    public void updateArmyPosition(Army army, (int, int) coordinates)
+    {
+        Province currentProvince = getProvince(army.Position);
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
-        if(armyView != null)
+
+        if (armyView != null)
         {
+            if (currentProvince != null && army.OwnerId != 0)
+            {
+                if (ShouldCancelOccupation(currentProvince, army.OwnerId))
+                {
+                    CancelOccupation(currentProvince);
+                }
+            }
             armyView.MoveTo(coordinates);
+            if (army.OwnerId != 0 && ShouldCancelOccupation(getProvince(armyView.ArmyData.Position), army.OwnerId))
+            {
+                CancelOccupation(getProvince(armyView.ArmyData.Position));
+            }
         }
         AddOccupation(army);
     }
-    public void updateArmyDestination(Army army, (int,int) coordinates)
+    private bool ShouldCancelOccupation(Province province, int armyOwnerId)
+    {
+        if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied)
+        {
+            Country occupyingCountry = Countries.FirstOrDefault(c => c.Id == province.OccupationInfo.OccupyingCountryId);
+
+            if (occupyingCountry != null)
+            {
+                bool isAllyOrVassal = false;
+                Relation.RelationType? relation = GetHardRelationType(Countries[armyOwnerId], occupyingCountry);
+
+                isAllyOrVassal = relation == Relation.RelationType.Alliance ||
+                                relation == Relation.RelationType.Vassalage ||
+                                armyOwnerId == province.OccupationInfo.OccupyingCountryId;
+
+                return !isAllyOrVassal;
+            }
+        }
+        return false;
+    }
+
+    public void updateArmyDestination(Army army, (int, int) coordinates)
     {
         army.Destination = coordinates;
     }
@@ -219,52 +275,61 @@ public class Map:ScriptableObject {
     public void moveArmies()
     {
         int it = 0;
-        foreach(var army in armies)
+        foreach (var army in armies)
         {
-            
-            if(army.Position != army.Destination)
+
+            if (army.Position != army.Destination)
             {
-                MoveArmy(army);   
+                MoveArmy(army);
             }
             Debug.Log(army.Position != army.Destination ? ("army" + it++ + "in" + army.Position.ToString() + "hasn't moved") : ("army" + it++ + "in" + army.Position.ToString() + "has moved to" + army.Destination.ToString()));
 
         }
     }
 
-    public void MoveArmy(Army army) {
+    public void MoveArmy(Army army)
+    {
         updateArmyPosition(army, army.Destination);
         updateArmyDestination(army, army.Position);
     }
 
-    public void undoSetMoveArmy(Army army) { 
+    public void undoSetMoveArmy(Army army)
+    {
         army_view view = getView(army);
-        if(view != null) {
+        if (view != null)
+        {
             view.ReturnTo(army.Position);
         }
         mergeToProvince(getProvince(army.Position), army);
     }
 
 
-    public Army setMoveArmy(Army army, int count, (int, int) destination) {
-        if(count <= army.Count) {
+    public Army setMoveArmy(Army army, int count, (int, int) destination)
+    {
+        if (count <= army.Count)
+        {
             Army moved_army;
 
-            if(count == army.Count) {
+            if (count == army.Count)
+            {
                 updateArmyDestination(army, destination);
                 moved_army = army;
             }
-            else {
-                moved_army = new Army(army) {
+            else
+            {
+                moved_army = new Army(army)
+                {
                     Destination = destination
                 };
                 army.Count -= count;
                 moved_army.Count = count;
 
                 addArmy(moved_army);
-                
+
             }
             var armyView = armyViews.Find(view => view.ArmyData == moved_army);
-            if(armyView != null) {
+            if (armyView != null)
+            {
                 armyView.PrepareToMoveTo(destination);
             }
             return moved_army;
@@ -273,16 +338,19 @@ public class Map:ScriptableObject {
     }
 
     //I LOVE LINQ
-    public void mergeArmies(Country country) {
+    public void mergeArmies(Country country)
+    {
         List<Army> ar = armies.Where(a => a.OwnerId == country.Id).ToList();
-        var grouped =  ar.GroupBy(a => a.Position)
+        var grouped = ar.GroupBy(a => a.Position)
             .Select(gr => new {
                 pos = gr.Key,
                 count = gr.Sum(a => a.Count),
                 ars = gr.ToList()
             }).ToList();
-        foreach(var group in grouped) {
-            foreach(var army in group.ars) { 
+        foreach (var group in grouped)
+        {
+            foreach (var army in group.ars)
+            {
                 removeArmy(army);
             }
 
@@ -291,13 +359,16 @@ public class Map:ScriptableObject {
         }
     }
 
-    private void mergeToProvince(Province province, Army to_merge) {
+    private void mergeToProvince(Province province, Army to_merge)
+    {
         Army base_ = armies.Find(a => a.Position == province.coordinates && a.Destination == a.Position);
-        if(base_ != null){
-        base_.Count += to_merge.Count;
+        if (base_ != null)
+        {
+            base_.Count += to_merge.Count;
             removeArmy(to_merge);
         }
-        else {
+        else
+        {
             updateArmyDestination(to_merge, province.coordinates);
         }
     }
@@ -351,7 +422,7 @@ public class Map:ScriptableObject {
                         if (currentDistance < currentMoveRange)
                         {
                             visited.Add((neighborX, neighborY));
-                            frontier.Enqueue((neighbor, currentMoveRange)); 
+                            frontier.Enqueue((neighbor, currentMoveRange));
                         }
                     }
                 }
@@ -361,13 +432,14 @@ public class Map:ScriptableObject {
         return possibleCells;
     }
 
-    public List<Army> getCountryArmies(Country country) {
+    public List<Army> getCountryArmies(Country country)
+    {
         return armies.FindAll(a => a.OwnerId == country.Id);
     }
 
     public bool IsValidPosition(int x, int y)
     {
-        return provinces.Any(p => p.coordinates.Item1 == x && p.coordinates.Item2 == y);
+        return x >= 0 && x <= 79 && y >= 0 && y <= 79;
     }
     public void ManageOccupationDuration(Province province)
     {
@@ -397,18 +469,55 @@ public class Map:ScriptableObject {
         Province province = getProvince(army.Position.Item1, army.Position.Item2);
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
         Occupation occupationStatus = null;
-
+        Country master = getMaster(country);
         if (province.Owner_id == 0)
         {
-            occupationStatus = new Occupation(1, army.OwnerId);
+            if (master != null)
+            {
+                occupationStatus = new Occupation(1, master.Id);
+            }
+            else
+            {
+                occupationStatus = new Occupation(1, army.OwnerId);
+            }
         }
         else
         {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-            //if (!country.AlliedCountries.Contains(provinceOwner) && (country.Id != province.Owner_id) && (country.Id != province.OccupationInfo.OccupyingCountryId))
-            //{
-            //    occupationStatus = new Occupation(country.techStats.occTime, army.OwnerId);
-            //}
+            Relation.RelationType? relation = null;
+            if (master != null)
+            { // jestes wasalem
+                relation = GetHardRelationType(master, provinceOwner);
+            }
+            else // nie jestes wasalem
+            {
+                relation = GetHardRelationType(country, provinceOwner);
+            }
+
+            if (relation == Relation.RelationType.War)
+            {
+                if (master != null)
+                {
+                    occupationStatus = new Occupation(country.techStats.occTime, master.Id);
+                }
+                else
+                {
+                    occupationStatus = new Occupation(country.techStats.occTime, army.OwnerId);
+                }
+            }
+            else if (relation == Relation.RelationType.Rebellion)
+            {
+                CancelOccupation(province);
+                return;
+            }
+            if (relation == Relation.RelationType.Vassalage)
+            {
+                CancelOccupation(province);
+            }
+            if (province.OccupationInfo.OccupyingCountryId == 0)
+            {
+                CancelOccupation(province);
+            }
         }
 
         if (occupationStatus != null && province.Type == "land")
@@ -417,23 +526,27 @@ public class Map:ScriptableObject {
             province.OccupationInfo = new OccupationInfo(true, occupationStatus.duration + 1, army.OwnerId);
         }
     }
-    private void CancelOccupation(Province province) // jak odbija panstwo prowincje 
+    public void CancelOccupation(Province province) // jak odbija panstwo prowincje 
     {
         province.OccupationInfo.IsOccupied = false;
         province.OccupationInfo.OccupationCount = 0;
-        province.OccupationInfo.OccupyingCountryId = -1; 
+        province.OccupationInfo.OccupyingCountryId = -1;
+        province.Statuses.RemoveAll(status => status is Occupation);
     }
 
-    public HashSet<Relation> getRelationsOfType(Country country, Relation.RelationType type) {
+    public HashSet<Relation> getRelationsOfType(Country country, Relation.RelationType type)
+    {
         HashSet<Relation> result = new HashSet<Relation>();
-        foreach(var r in relations) {
-            if(r.type == type && r.Sides.Contains(country))
+        foreach (var r in relations)
+        {
+            if (r.type == type && r.Sides.Contains(country))
                 result.Add(r);
         }
         return result;
     }
 
-    public Relation.RelationType? GetHardRelationType(Country c1, Country c2) {
+    public Relation.RelationType? GetHardRelationType(Country c1, Country c2)
+    { // 0 master 1 slave
         var rr = relations.FirstOrDefault(r =>
             r.Sides.Contains(c1) && r.Sides.Contains(c2) &&
             (r.type == Relation.RelationType.War ||
@@ -442,20 +555,32 @@ public class Map:ScriptableObject {
              r.type == Relation.RelationType.Truce)
         );
 
-        if (rr != null) {
-            if (rr.type == Relation.RelationType.War) {
+        if (rr != null)
+        {
+            if (rr.type == Relation.RelationType.War)
+            {
                 var war = rr as Relation.War;
 
                 if ((war.participants1.Contains(c1) && war.participants2.Contains(c2)) ||
-                    (war.participants2.Contains(c1) && war.participants1.Contains(c2))) {
+                    (war.participants2.Contains(c1) && war.participants1.Contains(c2)))
+                {
                     return Relation.RelationType.War;
                 }
             }
-            else {
+            else
+            {
                 return rr.type;
             }
         }
 
+        return null;
+    }
+    public Country getMaster(Country country) {
+        foreach (var relation in Relations) {
+            if (relation.type == Relation.RelationType.Vassalage && relation.Sides[1] == country) {
+                return relation.Sides[0];
+            }
+        }
         return null;
     }
     public Map getSaveData() {

@@ -1,4 +1,5 @@
 ﻿using Assets.classes;
+using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,6 +90,9 @@ namespace Assets.map.scripts {
             if (count > 0 && !map.Armies.Any(a=>a.Position == province.coordinates && a.OwnerId == 0)) {
                 Army rebels = new Army(0, count, (-1, -1), province.coordinates);
                 map.addArmy(rebels);
+                Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
+                province.addStatus(new Occupation(country.techStats.occTime, 0));
+                province.OccupationInfo = new OccupationInfo(true, country.techStats.occTime, 0);
                 TurnAction rebellion = new TurnAction.army_move((-1, -1), province.coordinates, count, rebels);
                 rebellion.execute(map);
                 province.Happiness = 45;

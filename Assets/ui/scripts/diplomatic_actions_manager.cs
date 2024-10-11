@@ -63,7 +63,6 @@ public class diplomatic_actions_manager : MonoBehaviour
     // dropdown
     [SerializeField] private Sprite coat_of_arms_background;
     [SerializeField] private TMP_Dropdown country_dropdown;
-    [SerializeField] private Image pattern_img;
 
     // effects
     [SerializeField] private GameObject effect_content;
@@ -161,7 +160,6 @@ public class diplomatic_actions_manager : MonoBehaviour
         SetCountryInfo();
         SetActionButtonStates();
 
-        pattern_img.enabled = false;
         send_message_button.interactable = false;
         DeactivateAreas();
         gameObject.SetActive(true);
@@ -517,7 +515,6 @@ public class diplomatic_actions_manager : MonoBehaviour
         UpdateSendButtonInteractionForDropdownAction();
 
         int selectedIndex = country_dropdown.value;
-        pattern_img.enabled = true;
 
         var selectedEntry = countryIdToDropdownIndexMap
             .FirstOrDefault(entry => entry.Value == selectedIndex);
@@ -773,13 +770,12 @@ public class diplomatic_actions_manager : MonoBehaviour
             // call to war (jesli to ostatni wybrany kraj w dropdown), break alliance
 
             UpdateSendButtonInteractionForDropdownAction();
-            receiverCountryButtonStates[countryId].CallToWarButtonState = (country_dropdown.options.Count < 2);
+            receiverCountryButtonStates[countryId].CallToWarButtonState = (country_dropdown.options.Count > 1);
             receiverCountryButtonStates[countryId].AllianceBreakButtonState = false;
 
             int selectedIndex = country_dropdown.value;
             var selectedEntry = countryIdToDropdownIndexMap
                 .FirstOrDefault(entry => entry.Value == selectedIndex);
-            if (selectedEntry.Key != default) country_dropdown.captionImage.color = map.Countries[selectedEntry.Key].Color;
 
             receiverCountryButtonStates[countryId].CountriesToSkip.Add(selectedEntry.Key);
             Relation.War war = map.getRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;
