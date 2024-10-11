@@ -149,7 +149,7 @@ public class province_click_handler : cursor_helper
         }
         return false;
     }
-    private void SelectProvince(int x, int y)
+    public void SelectProvince(int x, int y)
     {
         DeselectProvince();
         selectedProvincePosition = new Vector3Int(x, y, 0);

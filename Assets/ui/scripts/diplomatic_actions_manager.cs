@@ -776,7 +776,6 @@ public class diplomatic_actions_manager : MonoBehaviour
             int selectedIndex = country_dropdown.value;
             var selectedEntry = countryIdToDropdownIndexMap
                 .FirstOrDefault(entry => entry.Value == selectedIndex);
-            if (selectedEntry.Key != default) country_dropdown.captionImage.color = map.Countries[selectedEntry.Key].Color;
 
             receiverCountryButtonStates[countryId].CountriesToSkip.Add(selectedEntry.Key);
             Relation.War war = map.getRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;

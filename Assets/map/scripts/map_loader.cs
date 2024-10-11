@@ -334,13 +334,15 @@ public class map_loader : MonoBehaviour
                     switch (map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.Owner_id]))
                     {
                         case Relation.RelationType.War:
-                            filter_layer.SetColor(position, new Color(1f, 0.27f, 0)); break;
+                            filter_layer.SetColor(position, new Color(1f, 0.27f, 0)); break; // orange
                         case Relation.RelationType.Truce:
                             filter_layer.SetColor(position, Color.white); break;
                         case Relation.RelationType.Alliance:
                             filter_layer.SetColor(position, Color.cyan); break;
                         case Relation.RelationType.Vassalage:
-                            filter_layer.SetColor(position, new Color(0.7f, 0, 1)); break;
+                            filter_layer.SetColor(position, new Color(0.7f, 0, 1)); break; // purple
+                        case Relation.RelationType.Rebellion:
+                            filter_layer.SetColor(position, Color.magenta); break;
                         default:
                             filter_layer.SetColor(position, Color.yellow); break;
                     }
