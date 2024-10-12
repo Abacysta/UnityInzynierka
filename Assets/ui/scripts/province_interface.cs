@@ -140,6 +140,7 @@ public class province_interface : MonoBehaviour
                 bt.Item1.Find("remove").GetComponent<Button>().interactable = bld[bt.Item2].BuildingLevel > 0 && bld[bt.Item2].BuildingLevel < 4? true : false;
             }
             var ownr = p.Owner_id;
+            emblem.GetComponent<Button>().onClick.RemoveAllListeners();
             if (map.CurrentPlayer.Id == ownr) {
                 emblem.GetComponent<Button>().onClick.AddListener(() => country_interface.ShowCountryInterface());
             }

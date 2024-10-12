@@ -8577,7 +8577,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   dialog_box: {fileID: 316045547}
-  camera: {fileID: 1043393647}
+  camera_controller: {fileID: 1043393647}
 --- !u!114 &311749117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16238,7 +16238,7 @@ MonoBehaviour:
   province_select_layer_rnd: {fileID: 1342113967}
   filter_hover_layer_rnd: {fileID: 1022513886}
   dialog_box: {fileID: 316045547}
-  camera: {fileID: 1043393647}
+  camera_controller: {fileID: 1043393647}
   mapmodes_buttons: {fileID: 1758574782}
   diplomacy: {fileID: 311749115}
   loading: 0

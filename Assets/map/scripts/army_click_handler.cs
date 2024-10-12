@@ -70,6 +70,7 @@ public class army_click_handler : cursor_helper
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
                 HighlightPossibleMoveCells(selectedArmy.ArmyData);
+                province_click_handler.DeselectProvince();
                 //army_click.Play();
                 Debug.Log($"Selected Army: ({armyView.ArmyData.Position.Item1}, {armyView.ArmyData.Position.Item2}), " +
                           $"Count: {armyView.ArmyData.Count} origin:{armyView.ArmyData.Position} destination:{armyView.ArmyData.Destination}");
