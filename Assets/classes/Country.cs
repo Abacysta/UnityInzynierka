@@ -282,7 +282,7 @@ public class Country {
         this.id = id;
         this.name = name;
         this.capital = id == 0 ? (-1, -1) : capital;
-        this.color = id == 0 ? Color.white : color;
+        this.color = id == 0 ? new Color(0.8392f, 0.7216f, 0.4706f) : color;
         this.coat = coat;
         this.resources = new(technicalDefaultResources.defaultValues);
         this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };

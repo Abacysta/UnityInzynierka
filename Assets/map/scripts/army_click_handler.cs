@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
 
 public class army_click_handler : cursor_helper
 {
@@ -18,11 +17,12 @@ public class army_click_handler : cursor_helper
     //[SerializeField] private Canvas canvas;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private province_tooltip province_tooltip;
+    [SerializeField] private province_click_handler province_click_handler;
 
     private army_view selectedArmy;
     private List<Vector3Int> highlightedCells = new();
 
-    private float duration = 0.75f;
+    private float duration = 0.5f;
     private Color startColor;
     private Color endColor;
     private float timeElapsed = 0.0f;
@@ -31,9 +31,9 @@ public class army_click_handler : cursor_helper
 
     //private GameObject disbandButtonInstance;
 
-    void Start()
+    private void Start()
     {
-        InitializeColors();
+        SetStartAndEndColor();
     }
 
     void Update()
@@ -47,7 +47,7 @@ public class army_click_handler : cursor_helper
         {
             if (IsCursorOverUIObject())
             {
-                //ResetSelectedArmy();
+                ResetSelectedArmy();
                 return;
             }
             HandleLeftClick();
@@ -144,13 +144,11 @@ public class army_click_handler : cursor_helper
                 continue;
             }
 
-            bool hasArmy = false;
             Collider2D[] colliders = Physics2D.OverlapPointAll(base_layer.CellToWorld(cellPosition));
             foreach (var collider in colliders)
             {
                 if (collider.GetComponent<army_view>() != null)
                 {
-                    hasArmy = true;
                     break;
                 }
             }
@@ -159,6 +157,7 @@ public class army_click_handler : cursor_helper
             {
                 highlightedCells.Add(cellPosition);
                 army_movement_layer.SetTile(cellPosition, base_tile);
+                army_movement_layer.SetColor(cellPosition, province_click_handler.GetHighlightColor((cellPosition.x, cellPosition.y)));
             }
         }
     }
@@ -196,13 +195,14 @@ public class army_click_handler : cursor_helper
         return highlightedCells.Contains(cellPosition);
     }
 
-    private void InitializeColors()
+    private void SetStartAndEndColor()
     {
-        startColor = army_movement_layer.color;
-        startColor.a = 20.0f / 255.0f;
+        startColor = Color.white;
+        startColor.a = 0f;
         endColor = startColor;
-        endColor.a = 150.0f / 255.0f;
+        endColor.a = 60.0f / 255.0f;
     }
+
 /*
     private void CreateDisbandButton(army_view armyView)
     {
@@ -238,6 +238,7 @@ public class army_click_handler : cursor_helper
         {
             dialog_box.invokeDisbandArmyBox(map, army);
             ResetSelectedArmy();
+            province_click_handler.DeselectProvince();
         }
     }
 }

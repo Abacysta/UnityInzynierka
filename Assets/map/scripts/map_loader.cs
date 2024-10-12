@@ -1,14 +1,9 @@
 using Assets.classes;
 using Assets.classes.subclasses;
-using Assets.Scripts;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.UIElements;
-using UnityEngine.Video;
-using UnityEngine.UI;
 
 public class map_loader : MonoBehaviour
 {
@@ -37,7 +32,7 @@ public class map_loader : MonoBehaviour
     [SerializeField] private TilemapRenderer province_select_layer_rnd;
     [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
     [SerializeField] private dialog_box_manager dialog_box;
-    [SerializeField] private camera_controller camera;
+    [SerializeField] private camera_controller camera_controller;
     [SerializeField] private GameObject mapmodes_buttons;
     [SerializeField] private Assets.map.scripts.diplomatic_relations_manager diplomacy;
     private MapMode mode;
@@ -61,9 +56,9 @@ public class map_loader : MonoBehaviour
         //    new Country(i++, "Vikings", (30, 0), Color.green, map),
         //    new Country(i++, "Huns", (40, 0), Color.yellow, map)
         //};
-        map.addCountry(new Country(i++, "", (-1, -1), Color.white, 1, map), Map.CountryController.Ai);
-        map.addCountry(new Country(i++, "Kingdom", (0, 0), Color.gray, 2, map), Map.CountryController.Local);
-        map.addCountry(new Country(i++, "Gauls", (9, 9), Color.red, 3, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+        map.addCountry(new Country(i++, "Kingdom", (0, 0), new Color(0.4392f, 0.5020f, 0.3451f), 2, map), Map.CountryController.Local);
+        map.addCountry(new Country(i++, "Gauls", (9, 9), new Color(0.7686f, 0.3019f, 0.1176f), 3, map), Map.CountryController.Local);
         map.addCountry(new Country(i++, "Berbers", (10, 0), Color.cyan, 1, map), Map.CountryController.Local);
         map.addCountry(new Country(i++, "Egyptians", (20, 0), Color.blue, 2, map), Map.CountryController.Ai);
         map.addCountry(new Country(i++, "Vikings", (30, 0), Color.green, 3, map), Map.CountryController.Ai);
@@ -125,24 +120,24 @@ public class map_loader : MonoBehaviour
         map.getProvince(0, 0).addStatus(new Disaster(2));
         map.getProvince(1, 0).addStatus(new ProdBoom(3));
         map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
-        map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.LocalEvent.PlagueFound(map.Countries[1].Provinces.Last(), dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.LocalEvent.PlagueFound(map.Countries[1].Provinces.Last(), dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
 
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.AccessOffer(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.AccessOffer(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
 
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
 
         map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[2]));
         map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[3]));

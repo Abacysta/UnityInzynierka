@@ -11995,7 +11995,7 @@ Tilemap:
   m_TileColorArray: []
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 0.36862746}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.23529412}
   m_Origin: {x: 0, y: 0, z: 0}
   m_Size: {x: 0, y: 0, z: 1}
   m_TileAnchor: {x: 0, y: 0, z: 0}
@@ -13078,7 +13078,7 @@ Tilemap:
   m_TileColorArray: []
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 0.5377358, g: 0.5377358, b: 0.5377358, a: 0.25490198}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.23529412}
   m_Origin: {x: 0, y: 0, z: 0}
   m_Size: {x: 0, y: 0, z: 1}
   m_TileAnchor: {x: 0, y: 0, z: 0}
@@ -16268,6 +16268,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   base_layer: {fileID: 352083102}
+  filter_layer: {fileID: 1022513887}
   mouse_hover_layer: {fileID: 504392808}
   province_select_layer: {fileID: 1342113968}
   base_tile: {fileID: 11400000, guid: 93f9a5004e204dd4b8e31c6894d87e29, type: 2}
@@ -16277,6 +16278,7 @@ MonoBehaviour:
   armyClickHandler: {fileID: 653004899}
   cameraController: {fileID: 1043393647}
   country_interface_manager: {fileID: 1907945647}
+  map_loader: {fileID: 653004896}
 --- !u!114 &653004899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16296,6 +16298,7 @@ MonoBehaviour:
   army_move_select: {fileID: 1308276978}
   dialog_box: {fileID: 316045547}
   province_tooltip: {fileID: 486171403}
+  province_click_handler: {fileID: 653004898}
 --- !u!1 &660708467
 GameObject:
   m_ObjectHideFlags: 0
@@ -32647,7 +32650,7 @@ Tilemap:
   m_TileColorArray: []
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 0.7924528, g: 0.10840159, b: 0.10840159, a: 0.25490198}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.23529412}
   m_Origin: {x: 0, y: 0, z: 0}
   m_Size: {x: 0, y: 0, z: 1}
   m_TileAnchor: {x: 0, y: 0, z: 0}
@@ -54476,6 +54479,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dummy: {fileID: 1937488387}
   counter: {fileID: 1099096238}
+  sortedevents: []
 --- !u!1 &2134096248
 GameObject:
   m_ObjectHideFlags: 0

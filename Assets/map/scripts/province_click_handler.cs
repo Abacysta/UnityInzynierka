@@ -6,6 +6,7 @@ public class province_click_handler : cursor_helper
     [SerializeField] private Map map;
 
     [SerializeField] private Tilemap base_layer;
+    [SerializeField] private Tilemap filter_layer;
     [SerializeField] private Tilemap mouse_hover_layer;
     [SerializeField] private Tilemap province_select_layer;
     [SerializeField] private TileBase base_tile;
@@ -16,6 +17,7 @@ public class province_click_handler : cursor_helper
     [SerializeField] private army_click_handler armyClickHandler;
     [SerializeField] private camera_controller cameraController;
     [SerializeField] private country_interface_manager country_interface_manager;
+    [SerializeField] private map_loader map_loader;
 
     private Vector3Int previousCellPosition = new(-1, -1, -1);
     private Vector3Int cellPosition;
@@ -23,16 +25,11 @@ public class province_click_handler : cursor_helper
     private Vector3Int selectedProvincePosition = new(-1, -1, -1);
     private bool isSelected = false;
     private bool isHighlighted = false;
-    private float duration = 0.75f;
+    private float duration = 0.5f;
     private Color startColor;
     private Color endColor;
     private float timeElapsed = 0.0f;
     private bool increasing = true;
-
-    void Start()
-    {
-        InitializeColors();
-    }
 
     void Update()
     {
@@ -82,6 +79,7 @@ public class province_click_handler : cursor_helper
             if (hoveredTile != null)
             {
                 mouse_hover_layer.SetTile(cellPosition, base_tile);
+                mouse_hover_layer.SetColor(cellPosition, GetHighlightColor((cellPosition.x, cellPosition.y)));
 
                 if(IsProvinceRevealed(cellPosition.x,cellPosition.y))
                 {
@@ -154,12 +152,13 @@ public class province_click_handler : cursor_helper
         DeselectProvince();
         selectedProvincePosition = new Vector3Int(x, y, 0);
         province_select_layer.SetTile(selectedProvincePosition, base_tile);
+        SetProvinceSelectLayerColor();
         isSelected = true;
         isHighlighted = true;
         timeElapsed = 0.0f;
     }
 
-    private void DeselectProvince()
+    public void DeselectProvince()
     {
         if (isSelected)
         {
@@ -198,11 +197,31 @@ public class province_click_handler : cursor_helper
         cellPosition = mouse_hover_layer.WorldToCell(mouseWorldPos);
     }
 
-    private void InitializeColors()
+    private void SetProvinceSelectLayerColor()
     {
-        startColor = province_select_layer.color;
-        startColor.a = 20.0f / 255.0f;
+        startColor = GetHighlightColor((selectedProvincePosition.x, selectedProvincePosition.y));
+        startColor.a = 0f / 255.0f;
         endColor = startColor;
-        endColor.a = 150.0f / 255.0f;
+        endColor.a = 60.0f / 255.0f;
+    }
+
+    public Color GetHighlightColor((int x, int y) coordinates)
+    {
+        Tilemap tileMap = (map_loader.CurrentMode == map_loader.MapMode.Terrain ||
+                           map_loader.CurrentMode == map_loader.MapMode.Political)
+                           ? base_layer
+                           : filter_layer;
+
+        Color tileColor = Color.red;
+
+        if (map.IsValidPosition(coordinates.x, coordinates.y))
+        {
+            Vector3Int tilePosition = new(coordinates.x, coordinates.y, 0);
+            tileColor = tileMap.GetColor(tilePosition);
+        }
+
+        float brightness = tileColor.r * 0.299f + tileColor.g * 0.587f + tileColor.b * 0.114f;
+
+        return brightness > 0.8f ? Color.black : Color.white;
     }
 }
