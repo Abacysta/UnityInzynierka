@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static Assets.classes.Relation;
 
-// Jeszcze nie skonczylem tu robiæ typow relacji
 public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewItem
 {
     [SerializeField] private country_relations_table_manager country_relations_table_manager;

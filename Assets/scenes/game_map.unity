@@ -16232,7 +16232,7 @@ MonoBehaviour:
   filter_layer: {fileID: 1022513887}
   base_tile: {fileID: 11400000, guid: 93f9a5004e204dd4b8e31c6894d87e29, type: 2}
   occupied_tile: {fileID: 11400000, guid: fe7beea5f6d156847bb0cfecb26643d7, type: 2}
-  water_tile: {fileID: 11400000, guid: f78ea6cc006868047ab6348a4b92954f, type: 2}
+  water_tile: {fileID: 11400000, guid: 1e7c238a62d439f44987884f6091e46a, type: 2}
   capital_tile: {fileID: 11400000, guid: 08477c152c7258a4d98340650eafd4ff, type: 2}
   mouse_hover_layer_rnd: {fileID: 504392807}
   province_select_layer_rnd: {fileID: 1342113967}
