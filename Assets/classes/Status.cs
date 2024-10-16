@@ -26,6 +26,7 @@ namespace Assets.classes.subclasses {
 
         public virtual void applyEffect(Province province) { }
     }
+    [Serializable]
     internal class TaxBreak:Status {
         public TaxBreak(int duration) : base(duration, StatusType.positive, "The province is exempted from paying tax", 1) {
         }
@@ -36,7 +37,8 @@ namespace Assets.classes.subclasses {
             province.Happ_static += 5;
         }
     }
-    internal class Festivities:Status {
+	[Serializable]
+	internal class Festivities:Status {
         public Festivities(int duration) : base(duration, StatusType.positive, "Festivities are taking place in this province", 2){}
 
         public override void applyEffect(Province province) {
@@ -46,23 +48,24 @@ namespace Assets.classes.subclasses {
         }
     }
 
-    internal class ProdBoom:Status {
+	[Serializable]
+	internal class ProdBoom:Status {
         public ProdBoom(int duration) : base(duration, StatusType.positive, "This province is experiencing a temporary production boom", 3) { }
 
         public override void applyEffect(Province province) {
             province.Prod_mod += 0.15f;
         }
     }
-
-    internal class ProdDown:Status {
+	[Serializable]
+	internal class ProdDown:Status {
         public ProdDown(int duration) : base(duration, StatusType.negative, "This province is experiencing a temporary recession", 4) { }
 
         public override void applyEffect(Province province) {
             province.Prod_mod -= 0.15f;
         }
     }
-
-    internal class Tribal:Status {
+	[Serializable]
+	internal class Tribal:Status {
         public Tribal(int duration) : base (duration, StatusType.neutral, "No civilization has been introduced in this province", 0) { }
 
         public override void applyEffect(Province province) {
@@ -74,8 +77,8 @@ namespace Assets.classes.subclasses {
             province.Tax_mod = 0;
         }
     }
-
-    internal class Illness:Status {
+	[Serializable]
+	internal class Illness:Status {
         public Illness(int duration) : base(duration, StatusType.negative, "This province is going through a plague", 5) { }
 
         public override void applyEffect(Province province) {
@@ -84,8 +87,8 @@ namespace Assets.classes.subclasses {
             province.Happ_static -= 4;
         }
     }
-
-    internal class Disaster:Status {
+	[Serializable]
+	internal class Disaster:Status {
         public Disaster(int duration) : base(duration, StatusType.negative, "A disaster has struck this province", 6) { }
 
         public override void applyEffect(Province province) {
@@ -93,7 +96,8 @@ namespace Assets.classes.subclasses {
             province.Prod_mod -= 0.3f;
         }
     }
-    internal class Occupation : Status
+	[Serializable]
+	internal class Occupation : Status
     {
         public int Occupier_id { get; private set; }
         public Occupation(int duration, int occupierId) : base(duration, StatusType.negative, "This province is currently occupied", 7) 
@@ -106,7 +110,8 @@ namespace Assets.classes.subclasses {
             province.OccupationInfo.OccupyingCountryId = this.Occupier_id;
         }
     }
-    internal class RecBoom:Status {
+	[Serializable]
+	internal class RecBoom:Status {
         public RecBoom(int duration) : base(duration, StatusType.neutral, "More recruits appear, hindering your economic growth", 8) {
         }
 
@@ -115,7 +120,8 @@ namespace Assets.classes.subclasses {
             province.Prod_mod -= 0.03f;
         }
     }
-    internal class Flood:Status
+	[Serializable]
+	internal class Flood:Status
     {
         public Flood(int duration) : base(duration, StatusType.negative, "This province is flooded.", 9)
         {
@@ -127,7 +133,8 @@ namespace Assets.classes.subclasses {
             province.Prod_mod -= 0.5f;
         }
     }
-    internal class Fire : Status
+	[Serializable]
+	internal class Fire : Status
     {
         public Fire(int duration) : base(duration, StatusType.negative, "This province is on fire!", 10)
         {

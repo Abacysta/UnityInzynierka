@@ -11,22 +11,33 @@ namespace Assets.classes.subclasses {
     [Serializable]
     internal class Save {
         public string map_name;
-        public List<Province> provinces;
+        public List<SaveProvince> provinces;
         public List<SaveCountry> countries;
-        public List<Army> armies;
+        public List<SaveArmy> armies;
         public List<Map.CountryController> controllers;
-        public HashSet<Relation> relations;
+        public HashSet<SaveRelation> relations;
         public Save(Map map) { 
             this.map_name = map.name;
-            this.provinces = new List<Province>(map.Provinces);
+            this.provinces = new List<SaveProvince>();
             this.countries = new List<SaveCountry>();
-            this.armies = new List<Army>(map.Armies);
+            this.armies = new List<SaveArmy>();
             this.controllers = new List<Map.CountryController>(map.Controllers);
-            this.relations = new HashSet<Relation>(map.Relations);
+            this.relations = new HashSet<SaveRelation>();
             foreach(var c in map.Countries) {
                 countries.Add(new SaveCountry(c));
             }
+            foreach(var p in map.Provinces) {
+                provinces.Add(new SaveProvince(p));
+            }
+            foreach(var a in map.Armies) {
+                armies.Add(new SaveArmy(a));
+            }
+            foreach(var r in map.Relations) {
+                relations.Add(new SaveRelation(r));
+            }
         }
+
+
     }
     [Serializable]
     internal class SaveCountry {
@@ -57,6 +68,32 @@ namespace Assets.classes.subclasses {
             else if (country.Tax is WarTaxes) tax = 3;
             else if (country.Tax is InvesmentTaxes) tax = 4;
             else tax = 2;
+        }
+    }
+    [Serializable]
+    internal class SaveProvince {
+        public string name;
+        public (int, int) coordinates;
+        public string resource;
+        public float resourceAmount;
+        public int population;
+        public int happinesss;
+        public bool iscoast;
+        public int owner;
+        public Province.TerrainType terrain;
+        public List<Status> status;
+        public List<Building> buildings;
+        public SaveProvince(Province prov) {
+            name = prov.Name;
+            coordinates = (prov.X, prov.Y);
+            resource = prov.Resources;
+            resourceAmount = prov.Resources_amount;
+            population = prov.Population;
+            happinesss = prov.Happiness;
+            iscoast = prov.Is_coast;
+            terrain = prov.Terrain;
+            status = prov.Statuses;
+            buildings = prov.Buildings;
         }
     }
     [Serializable]
@@ -93,7 +130,22 @@ namespace Assets.classes.subclasses {
         public int? amount;
         public HashSet<int> sideA, sideD;
         public SaveRelation(Relation relation) {
-            
+            countries = (relation.Sides[0].Id, relation.Sides[1].Id);
+            type = relation.type;
+            sideA = null;
+            sideD=null;
+            amount=null;
+            duration= null;
+            if(relation is Relation.War) {
+                var war = relation as Relation.War;
+                sideA = war.participants1.Select(p=> p.Id).ToHashSet();
+                sideD = war.participants2.Select(p => p.Id).ToHashSet();
+            }
+            else if(relation is Relation.Subsidies) {
+                var subs = relation as Relation.Subsidies;
+                duration = subs.Duration;
+                amount = subs.Amount;
+            }
         }
     }
     [Serializable]
@@ -108,11 +160,35 @@ namespace Assets.classes.subclasses {
     [Serializable]
     internal class SaveEvent {
         public bool? type;
+        public int id;
         public string msg;
         public int? country;
         public (int, int)? province;
         public int? from, to;
         public int? amount, duration;
-
+        public SaveEvent(Event_ ev){
+            country = null;
+            province = null;
+            from = null;
+            to = null;
+            amount = null;
+            duration = null;
+            if (ev is Event_.GlobalEvent) type = true;
+            else if (ev is Event_.LocalEvent) type = false;
+            else type = null;
+            msg = ev.msg;
+            switch (type) {
+                case true:
+                    country = (ev as Event_.GlobalEvent).country.Id;
+                    break;
+                case false:
+                    province = ((int, int)?)(ev as Event_.LocalEvent).province.coordinates;
+                    break;
+                default:
+                    from = (int?)(ev as Event_.DiploEvent).from.Id;
+                    to = (int?)(ev as Event_.DiploEvent).to.Id;
+                    break;
+            }
+        }
     }
 }

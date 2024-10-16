@@ -15,7 +15,7 @@ namespace Assets.classes {
         public virtual void zoom() { }
         public virtual string msg { get { return ""; } }
         public class GlobalEvent:Event_ {
-            protected Country country;
+            public Country country;
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
             public GlobalEvent(Country country, dialog_box_manager dialog, camera_controller camera) {
@@ -305,7 +305,7 @@ namespace Assets.classes {
             }
         }
         public class LocalEvent:Event_ {
-            protected Province province;
+            public Province province;
             protected Map map;
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
@@ -782,7 +782,7 @@ namespace Assets.classes {
             }
         }
         public class DiploEvent:Event_ {
-            protected Country from, to;
+            public Country from, to;
             private diplomatic_relations_manager diplomacy;
             private camera_controller camera;
             private dialog_box_manager dialog_box;
@@ -886,7 +886,7 @@ namespace Assets.classes {
                 public override string msg { get { return from.Name + " has broken our pact"; } }
             }
             internal class SubsOffer:DiploEvent {
-                private int amount, duration;
+                public int amount, duration;
                 public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
                 {
                     this.duration = duration;
@@ -907,7 +907,7 @@ namespace Assets.classes {
                 }
             }
             internal class SubsRequest : DiploEvent {
-                private int amount, duration;
+                public int amount, duration;
                 public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
                 {
                     this.amount = amount;

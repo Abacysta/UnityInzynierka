@@ -2,6 +2,7 @@ using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -348,9 +349,23 @@ public class game_manager : MonoBehaviour
         using(FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
             form.Serialize(stream, toSave);
         }
+        Debug.Log(path);
     }
 
-    public void LocalTurnSimulation() {
+	public void saveGameJson() {
+		var path = Application.persistentDataPath + "/save.json";
+		string jsonData = JsonConvert.SerializeObject(toSave, Formatting.Indented); // 'Indented' for pretty-printing
+
+		using (StreamWriter writer = new StreamWriter(path, false)) {
+			writer.Write(jsonData);
+		}
+
+		Debug.Log($"Game saved to: {path}");
+	}
+
+
+
+	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
             TurnSimulation();
             return;
@@ -377,7 +392,7 @@ public class game_manager : MonoBehaviour
             executeActions();
             turnCalculations();
             map.currentPlayer = 1;
-            //toSave = new(map);
+            toSave = new(map);
             loader.Reload();
         }
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
