@@ -532,7 +532,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetDeclareWarMessagePanel()
     {
         message_text.text = "I'm declaring a war on you!";
-        ap_text.text = $"-{actionContainer.TurnAction.start_war.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.start_war.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -580,7 +581,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetVassalRebelMessagePanel()
     {
         message_text.text = "I don't want to be your vassal anymore. Time to fight for control!";
-        ap_text.text = $"-{actionContainer.TurnAction.vassal_rebel.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.vassal_rebel.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -620,10 +622,10 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetIntegrateVassalMessagePanel()
     {
         Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
-        float actionCost = (vassalage?.Sides[1].Provinces.Count / 10) ?? 1f;
 
         message_text.text = "I've made the decision about your integration, my vassal.";
-        ap_text.text = $"-{actionCost:0.0}";
+        apCost = (vassalage?.Sides[1].Provinces.Count / 10) ?? 1f;
+        ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
 
@@ -653,7 +655,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferPeaceMessagePanel()
     {
         message_text.text = "I seek peace. This could be our chance for a better tomorrow.";
-        ap_text.text = $"-{actionContainer.TurnAction.end_war.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.end_war.actionCost;
+        ap_text.text = $"-{apCost:0.0}"; ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -687,7 +690,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetDiplomaticMissionMessagePanel()
     {
         message_text.text = "I'm sending a diplomatic mission to you. I want to have good relations with you.";
-        ap_text.text = $"-{actionContainer.TurnAction.praise.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.praise.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -724,7 +728,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetInsultMessagePanel()
     {
         message_text.text = "You are nothing but a fool!";
-        ap_text.text = $"-{actionContainer.TurnAction.insult.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.insult.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -765,7 +770,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferAllianceMessagePanel()
     {
         message_text.text = "I'm proposing an alliance. Together, we can be stronger!";
-        ap_text.text = $"-{actionContainer.TurnAction.alliance_offer.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.alliance_offer.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -808,7 +814,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetBreakAllianceMessagePanel()
     {
         message_text.text = "I am breaking the alliance with you!";
-        ap_text.text = $"-{actionContainer.TurnAction.alliance_end.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.alliance_end.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -846,7 +853,9 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetCallToWarMessagePanel()
     {
         message_text.text = "I'm calling upon you for help in the war. As my ally, we must support each other!";
-        ap_text.text = $"-{actionContainer.TurnAction.call_to_war.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.call_to_war.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
+
         SetDropdownCountries();
 
         SetEffects(null);
@@ -890,7 +899,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetSubsidizeMessagePanel()
     {
         message_text.text = "I'm offering to subsidize you! Use these resources wisely.";
-        ap_text.text = $"-{actionContainer.TurnAction.subs_offer.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.subs_offer.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
         List<Effect> action_effects = new()
@@ -931,7 +941,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetEndSubsidiesMessagePanel()
     {
         message_text.text = "I'm ending subsidizing you.";
-        ap_text.text = $"-{actionContainer.TurnAction.subs_end.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.subs_end.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
 
@@ -961,7 +972,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetRequestSubsidiesMessagePanel()
     {
         message_text.text = "I am asking for your support through subsidies.";
-        ap_text.text = $"-{actionContainer.TurnAction.subs_request.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.subs_request.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
         List<Effect> action_effects = new()
@@ -998,7 +1010,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferMilitaryAccessMessagePanel()
     {
         message_text.text = "I'm offering you military access. Feel free to pass through my territories.";
-        ap_text.text = $"-{actionContainer.TurnAction.access_offer.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.access_offer.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
 
@@ -1029,7 +1042,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetEndMilitaryAccessMessagePanel()
     {
         message_text.text = "Military access has been revoked. Stay vigilant!";
-        ap_text.text = $"-{actionContainer.TurnAction.access_end.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.access_end.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
 
@@ -1059,7 +1073,8 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferVassalizationMessagePanel()
     {
         message_text.text = "You have little choice but to accept my offer of vassalization.";
-        ap_text.text = $"-{actionContainer.TurnAction.vassal_offer.actionCost:0.0}";
+        apCost = actionContainer.TurnAction.vassal_offer.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
@@ -1112,7 +1127,6 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void ShowPanelWithBasicArea()
     {
-        send_message_button.interactable = true;
         message_area.SetActive(true);
         amount_area.SetActive(false);
         country_choice_area.SetActive(false);
