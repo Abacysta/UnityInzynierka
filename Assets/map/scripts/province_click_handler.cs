@@ -212,13 +212,14 @@ public class province_click_handler : cursor_helper
                            ? base_layer
                            : filter_layer;
 
-        Color tileColor = Color.red;
+        Province province = map.getProvince(coordinates.x, coordinates.y);
 
-        if (map.IsValidPosition(coordinates.x, coordinates.y))
-        {
-            Vector3Int tilePosition = new(coordinates.x, coordinates.y, 0);
-            tileColor = tileMap.GetColor(tilePosition);
+        if (province == null || province.Type != "land") {
+            return Color.white;
         }
+
+        Vector3Int tilePosition = new(coordinates.x, coordinates.y, 0);
+        Color tileColor = tileMap.GetColor(tilePosition);
 
         float brightness = tileColor.r * 0.299f + tileColor.g * 0.587f + tileColor.b * 0.114f;
 
