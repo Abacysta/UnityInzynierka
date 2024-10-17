@@ -937,8 +937,9 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.subs_end(currentPlayer, receiverCountry, 
-                diplomatic_relations_manager, dialog_box, camera_controller, this, map);
+            Subsidies subsidies = map.getRelationsOfType(currentPlayer, RelationType.Subsidies).First(r => r.Sides[1] == receiverCountry) as Subsidies;
+            var action = new actionContainer.TurnAction.subs_end(currentPlayer, receiverCountry, subsidies,
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
             // after this action, the following actions will not be selectable:
@@ -1034,8 +1035,10 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.access_end(currentPlayer, receiverCountry,
-                diplomatic_relations_manager, dialog_box, camera_controller, this, map);
+            MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry, 
+                RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as MilitaryAccess;
+            var action = new actionContainer.TurnAction.access_end(currentPlayer, receiverCountry, militaryAccess,
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
             // after this action, the following actions will not be selectable:
@@ -1064,10 +1067,8 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(happiness_sprite, "Happiness 1x (Enemy)", $"-{diplomatic_relations_manager.VassalageHappinessPenaltyInitC2}%", true),
             new(happiness_sprite, "Happiness Every Turn", $"+{game_manager.VassalageHappinessBonusConstC1}%", true),
             new(happiness_sprite, "Happiness Every Turn (Enemy)", $"-{game_manager.VassalageHappinessPenaltyConstC2}%", true),
-            new(happiness_sprite, "Your Opinion of Them 1x", $"-{Relation.VassalageOpinionPenaltyInit}", false),
-            new(happiness_sprite, "Their Opinion of You 1x", $"-{Relation.VassalageOpinionPenaltyInit}", false),
-            new(happiness_sprite, "Your Opinion of Them 1x", $"-{Relation.VassalageOpinionBonusConst}", false),
-            new(happiness_sprite, "Their Opinion of You Every Turn", $"+{Relation.VassalageOpinionBonusConst}", true),
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{Relation.VassalageOpinionPenaltyInit}", true),
+            new(happiness_sprite, "Their Opinion of You (Every Turn)", $"-{Relation.VassalageOpinionBonusConst}", false),
         };
 
         SetEffects(action_effects);

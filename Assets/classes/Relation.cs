@@ -96,11 +96,11 @@ namespace Assets.classes {
 
         internal class Vassalage:Relation {
             public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, -VassalageOpinionPenaltyInit, VassalageOpinionBonusConst) {
-                countries[0].Opinions[countries[1].Id] -= constChange;
+                countries[0].Opinions[countries[1].Id] -= initialChange;
             }
 
             public override void turnEffect() {
-                countries[1].Opinions[countries[0].Id] += constChange;
+                countries[1].Opinions[countries[0].Id] -= constChange;
             }
         }
 

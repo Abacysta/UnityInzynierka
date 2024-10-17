@@ -113,7 +113,9 @@ namespace Assets.map.scripts {
             if(!indf) {
                 map.Relations.Add(new Relation.Subsidies(c1, c2, amount, duration));
             }
-            map.Relations.Add(new Relation.Subsidies(c1, c2, amount));
+            else {
+                map.Relations.Add(new Relation.Subsidies(c1, c2, amount));
+            }
         }
         private void endSub(Relation.Subsidies relation) {
             map.Relations.Remove(relation);

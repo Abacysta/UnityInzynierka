@@ -362,11 +362,11 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                private MilitaryAccess relation;
+                private MilitaryAccess militaryAccess;
                 public static readonly float actionCost = SoftActionCost;
 
-                public access_end(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
-                    camera_controller camera, diplomatic_actions_manager dipl_actions, Map map) : base(ActionType.milacc_end, actionCost)
+                public access_end(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_end, actionCost)
                 {
                     this.from = from;
                     this.to = to;
@@ -374,21 +374,19 @@ namespace Assets.classes {
                     this.dialog_box = dialog_box;
                     this.camera = camera;
                     this.dipl_actions = dipl_actions;
-
-                    relation = map.getRelationsOfType(to, RelationType.MilitaryAccess).First(a => a.Sides[0] == from) as MilitaryAccess;
-                    if (relation != null) diplomacy.endRelation(relation);
+                    this.militaryAccess = militaryAccess;
                 }
 
                 public override void execute(Map map)
                 {
                     base.execute(map);
-                    to.Events.Add(new Event_.DiploEvent.AccessEndMaster(relation, from, to, diplomacy, dialog_box, camera));
+                    to.Events.Add(new Event_.DiploEvent.AccessEndMaster(militaryAccess, from, to, diplomacy, dialog_box, camera));
+                    diplomacy.endRelation(militaryAccess);
                 }
 
                 public override void revert(Map map)
                 {
                     base.revert(map);
-                    if (relation == null) map.Relations.Add(relation);
                     dipl_actions.SetEndMilitaryAccessRelatedButtonStates(true, to.Id);
                 }
             }
@@ -433,32 +431,30 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                private Relation relation;
+                private Subsidies subsidies;
                 public static readonly float actionCost = SoftActionCost;
 
-                public subs_end(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
-                    camera_controller camera, diplomatic_actions_manager dipl_actions, Map map) : base(ActionType.subs_end, SoftActionCost) {
+                public subs_end(Country from, Country to, Subsidies subsidies, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.subs_end, SoftActionCost) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
                     this.camera = camera;
                     this.dipl_actions = dipl_actions;
-
-                    relation = map.getRelationsOfType(from, RelationType.Subsidies).First(r => r.Sides[1] == to);
-                    if (relation != null) diplomacy.endRelation(relation);
+                    this.subsidies = subsidies;
                 }
 
                 public override void execute(Map map)
                 {
                     base.execute(map);
                     to.Events.Add(new Event_.DiploEvent.SubsEndMaster(from, to, diplomacy, dialog_box, camera));
+                    diplomacy.endRelation(subsidies);
                 }
 
                 public override void revert(Map map)
                 {
                     base.revert(map);
-                    if (relation == null) map.Relations.Add(relation);
                     dipl_actions.SetEndSubsidiesRelatedButtonStates(true, to.Id);
                 }
             }
