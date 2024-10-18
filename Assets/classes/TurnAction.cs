@@ -355,7 +355,7 @@ namespace Assets.classes {
                 }
             }
 
-            internal class access_end : TurnAction, IInstantAction
+            internal class access_end_master : TurnAction, IInstantAction
             {
                 private Country from, to;
                 private diplomatic_relations_manager diplomacy;
@@ -365,7 +365,7 @@ namespace Assets.classes {
                 private MilitaryAccess militaryAccess;
                 public static readonly float actionCost = SoftActionCost;
 
-                public access_end(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+                public access_end_master(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                     camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_end, actionCost)
                 {
                     this.from = from;
@@ -387,7 +387,43 @@ namespace Assets.classes {
                 public override void revert(Map map)
                 {
                     base.revert(map);
-                    dipl_actions.SetEndMilitaryAccessRelatedButtonStates(true, to.Id);
+                    dipl_actions.SetEndMilitaryAccessMasterRelatedButtonStates(true, to.Id);
+                }
+            }
+
+            internal class access_end_slave : TurnAction, IInstantAction
+            {
+                private Country from, to;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+                private camera_controller camera;
+                private diplomatic_actions_manager dipl_actions;
+                private MilitaryAccess militaryAccess;
+                public static readonly float actionCost = SoftActionCost;
+
+                public access_end_slave(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_end, actionCost)
+                {
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                    this.camera = camera;
+                    this.dipl_actions = dipl_actions;
+                    this.militaryAccess = militaryAccess;
+                }
+
+                public override void execute(Map map)
+                {
+                    base.execute(map);
+                    to.Events.Add(new Event_.DiploEvent.AccessEndSlave(militaryAccess, from, to, diplomacy, dialog_box, camera));
+                    diplomacy.endRelation(militaryAccess);
+                }
+
+                public override void revert(Map map)
+                {
+                    base.revert(map);
+                    dipl_actions.SetEndMilitaryAccessSlaveRelatedButtonStates(true, to.Id);
                 }
             }
 

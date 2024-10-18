@@ -81,9 +81,9 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private Button subs_end_button;
     [SerializeField] private Button subs_request_button;
     [SerializeField] private Button mil_acc_offer_button;
-    [SerializeField] private Button mil_acc_end_button;
+    [SerializeField] private Button mil_acc_end_master_button;
+    [SerializeField] private Button mil_acc_end_slave_button;
     [SerializeField] private Button vassal_offer_button;
-
     [SerializeField] private Button send_message_button;
 
     // effect sprites
@@ -114,7 +114,8 @@ public class diplomatic_actions_manager : MonoBehaviour
         public bool SubsEndButtonState { get; set; } = true;
         public bool SubsRequestButtonState { get; set; } = true;
         public bool MilAccOfferButtonState { get; set; } = true;
-        public bool MilAccEndButtonState { get; set; } = true;
+        public bool MilAccEndMasterButtonState { get; set; } = true;
+        public bool MilAccEndSlaveButtonState { get; set; } = true;
         public bool VassalOfferButtonState { get; set; } = true;
         public List<int> CountriesToSkip { get; set; } = new List<int>();
     }
@@ -141,7 +142,8 @@ public class diplomatic_actions_manager : MonoBehaviour
         subs_end_button.onClick.AddListener(SetEndSubsidiesMessagePanel);
         subs_request_button.onClick.AddListener(SetRequestSubsidiesMessagePanel);
         mil_acc_offer_button.onClick.AddListener(SetOfferMilitaryAccessMessagePanel);
-        mil_acc_end_button.onClick.AddListener(SetEndMilitaryAccessMessagePanel);
+        mil_acc_end_master_button.onClick.AddListener(SetEndMilitaryAccessMasterMessagePanel);
+        mil_acc_end_slave_button.onClick.AddListener(SetEndMilitaryAccessSlaveMessagePanel);
         vassal_offer_button.onClick.AddListener(SetOfferVassalizationMessagePanel);
     }
 
@@ -349,16 +351,22 @@ public class diplomatic_actions_manager : MonoBehaviour
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
-            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: false) &&
+            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: true) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
             !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsSide1: true) &&
             buttonStates.MilAccOfferButtonState;
 
         // interactable if the currentPlayer is already giving military access to the receiver and has no vassalage relation with him
-        mil_acc_end_button.interactable =
+        mil_acc_end_master_button.interactable =
+            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: false) &&
+            !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
+            buttonStates.MilAccEndMasterButtonState;
+
+        // interactable if the currentPlayer is already being given military access by the receiver and has no vassalage relation with him
+        mil_acc_end_slave_button.interactable =
             HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: true) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
-            buttonStates.MilAccEndButtonState;
+            buttonStates.MilAccEndSlaveButtonState;
 
         // interactable if the currentPlayer has no war, alliance, truce with the receiver
         vassal_offer_button.interactable =
@@ -695,7 +703,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your opinion of them 1x", $"+{actionContainer.TurnAction.PraiseOpinionBonusInit}", true),
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{actionContainer.TurnAction.PraiseOpinionBonusInit}", true),
         };
 
         SetEffects(action_effects);
@@ -733,7 +741,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your opinion of them 1x", $"-{actionContainer.TurnAction.InsultOpinionPenaltyInit}", false),
+            new(happiness_sprite, "Your Opinion of Them 1x", $"-{actionContainer.TurnAction.InsultOpinionPenaltyInit}", false),
         };
 
         SetEffects(action_effects);
@@ -1039,10 +1047,10 @@ public class diplomatic_actions_manager : MonoBehaviour
         receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
     }
 
-    private void SetEndMilitaryAccessMessagePanel()
+    private void SetEndMilitaryAccessMasterMessagePanel()
     {
         message_text.text = "Military access has been revoked. Stay vigilant!";
-        apCost = actionContainer.TurnAction.access_end.actionCost;
+        apCost = actionContainer.TurnAction.access_end_master.actionCost;
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
@@ -1051,13 +1059,13 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry, 
                 RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as MilitaryAccess;
-            var action = new actionContainer.TurnAction.access_end(currentPlayer, receiverCountry, militaryAccess,
+            var action = new actionContainer.TurnAction.access_end_master(currentPlayer, receiverCountry, militaryAccess,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
             // after this action, the following actions will not be selectable:
-            // end military access
-            SetEndMilitaryAccessRelatedButtonStates(false, countryId);
+            // end military access master
+            SetEndMilitaryAccessMasterRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
@@ -1065,9 +1073,40 @@ public class diplomatic_actions_manager : MonoBehaviour
         ShowPanelWithBasicArea();
     }
 
-    public void SetEndMilitaryAccessRelatedButtonStates(bool buttonState, int receiverCountryId)
+    public void SetEndMilitaryAccessMasterRelatedButtonStates(bool buttonState, int receiverCountryId)
     {
-        receiverCountryButtonStates[receiverCountryId].MilAccEndButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccEndMasterButtonState = buttonState;
+    }
+
+    private void SetEndMilitaryAccessSlaveMessagePanel()
+    {
+        message_text.text = "I am stopping the use of the military access you granted to me.";
+        apCost = actionContainer.TurnAction.access_end_slave.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
+
+        SetEffects(null);
+
+        void onSend()
+        {
+            MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry,
+                RelationType.MilitaryAccess).First(a => a.Sides[1] == currentPlayer) as MilitaryAccess;
+            var action = new actionContainer.TurnAction.access_end_slave(currentPlayer, receiverCountry, militaryAccess,
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
+            currentPlayer.Actions.addAction(action);
+
+            // after this action, the following actions will not be selectable:
+            // end military access slave
+            SetEndMilitaryAccessSlaveRelatedButtonStates(false, countryId);
+        }
+
+        UpdateSendButtonInteractionForBasicAction();
+        SetSendButtonAction(onSend);
+        ShowPanelWithBasicArea();
+    }
+
+    public void SetEndMilitaryAccessSlaveRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].MilAccEndSlaveButtonState = buttonState;
     }
 
     private void SetOfferVassalizationMessagePanel()
@@ -1114,7 +1153,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
-        receiverCountryButtonStates[receiverCountryId].MilAccEndButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccEndMasterButtonState = buttonState;
     }
 
     private void DeactivateAreas()
