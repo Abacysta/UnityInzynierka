@@ -1,12 +1,26 @@
 using Assets.classes;
 using Assets.classes.subclasses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class map_loader : MonoBehaviour
 {
+    public class LegendItem
+    {
+        public Color Color { get; set; }
+        public string Name { get; set; }
+
+        public LegendItem(Color color, string name)
+        {
+            Color = color;
+            Name = name;
+        }
+    }
+
     public enum MapMode {
         Terrain,
         Resource,
@@ -15,6 +29,7 @@ public class map_loader : MonoBehaviour
         Political,
         Diplomatic
     }
+
     [SerializeField] private Map map;
 
     [SerializeField] private Tilemap base_layer;
@@ -35,10 +50,20 @@ public class map_loader : MonoBehaviour
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private GameObject mapmodes_buttons;
     [SerializeField] private Assets.map.scripts.diplomatic_relations_manager diplomacy;
+
+    [SerializeField] private GameObject map_legend;
+    [SerializeField] private TMP_Text filter_name;
+    [SerializeField] private GameObject legend_item_prefab;
+
     private MapMode mode;
     public bool loading;
 
     public MapMode CurrentMode { get => mode; set => mode = value; }
+
+    private void Awake()
+    {
+        SetMapLegendActivity(false);
+    }
 
     void Start()
     {
@@ -105,6 +130,19 @@ public class map_loader : MonoBehaviour
 
     public void SetTerrain()
     {
+        Color getTerrainColor(string type)
+        {
+            switch (type)
+            {
+                case "land":
+                    return ChooseRGBColor(91, 106, 65); // dark green
+                case "ocean":
+                    return ChooseRGBColor(60, 106, 130); // blue
+                default:
+                    return ChooseRGBColor(91, 106, 65); // dark green
+            }
+        }
+
         mode = MapMode.Terrain;
         greyOutUnused(mode);
         ClearLayers();
@@ -116,18 +154,45 @@ public class map_loader : MonoBehaviour
             if (province.Type == "land")
             {
                 base_layer.SetTile(position, base_tile);
-                base_layer.SetColor(position, ChooseRGBColor(91, 106, 65)); // dark green
+                base_layer.SetColor(position, getTerrainColor("land"));
             }
             else
             {
                 SetWater(position);
             }
         }
+
         SetProvinceHoverAndSelectAboveFilterLayer();
+
+        filter_name.text = "Terrain:";
+
+        List<LegendItem> legendItems = new()
+        {
+            new(getTerrainColor("land"), "Forest"),
+            new(getTerrainColor("ocean"), "Sea")
+        };
+        SetMapLegend(legendItems);
+        SetMapLegendActivity(true);
     }
 
     public void SetResources()
     {
+        Color getResourceColor(string resources)
+        {
+            switch (resources)
+            {
+                case "gold":
+                    return ChooseRGBColor(255, 215, 0); // yellow
+                case "iron":
+                    return ChooseRGBColor(169, 169, 169); // gray
+                case "wood":
+                    return ChooseRGBColor(139, 69, 19); // brown
+                case "empty":
+                default:
+                    return ChooseRGBColor(255, 255, 255); // white
+            }
+        }
+
         mode = MapMode.Resource;
         greyOutUnused(mode);
         ClearLayers();
@@ -139,23 +204,7 @@ public class map_loader : MonoBehaviour
 
             if (province.Type == "land")
             {
-                switch (province.Resources)
-                {
-                    case "gold":
-                        color = ChooseRGBColor(255, 215, 0); // yellow
-                        break;
-                    case "iron":
-                        color = ChooseRGBColor(169, 169, 169); // gray
-                        break;
-                    case "wood":
-                        color = ChooseRGBColor(139, 69, 19); // brown
-                        break;
-                    case "empty":
-                    default:
-                        color = ChooseRGBColor(255, 255, 255); // white
-                        break;
-                }
-
+                color = getResourceColor(province.Resources);
                 filter_layer.SetTile(position, base_tile);
                 filter_layer.SetColor(position, color);
             }
@@ -165,6 +214,19 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
+
+        filter_name.text = "Resources:";
+
+        List<LegendItem> legendItems = new()
+        {
+            new(getResourceColor("gold"), "Gold"),
+            new(getResourceColor("iron"), "Iron"),
+            new(getResourceColor("wood"), "Wood"),
+            new(getResourceColor("empty"), "Empty")
+        };
+
+        SetMapLegend(legendItems);
+        SetMapLegendActivity(true);
     }
 
     public void SetHappiness()
@@ -188,6 +250,20 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
+
+        filter_name.text = "Happiness:";
+
+        List<LegendItem> legendItems = new()
+        {
+            new(GetColorBasedOnValueHappiness(0), "0%"),
+            new(GetColorBasedOnValueHappiness(25), "25%"),
+            new(GetColorBasedOnValueHappiness(50), "50%"),
+            new(GetColorBasedOnValueHappiness(75), "75%"),
+            new(GetColorBasedOnValueHappiness(100), "100%")
+        };
+
+        SetMapLegend(legendItems);
+        SetMapLegendActivity(true);
     }
 
     public void SetPopulation()
@@ -210,6 +286,25 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
+
+        filter_name.text = "Population:";
+
+        int step = (map.Pop_extremes.Item2 - map.Pop_extremes.Item1) / 4;
+        
+        int RoundDownToHundreds(int value) => (int)(Math.Floor(value / 100.0) * 100);
+        int RoundUpToHundreds(int value) => (int)(Math.Ceiling(value / 100.0) * 100);
+
+        List<LegendItem> legendItems = new()
+        {
+            new(GetColorBasedOnValuePop(RoundDownToHundreds(map.Pop_extremes.Item1)), $"{RoundDownToHundreds(map.Pop_extremes.Item1)}"),
+            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item1 + step)), $"{RoundUpToHundreds(map.Pop_extremes.Item1 + step)}"),
+            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item1 + 2 * step)), $"{RoundUpToHundreds(map.Pop_extremes.Item1 + 2 * step)}"),
+            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item1 + 3 * step)), $"{RoundUpToHundreds(map.Pop_extremes.Item1 + 3 * step)}"),
+            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item2)), $"{RoundUpToHundreds(map.Pop_extremes.Item2)}"),
+        };
+
+        SetMapLegend(legendItems);
+        SetMapLegendActivity(true);
     }
 
      public void SetPolitical() {
@@ -239,9 +334,41 @@ public class map_loader : MonoBehaviour
         }
         province_select_layer_rnd.sortingOrder = 4;
         mouse_hover_layer_rnd.sortingOrder = 5;
+
+        filter_name.text = "Countries:";
+
+        List<LegendItem> legendItems = new();
+
+        for (int i = 0; i < map.Countries.Count; i++)
+        {
+            legendItems.Add(new LegendItem(map.Countries[i].Color, i == 0 ? "Tribal" : map.Countries[i].Name));
+        }
+
+        SetMapLegend(legendItems);
+        SetMapLegendActivity(true);
     }
 
     public void SetDiplomatic() {
+
+        Color GetDiplomaticColor(Relation.RelationType? relationType)
+        {
+            switch (relationType)
+            {
+                case Relation.RelationType.War:
+                    return army_view.WarColor;
+                case Relation.RelationType.Truce:
+                    return army_view.TruceColor;
+                case Relation.RelationType.Alliance:
+                    return army_view.AllianceColor;
+                case Relation.RelationType.Vassalage:
+                    return army_view.VassalageColor;
+                case Relation.RelationType.Rebellion:
+                    return army_view.RebellionColor;
+                default:
+                    return army_view.DefaultColor;
+            }
+        }
+
         mode = MapMode.Diplomatic;
         greyOutUnused(mode);
         ClearLayers();
@@ -254,29 +381,16 @@ public class map_loader : MonoBehaviour
                 filter_layer.SetTile(position, base_tile);
                 if (province.Owner_id == map.CurrentPlayer.Id)
                 {
-                    filter_layer.SetColor(position, map.CurrentPlayer.Color);
+                    filter_layer.SetColor(position, army_view.DefaultColor);
                 }
                 else if (province.Owner_id == 0)
                 {
-                    filter_layer.SetColor(position, Color.magenta);
+                    filter_layer.SetColor(position, army_view.TribalColor);
                 }
                 else
                 {
-                    switch (map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.Owner_id]))
-                    {
-                        case Relation.RelationType.War:
-                            filter_layer.SetColor(position, new Color(1f, 0.27f, 0)); break; // orange
-                        case Relation.RelationType.Truce:
-                            filter_layer.SetColor(position, Color.white); break;
-                        case Relation.RelationType.Alliance:
-                            filter_layer.SetColor(position, Color.cyan); break;
-                        case Relation.RelationType.Vassalage:
-                            filter_layer.SetColor(position, new Color(0.7f, 0, 1)); break; // purple
-                        case Relation.RelationType.Rebellion:
-                            filter_layer.SetColor(position, Color.magenta); break;
-                        default:
-                            filter_layer.SetColor(position, Color.yellow); break;
-                    }
+                    var relation = map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.Owner_id]);
+                    filter_layer.SetColor(position, GetDiplomaticColor(relation));
                 }
             }
             else {
@@ -284,6 +398,22 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
+
+        filter_name.text = "Diplomacy:";
+
+        List<LegendItem> legendItems = new()
+        {
+            new(GetDiplomaticColor(null), "You"),
+            new(army_view.TribalColor, "Tribal"),
+            new(GetDiplomaticColor(Relation.RelationType.War), "War"),
+            new(GetDiplomaticColor(Relation.RelationType.Truce), "Truce"),
+            new(GetDiplomaticColor(Relation.RelationType.Alliance), "Alliance"),
+            new(GetDiplomaticColor(Relation.RelationType.Vassalage), "Vassalage"),
+            new(GetDiplomaticColor(Relation.RelationType.Rebellion), "Rebellion"),
+        };
+
+        SetMapLegend(legendItems);
+        SetMapLegendActivity(true);
     }
 
     private void SetWater(Vector3Int position)
@@ -384,5 +514,25 @@ public class map_loader : MonoBehaviour
         terrain_feature_layer_1.ClearAllTiles();
         terrain_feature_layer_2.ClearAllTiles();
         filter_layer.ClearAllTiles();
+    }
+
+    private void SetMapLegend(List<LegendItem> legendData)
+    {
+        for (int i = 2; i < map_legend.transform.childCount; i++)
+        {
+            Destroy(map_legend.transform.GetChild(i).gameObject);
+        }
+
+        foreach (LegendItem entry in legendData)
+        {
+            GameObject item = Instantiate(legend_item_prefab, map_legend.transform);
+            legend_item_ui legendItem = item.GetComponent<legend_item_ui>();
+            legendItem.SetLegendItem(entry.Color, entry.Name);
+        }
+    }
+
+    private void SetMapLegendActivity(bool state)
+    {
+        map_legend.gameObject.SetActive(state);
     }
 }

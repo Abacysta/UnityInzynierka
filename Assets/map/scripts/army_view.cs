@@ -25,6 +25,14 @@ public class army_view : MonoBehaviour
     public Sprite landSprite;
     public Sprite oceanSprite;
 
+    public static readonly Color WarColor = new(1f, 0.5f, 0); // Orange
+    public static readonly Color TruceColor = new(0.8f, 0.9f, 0.8f); // Light Green
+    public static readonly Color AllianceColor = new(0.5f, 0.8f, 1f); // Light Blue
+    public static readonly Color VassalageColor = new(0.6f, 0.4f, 0.8f); // Purple
+    public static readonly Color RebellionColor = new(0.8f, 0.4f, 0.8f); // Pink
+    public static readonly Color DefaultColor = new(1f, 0.95f, 0.5f); // Light Yellow
+    public static readonly Color TribalColor = new(0.9f, 0.75f, 0.6f); // Light Beige
+
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -151,23 +159,23 @@ public class army_view : MonoBehaviour
         Color adjusted;
         switch (type)
         {
-            case -1://war
-                adjusted = new Color(1f, 0.27f, 0);//orange
+            case -1: // war
+                adjusted = WarColor;
                 break;
-            case 0://truce
-                adjusted = Color.white;
+            case 0: // truce
+                adjusted = TruceColor;
                 break;
-            case 3://alliance
-                adjusted = Color.cyan;
+            case 3: // alliance
+                adjusted = AllianceColor;
                 break;
-            case 4://vassalage
-                adjusted = new Color(0.7f, 0, 1);
+            case 4: // vassalage
+                adjusted = VassalageColor;
                 break;
-            case -2://rebellion
-                adjusted = Color.magenta;
+            case -2: // rebellion
+                adjusted = RebellionColor;
                 break;
             default:
-                adjusted = Color.yellow;
+                adjusted = DefaultColor;
                 break;
         }
         army_count_text.color = adjusted;

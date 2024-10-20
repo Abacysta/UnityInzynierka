@@ -15540,7 +15540,7 @@ MonoBehaviour:
     type: land
     resources: wood
     resources_amount: 3
-    population: 140
+    population: 147
     recruitable_population: 7
     happiness: 16
     is_coast: 0
@@ -21235,7 +21235,7 @@ MonoBehaviour:
     type: land
     resources: iron
     resources_amount: 3
-    population: 110
+    population: 115
     recruitable_population: 5
     happiness: 9
     is_coast: 1

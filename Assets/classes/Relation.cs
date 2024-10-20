@@ -1,24 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets.classes {
     [Serializable]
     public abstract class Relation {
+
+        public static readonly int WarOpinionPenaltyInit = 100;
+        public static readonly int WarOpinionPenaltyConst = 15;
+
+        public static readonly int AllianceOpinionBonusInit = 100;
+        public static readonly int AllianceOpinionBonusConst = 10;
+
+        public static readonly int TruceOpinionBonusInit = 10;
+        public static readonly int TruceOpinionBonusConst = 0;
+
+        public static readonly int AllianceHappinessBonusInit = 3;
+
+        public static readonly int VassalageOpinionPenaltyInit = 30;
+        public static readonly int VassalageOpinionBonusConst = 5;
+
+        public static readonly int SubsidiesOpinionBonusInit = 20;
+        public static readonly int SubsidiesOpinionBonusConst = 5;
+
         private Country[] countries;
         public RelationType type;
         private int initialChange, constChange;
         public Country[] Sides { get { return countries; } }
+
         public virtual void turnEffect() {
             countries[0].Opinions[countries[1].Id] += constChange;
             countries[1].Opinions[countries[0].Id] += constChange;
         }
+
         [Serializable]
         public enum RelationType { 
-            Rebellion = -2,//only for happ rebels, purely technical
+            Rebellion = -2,//only for happ rebels, purely technical, maybe don't treat like a real relation retard
             War = -1,
             Alliance = 3,
             Truce = 0,
@@ -26,6 +42,7 @@ namespace Assets.classes {
             Subsidies = 1,
             MilitaryAccess = 2
         }
+
         protected Relation(Country c1, Country c2, RelationType type, int initalChange, int constChange) {
             this.countries = new Country[2] { c1, c2};
             this.type = type;
@@ -37,7 +54,7 @@ namespace Assets.classes {
 
         internal class War:Relation {
             public HashSet<Country> participants1, participants2;
-            public War(Country c1, Country c2) : base(c1, c2, RelationType.War, -100, -15) {
+            public War(Country c1, Country c2) : base(c1, c2, RelationType.War, -WarOpinionPenaltyInit, -WarOpinionPenaltyConst) {
                 countries[0].AtWar = true;
                 countries[1].AtWar = true;
                 participants1 = new HashSet<Country> { c1 };
@@ -48,13 +65,14 @@ namespace Assets.classes {
                 base.turnEffect();
             }
         }
+
         internal class Alliance:Relation {
-            public Alliance(Country c1, Country c2) : base(c1, c2, RelationType.Alliance, 100, 10) {
+            public Alliance(Country c1, Country c2) : base(c1, c2, RelationType.Alliance, AllianceOpinionBonusInit, AllianceOpinionBonusConst) {
                 foreach(var p in countries[0].Provinces) {
-                    p.Happiness += 3;
+                    p.Happiness += AllianceHappinessBonusInit;
                 }
                 foreach(var p in countries[1].Provinces) {
-                    p.Happiness += 3;
+                    p.Happiness += AllianceHappinessBonusInit;
                 }
             }
 
@@ -62,10 +80,11 @@ namespace Assets.classes {
                 base.turnEffect();
             }
         }
+
         internal class Truce:Relation {
             private int d;
             public int Duration {  get { return d; } }
-            public Truce(Country c1, Country c2, int duration) : base(c1, c2, RelationType.Truce, 10, 0) {
+            public Truce(Country c1, Country c2, int duration) : base(c1, c2, RelationType.Truce, TruceOpinionBonusInit, TruceOpinionBonusConst) {
                 this.d = duration;
             }
 
@@ -74,29 +93,34 @@ namespace Assets.classes {
                 if(d > 0) d--;
             }
         }
+
         internal class Vassalage:Relation {
-            public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, -30, 5) {
-                countries[0].Opinions[countries[1].Id] -= constChange;
+            public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, -VassalageOpinionPenaltyInit, VassalageOpinionBonusConst) {
+                countries[0].Opinions[countries[1].Id] -= initialChange;
             }
 
             public override void turnEffect() {
-                countries[1].Opinions[countries[0].Id] += constChange;
+                countries[1].Opinions[countries[0].Id] -= constChange;
             }
         }
+
         internal class Subsidies:Relation {
             private int amount;
             private int duration;
             public int Amount { get { return amount; } }
             public int Duration { get { return duration; } }
             public float fAmount { get { return (float)amount; } }
-            public Subsidies(Country c1, Country c2, int amount) : base(c1, c2, RelationType.Subsidies, 20, 5) {
+
+            public Subsidies(Country c1, Country c2, int amount) : base(c1, c2, RelationType.Subsidies, SubsidiesOpinionBonusInit, SubsidiesOpinionBonusConst) {
                 this.amount = amount;
                 this.duration = -1;
             }
-            public Subsidies(Country c1, Country c2, int amount, int duration) : base(c1, c2, RelationType.Subsidies, 20, 5) {
+
+            public Subsidies(Country c1, Country c2, int amount, int duration) : base(c1, c2, RelationType.Subsidies, SubsidiesOpinionBonusInit, SubsidiesOpinionBonusConst) {
                 this.amount = amount;
                 this.duration = duration;
             }
+
             public override void turnEffect() {
                 base.turnEffect();
                 if(duration>0) {
@@ -111,6 +135,7 @@ namespace Assets.classes {
                 }
             }
         }
+
         internal class MilitaryAccess:Relation {
             public MilitaryAccess(Country c1, Country c2) : base(c1, c2, RelationType.MilitaryAccess, 0, 0) {
             }

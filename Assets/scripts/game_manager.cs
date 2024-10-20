@@ -2,6 +2,7 @@ using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.actionContainer;
 
-//gej menadzer xd
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
@@ -38,6 +38,11 @@ public class game_manager : MonoBehaviour
     [SerializeField] private start_screen start_screen;
 
     private Save toSave;
+
+    public static readonly int WarHappinessPenaltyConst = 2;
+    public static readonly int AllianceHappinessBonusConst = 1;
+    public static readonly int VassalageHappinessBonusConstC1 = 1;
+    public static readonly int VassalageHappinessPenaltyConstC2 = 1;
 
     // Loading map data before all scripts
     void Awake()
@@ -186,7 +191,7 @@ public class game_manager : MonoBehaviour
             foreach(var war in wars)
             {
                 foreach( var province in country.Provinces) {
-                    province.Happiness -= 2;
+                    province.Happiness -= WarHappinessPenaltyConst;
                 }
             }
             var alliances = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Alliance);
@@ -194,15 +199,23 @@ public class game_manager : MonoBehaviour
             {
                 foreach(var p in country.Provinces)
                 {
-                    p.Happiness += 1;
+                    p.Happiness += AllianceHappinessBonusConst;
                 }
             }
             var vassalages = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Vassalage);
             foreach(var v in vassalages)
             {
                 foreach(var p in country.Provinces)
-                { 
-                p.Happiness += 1;
+                {
+                    Country master = map.getMaster(country);
+                    if (master == null)
+                    {
+                        p.Happiness += VassalageHappinessBonusConstC1;
+                    }
+                    else
+                    {
+                        p.Happiness -= VassalageHappinessPenaltyConstC2;
+                    }
                 }
             }
         }
@@ -348,9 +361,54 @@ public class game_manager : MonoBehaviour
         using(FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
             form.Serialize(stream, toSave);
         }
+        Debug.Log(path);
     }
 
-    public void LocalTurnSimulation() {
+	public void saveGameJson() {
+		var path = Application.persistentDataPath + "/save.json";
+		string jsonData = JsonConvert.SerializeObject(toSave, Formatting.Indented); // 'Indented' for pretty-printing
+
+		using (StreamWriter writer = new StreamWriter(path, false)) {
+			writer.Write(jsonData);
+		}
+
+		Debug.Log($"Game saved to: {path}");
+	}
+
+    public void loadGame(string name) {
+        var path = Application.persistentDataPath + "/" + name + ".save";
+        Debug.Log("loading " + path);
+        if (File.Exists(path)) {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+                Save data = (Save)binaryFormatter.Deserialize(stream);
+                Save.loadDataFromSave(data, map);
+            }
+        }
+        else {
+            Debug.LogError("nie pyklo ladowanie");
+        }
+    }
+	public void loadGameJson(string name) {
+		var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension
+		Debug.Log("loading " + path);
+
+		if (File.Exists(path)) {  // Check if the file exists
+			using (StreamReader reader = new StreamReader(path)) {
+				string jsonData = reader.ReadToEnd();  // Read all text from the file
+
+				// Deserialize the JSON string into a Save object
+				Save data = JsonConvert.DeserializeObject<Save>(jsonData);
+
+				// Convert the Save object into the Map object
+				Save.loadDataFromSave(data, map);
+			}
+		}
+		else {
+			Debug.LogError("Save file not found or loading failed.");
+		}
+	}
+	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
             TurnSimulation();
             return;
@@ -377,7 +435,7 @@ public class game_manager : MonoBehaviour
             executeActions();
             turnCalculations();
             map.currentPlayer = 1;
-            //toSave = new(map);
+            toSave = new(map);
             loader.Reload();
         }
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {

@@ -80,7 +80,7 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
             case RelationType.Vassalage:
                 return isSide0 ? vassalage_sprite_1 : vassalage_sprite_2;
             case RelationType.Subsidies:
-                return isSide0 ? subsidies_sprite_1 : subsidies_sprite_2;
+                return isSide0 ? subsidies_sprite_2 : subsidies_sprite_1;
             case RelationType.MilitaryAccess:
                 return isSide0 ? military_access_sprite_1 : military_access_sprite_2;
             default:
