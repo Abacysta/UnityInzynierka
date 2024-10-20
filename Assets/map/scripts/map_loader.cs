@@ -43,114 +43,50 @@ public class map_loader : MonoBehaviour
     void Start()
     {
         loading = true;
-        map.currentPlayer = 1;
-        int i = 0;
 
-        map.calcPopExtremes();
-        //map.Countries = new System.Collections.Generic.List<Country> {
-        //    new Country(i++, "", (-1, -1), Color.white, map),
-        //    new Country(i++, "Kingdom", (0, 0), Color.gray, map),
-        //    new Country(i++, "Gauls", (9,9), Color.red, map),
-        //    new Country(i++, "Berbers", (10, 0), Color.cyan, map),
-        //    new Country(i++, "Egyptians", (20, 0), Color.blue, map),
-        //    new Country(i++, "Vikings", (30, 0), Color.green, map),
-        //    new Country(i++, "Huns", (40, 0), Color.yellow, map)
-        //};
-        map.addCountry(new Country(i++, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
-        map.addCountry(new Country(i++, "Kingdom", (0, 0), new Color(0.4392f, 0.5020f, 0.3451f), 2, map), Map.CountryController.Local);
-        map.addCountry(new Country(i++, "Gauls", (9, 9), new Color(0.7686f, 0.3019f, 0.1176f), 3, map), Map.CountryController.Local);
-        map.addCountry(new Country(i++, "Berbers", (10, 0), Color.cyan, 1, map), Map.CountryController.Local);
-        map.addCountry(new Country(i++, "Egyptians", (20, 0), Color.blue, 2, map), Map.CountryController.Ai);
-        map.addCountry(new Country(i++, "Vikings", (30, 0), Color.green, 3, map), Map.CountryController.Ai);
-        map.addCountry(new Country(i++, "Huns", (40, 0), Color.yellow, 1, map), Map.CountryController.Ai);
-        i = 0;
-        Debug.Log(map.CurrentPlayer.Name);
-        foreach(Country country in map.Countries) {
-            country.Priority = i++;
-            Debug.Log(country.Id);
+        int playerIndex = map.Controllers.FindIndex(controller => controller == Map.CountryController.Local);
+        if (playerIndex >= 0)
+        {
+            map.currentPlayer = playerIndex;
+            Debug.Log($"Gracz ustawiony na kraj: {map.CurrentPlayer.Name}");
         }
+        else
+        {
+            Debug.LogError("Nie uda³o siê znaleŸæ gracza (CountryController.Local)");
+        }
+        map.calcPopExtremes();
 
-        map.Countries[1].Opinions = new Dictionary<int, int> { { 0, 0 }, { 2, -2 }, { 3, 1 }, { 4, 0 }, { 5, 2 }, { 6, -1 } };
-        map.Countries[2].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 3 }, { 3, 0 }, { 4, 1 }, { 5, -2 }, { 6, 2 } };
-        map.Countries[3].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, -1 }, { 2, 1 }, { 4, 3 }, { 5, -1 }, { 6, -2 } };
-        map.Countries[4].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 0 }, { 2, -1 }, { 3, -2 }, { 5, 1 }, { 6, 3 } };
-        map.Countries[5].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, 1 }, { 2, 0 }, { 3, 2 }, { 4, -1 }, { 6, 0 } };
-        map.Countries[6].Opinions = new Dictionary<int, int> { { 0, 0 }, { 1, -3 }, { 2, 1 }, { 3, 0 }, { 4, 2 }, { 5, -1 } };
-
-        map.Countries[0].nullifyResources();
-        map.getProvince((0, 0)).Owner_id = 1;
-        map.assignProvince((0, 1), 1);
-        map.assignProvince((1, 0), 1);
-        map.assignProvince((2, 0), 1);
-        map.assignProvince((3, 0), 1);
-        map.assignProvince((2, 1), 1);
-        map.assignProvince((3, 2), 1);
-
-        map.getProvince((9, 9)).Owner_id = 2;
-        map.assignProvince((8, 9), 2);
-        map.assignProvince((8, 8), 2);
-        map.assignProvince((7, 8), 2);
-        map.assignProvince((7, 7), 2);
-        map.assignProvince((6, 7), 2);
-        map.assignProvince((6, 6), 2);
-        map.assignProvince((6, 5), 2);
-        map.assignProvince((5, 5), 2);
-        map.assignProvince((4, 5), 2);
-        map.assignProvince((4, 4), 2);
-
+        int i = 0;
         int mapWidth = map.Provinces.Max(p => p.X);
-
-        foreach(var p in map.Provinces) {
-            p.Name = $"Province {p.Y * (mapWidth + 1) + p.X + 1}";
+        foreach (Country country in map.Countries)
+        {
+            country.Priority = i++;
+            if (country.Id != 0) { map.assignProvince(country.Capital, country.Id); }
+            Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
+        }
+        foreach (var p in map.Provinces)
+        {
             map.calcRecruitablePop(p.coordinates);
 
-            if(p.Type == "land") {
-                p.Statuses = new System.Collections.Generic.List<Status>();
-                p.Buildings = new System.Collections.Generic.List<Building>{
-                    new Building(BuildingType.Infrastructure, 0),
-                    new Building(BuildingType.Fort, 0),
-                    new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
-                    new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
-                };
+            if (p.Type == "land")
+            {
+                p.Statuses = new List<Status>();
+                p.Buildings = new List<Building>
+            {
+                new Building(BuildingType.Infrastructure, 0),
+                new Building(BuildingType.Fort, 0),
+                new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
+                new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
+            };
                 p.OccupationInfo = new OccupationInfo();
                 p.calcStatuses();
             }
         }
-        map.getProvince((0, 0)).addStatus(new TaxBreak(3));
-        map.getProvince(0, 0).addStatus(new Disaster(2));
-        map.getProvince(1, 0).addStatus(new ProdBoom(3));
-        map.getProvince((0, 0)).Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure).Upgrade();
-        map.Countries[1].Events.Add(new Assets.classes.Event_.GlobalEvent.Discontent(map.Countries[1], dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.LocalEvent.PlagueFound(map.Countries[1].Provinces.Last(), dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
 
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.AccessOffer(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-        map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-
-        map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[2]));
-        map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[3]));
-        map.Relations.Add(new Relation.Alliance(map.Countries[1], map.Countries[4]));
-        Army testArmy = new Army(1, 100, (1, 0), (1, 0));
-        map.addArmy(testArmy);
-        map.addArmy(new Army(1, 10, (3, 3), (3, 3)));
-        map.addArmy(new Army(2, 5, (4, 4), (4, 4)));
-        map.addArmy(new Army(3, 5, (4, 4), (4, 4)));
-        map.addArmy(new Army(3, 5, (0, 2), (0, 2))); // statek
         SetPolitical();
         loading = false;
     }
+
 
     public void Reload() {
         switch (mode) {

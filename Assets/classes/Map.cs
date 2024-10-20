@@ -24,6 +24,8 @@ public class Map:ScriptableObject {
     [SerializeField] private List<Country> countries = new List<Country>();
     [SerializeField] private List<Army> armies = new List<Army>();
     [SerializeField] private GameObject army_prefab;
+    [SerializeField] private int turnlimit;
+    [SerializeField] private int resourceRate;
     private List<CountryController> countryControllers = new List<CountryController>();
     private List<army_view> armyViews = new List<army_view>();
     private HashSet<Relation> relations = new HashSet<Relation>();
@@ -37,6 +39,8 @@ public class Map:ScriptableObject {
 
     public (int, int) Selected_province { get => selected_province; set => selected_province = value; }
     public (int, int) Pop_extremes { get => pop_extremes; set => pop_extremes = value; }
+    public int Turnlimit { get => turnlimit; set => turnlimit = value; }
+    public int ResourceRate { get => resourceRate; set => resourceRate = value; }
     public List<Army> Armies { get => armies; set => armies = value; }
     public Country CurrentPlayer { get => countries[currentPlayer]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
