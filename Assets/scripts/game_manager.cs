@@ -13,7 +13,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.actionContainer;
 
-//gej menadzer xd
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
@@ -39,6 +38,11 @@ public class game_manager : MonoBehaviour
     [SerializeField] private start_screen start_screen;
 
     private Save toSave;
+
+    public static readonly int WarHappinessPenaltyConst = 2;
+    public static readonly int AllianceHappinessBonusConst = 1;
+    public static readonly int VassalageHappinessBonusConstC1 = 1;
+    public static readonly int VassalageHappinessPenaltyConstC2 = 1;
 
     // Loading map data before all scripts
     void Awake()
@@ -187,7 +191,7 @@ public class game_manager : MonoBehaviour
             foreach(var war in wars)
             {
                 foreach( var province in country.Provinces) {
-                    province.Happiness -= 2;
+                    province.Happiness -= WarHappinessPenaltyConst;
                 }
             }
             var alliances = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Alliance);
@@ -195,15 +199,23 @@ public class game_manager : MonoBehaviour
             {
                 foreach(var p in country.Provinces)
                 {
-                    p.Happiness += 1;
+                    p.Happiness += AllianceHappinessBonusConst;
                 }
             }
             var vassalages = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Vassalage);
             foreach(var v in vassalages)
             {
                 foreach(var p in country.Provinces)
-                { 
-                p.Happiness += 1;
+                {
+                    Country master = map.getMaster(country);
+                    if (master == null)
+                    {
+                        p.Happiness += VassalageHappinessBonusConstC1;
+                    }
+                    else
+                    {
+                        p.Happiness -= VassalageHappinessPenaltyConstC2;
+                    }
                 }
             }
         }

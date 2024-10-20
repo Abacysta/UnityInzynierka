@@ -58,6 +58,10 @@ public class production_tab_manager : MonoBehaviour
     public void SetCountryHappinessText(int countryHappiness)
     {
         country_happiness_text.text = countryHappiness.ToString() + "%";
+        country_happiness_text.color =
+            countryHappiness < 9 ? new Color32(255, 41, 35, 255) : // red
+            countryHappiness < 50 ? new Color32(255, 162, 0, 255) : // orange
+            Color.green;
     }
 
     private void UpdateAllToggleTransparencies()

@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using Assets.map.scripts;
 using Assets.classes;
 using static Assets.classes.Relation;
-using UnityEngineInternal.XR.WSA;
 
 public class Effect
 {
@@ -82,9 +81,9 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private Button subs_end_button;
     [SerializeField] private Button subs_request_button;
     [SerializeField] private Button mil_acc_offer_button;
-    [SerializeField] private Button mil_acc_end_button;
+    [SerializeField] private Button mil_acc_end_master_button;
+    [SerializeField] private Button mil_acc_end_slave_button;
     [SerializeField] private Button vassal_offer_button;
-
     [SerializeField] private Button send_message_button;
 
     // effect sprites
@@ -115,7 +114,8 @@ public class diplomatic_actions_manager : MonoBehaviour
         public bool SubsEndButtonState { get; set; } = true;
         public bool SubsRequestButtonState { get; set; } = true;
         public bool MilAccOfferButtonState { get; set; } = true;
-        public bool MilAccEndButtonState { get; set; } = true;
+        public bool MilAccEndMasterButtonState { get; set; } = true;
+        public bool MilAccEndSlaveButtonState { get; set; } = true;
         public bool VassalOfferButtonState { get; set; } = true;
         public List<int> CountriesToSkip { get; set; } = new List<int>();
     }
@@ -142,7 +142,8 @@ public class diplomatic_actions_manager : MonoBehaviour
         subs_end_button.onClick.AddListener(SetEndSubsidiesMessagePanel);
         subs_request_button.onClick.AddListener(SetRequestSubsidiesMessagePanel);
         mil_acc_offer_button.onClick.AddListener(SetOfferMilitaryAccessMessagePanel);
-        mil_acc_end_button.onClick.AddListener(SetEndMilitaryAccessMessagePanel);
+        mil_acc_end_master_button.onClick.AddListener(SetEndMilitaryAccessMasterMessagePanel);
+        mil_acc_end_slave_button.onClick.AddListener(SetEndMilitaryAccessSlaveMessagePanel);
         vassal_offer_button.onClick.AddListener(SetOfferVassalizationMessagePanel);
     }
 
@@ -194,52 +195,46 @@ public class diplomatic_actions_manager : MonoBehaviour
                 rel.Sides.Contains(currentPlayer) && rel.Sides.Contains(receiverCountry));
         }
 
-        bool HasCurrentPlayerRelationWithAnyone(RelationType type)
-        {
-            return map.Relations.Any(rel => rel.type == type && rel.Sides.Contains(currentPlayer));
-        }
+        //bool HasCurrentPlayerRelationWithAnyone(RelationType type)
+        //{
+        //    return map.Relations.Any(rel => rel.type == type && rel.Sides.Contains(currentPlayer));
+        //}
 
-        bool HasCurrentPlayerOrderedRelationWithReceiver(RelationType type, bool currentPlayerIsWorseSide)
+        bool HasCurrentPlayerOrderedRelationWithReceiver(RelationType type, bool curentPlayerIsSide1)
         {
-            if (currentPlayerIsWorseSide)
+            if (curentPlayerIsSide1)
             {
-                // Strona stratniejsza w relacji (side 1)
                 return map.Relations.Any(rel => rel.type == type &&
                     rel.Sides[0] == receiverCountry && rel.Sides[1] == currentPlayer);
             }
             else
             {
-                // Strona korzystniejsza w relacji (side 0)
                 return map.Relations.Any(rel => rel.type == type &&
                     rel.Sides[0] == currentPlayer && rel.Sides[1] == receiverCountry);
             }
         }
 
-        bool HasCurrentPlayerOrderedRelationWithAnyone(RelationType type, bool currentPlayerIsWorseSide)
+        bool HasCurrentPlayerOrderedRelationWithAnyone(RelationType type, bool curentPlayerIsSide1)
         {
-            if (currentPlayerIsWorseSide)
+            if (curentPlayerIsSide1)
             {
-                // Strona stratniejsza w relacji (side 1)
                 return map.Relations.Any(rel => rel.type == type && rel.Sides[1] == currentPlayer);
             }
             else
             {
-                // Strona korzystniejsza w relacji (side 0)
                 return map.Relations.Any(rel => rel.type == type && rel.Sides[0] == currentPlayer);
             }
         }
 
 
-        bool HasReceiverOrderedRelationWithAnyone(RelationType type, bool receiverCountryIsWorseSide)
+        bool HasReceiverOrderedRelationWithAnyone(RelationType type, bool receiverCountryIsSide1)
         {
-            if (receiverCountryIsWorseSide)
+            if (receiverCountryIsSide1)
             {
-                // Strona stratniejsza w relacji (side 1)
                 return map.Relations.Any(rel => rel.type == type && rel.Sides[1] == receiverCountry);
             }
             else
             {
-                // Strona korzystniejsza w relacji (side 0)
                 return map.Relations.Any(rel => rel.type == type && rel.Sides[0] == receiverCountry);
             }
         }
@@ -253,122 +248,127 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         ReceiverCountryButtonStates buttonStates = receiverCountryButtonStates[countryId];
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny, sojuszu, rozejmu, dostepu wojskowego, wasalstwa
-        // i currentPlayer nie jest wasalem jakiekolwiek kraju
-        // DODAC POZNIEJ, ZE interactable jesli BOT, TO MUSI BYC TEZ OPINIA WYSTARCZAJACO NISKA
+        // interactable if the currentPlayer has no war, alliance, truce, military access, or vassalage with the receiver,
+        // is not a vassal of any country
+        // and if the currentPlayer's opinion of the receiver is less than zero
         war_declare_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.MilitaryAccess) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
-            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
             buttonStates.WarDeclareButtonState &&
             currentPlayer.Opinions[receiverCountry.Id] < 0;
 
-        // interactable jesli currentPlayer jest wasalem odbiorcy
+        // interactable if the currentPlayer is a vassal of the receiver
         vassal_rebel_button.interactable =
-            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
+            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Vassalage, curentPlayerIsSide1: true) &&
             buttonStates.VassalOfferButtonState;
 
-        // interactable jesli currentPlayer jest seniorem odbiorcy
+        // interactable if the currentPlayer is the senior of the receiver
         integrate_vassal_button.interactable =
-            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Vassalage, currentPlayerIsWorseSide: false) &&
+            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Vassalage, curentPlayerIsSide1: false) &&
             buttonStates.IntegrateVassalButtonState;
 
-        // interactable jesli currentPlayer ma z odbiorca wojne
+        // interactable if the currentPlayer is at war with the receiver
         peace_offer_button.interactable = HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             buttonStates.PeaceOfferButtonState;
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny, sojuszu, rozejmu
-        // i ani currentPlayer, ani odbiorca nie s¹ wasalami kogokolwiek
+        // interactable if the currentPlayer has no war, alliance, or truce with the receiver
+        // and neither the currentPlayer nor the receiver are vassals of anyone
         diplomatic_mission_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
-            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
-            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsWorseSide: true) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
+            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsSide1: true) &&
             buttonStates.DiplomaticMissionButtonState;
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny, sojuszu i rozejmu
-        // i ani currentPlayer, ani odbiorca nie s¹ wasalami kogokolwiek
+        // interactable if the currentPlayer has no war, alliance, or truce with the receiver 
+        // and neither the currentPlayer nor the receiver are vassals of anyone
         insult_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
-            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
-            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsWorseSide: true) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
+            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsSide1: true) &&
             buttonStates.InsultButtonState;
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny, sojuszu, rozejmu, wasalstwa
-        // i currentPlayer nie jest wasalem jakiekolwiek kraju
-        //srodac srozniej mam gdzies ze bot, opinia tak czy siak powinna byc odpowiednia
-        // DODAC POZNIEJ, ZE interactable jesli BOT, TO MUSI BYC TEZ OPINIA WYSTARCZAJACO WYSOKA
+        // interactable if the currentPlayer has no war, alliance, truce, or vassalage with the receiver,
+        // is not a vassal of any country
+        // and if the currentPlayer's opinion of the receiver is greater than 2
         alliance_offer_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
-            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
             buttonStates.AllianceOfferButtonState &&
             receiverCountry.Opinions[currentPlayer.Id] > 2;
 
-        // interactable jesli currentPlayer ma z odbiorca sojusz
+        // interactable if the currentPlayer has an alliance with the receiver
         alliance_break_button.interactable = 
             HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             buttonStates.AllianceBreakButtonState;
 
-        // interactable jesli currentPlayer jest z odbiorca w sojuszu i ma z kims wojne,
-        // ale sojusznik nie uczestniczy w tej wojnie na razie
+        // interactable if the currentPlayer is allied with the receiver and is at war with someone, 
+        // but the ally is not currently participating in this war
         call_to_war_button.interactable =
             HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             ArentBothAtSameWar() &&
             buttonStates.CallToWarButtonState;
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny i rozejmu,
-        // currentPlayer jeszcze nie subsydiuje odbiorcy i nie jest wasalem jakiekolwiek kraju
+        // interactable if the currentPlayer has no war and truce with the receiver
+        // and if the currentPlayer is not subsidizing the receiver yet and is not a vassal of any country
         subsidize_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
-            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, currentPlayerIsWorseSide: true) &&
-            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
+            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, curentPlayerIsSide1: false) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
             buttonStates.SubsidizeButtonState;
 
-        // interactable jesli currentPlayer subsydiuje odbiorce
+        // interactable if the currentPlayer is subsidizing the receiver
         subs_end_button.interactable =
-            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, currentPlayerIsWorseSide: true) &&
+            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, curentPlayerIsSide1: false) &&
             buttonStates.SubsEndButtonState;
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny, rozejmu,
-        // currentPlayer jeszcze nie jest subsydiowany przez odbiorce
-        // ani currentPlayer, ani odbiorca nie s¹ wasalami kogokolwiek
+        // interactable if the currentPlayer has no war, truce with the receiver, 
+        // the currentPlayer is not being subsidized by the receiver yet
+        // and neither the currentPlayer nor the receiver are vassals of anyone
         subs_request_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
-            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, currentPlayerIsWorseSide: false) &&
-            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
-            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsWorseSide: true) &&
+            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, curentPlayerIsSide1: true) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
+            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsSide1: true) &&
             buttonStates.SubsRequestButtonState;
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny, sojuszu, rozejmu
-        // currentPlayer nie ma jeszcze dostepu wojskowego poprzez kraj odbiorcy,
-        // ani currentPlayer, ani odbiorca nie s¹ wasalami kogokolwiek
+        // interactable if the currentPlayer has no war, alliance, or truce with the receiver
+        // the currentPlayer does not have military access through the receiver's country yet,
+        // and neither the currentPlayer nor the receiver are vassals of anyone
         mil_acc_offer_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
-            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, currentPlayerIsWorseSide: false) &&
-            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, currentPlayerIsWorseSide: true) &&
-            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsWorseSide: true) &&
+            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: true) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
+            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsSide1: true) &&
             buttonStates.MilAccOfferButtonState;
 
-        // interactable jesli currentPlayer daje juz dostep wojskowy odbiorcy i nie ma z nim relacji wasalstwa
-        mil_acc_end_button.interactable =
-            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, currentPlayerIsWorseSide: true) &&
+        // interactable if the currentPlayer is already giving military access to the receiver and has no vassalage relation with him
+        mil_acc_end_master_button.interactable =
+            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: false) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
-            buttonStates.MilAccEndButtonState;
+            buttonStates.MilAccEndMasterButtonState;
 
-        // interactable jesli currentPlayer nie ma z odbiorca wojny, sojuszu, rozejmu i wasalstwa
+        // interactable if the currentPlayer is already being given military access by the receiver and has no vassalage relation with him
+        mil_acc_end_slave_button.interactable =
+            HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: true) &&
+            !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
+            buttonStates.MilAccEndSlaveButtonState;
+
+        // interactable if the currentPlayer has no war, alliance, truce with the receiver
         vassal_offer_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
@@ -445,6 +445,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         send_message_button.onClick.AddListener(() => {
             onSend?.Invoke();
             gameObject.SetActive(false);
+            country_relations_table_manager.SetData();
         });
 
     }
@@ -477,18 +478,21 @@ public class diplomatic_actions_manager : MonoBehaviour
         country_dropdown.RefreshShownValue();
     }
 
-    private void SetEffects(List<Effect> action_effects)
+    private void SetEffects(List<Effect> action_effects = null)
     {
         foreach (Transform child in effect_content.transform)
         {
             Destroy(child.gameObject);
         }
 
-        foreach (var effect in action_effects)
+        if (action_effects != null && action_effects.Count > 0)
         {
-            GameObject effectRow = Instantiate(effect_row_prefab, effect_content.transform);
-            effect_ui effectUI = effectRow.GetComponent<effect_ui>();
-            effectUI.SetEffect(effect);
+            foreach (var effect in action_effects)
+            {
+                GameObject effectRow = Instantiate(effect_row_prefab, effect_content.transform);
+                effect_ui effectUI = effectRow.GetComponent<effect_ui>();
+                effectUI.SetEffect(effect);
+            }
         }
     }
 
@@ -536,51 +540,68 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetDeclareWarMessagePanel()
     {
         message_text.text = "I'm declaring a war on you!";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.start_war.actionCost;
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Happiness 1x", "-15%", false),
-            new(happiness_sprite, "Happiness Every Turn", "-2%", false),
-            new(happiness_sprite, "Happiness (Enemy)", "-1%", false)
+            new(happiness_sprite, "Happiness 1x", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
+            new(happiness_sprite, "Happiness 1x (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
+            new(happiness_sprite, "Happiness Every Turn", $"-{game_manager.WarHappinessPenaltyConst}%", false),
+            new(happiness_sprite, "Happiness Every Turn (Enemy)", $"-{game_manager.WarHappinessPenaltyConst}%", true),
+            new(happiness_sprite, "Your Opinion of Them 1x", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(happiness_sprite, "Their Opinion of You 1x", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(happiness_sprite, "Your Opinion of Them Every Turn", $"-{Relation.WarOpinionPenaltyConst}", false),
+            new(happiness_sprite, "Their Opinion of You Every Turn", $"-{Relation.WarOpinionPenaltyConst}", false),
         };
 
         SetEffects(action_effects);
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.start_war(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.start_war(currentPlayer, receiverCountry, 
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // declare war, diplomatic mission, send an insult, offer alliance, subsidize
             // request subsidy, request military access, demand vassalization
-            receiverCountryButtonStates[countryId].WarDeclareButtonState = false;
-            receiverCountryButtonStates[countryId].DiplomaticMissionButtonState = false;
-            receiverCountryButtonStates[countryId].InsultButtonState = false;
-            receiverCountryButtonStates[countryId].AllianceOfferButtonState = false;
-            receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
-            receiverCountryButtonStates[countryId].SubsRequestButtonState = false;
-            receiverCountryButtonStates[countryId].MilAccOfferButtonState = false;
-            receiverCountryButtonStates[countryId].VassalOfferButtonState = false;
+            SetDeclareWarRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetDeclareWarRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].WarDeclareButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].DiplomaticMissionButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
     }
 
     private void SetVassalRebelMessagePanel()
     {
         message_text.text = "I don't want to be your vassal anymore. Time to fight for control!";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.vassal_rebel.actionCost;
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Happiness 1x", "5%", true),
-            new(happiness_sprite, "Happiness (Enemy)", "-5%", false)
+            new(happiness_sprite, "Happiness 1x", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
+            new(happiness_sprite, "Happiness 1x (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
+            new(happiness_sprite, "Happiness Every Turn", $"-{game_manager.WarHappinessPenaltyConst}%", false),
+            new(happiness_sprite, "Happiness Every Turn (Enemy)", $"-{game_manager.WarHappinessPenaltyConst}%", true),
+            new(happiness_sprite, "Your Opinion of Them 1x", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(happiness_sprite, "Their Opinion of You 1x", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(happiness_sprite, "Your Opinion of Them Every Turn", $"-{Relation.WarOpinionPenaltyConst}", false),
+            new(happiness_sprite, "Their Opinion of You Every Turn", $"-{Relation.WarOpinionPenaltyConst}", false),
         };
 
         SetEffects(action_effects);
@@ -588,12 +609,12 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
-            var action = new actionContainer.TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // rebel
-            receiverCountryButtonStates[countryId].VassaRebelButtonState = false;
+            SetVassalRebelRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
@@ -601,44 +622,57 @@ public class diplomatic_actions_manager : MonoBehaviour
         ShowPanelWithBasicArea();
     }
 
+    public void SetVassalRebelRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].VassaRebelButtonState = buttonState;
+    }
+
     private void SetIntegrateVassalMessagePanel()
     {
+        Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
+
         message_text.text = "I've made the decision about your integration, my vassal.";
-        apCost = 1f;
+        apCost = (vassalage?.Sides[1].Provinces.Count / 10) ?? 1f;
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
-        {
-            new(happiness_sprite, "Happiness 1x", "5%", true),
-            new(happiness_sprite, "Happiness (Enemy)", "-5%", false)
-        };
-
-        SetEffects(action_effects);
+        SetEffects(null);
 
         void onSend()
         {
-            Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
-            var action = new actionContainer.TurnAction.integrate_vassal(vassalage, diplomatic_relations_manager);
+            var action = new actionContainer.TurnAction.integrate_vassal(vassalage, diplomatic_relations_manager, this);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // integrate vassal, subsidize, end subsidies, request subsidy
-            receiverCountryButtonStates[countryId].IntegrateVassalButtonState = false;
-            receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
-            receiverCountryButtonStates[countryId].SubsEndButtonState = false;
-            receiverCountryButtonStates[countryId].SubsRequestButtonState = false;
+            SetIntegrateVassalRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetIntegrateVassalRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].IntegrateVassalButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsEndButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
     }
 
     private void SetOfferPeaceMessagePanel()
     {
         message_text.text = "I seek peace. This could be our chance for a better tomorrow.";
-        apCost = 1f;
-        ap_text.text = $"-{apCost:0.0}";
+        apCost = actionContainer.TurnAction.end_war.actionCost;
+        ap_text.text = $"-{apCost:0.0}"; ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{Relation.TruceOpinionBonusInit}", true),
+            new(happiness_sprite, "Their Opinion of You 1x", $"+{Relation.TruceOpinionBonusInit}", true),
+        };
+
+        SetEffects(action_effects);
 
         void onSend()
         {
@@ -646,111 +680,169 @@ public class diplomatic_actions_manager : MonoBehaviour
             var action = new actionContainer.TurnAction.end_war(currentPlayer, war, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // offer peace
-            receiverCountryButtonStates[countryId].PeaceOfferButtonState = false;
+            SetOfferPeaceRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetOfferPeaceRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].PeaceOfferButtonState = buttonState;
     }
 
     private void SetDiplomaticMissionMessagePanel()
     {
         message_text.text = "I'm sending a diplomatic mission to you. I want to have good relations with you.";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.praise.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{actionContainer.TurnAction.PraiseOpinionBonusInit}", true),
+        };
+
+        SetEffects(action_effects);
 
         void onSend()
         {
-            actionContainer.TurnAction.praise action = new actionContainer.TurnAction.praise(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.praise(currentPlayer, receiverCountry, diplomatic_relations_manager, 
+                dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+
+            // after this action, the following actions will not be selectable:
             // diplomatic mission, declare war, send an insult, offer alliance, demand vassalization
-            receiverCountryButtonStates[countryId].DiplomaticMissionButtonState = false;
-            receiverCountryButtonStates[countryId].WarDeclareButtonState = false;
-            receiverCountryButtonStates[countryId].InsultButtonState = false;
-            receiverCountryButtonStates[countryId].AllianceOfferButtonState = false;
-            receiverCountryButtonStates[countryId].VassalOfferButtonState = false;
+            SetDiplomaticMissionRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetDiplomaticMissionRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].DiplomaticMissionButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].WarDeclareButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
     }
 
     private void SetInsultMessagePanel()
     {
         message_text.text = "You are nothing but a fool!";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.insult.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Your Opinion of Them 1x", $"-{actionContainer.TurnAction.InsultOpinionPenaltyInit}", false),
+        };
+
+        SetEffects(action_effects);
 
         void onSend()
         {
-            actionContainer.TurnAction.insult action = new actionContainer.TurnAction.insult(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.insult(currentPlayer, receiverCountry, 
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+
+            // after this action, the following actions will not be selectable:
             // send an insult, declare war, diplomatic mission, offer alliance, subsidize
             // request subsidy, request military access, demand vassalization
-            receiverCountryButtonStates[countryId].InsultButtonState = false;
-            receiverCountryButtonStates[countryId].WarDeclareButtonState = false;
-            receiverCountryButtonStates[countryId].DiplomaticMissionButtonState = false;
-            receiverCountryButtonStates[countryId].AllianceOfferButtonState = false;
-            receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
-            receiverCountryButtonStates[countryId].SubsRequestButtonState = false;
-            receiverCountryButtonStates[countryId].MilAccOfferButtonState = false;
-            receiverCountryButtonStates[countryId].VassalOfferButtonState = false;
+            SetInsultRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetInsultRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].WarDeclareButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].DiplomaticMissionButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
     }
 
     private void SetOfferAllianceMessagePanel()
     {
         message_text.text = "I'm proposing an alliance. Together, we can be stronger!";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.alliance_offer.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Happiness 1x (Both)", $"+{Relation.AllianceHappinessBonusInit}%", true),
+            new(happiness_sprite, "Happiness 1x (Both)", $"+{diplomatic_relations_manager.AllianceHappinessBonusInit}%", true),
+            new(happiness_sprite, "Happiness Every Turn (Both)", $"+{game_manager.AllianceHappinessBonusConst}%", true),
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{Relation.AllianceOpinionBonusInit}", true),
+            new(happiness_sprite, "Their Opinion of You 1x", $"+{Relation.AllianceOpinionBonusInit}", true),
+            new(happiness_sprite, "Your Opinion of Them Every Turn", $"+{Relation.AllianceOpinionBonusConst}", true),
+            new(happiness_sprite, "Their Opinion of You Every Turn", $"+{Relation.AllianceOpinionBonusConst}", true),
+        };
+
+        SetEffects(action_effects);
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.alliance_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.alliance_offer(currentPlayer, receiverCountry, 
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // offer alliance, declare war, diplomatic mission, send an insult, demand vassalization
-            receiverCountryButtonStates[countryId].AllianceOfferButtonState = false;
-            receiverCountryButtonStates[countryId].WarDeclareButtonState = false;
-            receiverCountryButtonStates[countryId].DiplomaticMissionButtonState = false;
-            receiverCountryButtonStates[countryId].InsultButtonState = false;
-            receiverCountryButtonStates[countryId].VassalOfferButtonState = false;
+            SetOfferAllianceRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetOfferAllianceRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].WarDeclareButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].DiplomaticMissionButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
     }
 
     private void SetBreakAllianceMessagePanel()
     {
         message_text.text = "I am breaking the alliance with you!";
-        apCost = 0.1f;
+        apCost = actionContainer.TurnAction.alliance_end.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{Relation.TruceOpinionBonusInit}", true),
+            new(happiness_sprite, "Their Opinion of You 1x", $"+{Relation.TruceOpinionBonusInit}", true),
+        };
+
+        SetEffects(action_effects);
 
         void onSend()
         {
             Alliance alliance = (Alliance)HasRelation(RelationType.Alliance);
-            var action = new actionContainer.TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, 
+                dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // break alliance, call to war, subsidize, request subsidy
-            receiverCountryButtonStates[countryId].AllianceBreakButtonState = false;
-            receiverCountryButtonStates[countryId].CallToWarButtonState = false;
-            receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
-            receiverCountryButtonStates[countryId].SubsRequestButtonState = false;
+            SetBreakAllianceRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
@@ -758,15 +850,27 @@ public class diplomatic_actions_manager : MonoBehaviour
         ShowPanelWithBasicArea();
     }
 
+    public void SetBreakAllianceRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].AllianceBreakButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].CallToWarButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
+    }
+
     private void SetCallToWarMessagePanel()
     {
         message_text.text = "I'm calling upon you for help in the war. As my ally, we must support each other!";
-        apCost = 0.1f;
+        apCost = actionContainer.TurnAction.call_to_war.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
         SetDropdownCountries();
 
-        void onSend() { 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+        SetEffects(null);
+
+        void onSend() 
+        { 
+            // after this action, the following actions will not be selectable:
             // call to war (jesli to ostatni wybrany kraj w dropdown), break alliance
 
             UpdateSendButtonInteractionForDropdownAction();
@@ -779,7 +883,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
             receiverCountryButtonStates[countryId].CountriesToSkip.Add(selectedEntry.Key);
             Relation.War war = map.getRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;
-            var action = new actionContainer.TurnAction.call_to_war(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager, camera_controller);
+            var action = new actionContainer.TurnAction.call_to_war(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager, camera_controller, this);
             currentPlayer.Actions.addAction(action);
         }
 
@@ -788,45 +892,78 @@ public class diplomatic_actions_manager : MonoBehaviour
         ShowPanelWithCountryChoiceArea();
     }
 
+    public void RevertCallToWarRelatedButtonStates(int receiverCountryId)
+    {
+        if (receiverCountryButtonStates[receiverCountryId].CountriesToSkip.Count > 0) {
+            receiverCountryButtonStates[receiverCountryId].CountriesToSkip
+                .RemoveAt(receiverCountryButtonStates[receiverCountryId].CountriesToSkip.Count - 1);
+        }
+        if (receiverCountryButtonStates[receiverCountryId].CountriesToSkip.Count == 0) {
+            receiverCountryButtonStates[receiverCountryId].AllianceBreakButtonState = true;
+        }
+        receiverCountryButtonStates[receiverCountryId].CallToWarButtonState = (country_dropdown.options.Count > 0);
+    }
+
     private void SetSubsidizeMessagePanel()
     {
-        message_text.text = "I'm going to subsidize you! Use these resources wisely.";
-        apCost = 1f;
+        message_text.text = "I'm offering to subsidize you! Use these resources wisely.";
+        apCost = actionContainer.TurnAction.subs_offer.actionCost;
         ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(happiness_sprite, "Their Opinion of You 1x", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(happiness_sprite, "Your Opinion of Them Every Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+            new(happiness_sprite, "Their Opinion of You Every Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+        };
+
+        SetEffects(action_effects);
+
         void onSend()
         {
-            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, goldValue, durationValue, camera_controller);
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, 
+                dialog_box, goldValue, durationValue, camera_controller, this);
+            currentPlayer.Actions.addAction(action);
+
+            // after this action, the following actions will not be selectable:
             // subsidize, declare war, integrate vassal, send an insult, end subsidies
-            receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
-            receiverCountryButtonStates[countryId].WarDeclareButtonState = false;
-            receiverCountryButtonStates[countryId].IntegrateVassalButtonState = false;
-            receiverCountryButtonStates[countryId].InsultButtonState = false;
-            receiverCountryButtonStates[countryId].SubsEndButtonState = false;
+            SetSubsidizeRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForSliderAction();
         SetSendButtonAction(onSend);
         ShowPanelWithSubsidyArea();
+    }
+
+    public void SetSubsidizeRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].WarDeclareButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].IntegrateVassalButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsEndButtonState = buttonState;
     }
 
     private void SetEndSubsidiesMessagePanel()
     {
         message_text.text = "I'm ending subsidizing you.";
-        apCost = 0.1f;
+        apCost = actionContainer.TurnAction.subs_end.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        SetEffects(null);
 
         void onSend()
         {
-            var relation = map.getRelationsOfType(currentPlayer, RelationType.Subsidies).First(r => r.Sides[1] == receiverCountry);
-            if (relation != null)
-                diplomatic_relations_manager.endRelation(relation);
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            Subsidies subsidies = map.getRelationsOfType(currentPlayer, RelationType.Subsidies).First(r => r.Sides[1] == receiverCountry) as Subsidies;
+            var action = new actionContainer.TurnAction.subs_end(currentPlayer, receiverCountry, subsidies,
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
+            currentPlayer.Actions.addAction(action);
+
+            // after this action, the following actions will not be selectable:
             // end subsidies, subsidize
-            receiverCountryButtonStates[countryId].SubsEndButtonState = false;
-            receiverCountryButtonStates[countryId].SubsidizeButtonState = false;
+            SetEndSubsidiesRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
@@ -834,20 +971,38 @@ public class diplomatic_actions_manager : MonoBehaviour
         ShowPanelWithBasicArea();
     }
 
+    public void SetEndSubsidiesRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].SubsEndButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
+    }
+
     private void SetRequestSubsidiesMessagePanel()
     {
         message_text.text = "I am asking for your support through subsidies.";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.subs_request.actionCost;
         ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(happiness_sprite, "Their Opinion of You 1x", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(happiness_sprite, "Your Opinion of Them Every Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+            new(happiness_sprite, "Their Opinion of You Every Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+        };
+
+        SetEffects(action_effects);
+
         void onSend()
         {
-            receiverCountry.Events.Add(new Event_.DiploEvent.SubsRequest(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, (int)subsidy_slider.value, durationValue, camera_controller));
+            var action = new actionContainer.TurnAction.subs_request(currentPlayer, receiverCountry, diplomatic_relations_manager,
+                dialog_box, goldValue, durationValue, camera_controller, this);
+            currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // request subsidy
-            receiverCountryButtonStates[countryId].SubsRequestButtonState = false;
+            SetRequestSubsidiesRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForSliderAction();
@@ -855,23 +1010,28 @@ public class diplomatic_actions_manager : MonoBehaviour
         ShowPanelWithSubsidyArea();
     }
 
+    public void SetRequestSubsidiesRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
+    }
+
     private void SetOfferMilitaryAccessMessagePanel()
     {
         message_text.text = "I'm offering you military access. Feel free to pass through my territories.";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.access_offer.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        SetEffects(null);
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.access_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.access_offer(currentPlayer, receiverCountry, 
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // request military access, send an insult, offer alliance, demand vassalization
-            receiverCountryButtonStates[countryId].MilAccOfferButtonState = false;
-            receiverCountryButtonStates[countryId].InsultButtonState = false;
-            receiverCountryButtonStates[countryId].AllianceOfferButtonState = false;
-            receiverCountryButtonStates[countryId].VassalOfferButtonState = false;
+            SetOfferMilitaryAccessRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
@@ -879,54 +1039,121 @@ public class diplomatic_actions_manager : MonoBehaviour
         ShowPanelWithBasicArea();
     }
 
-    private void SetEndMilitaryAccessMessagePanel()
+    public void SetOfferMilitaryAccessRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
+    }
+
+    private void SetEndMilitaryAccessMasterMessagePanel()
     {
         message_text.text = "Military access has been revoked. Stay vigilant!";
-        apCost = 0.1f;
+        apCost = actionContainer.TurnAction.access_end_master.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        SetEffects(null);
 
         void onSend()
         {
-            Relation.MilitaryAccess variable = map.getRelationsOfType(receiverCountry, RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as Relation.MilitaryAccess; ;
-            var action = new Event_.DiploEvent.AccessEndMaster(variable, currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
-            receiverCountry.Events.Add(action);
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
-            // end military access
-            receiverCountryButtonStates[countryId].MilAccEndButtonState = false;
+            MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry, 
+                RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as MilitaryAccess;
+            var action = new actionContainer.TurnAction.access_end_master(currentPlayer, receiverCountry, militaryAccess,
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
+            currentPlayer.Actions.addAction(action);
+
+            // after this action, the following actions will not be selectable:
+            // end military access master
+            SetEndMilitaryAccessMasterRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetEndMilitaryAccessMasterRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].MilAccEndMasterButtonState = buttonState;
+    }
+
+    private void SetEndMilitaryAccessSlaveMessagePanel()
+    {
+        message_text.text = "I am stopping the use of the military access you granted to me.";
+        apCost = actionContainer.TurnAction.access_end_slave.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
+
+        SetEffects(null);
+
+        void onSend()
+        {
+            MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry,
+                RelationType.MilitaryAccess).First(a => a.Sides[1] == currentPlayer) as MilitaryAccess;
+            var action = new actionContainer.TurnAction.access_end_slave(currentPlayer, receiverCountry, militaryAccess,
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
+            currentPlayer.Actions.addAction(action);
+
+            // after this action, the following actions will not be selectable:
+            // end military access slave
+            SetEndMilitaryAccessSlaveRelatedButtonStates(false, countryId);
+        }
+
+        UpdateSendButtonInteractionForBasicAction();
+        SetSendButtonAction(onSend);
+        ShowPanelWithBasicArea();
+    }
+
+    public void SetEndMilitaryAccessSlaveRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].MilAccEndSlaveButtonState = buttonState;
     }
 
     private void SetOfferVassalizationMessagePanel()
     {
         message_text.text = "You have little choice but to accept my offer of vassalization.";
-        apCost = 1f;
+        apCost = actionContainer.TurnAction.vassal_offer.actionCost;
         ap_text.text = $"-{apCost:0.0}";
+
+        List<Effect> action_effects = new()
+        {
+            new(happiness_sprite, "Happiness 1x", $"+{diplomatic_relations_manager.VassalageHappinessBonusInitC1}%", true),
+            new(happiness_sprite, "Happiness 1x (Enemy)", $"-{diplomatic_relations_manager.VassalageHappinessPenaltyInitC2}%", true),
+            new(happiness_sprite, "Happiness Every Turn", $"+{game_manager.VassalageHappinessBonusConstC1}%", true),
+            new(happiness_sprite, "Happiness Every Turn (Enemy)", $"-{game_manager.VassalageHappinessPenaltyConstC2}%", true),
+            new(happiness_sprite, "Your Opinion of Them 1x", $"+{Relation.VassalageOpinionPenaltyInit}", true),
+            new(happiness_sprite, "Their Opinion of You (Every Turn)", $"-{Relation.VassalageOpinionBonusConst}", false),
+        };
+
+        SetEffects(action_effects);
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.vassal_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new actionContainer.TurnAction.vassal_offer(currentPlayer, receiverCountry, 
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
-            // po wykonaniu tej akcji nie bedzie mozna wybrac nastepujacych akcji:
+            // after this action, the following actions will not be selectable:
             // demand vassalization, declare war, diplomatic mission, send an insult,
             // offer alliance, request subsidy, request military access, end military access
-            receiverCountryButtonStates[countryId].VassalOfferButtonState = false;
-            receiverCountryButtonStates[countryId].WarDeclareButtonState = false;
-            receiverCountryButtonStates[countryId].DiplomaticMissionButtonState = false;
-            receiverCountryButtonStates[countryId].InsultButtonState = false;
-            receiverCountryButtonStates[countryId].AllianceOfferButtonState = false;
-            receiverCountryButtonStates[countryId].SubsRequestButtonState = false;
-            receiverCountryButtonStates[countryId].MilAccOfferButtonState = false;
-            receiverCountryButtonStates[countryId].MilAccEndButtonState = false;
+            SetOfferVassalizationRelatedButtonStates(false, countryId);
         }
 
         UpdateSendButtonInteractionForBasicAction();
         SetSendButtonAction(onSend);
         ShowPanelWithBasicArea();
+    }
+
+    public void SetOfferVassalizationRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].WarDeclareButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].DiplomaticMissionButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccEndMasterButtonState = buttonState;
     }
 
     private void DeactivateAreas()
@@ -939,7 +1166,6 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void ShowPanelWithBasicArea()
     {
-        send_message_button.interactable = true;
         message_area.SetActive(true);
         amount_area.SetActive(false);
         country_choice_area.SetActive(false);
