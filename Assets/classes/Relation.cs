@@ -18,7 +18,7 @@ namespace Assets.classes {
         }
         [Serializable]
         public enum RelationType { 
-            Rebellion = -2,//only for happ rebels, purely technical
+            Rebellion = -2,//only for happ rebels, purely technical, maybe don't treat like a real relation retard
             War = -1,
             Alliance = 3,
             Truce = 0,

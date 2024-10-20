@@ -363,8 +363,39 @@ public class game_manager : MonoBehaviour
 		Debug.Log($"Game saved to: {path}");
 	}
 
+    public void loadGame(string name) {
+        var path = Application.persistentDataPath + "/" + name + ".save";
+        Debug.Log("loading " + path);
+        if (File.Exists(path)) {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+                Save data = (Save)binaryFormatter.Deserialize(stream);
+                Save.loadDataFromSave(data, map);
+            }
+        }
+        else {
+            Debug.LogError("nie pyklo ladowanie");
+        }
+    }
+	public void loadGameJson(string name) {
+		var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension
+		Debug.Log("loading " + path);
 
+		if (File.Exists(path)) {  // Check if the file exists
+			using (StreamReader reader = new StreamReader(path)) {
+				string jsonData = reader.ReadToEnd();  // Read all text from the file
 
+				// Deserialize the JSON string into a Save object
+				Save data = JsonConvert.DeserializeObject<Save>(jsonData);
+
+				// Convert the Save object into the Map object
+				Save.loadDataFromSave(data, map);
+			}
+		}
+		else {
+			Debug.LogError("Save file not found or loading failed.");
+		}
+	}
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
             TurnSimulation();

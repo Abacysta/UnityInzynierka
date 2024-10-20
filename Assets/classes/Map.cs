@@ -29,7 +29,16 @@ public class Map:ScriptableObject {
     private HashSet<Relation> relations = new HashSet<Relation>();
     public int currentPlayer;
 
-    public string Map_name { get => map_name; set => map_name = value; }
+	public Map() {
+        map_name = null;
+        file_name = null;
+        provinces = new();
+        countries = new();
+        armies = new();
+        
+	}
+
+	public string Map_name { get => map_name; set => map_name = value; }
     public string File_name { get => file_name; set => file_name = value; }
     public List<Province> Provinces { get => provinces; set => provinces = value; }
 
@@ -159,6 +168,12 @@ public class Map:ScriptableObject {
         armies.Remove(army);
         destroyArmyView(army);
     }
+
+    public void reloadArmyView(Army army) {
+        destroyArmyView(army);
+        createArmyView(army);
+    }
+
     public void createArmyView(Army army)
     {
         var rtype = GetHardRelationType(CurrentPlayer, countries[army.OwnerId]);
