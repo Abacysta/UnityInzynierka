@@ -47,7 +47,7 @@ public class game_manager : MonoBehaviour
     // Loading map data before all scripts
     void Awake()
     {
-        LoadData();
+        //LoadData();
     }
 
     private void Start() {

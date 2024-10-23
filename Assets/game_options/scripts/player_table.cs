@@ -1,43 +1,55 @@
-using Newtonsoft.Json;
+Ôªøusing Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static Map;
 
 public class player_table : MonoBehaviour
 {
     [SerializeField] private GameObject dummy;
     [SerializeField] private GameObject playerTable;
-    private List<Map.CountryController> controllers = new List<Map.CountryController>();
-    private List<Country> countries = new List<Country>();
-
-    public List<Map.CountryController> Controllers { get => controllers; set => controllers = value; }
-    public List<Country> Countries { get => countries; set => countries = value; }
+    [SerializeField] private Map map; 
 
     private GameObject currentPlayerSelection = null;
+    private List<CountryController> controllers = new List<CountryController>();
+    private List<CountryData> currentStates = new List<CountryData>(); 
+    private List<Province> provinces = new List<Province>();
 
-    public class Country
+    private int currentMaxPlayerNumber = 0;
+    private Dictionary<int, int> countryPlayerAssignment = new Dictionary<int, int>();
+
+
+    public class CountryData
     {
         public int owner_id;
-        public string nazwa;
+        public string name;
         public int[] color;
-        public int herb;
+        public int coat;
         public int[] capitol;
     }
 
     public class GameState
     {
-        public List<Country> states;
+        public List<CountryData> states;
+        public List<Province> provinces;
     }
-
-    void Start()
+    public void LoadMap(string mapName)
     {
-        string json = LoadJsonFromFile("Assets/Resources/map_prototype_4.json");
+        string json = LoadJsonFromFile($"Assets/Resources/{mapName}.json");
         GameState gameState = JsonConvert.DeserializeObject<GameState>(json);
 
-        showCountries(gameState.states);
+        currentStates = gameState.states;  
+        provinces = gameState.provinces;   
+
+        showCountries(currentStates);      
+
+        controllers.Clear();
+        controllers = Enumerable.Repeat(CountryController.Ai, currentStates.Count).ToList();
     }
+
 
     private string LoadJsonFromFile(string filePath)
     {
@@ -47,18 +59,101 @@ public class player_table : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Plik nie zosta≥ znaleziony: " + filePath);
+            Debug.LogError("Plik nie zosta≈Ç znaleziony: " + filePath);
             return null;
         }
     }
-    private void SetCountryAsPlayer(Transform nameTransform)
+
+    private Color toColor(int[] color)
+    {
+        return new Color(color[0] / 255f, color[1] / 255f, color[2] / 255f);
+    }
+
+    public void StartGame()
+    {
+        if (currentStates == null || currentStates.Count == 0)
+        {
+            Debug.LogError("Brak wczytanych stan√≥w w currentStates.");
+            return;
+        }
+
+        map.Countries.Clear();
+        map.Controllers.Clear();
+        map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+        foreach (CountryData state in currentStates)
+        {
+            Country newCountry = new Country(
+                state.owner_id,
+                state.name,
+                (state.capitol[0], state.capitol[1]),
+                toColor(state.color),
+                state.coat,
+                map
+            );
+
+             map.addCountry(newCountry, CountryController.Ai);
+
+
+            Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
+        }
+
+        map.Provinces.Clear(); 
+        int j = 1;
+        foreach (var provinceData in provinces)
+        {
+            Province.TerrainType terrain;
+
+            if (provinceData.Type == "land")
+            {
+                if (System.Enum.TryParse(provinceData.Terrain.ToString(), out terrain) == false)
+                {
+                    Debug.LogWarning($"Niepoprawny typ terenu: {provinceData.Terrain}");
+                    terrain = Province.TerrainType.tundra; 
+                }
+            }
+            else
+            {
+                terrain = Province.TerrainType.ocean; 
+            }
+
+            Province newProvince = new Province(
+                j++.ToString(),     
+                provinceData.Name,   
+                provinceData.X,                
+                provinceData.Y,                
+                provinceData.Type,             
+                provinceData.Terrain,                      
+                provinceData.Resources,       
+                (int)provinceData.Resources_amount,       
+                provinceData.Population,      
+                (int)provinceData.Rec_pop,          
+                (int)provinceData.Happiness,                             
+                provinceData.Is_coast,         
+                provinceData.Owner_id          
+            );
+
+            map.Provinces.Add(newProvince);
+        }
+
+        for (int i = 0; i < controllers.Count; i++)
+        {
+            map.Controllers[i] = controllers[i];
+        }
+
+        Debug.Log("Game setup complete. Ready to start the game.");
+    }
+
+
+
+    private void SetCountryAsPlayer(Transform nameTransform, int playerNumber)
     {
         TMP_Text countryNameText = nameTransform.GetComponentInChildren<TMP_Text>();
         if (countryNameText != null)
         {
-            countryNameText.text = "GRACZ";
+            countryNameText.text = $"PLAYER {playerNumber}";
         }
     }
+
 
     private void SetCountryAsAI(Transform nameTransform)
     {
@@ -68,33 +163,47 @@ public class player_table : MonoBehaviour
             countryNameText.text = "AI";
         }
     }
-    private void OnCountryClicked(GameObject countryUI, Transform nameTransform)
+
+    private void OnCountryClicked(GameObject countryUI, Transform nameTransform, int countryId)
     {
-        if (currentPlayerSelection == null)
+        if (!countryPlayerAssignment.ContainsKey(countryId))
         {
-            SetCountryAsPlayer(nameTransform);
-            currentPlayerSelection = countryUI;
-        }
-        else if (currentPlayerSelection == countryUI)
-        {
-            // odklikniecie 
-            SetCountryAsAI(nameTransform);
-            currentPlayerSelection = null;
+            currentMaxPlayerNumber++;
+            countryPlayerAssignment[countryId] = currentMaxPlayerNumber;
+
+            SetCountryAsPlayer(nameTransform, currentMaxPlayerNumber);
+            controllers[countryId] = CountryController.Local;
+
+            Debug.Log($"Kraj {countryId} zosta≈Ç ustawiony jako Gracz {currentMaxPlayerNumber}.");
         }
         else
         {
-            // Zamien biezacego
-            SetCountryAsAI(currentPlayerSelection.transform.Find("controller"));
-            SetCountryAsPlayer(nameTransform);
-            currentPlayerSelection = countryUI;
+            int playerNumber = countryPlayerAssignment[countryId];
+            countryPlayerAssignment.Remove(countryId);
+
+            SetCountryAsAI(nameTransform);
+            controllers[countryId] = CountryController.Ai;
+
+            Debug.Log($"Kraj {countryId} zosta≈Ç ustawiony jako AI.");
+
+            if (playerNumber == currentMaxPlayerNumber)
+            {
+                currentMaxPlayerNumber--;
+            }
         }
     }
 
-    public void showCountries(List<Country> countries)
-    {
-        float yOffset = 0f;  
 
-        foreach (Country country in countries)
+    public void showCountries(List<CountryData> states)
+    {
+        foreach (Transform child in playerTable.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        float yOffset = 0f;
+
+        foreach (CountryData state in states)
         {
             GameObject countryUI = Instantiate(dummy, playerTable.transform);
 
@@ -111,7 +220,7 @@ public class player_table : MonoBehaviour
                 TMP_Text countryNameText = nameTransform.GetComponentInChildren<TMP_Text>();
                 if (countryNameText != null)
                 {
-                    countryNameText.text = country.nazwa;
+                    countryNameText.text = state.name;
                 }
             }
 
@@ -119,10 +228,10 @@ public class player_table : MonoBehaviour
             if (nameBackgroundImage != null)
             {
                 nameBackgroundImage.color = new Color(
-                    country.color[0] / 255f,
-                    country.color[1] / 255f,
-                    country.color[2] / 255f,
-                    70f / 255f 
+                    state.color[0] / 255f,
+                    state.color[1] / 255f,
+                    state.color[2] / 255f,
+                    70f / 255f
                 );
             }
 
@@ -132,36 +241,45 @@ public class player_table : MonoBehaviour
                 Image emblemImage = emblemTransform.GetComponent<Image>();
                 if (emblemImage != null)
                 {
-
-                    string emblemPath = "sprites/coat_" + country.herb; 
+                    string emblemPath = "sprites/coat_" + state.coat;
                     Sprite emblemSprite = Resources.Load<Sprite>(emblemPath);
                     if (emblemSprite != null)
                     {
                         emblemImage.sprite = emblemSprite;
                         emblemImage.color = new Color(
-                            country.color[0] / 255f,
-                            country.color[1] / 255f,
-                            country.color[2] / 255f
+                            state.color[0] / 255f,
+                            state.color[1] / 255f,
+                            state.color[2] / 255f
                         );
-                    }
-                    else
-                    {
-                        Debug.LogError("Nie znaleziono sprite'a pod úcieøkπ: " + emblemPath);
                     }
                 }
             }
-
-
             Transform controllerTransform = countryUI.transform.Find("controller");
             if (controllerTransform != null)
             {
                 Button countryButton = controllerTransform.GetComponent<Button>();
                 if (countryButton != null)
                 {
-                    countryButton.onClick.AddListener(() => OnCountryClicked(countryUI, controllerTransform));
-                    Debug.Log("Przypisane");
+                    int capturedId = currentStates.IndexOf(state);
+                    countryButton.onClick.AddListener(() => OnCountryClicked(countryUI, controllerTransform, capturedId));
                 }
             }
         }
+    }
+
+    private int GetCountryIdFromUI(GameObject countryUI)
+    {
+        Transform nameTransform = countryUI.transform.Find("name");
+        if (nameTransform != null)
+        {
+            TMP_Text countryNameText = nameTransform.GetComponentInChildren<TMP_Text>();
+            if (countryNameText != null)
+            {
+                string countryName = countryNameText.text;
+                CountryData state = currentStates.FirstOrDefault(s => s.name == countryName);
+                return currentStates.IndexOf(state);
+            }
+        }
+        return -1;
     }
 }

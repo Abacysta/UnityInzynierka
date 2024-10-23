@@ -10,7 +10,11 @@ using UnityEngine;
 [System.Serializable]
 public class Province {
     public enum TerrainType {
-
+        tundra ,
+        forest,
+        lowlands,
+        desert,
+        ocean
     }
     [SerializeField] private string? id;
     [SerializeField] private string name;
