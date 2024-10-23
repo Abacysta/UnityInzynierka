@@ -18,6 +18,10 @@ public class player_table : MonoBehaviour
     private List<CountryData> currentStates = new List<CountryData>(); 
     private List<Province> provinces = new List<Province>();
 
+    private int currentMaxPlayerNumber = 0;
+    private Dictionary<int, int> countryPlayerAssignment = new Dictionary<int, int>();
+
+
     public class CountryData
     {
         public int owner_id;
@@ -141,14 +145,15 @@ public class player_table : MonoBehaviour
 
 
 
-    private void SetCountryAsPlayer(Transform nameTransform)
+    private void SetCountryAsPlayer(Transform nameTransform, int playerNumber)
     {
         TMP_Text countryNameText = nameTransform.GetComponentInChildren<TMP_Text>();
         if (countryNameText != null)
         {
-            countryNameText.text = "PLAYER";
+            countryNameText.text = $"PLAYER {playerNumber}";
         }
     }
+
 
     private void SetCountryAsAI(Transform nameTransform)
     {
@@ -161,34 +166,33 @@ public class player_table : MonoBehaviour
 
     private void OnCountryClicked(GameObject countryUI, Transform nameTransform, int countryId)
     {
-        if (currentPlayerSelection == null)
+        if (!countryPlayerAssignment.ContainsKey(countryId))
         {
-            SetCountryAsPlayer(nameTransform);
-            currentPlayerSelection = countryUI;
-            controllers[countryId] = CountryController.Local;  // Zmiana na gracza
+            currentMaxPlayerNumber++;
+            countryPlayerAssignment[countryId] = currentMaxPlayerNumber;
 
-            Debug.Log($"Kraj {countryId} został ustawiony jako Gracz.");
-        }
-        else if (currentPlayerSelection == countryUI)
-        {
-            SetCountryAsAI(nameTransform);
-            currentPlayerSelection = null;
-            controllers[countryId] = CountryController.Ai;  // Zmiana na AI
+            SetCountryAsPlayer(nameTransform, currentMaxPlayerNumber);
+            controllers[countryId] = CountryController.Local;
 
-            Debug.Log($"Kraj {countryId} został ustawiony jako AI.");
+            Debug.Log($"Kraj {countryId} został ustawiony jako Gracz {currentMaxPlayerNumber}.");
         }
         else
         {
-            SetCountryAsAI(currentPlayerSelection.transform.Find("controller"));
-            controllers[GetCountryIdFromUI(currentPlayerSelection)] = CountryController.Ai;
+            int playerNumber = countryPlayerAssignment[countryId];
+            countryPlayerAssignment.Remove(countryId);
 
-            SetCountryAsPlayer(nameTransform);
-            currentPlayerSelection = countryUI;
-            controllers[countryId] = CountryController.Local;
+            SetCountryAsAI(nameTransform);
+            controllers[countryId] = CountryController.Ai;
 
-            Debug.Log($"Kraj {countryId} został ustawiony jako Gracz, a poprzedni kraj został zmieniony na AI.");
+            Debug.Log($"Kraj {countryId} został ustawiony jako AI.");
+
+            if (playerNumber == currentMaxPlayerNumber)
+            {
+                currentMaxPlayerNumber--;
+            }
         }
     }
+
 
     public void showCountries(List<CountryData> states)
     {
@@ -250,8 +254,6 @@ public class player_table : MonoBehaviour
                     }
                 }
             }
-
-            // Listener z ID kraju
             Transform controllerTransform = countryUI.transform.Find("controller");
             if (controllerTransform != null)
             {
