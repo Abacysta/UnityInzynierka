@@ -613,4 +613,7 @@ public class Map:ScriptableObject {
             createArmyView(a);
         }
     }
+    public void destroyAllArmyViews() {
+        armyViews = new();
+    }
 }

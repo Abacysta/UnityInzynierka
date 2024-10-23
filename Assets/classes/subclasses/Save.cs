@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -60,37 +61,26 @@ namespace Assets.classes.subclasses {
             List<Map.CountryController> loadControllers = new();
             HashSet<Relation> loadRelations = new();
 			//needs to go provinces->countries->relations->armies->events otherwise funny stuff happens
+
+
+			toLoad.destroyAllArmyViews();
+			
 			foreach (var p in data.provinces) {
                 loadProvinces.Add(p.load());
             }
-            foreach(var c in data.countries.OrderBy(c=>c.id)) {
-                loadCountries.Add(c.load(toLoad));
+			toLoad.Provinces = null;
+			toLoad.Provinces = loadProvinces;
+            data.countries = data.countries.OrderBy(c => c.id).ToList();
+			for(int i = 0; i < data.countries.Count; i++) {
+                toLoad.addCountry(data.countries[i].load(toLoad), data.controllers[i]);
             }
 			foreach (var r in data.relations) {
 				loadRelations.Add(r.load(toLoad));
 			}
+			toLoad.Relations = null;
+			toLoad.Relations = loadRelations;
 			foreach (var a in data.armies) {
-                loadArmies.Add(a.load());
-            }
-            foreach (var cc in data.controllers) {
-                loadControllers.Add(cc);
-            }
-            foreach(var v in toLoad.Armies) {
-                toLoad.destroyArmyView(v);
-            }
-            toLoad.Provinces = null;
-            toLoad.Provinces = loadProvinces;
-            toLoad.Countries = null;
-            toLoad.Countries = loadCountries;
-            toLoad.Armies = null;
-            toLoad.Armies = loadArmies;
-            toLoad.Relations = null;
-            toLoad.Relations = loadRelations;
-            toLoad.Controllers = null;
-            toLoad.Controllers = loadControllers;
-
-            foreach(var a in toLoad.Armies) {
-                toLoad.reloadArmyView(a);
+                toLoad.addArmy(a.load());
             }
             for (int i = 0; i < toLoad.Controllers.Count; i++) {
                 if (toLoad.Controllers[i] == Map.CountryController.Local) {
