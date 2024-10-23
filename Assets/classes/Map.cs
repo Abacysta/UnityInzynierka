@@ -28,7 +28,7 @@ public class Map:ScriptableObject {
     private List<army_view> armyViews = new List<army_view>();
     private HashSet<Relation> relations = new HashSet<Relation>();
     public int currentPlayer;
-
+    public int turnCnt = 0;
 	public Map() {
         map_name = null;
         file_name = null;
@@ -603,5 +603,14 @@ public class Map:ScriptableObject {
         return (Map)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         }));
+    }
+    public void reloadArmyViews() {
+        foreach(var av in armyViews) {
+			Destroy(av.gameObject);
+		}
+        armyViews = null;
+        foreach(var a in armies) {
+            createArmyView(a);
+        }
     }
 }

@@ -382,7 +382,7 @@ public class game_manager : MonoBehaviour
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
                 Save data = (Save)binaryFormatter.Deserialize(stream);
-                Save.loadDataFromSave(data, map);
+                Save.loadDataFromSave(data, map, loader);
             }
         }
         else {
@@ -401,12 +401,16 @@ public class game_manager : MonoBehaviour
 				Save data = JsonConvert.DeserializeObject<Save>(jsonData);
 
 				// Convert the Save object into the Map object
-				Save.loadDataFromSave(data, map);
+				Save.loadDataFromSave(data, map, loader);
 			}
 		}
 		else {
 			Debug.LogError("Save file not found or loading failed.");
 		}
+        loader.Reload();
+        foreach(var a in map.Armies) {
+            map.reloadArmyView(a);
+        }
 	}
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
@@ -434,6 +438,9 @@ public class game_manager : MonoBehaviour
             rebellionCheck();
             executeActions();
             turnCalculations();
+            foreach(var r in map.Relations) {
+                Debug.Log(r.type.ToString() + " " + r.Sides[0] + " " + r.Sides[1]);
+            }
             map.currentPlayer = 1;
             toSave = new(map);
             loader.Reload();

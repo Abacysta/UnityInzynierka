@@ -12,13 +12,15 @@ namespace Assets.classes.subclasses {
 
     [Serializable]
     internal class Save {
+        public int turnCnt;
         public string map_name;
         public List<SaveProvince> provinces;
         public List<SaveCountry> countries;
         public List<SaveArmy> armies;
         public List<Map.CountryController> controllers;
         public HashSet<SaveRelation> relations;
-        public Save(Map map) { 
+        public Save(Map map) {
+            this.turnCnt = map.turnCnt;
             this.map_name = map.name;
             this.provinces = new List<SaveProvince>();
             this.countries = new List<SaveCountry>();
@@ -47,25 +49,28 @@ namespace Assets.classes.subclasses {
             relations = new();
         }
 
-        public static void loadDataFromSave(Save data, Map toLoad) {
+        public static void loadDataFromSave(Save data, Map toLoad, map_loader mapView) {
             toLoad.name = data.map_name;
+            foreach(var r in toLoad.Relations) {
+                Debug.Log(r.type.ToString() + "->" + r.Sides[0].Id + " " + r.Sides[1].Id);
+            }
             List<Province> loadProvinces = new();
             List<Country> loadCountries = new();
             List<Army> loadArmies = new();
             List<Map.CountryController> loadControllers = new();
             HashSet<Relation> loadRelations = new();
-            //needs to go provinces->countries->armies->relations->events otherwise funny stuff happens
-            foreach (var p in data.provinces) {
+			//needs to go provinces->countries->relations->armies->events otherwise funny stuff happens
+			foreach (var p in data.provinces) {
                 loadProvinces.Add(p.load());
             }
             foreach(var c in data.countries.OrderBy(c=>c.id)) {
                 loadCountries.Add(c.load(toLoad));
             }
-            foreach(var a in data.armies) {
+			foreach (var r in data.relations) {
+				loadRelations.Add(r.load(toLoad));
+			}
+			foreach (var a in data.armies) {
                 loadArmies.Add(a.load());
-            }
-            foreach (var r in data.relations) {
-                loadRelations.Add(r.load(toLoad));
             }
             foreach (var cc in data.controllers) {
                 loadControllers.Add(cc);
@@ -93,7 +98,11 @@ namespace Assets.classes.subclasses {
                     break;
                 }
             }
-            data = null;
+			foreach (var r in toLoad.Relations) {
+				Debug.Log(r.type.ToString() + "->" + r.Sides[0].Id + " " + r.Sides[1].Id);
+			}
+			data = null;
+            mapView.Reload();
         }
 
     }
@@ -187,8 +196,8 @@ namespace Assets.classes.subclasses {
         public bool iscoast;
         public int owner;
         public Province.TerrainType terrain;
-        public List<Status> status;
-        public List<Building> buildings;
+        public List<SaveStatus> status;
+        public Dictionary<BuildingType, int> buildings;
         public SaveProvince(Province prov) {
             id = prov.Id;
             type = prov.Type;
@@ -202,8 +211,20 @@ namespace Assets.classes.subclasses {
             happinesss = prov.Happiness;
             iscoast = prov.Is_coast;
             terrain = prov.Terrain;
-            status = prov.Statuses;
-            buildings = prov.Buildings;
+            //status = prov.Statuses;
+            status = new();
+            if(prov.Statuses!=null) foreach(var s in prov.Statuses) {
+                status.Add(new(s));
+            }
+            //buildings = prov.Buildings;
+            //Debug.Log(prov.coordinates.ToString() + " -> " + prov.Buildings.ToString());
+            if (prov.Buildings != null) buildings = new() {
+                {BuildingType.Infrastructure, prov.Buildings[0].BuildingLevel },
+                {BuildingType.Fort, prov.Buildings[1].BuildingLevel },
+                {BuildingType.Mine, prov.Buildings[2].BuildingLevel },
+                {BuildingType.School, prov.Buildings[3].BuildingLevel }
+            };
+            else buildings = null;
         }
 
         public SaveProvince() {
@@ -213,9 +234,21 @@ namespace Assets.classes.subclasses {
 
         public Province load() {
             Province loaded = new Province(id, name, coordinates.Item1, coordinates.Item2, type, terrain, resource, resourceAmount, population, recruitable, happinesss, iscoast, owner);
-            loaded.Statuses = status;
-            loaded.Buildings = buildings;
-            if(owner!=0)Debug.Log("loaded " + coordinates.ToString() + " to " + owner);
+            foreach(var s in status) {
+                loaded.Statuses.Add(s.load());
+            }
+            if(buildings!= null) {
+                loaded.Buildings = new() {
+                    new(BuildingType.Infrastructure, buildings[BuildingType.Infrastructure]),
+                    new(BuildingType.Fort, buildings[BuildingType.Fort]),
+				    new(BuildingType.School, buildings[BuildingType.School]),
+                    new(BuildingType.Mine, buildings[BuildingType.Mine])
+				};
+            }
+            else {
+                loaded.Buildings = Province.defaultBuildings(loaded);
+			}
+            //if(owner!=0)Debug.Log("loaded " + coordinates.ToString() + " to " + owner);
             return loaded;
         }
     }
@@ -272,7 +305,7 @@ namespace Assets.classes.subclasses {
             duration= null;
             if(relation is Relation.War) {
                 var war = relation as Relation.War;
-                sideA = new HashSet<int>(war.participants1.Select(p=> p.Id));
+                sideA = new HashSet<int>(war.participants1.Select(p => p.Id));
                 sideD = new HashSet<int>(war.participants2.Select(p => p.Id));
             }
             else if(relation is Relation.Subsidies) {
@@ -315,6 +348,7 @@ namespace Assets.classes.subclasses {
                     loaded = new Relation.Vassalage(map.Countries[countries.Item1], map.Countries[countries.Item2]);
                     break;
             }
+            Debug.Log("loaded " + loaded.type.ToString() + " between " + loaded.Sides[0] + " and " + loaded.Sides[1]);
             return loaded;
         }
     }

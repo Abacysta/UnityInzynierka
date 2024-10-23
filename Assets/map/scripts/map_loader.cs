@@ -129,7 +129,7 @@ public class map_loader : MonoBehaviour
             p.Name = $"Province {p.Y * (mapWidth + 1) + p.X + 1}";
             map.calcRecruitablePop(p.coordinates);
 
-            if(p.Type == "land") {
+            if(true) {
                 p.Statuses = new System.Collections.Generic.List<Status>();
                 p.Buildings = new System.Collections.Generic.List<Building>{
                     new Building(BuildingType.Infrastructure, 0),
@@ -164,7 +164,7 @@ public class map_loader : MonoBehaviour
         map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
         map.Countries[1].Events.Add(new Assets.classes.Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
 
-        map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[2]));
+        //map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[2]));
         map.Relations.Add(new Relation.War(map.Countries[1], map.Countries[3]));
         map.Relations.Add(new Relation.Alliance(map.Countries[1], map.Countries[4]));
         Army testArmy = new Army(1, 100, (1, 0), (1, 0));
