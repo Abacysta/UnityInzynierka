@@ -76,7 +76,7 @@ namespace Assets.map.scripts {
         public bool checkRebellion(Province province) {
             if(province.Owner_id != 0 && map.Countries[province.Owner_id].Capital != province.coordinates) {
                 int happ = province.Happiness;
-                if(happ < 40) {
+                if(happ < -500) {//40
                     if(chance > 2 * happ) {
                         startRebellion(province);
                         return true;

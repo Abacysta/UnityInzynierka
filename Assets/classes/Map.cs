@@ -49,7 +49,7 @@ public class Map:ScriptableObject {
     public List<Army> Armies { get => armies; set => armies = value; }
     public Country CurrentPlayer { get => countries[currentPlayer]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
-    public List<CountryController> Controllers { get { return countryControllers; } }
+    public List<CountryController> Controllers { get { return countryControllers; } set => countryControllers = value; }
     public void addCountry(Country country, CountryController ptype)
     {
         countries.Add(country);

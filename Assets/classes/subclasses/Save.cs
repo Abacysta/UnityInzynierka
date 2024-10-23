@@ -38,6 +38,15 @@ namespace Assets.classes.subclasses {
                 relations.Add(new SaveRelation(r));
             }
         }
+
+        public Save() {
+            provinces = new();
+            countries = new();
+            armies = new();
+            controllers = new();
+            relations = new();
+        }
+
         public static void loadDataFromSave(Save data, Map toLoad) {
             toLoad.name = data.map_name;
             List<Province> loadProvinces = new();
@@ -47,20 +56,34 @@ namespace Assets.classes.subclasses {
             HashSet<Relation> loadRelations = new();
             //needs to go provinces->countries->armies->relations->events otherwise funny stuff happens
             foreach (var p in data.provinces) {
-                toLoad.Provinces.Add(p.load());
+                loadProvinces.Add(p.load());
             }
             foreach(var c in data.countries.OrderBy(c=>c.id)) {
-                toLoad.Countries.Add(c.load(toLoad));
+                loadCountries.Add(c.load(toLoad));
             }
             foreach(var a in data.armies) {
-                toLoad.Armies.Add(a.load());
+                loadArmies.Add(a.load());
             }
             foreach (var r in data.relations) {
-                toLoad.Relations.Add(r.load(toLoad));
+                loadRelations.Add(r.load(toLoad));
             }
             foreach (var cc in data.controllers) {
-                toLoad.Controllers.Add(cc);
+                loadControllers.Add(cc);
             }
+            foreach(var v in toLoad.Armies) {
+                toLoad.destroyArmyView(v);
+            }
+            toLoad.Provinces = null;
+            toLoad.Provinces = loadProvinces;
+            toLoad.Countries = null;
+            toLoad.Countries = loadCountries;
+            toLoad.Armies = null;
+            toLoad.Armies = loadArmies;
+            toLoad.Relations = null;
+            toLoad.Relations = loadRelations;
+            toLoad.Controllers = null;
+            toLoad.Controllers = loadControllers;
+
             foreach(var a in toLoad.Armies) {
                 toLoad.reloadArmyView(a);
             }
@@ -85,7 +108,6 @@ namespace Assets.classes.subclasses {
         public SaveColor color;
         public int coat;
         public HashSet<(int, int)> seenTiles;
-        public List<Event_> events;
         public Dictionary<int, int> opinions;
         public int tax;
         public SaveCountry(Country country) {
@@ -97,7 +119,6 @@ namespace Assets.classes.subclasses {
             this.technology = country.Technology_;
             this.color = new(country.Color);
             this.seenTiles = country.SeenTiles;
-            //this.events = country.Events;
             this.opinions = country.Opinions;
             this.coat = country.Coat;
             if (country.Tax is LowTaxes) tax = 0;
@@ -106,9 +127,16 @@ namespace Assets.classes.subclasses {
             else if (country.Tax is InvesmentTaxes) tax = 4;
             else tax = 1;
         }
+        public SaveCountry() {
+            resources = new();
+            technology = new();
+            seenTiles = new();
+            opinions = new();
+        }
         public Country load(Map map) {
+            Debug.Log("loading country " + id);
             Country loaded = new(id, name, capital, color.toColor(), coat, map);
-            foreach (var rT in resources) {
+            if(resources != null) foreach (var rT in resources) {
                 loaded.setResource(rT.Key, rT.Value);
             }
             foreach (var tT in technology) {
@@ -118,7 +146,7 @@ namespace Assets.classes.subclasses {
                 loaded.SeenTiles.Add(sT);
             }
             foreach(var oP in opinions) {
-                loaded.Opinions.Add(oP.Key, oP.Value);
+                if (oP.Key != 0)loaded.Opinions.Add(oP.Key, oP.Value);
             }
             switch (tax) {
                 case 0:
@@ -165,6 +193,7 @@ namespace Assets.classes.subclasses {
             id = prov.Id;
             type = prov.Type;
             name = prov.Name;
+            owner = prov.Owner_id;
             coordinates = (prov.X, prov.Y);
             resource = prov.Resources;
             resourceAmount = prov.Resources_amount;
@@ -177,10 +206,16 @@ namespace Assets.classes.subclasses {
             buildings = prov.Buildings;
         }
 
+        public SaveProvince() {
+            status = new();
+            buildings = new();
+        }
+
         public Province load() {
             Province loaded = new Province(id, name, coordinates.Item1, coordinates.Item2, type, terrain, resource, resourceAmount, population, recruitable, happinesss, iscoast, owner);
             loaded.Statuses = status;
             loaded.Buildings = buildings;
+            if(owner!=0)Debug.Log("loaded " + coordinates.ToString() + " to " + owner);
             return loaded;
         }
     }
@@ -193,6 +228,9 @@ namespace Assets.classes.subclasses {
             this.b = color.b;
             this.a = color.a;
         }
+
+        public SaveColor() { }
+
         public Color toColor() {
             return new Color(r, g, b, a);
         }
@@ -208,6 +246,10 @@ namespace Assets.classes.subclasses {
             this.count = army.Count;
             position = army.Position;
             destination = army.Destination;
+        }
+
+        public SaveArmy() {
+
         }
         public Army load() {
             Army loaded = new Army(ownerId, count, position, destination);
@@ -238,6 +280,11 @@ namespace Assets.classes.subclasses {
                 duration = subs.Duration;
                 amount = subs.Amount;
             }
+        }
+
+        public SaveRelation() {
+            sideA = new();
+            sideD = new();
         }
 
         public Relation load(Map map) {
@@ -286,6 +333,11 @@ namespace Assets.classes.subclasses {
             }
             else occupier = null;
         }
+
+        public SaveStatus() {
+
+        }
+
         public Status load() {
             Status loaded;
             switch (id) {
