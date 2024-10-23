@@ -402,6 +402,7 @@ public class game_manager : MonoBehaviour
 
 				// Convert the Save object into the Map object
 				Save.loadDataFromSave(data, map, loader);
+                fog_Of_War.UpdateFogOfWar();
 			}
 		}
 		else {
@@ -438,8 +439,9 @@ public class game_manager : MonoBehaviour
             rebellionCheck();
             executeActions();
             turnCalculations();
-            foreach(var r in map.Relations) {
-                Debug.Log(r.type.ToString() + " " + r.Sides[0] + " " + r.Sides[1]);
+            for(int i = 0; i < map.Countries.Count; i++) {
+                Debug.Log(map.Countries[i].Name + "--");
+                Debug.Log("--" + map.Controllers[i]);
             }
             map.currentPlayer = 1;
             toSave = new(map);

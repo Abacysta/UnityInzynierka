@@ -71,6 +71,7 @@ namespace Assets.classes.subclasses {
 			toLoad.Provinces = null;
 			toLoad.Provinces = loadProvinces;
             data.countries = data.countries.OrderBy(c => c.id).ToList();
+            toLoad.Countries = new();
 			for(int i = 0; i < data.countries.Count; i++) {
                 toLoad.addCountry(data.countries[i].load(toLoad), data.controllers[i]);
             }
@@ -79,6 +80,8 @@ namespace Assets.classes.subclasses {
 			}
 			toLoad.Relations = null;
 			toLoad.Relations = loadRelations;
+            toLoad.destroyAllArmyViews();
+            toLoad.Armies = new();
 			foreach (var a in data.armies) {
                 toLoad.addArmy(a.load());
             }
@@ -227,6 +230,11 @@ namespace Assets.classes.subclasses {
             foreach(var s in status) {
                 loaded.Statuses.Add(s.load());
             }
+            var so = loaded.Statuses.Find(s => s is Occupation) as Occupation;
+            if (so != null) {
+                loaded.OccupationInfo = new(true, so.duration, so.Occupier_id);
+            }
+            else loaded.OccupationInfo = new(false, 0, 0);
             if(buildings!= null) {
                 loaded.Buildings = new() {
                     new(BuildingType.Infrastructure, buildings[BuildingType.Infrastructure]),
