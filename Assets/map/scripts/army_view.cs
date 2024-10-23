@@ -25,7 +25,7 @@ public class army_view : MonoBehaviour
     public Sprite landSprite;
     public Sprite oceanSprite;
 
-    public static readonly Color WarColor = new(1f, 0.5f, 0); // Orange
+    public static readonly Color WarColor = new(1f, 0f, 0f); // Red
     public static readonly Color TruceColor = new(0.8f, 0.9f, 0.8f); // Light Green
     public static readonly Color AllianceColor = new(0.5f, 0.8f, 1f); // Light Blue
     public static readonly Color VassalageColor = new(0.6f, 0.4f, 0.8f); // Purple

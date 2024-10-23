@@ -306,7 +306,6 @@ namespace Assets.classes {
         }
         public class LocalEvent:Event_ {
             public Province province;
-            protected Map map;
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
             public LocalEvent(Province province, dialog_box_manager dialog_box, camera_controller camera)
@@ -428,8 +427,11 @@ namespace Assets.classes {
             }
             internal class WorkersStrike3 : LocalEvent
             {
-                public WorkersStrike3(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                private Map map;
+                public WorkersStrike3(Province province, dialog_box_manager dialog_box, 
+                    camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
+                    this.map = map;
                 }
                 public override string msg { get { return "Displeased workers formed armed movement. They demand lower taxes or they will destroy their workplace in " + province.Name+ ". Will you listen to their threats?"; } }
                 public override void call()
@@ -543,8 +545,11 @@ namespace Assets.classes {
             }
             internal class StrangeRuins1 : StrangeRuins
             {
-                public StrangeRuins1(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                private Map map;
+                public StrangeRuins1(Province province, dialog_box_manager dialog_box, 
+                    camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
+                    this.map = map;
                 }
 
                 public override string msg
@@ -603,8 +608,11 @@ namespace Assets.classes {
             }
             internal class StrangeRuins3 : StrangeRuins
             {
-                public StrangeRuins3(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                private Map map;
+                public StrangeRuins3(Province province, dialog_box_manager dialog_box, 
+                    camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
+                    this.map = map;
                 }
 
                 public override string msg
@@ -634,8 +642,11 @@ namespace Assets.classes {
             }
             internal class StrangeRuins4 : StrangeRuins
             {
-                public StrangeRuins4(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                private Map map;
+                public StrangeRuins4(Province province, dialog_box_manager dialog_box, 
+                    camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
+                    this.map = map;
                 }
 
                 public override string msg
@@ -664,8 +675,11 @@ namespace Assets.classes {
             }
             internal class StrangeRuins5 : StrangeRuins
             {
-                public StrangeRuins5(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                private Map map;
+                public StrangeRuins5(Province province, dialog_box_manager dialog_box, 
+                    camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
+                    this.map = map;
                 }
 
                 public override string msg
@@ -693,8 +707,11 @@ namespace Assets.classes {
             }
             internal class StrangeRuins6 : StrangeRuins
             {
-                public StrangeRuins6(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                private Map map;
+                public StrangeRuins6(Province province, dialog_box_manager dialog_box, 
+                    camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
+                    this.map = map;
                 }
 
                 public override string msg
@@ -721,8 +738,11 @@ namespace Assets.classes {
             }
             internal class StrangeRuins7 : StrangeRuins
             {
-                public StrangeRuins7(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                private Map map;
+                public StrangeRuins7(Province province, dialog_box_manager dialog_box, 
+                    camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
+                    this.map = map;
                 }
 
                 public override string msg
