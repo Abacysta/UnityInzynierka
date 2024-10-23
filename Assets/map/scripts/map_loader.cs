@@ -1,26 +1,12 @@
 using Assets.classes;
 using Assets.classes.subclasses;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class map_loader : MonoBehaviour
 {
-    public class LegendItem
-    {
-        public Color Color { get; set; }
-        public string Name { get; set; }
-
-        public LegendItem(Color color, string name)
-        {
-            Color = color;
-            Name = name;
-        }
-    }
-
     public enum MapMode {
         Terrain,
         Resource,
@@ -51,19 +37,10 @@ public class map_loader : MonoBehaviour
     [SerializeField] private GameObject mapmodes_buttons;
     [SerializeField] private Assets.map.scripts.diplomatic_relations_manager diplomacy;
 
-    [SerializeField] private GameObject map_legend;
-    [SerializeField] private TMP_Text filter_name;
-    [SerializeField] private GameObject legend_item_prefab;
-
     private MapMode mode;
     public bool loading;
 
     public MapMode CurrentMode { get => mode; set => mode = value; }
-
-    private void Awake()
-    {
-        SetMapLegendActivity(false);
-    }
 
     void Start()
     {
@@ -227,16 +204,6 @@ public class map_loader : MonoBehaviour
         }
 
         SetProvinceHoverAndSelectAboveFilterLayer();
-
-        filter_name.text = "Terrain:";
-
-        List<LegendItem> legendItems = new()
-        {
-            new(getTerrainColor("land"), "Forest"),
-            new(getTerrainColor("ocean"), "Sea")
-        };
-        SetMapLegend(legendItems);
-        SetMapLegendActivity(true);
     }
 
     public void SetResources()
@@ -278,19 +245,6 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
-
-        filter_name.text = "Resources:";
-
-        List<LegendItem> legendItems = new()
-        {
-            new(getResourceColor("gold"), "Gold"),
-            new(getResourceColor("iron"), "Iron"),
-            new(getResourceColor("wood"), "Wood"),
-            new(getResourceColor("empty"), "Empty")
-        };
-
-        SetMapLegend(legendItems);
-        SetMapLegendActivity(true);
     }
 
     public void SetHappiness()
@@ -314,20 +268,6 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
-
-        filter_name.text = "Happiness:";
-
-        List<LegendItem> legendItems = new()
-        {
-            new(GetColorBasedOnValueHappiness(0), "0%"),
-            new(GetColorBasedOnValueHappiness(25), "25%"),
-            new(GetColorBasedOnValueHappiness(50), "50%"),
-            new(GetColorBasedOnValueHappiness(75), "75%"),
-            new(GetColorBasedOnValueHappiness(100), "100%")
-        };
-
-        SetMapLegend(legendItems);
-        SetMapLegendActivity(true);
     }
 
     public void SetPopulation()
@@ -350,25 +290,6 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
-
-        filter_name.text = "Population:";
-
-        int step = (map.Pop_extremes.Item2 - map.Pop_extremes.Item1) / 4;
-        
-        int RoundDownToHundreds(int value) => (int)(Math.Floor(value / 100.0) * 100);
-        int RoundUpToHundreds(int value) => (int)(Math.Ceiling(value / 100.0) * 100);
-
-        List<LegendItem> legendItems = new()
-        {
-            new(GetColorBasedOnValuePop(RoundDownToHundreds(map.Pop_extremes.Item1)), $"{RoundDownToHundreds(map.Pop_extremes.Item1)}"),
-            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item1 + step)), $"{RoundUpToHundreds(map.Pop_extremes.Item1 + step)}"),
-            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item1 + 2 * step)), $"{RoundUpToHundreds(map.Pop_extremes.Item1 + 2 * step)}"),
-            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item1 + 3 * step)), $"{RoundUpToHundreds(map.Pop_extremes.Item1 + 3 * step)}"),
-            new(GetColorBasedOnValuePop(RoundUpToHundreds(map.Pop_extremes.Item2)), $"{RoundUpToHundreds(map.Pop_extremes.Item2)}"),
-        };
-
-        SetMapLegend(legendItems);
-        SetMapLegendActivity(true);
     }
 
      public void SetPolitical() {
@@ -398,18 +319,6 @@ public class map_loader : MonoBehaviour
         }
         province_select_layer_rnd.sortingOrder = 4;
         mouse_hover_layer_rnd.sortingOrder = 5;
-
-        filter_name.text = "Countries:";
-
-        List<LegendItem> legendItems = new();
-
-        for (int i = 0; i < map.Countries.Count; i++)
-        {
-            legendItems.Add(new LegendItem(map.Countries[i].Color, i == 0 ? "Tribal" : map.Countries[i].Name));
-        }
-
-        SetMapLegend(legendItems);
-        SetMapLegendActivity(true);
     }
 
     public void SetDiplomatic() {
@@ -462,22 +371,6 @@ public class map_loader : MonoBehaviour
             }
         }
         SetProvinceHoverAndSelectAboveFilterLayer();
-
-        filter_name.text = "Diplomacy:";
-
-        List<LegendItem> legendItems = new()
-        {
-            new(GetDiplomaticColor(null), "You"),
-            new(army_view.TribalColor, "Tribal"),
-            new(GetDiplomaticColor(Relation.RelationType.War), "War"),
-            new(GetDiplomaticColor(Relation.RelationType.Truce), "Truce"),
-            new(GetDiplomaticColor(Relation.RelationType.Alliance), "Alliance"),
-            new(GetDiplomaticColor(Relation.RelationType.Vassalage), "Vassalage"),
-            new(GetDiplomaticColor(Relation.RelationType.Rebellion), "Rebellion"),
-        };
-
-        SetMapLegend(legendItems);
-        SetMapLegendActivity(true);
     }
 
     private void SetWater(Vector3Int position)
@@ -578,25 +471,5 @@ public class map_loader : MonoBehaviour
         terrain_feature_layer_1.ClearAllTiles();
         terrain_feature_layer_2.ClearAllTiles();
         filter_layer.ClearAllTiles();
-    }
-
-    private void SetMapLegend(List<LegendItem> legendData)
-    {
-        for (int i = 2; i < map_legend.transform.childCount; i++)
-        {
-            Destroy(map_legend.transform.GetChild(i).gameObject);
-        }
-
-        foreach (LegendItem entry in legendData)
-        {
-            GameObject item = Instantiate(legend_item_prefab, map_legend.transform);
-            legend_item_ui legendItem = item.GetComponent<legend_item_ui>();
-            legendItem.SetLegendItem(entry.Color, entry.Name);
-        }
-    }
-
-    private void SetMapLegendActivity(bool state)
-    {
-        map_legend.gameObject.SetActive(state);
     }
 }
