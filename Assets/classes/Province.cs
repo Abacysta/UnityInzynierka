@@ -10,7 +10,7 @@ using UnityEngine;
 [System.Serializable]
 public class Province {
     public enum TerrainType {
-        tundra ,
+        tundra,
         forest,
         lowlands,
         desert,
