@@ -1,3 +1,4 @@
+using Assets.classes;
 using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
@@ -36,6 +37,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private battle_manager battle_manager;
     [SerializeField] private random_events_manager random_events;
     [SerializeField] private start_screen start_screen;
+    [SerializeField] private diplomatic_relations_manager diplomacy;
 
     private Save toSave;
 
@@ -382,7 +384,7 @@ public class game_manager : MonoBehaviour
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
                 Save data = (Save)binaryFormatter.Deserialize(stream);
-                Save.loadDataFromSave(data, map, loader);
+                Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
             }
         }
         else {
@@ -401,8 +403,10 @@ public class game_manager : MonoBehaviour
 				Save data = JsonConvert.DeserializeObject<Save>(jsonData);
 
 				// Convert the Save object into the Map object
-				Save.loadDataFromSave(data, map, loader);
+				Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
                 fog_Of_War.UpdateFogOfWar();
+                alerts.loadEvents(map.CurrentPlayer);
+                alerts.reloadAlerts();
 			}
 		}
 		else {
@@ -444,7 +448,9 @@ public class game_manager : MonoBehaviour
                 Debug.Log("--" + map.Controllers[i]);
             }
             map.currentPlayer = 1;
-            toSave = new(map);
+			map.Countries[1].Events.Add(new Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+			map.Countries[1].Events.Add(new Event_.GlobalEvent.Happiness(map.Countries[1], dialog_box, camera_controller));
+			toSave = new(map);
             loader.Reload();
         }
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
