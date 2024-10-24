@@ -130,13 +130,19 @@ public class map_loader : MonoBehaviour
 
     public void SetTerrain()
     {
-        Color getTerrainColor(string type)
+        Color getTerrainColor(Province.TerrainType type)
         {
             switch (type)
             {
-                case "land":
-                    return ChooseRGBColor(91, 106, 65); // dark green
-                case "ocean":
+                case Province.TerrainType.tundra:
+                    return ChooseRGBColor(0, 102, 0); // dark green
+                case Province.TerrainType.lowlands:
+                    return ChooseRGBColor(0,255,0); // lime
+                case Province.TerrainType.forest:
+                    return ChooseRGBColor(0,204,102); // green/blue?
+                case Province.TerrainType.desert:
+                    return ChooseRGBColor(255,204,0); // yellow/orange
+                case Province.TerrainType.ocean:
                     return ChooseRGBColor(60, 106, 130); // blue
                 default:
                     return ChooseRGBColor(91, 106, 65); // dark green
@@ -154,7 +160,7 @@ public class map_loader : MonoBehaviour
             if (province.Type == "land")
             {
                 base_layer.SetTile(position, base_tile);
-                base_layer.SetColor(position, getTerrainColor("land"));
+                base_layer.SetColor(position, getTerrainColor(province.Terrain));
             }
             else
             {
@@ -165,14 +171,6 @@ public class map_loader : MonoBehaviour
         SetProvinceHoverAndSelectAboveFilterLayer();
 
         filter_name.text = "Terrain:";
-
-        List<LegendItem> legendItems = new()
-        {
-            new(getTerrainColor("land"), "Forest"),
-            new(getTerrainColor("ocean"), "Sea")
-        };
-        SetMapLegend(legendItems);
-        SetMapLegendActivity(true);
     }
 
     public void SetResources()

@@ -79,9 +79,14 @@ public class player_table : MonoBehaviour
 
         map.Countries.Clear();
         map.Controllers.Clear();
-        map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+       map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+        
         foreach (CountryData state in currentStates)
         {
+            if (state.owner_id == 0)
+            {
+                continue;
+            }
             Country newCountry = new Country(
                 state.owner_id,
                 state.name,
@@ -102,32 +107,45 @@ public class player_table : MonoBehaviour
         foreach (var provinceData in provinces)
         {
             Province.TerrainType terrain;
-
             if (provinceData.Type == "land")
             {
-                if (System.Enum.TryParse(provinceData.Terrain.ToString(), out terrain) == false)
+                string terrainStr = provinceData.Terrain.ToString().ToLower();
+                switch (terrainStr)
                 {
-                    Debug.LogWarning($"Niepoprawny typ terenu: {provinceData.Terrain}");
-                    terrain = Province.TerrainType.tundra; 
+                    case "forest":
+                        terrain = Province.TerrainType.forest;
+                        break;
+                    case "desert":
+                        terrain = Province.TerrainType.desert;
+                        break;
+                    case "lowlands":
+                        terrain = Province.TerrainType.lowlands;
+                        break;
+                    case "tundra":
+                        terrain = Province.TerrainType.tundra;
+                        break;
+                    default:
+                        Debug.LogWarning($"Nieznany typ terenu: {terrainStr}, ustawiam tundra jako domyślny.");
+                        terrain = Province.TerrainType.tundra;
+                        break;
                 }
             }
             else
             {
-                terrain = Province.TerrainType.ocean; 
+                terrain = Province.TerrainType.ocean;
             }
-
-            Province newProvince = new Province(
+        Province newProvince = new Province(
                 j++.ToString(),     
                 provinceData.Name,   
                 provinceData.X,                
                 provinceData.Y,                
                 provinceData.Type,             
-                provinceData.Terrain,                      
+                terrain,                      
                 provinceData.Resources,       
                 (int)provinceData.Resources_amount,       
                 provinceData.Population,      
                 (int)provinceData.Rec_pop,          
-                (int)provinceData.Happiness,                             
+                50,                             
                 provinceData.Is_coast,         
                 provinceData.Owner_id          
             );
@@ -135,9 +153,9 @@ public class player_table : MonoBehaviour
             map.Provinces.Add(newProvince);
         }
 
-        for (int i = 0; i < controllers.Count; i++)
+        for (int i = 1; i <= controllers.Count; i++)
         {
-            map.Controllers[i] = controllers[i];
+            map.Controllers[i] = controllers[i-1];
         }
 
         Debug.Log("Game setup complete. Ready to start the game.");
@@ -166,6 +184,12 @@ public class player_table : MonoBehaviour
 
     private void OnCountryClicked(GameObject countryUI, Transform nameTransform, int countryId)
     {
+        if (countryId < 0 || countryId >= controllers.Count)
+        {
+            Debug.LogError($"Błędny countryId: {countryId}. Musi być pomiędzy 0 a {controllers.Count - 1}.");
+            return;
+        }
+
         if (!countryPlayerAssignment.ContainsKey(countryId))
         {
             currentMaxPlayerNumber++;
@@ -194,6 +218,8 @@ public class player_table : MonoBehaviour
     }
 
 
+
+
     public void showCountries(List<CountryData> states)
     {
         foreach (Transform child in playerTable.transform)
@@ -203,8 +229,10 @@ public class player_table : MonoBehaviour
 
         float yOffset = 0f;
 
-        foreach (CountryData state in states)
+        for (int i = 0; i < states.Count; i++)
         {
+            CountryData state = states[i];
+
             GameObject countryUI = Instantiate(dummy, playerTable.transform);
 
             RectTransform rt = countryUI.GetComponent<RectTransform>();
@@ -254,18 +282,22 @@ public class player_table : MonoBehaviour
                     }
                 }
             }
+
             Transform controllerTransform = countryUI.transform.Find("controller");
             if (controllerTransform != null)
             {
                 Button countryButton = controllerTransform.GetComponent<Button>();
                 if (countryButton != null)
                 {
-                    int capturedId = currentStates.IndexOf(state);
+                    int capturedId = i; 
                     countryButton.onClick.AddListener(() => OnCountryClicked(countryUI, controllerTransform, capturedId));
                 }
             }
         }
     }
+
+
+
 
     private int GetCountryIdFromUI(GameObject countryUI)
     {
@@ -282,4 +314,5 @@ public class player_table : MonoBehaviour
         }
         return -1;
     }
+
 }
