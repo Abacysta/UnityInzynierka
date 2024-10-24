@@ -16,8 +16,8 @@ namespace Assets.classes {
 
         public static readonly int AllianceHappinessBonusInit = 3;
 
-        public static readonly int VassalageOpinionPenaltyInit = 30;
-        public static readonly int VassalageOpinionBonusConst = 5;
+        public static readonly int VassalageOpinionPenaltyInitC2 = 30;
+        public static readonly int VassalageOpinionPenaltyConstC2 = 5;
 
         public static readonly int SubsidiesOpinionBonusInit = 20;
         public static readonly int SubsidiesOpinionBonusConst = 5;
@@ -95,7 +95,7 @@ namespace Assets.classes {
         }
 
         internal class Vassalage:Relation {
-            public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, -VassalageOpinionPenaltyInit, VassalageOpinionBonusConst) {
+            public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, -VassalageOpinionPenaltyInitC2, VassalageOpinionPenaltyConstC2) {
                 countries[0].Opinions[countries[1].Id] -= initialChange;
             }
 

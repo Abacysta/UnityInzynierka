@@ -13,8 +13,10 @@ namespace Assets.classes {
         public class TurnAction {
             public static readonly float HardActionCost = 1f;
             public static readonly float SoftActionCost = 0.1f;
-            public static readonly int PraiseOpinionBonusInit = 20;
-            public static readonly int InsultOpinionPenaltyInit = 25;
+            public static readonly int PraiseOurOpinionBonusInit = 20;
+            public static readonly int PraiseTheirOpinionBonusInit = PraiseOurOpinionBonusInit / 2;
+            public static readonly int InsultOurOpinionPenaltyInit = 25;
+            public static readonly int InsultTheirOpinionPenaltyInit = InsultOurOpinionPenaltyInit / 2;
 
             public enum ActionType {
                 army_move,
@@ -611,11 +613,13 @@ namespace Assets.classes {
 
                 public override void preview(Map map) {
                     base.preview(map);
-                    to.Opinions[from.Id] -= InsultOpinionPenaltyInit;
+                    from.Opinions[to.Id] -= InsultOurOpinionPenaltyInit;
+                    to.Opinions[from.Id] -= InsultTheirOpinionPenaltyInit;
                 }
                 public override void revert(Map map) {
                     base.revert(map);
-                    to.Opinions[from.Id] += InsultOpinionPenaltyInit;
+                    from.Opinions[to.Id] += InsultOurOpinionPenaltyInit;
+                    to.Opinions[from.Id] += InsultTheirOpinionPenaltyInit;
                     dipl_actions.SetInsultRelatedButtonStates(true, to.Id);
                 }
             }
@@ -638,11 +642,14 @@ namespace Assets.classes {
                 }
                 public override void preview(Map map) {
                     base.preview(map);
-                    to.Opinions[from.Id] += PraiseOpinionBonusInit;
+                    from.Opinions[to.Id] += PraiseOurOpinionBonusInit;
+                    to.Opinions[from.Id] += PraiseTheirOpinionBonusInit;
+
                 }
                 public override void revert(Map map) {
                     base.revert(map);
-                    to.Opinions[from.Id] -= PraiseOpinionBonusInit;
+                    from.Opinions[to.Id] -= PraiseOurOpinionBonusInit;
+                    to.Opinions[from.Id] -= PraiseTheirOpinionBonusInit;
                     dipl_actions.SetDiplomaticMissionRelatedButtonStates(true, to.Id);
                 }
             }
