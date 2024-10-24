@@ -36442,6 +36442,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   save_row_text: {fileID: 1828851033}
   save_list_manager: {fileID: 1882202184}
+  save_name: {fileID: 0}
 --- !u!1 &1449783395
 GameObject:
   m_ObjectHideFlags: 0
@@ -48612,7 +48613,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dynamic_vscroll_saves_view: {fileID: 1882202182}
   overlay: {fileID: 1999248936}
-  save_name: {fileID: 0}
+  save_name: {fileID: 1000868178}
   game_manager: {fileID: 311749113}
 --- !u!1 &1890445277
 GameObject:

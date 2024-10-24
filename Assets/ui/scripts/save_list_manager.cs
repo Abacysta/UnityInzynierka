@@ -31,10 +31,13 @@ public class save_list_manager : MonoBehaviour
 
 	private void SetData()
     {
-        Saves = game_manager.getSaveGames();
+        Saves = new string[3] { "Save1", "Saev2", "Save3" };
+        //Saves = game_manager.getSaveGames();
+
 
         //Saves = game_manager.getSaveGames().ToList();
         dynamic_vscroll_saves_view.totalItemCount = Saves.Length;
+        DisplayList();
     }
 
     private void DisplayList()
