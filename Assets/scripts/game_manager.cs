@@ -1,3 +1,4 @@
+using Assets.classes;
 using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
@@ -16,7 +17,6 @@ using static Assets.classes.actionContainer;
 public class game_manager : MonoBehaviour
 {
     [SerializeField] private Map map;
-    [SerializeField] private int turnCnt = 0;
     [SerializeField] private TMP_Text turnCntTxt;
     [SerializeField] private AudioSource turn_sound;
     [SerializeField] private float RecruitablePopulationFactor = 0.2f;
@@ -36,6 +36,8 @@ public class game_manager : MonoBehaviour
     [SerializeField] private battle_manager battle_manager;
     [SerializeField] private random_events_manager random_events;
     [SerializeField] private start_screen start_screen;
+    [SerializeField] private diplomatic_relations_manager diplomacy;
+    [SerializeField] private info_bar info_bar;
 
     private Save toSave;
 
@@ -161,7 +163,7 @@ public class game_manager : MonoBehaviour
             map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.armyUpkeep);
         }
         fog_Of_War.StartTurn();
-        turnCntTxt.SetText("" + ++turnCnt);
+        turnCntTxt.SetText((++map.turnCnt).ToString());
         loading_box.SetActive(false);
         Debug.Log("stopped bar");
     }
@@ -355,14 +357,14 @@ public class game_manager : MonoBehaviour
     //    }
     //}
 
-    public void saveGame() {
-        var path = Application.persistentDataPath + "/save.save";
+    public void saveGame(string name) {
+        var path = Application.persistentDataPath + "/" + name + ".save";
         BinaryFormatter form = new BinaryFormatter();
         using(FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
             form.Serialize(stream, toSave);
         }
-        Debug.Log(path);
-    }
+		Debug.Log($"Game saved to: {path}");
+	}
 
 	public void saveGameJson() {
 		var path = Application.persistentDataPath + "/save.json";
@@ -382,8 +384,11 @@ public class game_manager : MonoBehaviour
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
                 Save data = (Save)binaryFormatter.Deserialize(stream);
-                Save.loadDataFromSave(data, map);
-            }
+                Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
+				fog_Of_War.UpdateFogOfWar();
+				alerts.loadEvents(map.CurrentPlayer);
+				alerts.reloadAlerts();
+			}
         }
         else {
             Debug.LogError("nie pyklo ladowanie");
@@ -401,13 +406,32 @@ public class game_manager : MonoBehaviour
 				Save data = JsonConvert.DeserializeObject<Save>(jsonData);
 
 				// Convert the Save object into the Map object
-				Save.loadDataFromSave(data, map);
+				Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
+                fog_Of_War.UpdateFogOfWar();
+                alerts.loadEvents(map.CurrentPlayer);
+                alerts.reloadAlerts();
 			}
 		}
 		else {
 			Debug.LogError("Save file not found or loading failed.");
 		}
+        loader.Reload();
+        foreach(var a in map.Armies) {
+            map.reloadArmyView(a);
+        }
 	}
+
+    public string[] getSaveGames() {
+        var saves = new List<string>();
+        if (Directory.Exists(Application.persistentDataPath)) {
+            return Directory.GetFiles(Application.persistentDataPath, "*.save");
+        }
+        else {
+            Debug.Log("Data directory is broken");
+            return null;
+        }
+    }
+
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
             TurnSimulation();
@@ -434,9 +458,18 @@ public class game_manager : MonoBehaviour
             rebellionCheck();
             executeActions();
             turnCalculations();
+            for(int i = 0; i < map.Countries.Count; i++) {
+                Debug.Log(map.Countries[i].Name + "--");
+                Debug.Log("--" + map.Controllers[i]);
+            }
             map.currentPlayer = 1;
-            toSave = new(map);
-            loader.Reload();
+			map.Countries[1].Events.Add(new Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
+			map.Countries[1].Events.Add(new Event_.GlobalEvent.Happiness(map.Countries[1], dialog_box, camera_controller));
+			toSave = new(map);
+            if (map.turnCnt % 5 == 0) {
+				saveGame("autosave");
+			}
+			loader.Reload();
         }
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
             aiTurn();
@@ -444,9 +477,9 @@ public class game_manager : MonoBehaviour
         }
         else {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-            if (turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local)
+            if (map.turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local)
                 start_screen.welcomeScreen();
-            else if (turnCnt == 1)
+            else if (map.turnCnt == 1)
                 start_screen.unHide();
             camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();

@@ -155,7 +155,6 @@ public class army_view : MonoBehaviour
 
     private void UpdateArmyCounterColor(int type)
     {
-        Debug.Log("rtype=" + type);
         Color adjusted;
         switch (type)
         {

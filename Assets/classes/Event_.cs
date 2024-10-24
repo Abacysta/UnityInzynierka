@@ -39,7 +39,7 @@ namespace Assets.classes {
             protected virtual Dictionary<Resource, float> cost() {
                 return null;
             }
-
+            //id=0
             internal class Discontent:GlobalEvent {
                 public Discontent(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera) { }
                 public override string msg { get { return "A discontent has spread in the country. You can bribe officials to lower its impact"; } }
@@ -70,8 +70,8 @@ namespace Assets.classes {
                     return cost;
                 }
             }
-
-            internal class Happiness:GlobalEvent {
+			//id=1
+			internal class Happiness:GlobalEvent {
                 public Happiness(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera) { }
                 public override string msg { get { return "Happiness has increased in the country"; } }
                 public override void accept() {
@@ -85,7 +85,8 @@ namespace Assets.classes {
                     this.accept();
                 }
             }
-            internal class Plague:GlobalEvent {
+			//id=2
+			internal class Plague:GlobalEvent {
                 public Plague(Country country, dialog_box_manager dialog,camera_controller camera) : base(country, dialog, camera) {
                 }
 
@@ -114,7 +115,8 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class EconomicReccesion : GlobalEvent // jak jest wojna w sąsiednim królestwie? albo jak jestes w stanie wojny
+			//id=3
+			internal class EconomicReccesion : GlobalEvent // jak jest wojna w sąsiednim królestwie? albo jak jestes w stanie wojny
             {
                 public EconomicReccesion(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
                 {
@@ -163,7 +165,8 @@ namespace Assets.classes {
                     }
                 }
             }
-            internal class TechnologicalBreakthrough : GlobalEvent
+			//id=4
+			internal class TechnologicalBreakthrough : GlobalEvent
             {
                 public TechnologicalBreakthrough(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
                 {
@@ -194,7 +197,8 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class Flood1:GlobalEvent
+			//id=5
+			internal class Flood1:GlobalEvent
             {
                 public Flood1(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
                 {
@@ -219,7 +223,8 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class Fire1 : GlobalEvent
+			//id=6
+			internal class Fire1 : GlobalEvent
             {
                 public Fire1(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
                 {
@@ -247,7 +252,8 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class Earthquake : GlobalEvent
+			//id=7
+			internal class Earthquake : GlobalEvent
             {
                 public Earthquake(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
                 {
@@ -273,8 +279,8 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-
-            internal class Misfortune : GlobalEvent
+			//id=8
+			internal class Misfortune : GlobalEvent
             {
                 public Misfortune(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
                 {
@@ -329,7 +335,7 @@ namespace Assets.classes {
             protected virtual Dictionary<Resource, float> cost() {
                 return null;
             }
-
+            //id=0
             internal class ProductionBoom1:LocalEvent {
                 public ProductionBoom1(Province province, dialog_box_manager dialog, camera_controller camera) : base(province, dialog , camera) { }
                 public override string msg { get { return "Work enthusiasm has increased in " + province.Name + ". Should you use it now or invest for future."; } }
@@ -342,7 +348,8 @@ namespace Assets.classes {
                     province.Resources_amount += 0.2f;
                 }
             }
-            internal class GoldRush:LocalEvent {
+			//id=1
+			internal class GoldRush:LocalEvent {
                 public override string msg { get { return province.Name + " is experiencing a gold rush!"; } }
 
                 public GoldRush(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera) {
@@ -361,7 +368,8 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class BonusRecruits:LocalEvent {
+			//id=2
+			internal class BonusRecruits:LocalEvent {
                 public BonusRecruits(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera) {
                 }
 
@@ -380,7 +388,8 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class WorkersStrike1:LocalEvent // turmoil mass migration
+			//id=3
+			internal class WorkersStrike1:LocalEvent // turmoil mass migration
             {
                 public WorkersStrike1(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera) { 
                 }
@@ -403,7 +412,8 @@ namespace Assets.classes {
                     }
                 }
             }
-            internal class WorkersStrike2 : LocalEvent
+			//id=4
+			internal class WorkersStrike2 : LocalEvent
             {
                 public WorkersStrike2(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
                 {
@@ -801,7 +811,7 @@ namespace Assets.classes {
                 }
             }
         }
-        public class DiploEvent:Event_ {
+        public class    DiploEvent:Event_ {
             public Country from, to;
             private diplomatic_relations_manager diplomacy;
             private camera_controller camera;
@@ -822,17 +832,22 @@ namespace Assets.classes {
                 this.dialog_box = dialog_box;
                 this.Cost = null;
             }
-            //internal class WarDeclaration:DiploEvent {
-            //    WarDeclaration(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
-            //        diplomacy.startWar(from, to);
-            //    }
-            //    public override void accept() {
-            //        diplomacy.startWar(from, to);
-            //    }
-            //    public override void reject() { }
-            //    public override string msg { get { return "Are you sure you want to declare war on " + to.Name; } }
-            //}
-            internal class PeaceOffer:DiploEvent {
+			//internal class WarDeclaration:DiploEvent {
+			//    WarDeclaration(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
+			//        diplomacy.startWar(from, to);
+			//    }
+			//    public override void accept() {
+			//        diplomacy.startWar(from, to);
+			//    }
+			//    public override void reject() { }
+			//    public override string msg { get { return "Are you sure you want to declare war on " + to.Name; } }
+			//}
+			internal class WarDeclared : DiploEvent {
+				public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
+				}
+				public override string msg { get { return from.Name + " has declared a war on you!"; } }
+			}
+			internal class PeaceOffer:DiploEvent {
                 private Country offer;
                 private Relation.War war;
                 public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box, camera) { 
@@ -849,13 +864,8 @@ namespace Assets.classes {
                     
                 }
             }
-            internal class WarDeclared:DiploEvent {
-                public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
-                }
-                public override string msg { get { return from.Name + " has declared a war on you!"; } }
-            }
             internal class CallToWar:DiploEvent {
-                private Relation.War war;
+                public Relation.War war;
                 public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, Relation.War war, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
                     this.war = war;
                 }
@@ -989,7 +999,7 @@ namespace Assets.classes {
                 }
             }
             internal class AccessEndMaster : DiploEvent {
-                private Relation.MilitaryAccess access;
+                public Relation.MilitaryAccess access;
                 public AccessEndMaster(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
                 {
                     this.access = access;
@@ -1003,7 +1013,7 @@ namespace Assets.classes {
                 }
             }
             internal class AccessEndSlave : DiploEvent {
-                private Relation.MilitaryAccess access;
+                public Relation.MilitaryAccess access;
 
                 public AccessEndSlave(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
                 {

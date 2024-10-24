@@ -141,6 +141,14 @@ public class Province {
         return (float)Math.Round(prod, 1);
     }
 
+    public static List<Building> defaultBuildings(Province p) {
+        return new System.Collections.Generic.List<Building>{
+                    new Building(BuildingType.Infrastructure, 0),
+                    new Building(BuildingType.Fort, 0),
+                    new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
+                    new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : p.Resources == "gold" ? 0 : 4)
+                };
+	}
 
 }
 

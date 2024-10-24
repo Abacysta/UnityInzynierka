@@ -100,6 +100,8 @@ public class map_loader : MonoBehaviour
                 SetPopulation(); break;
             case MapMode.Political:
                 SetPolitical(); break;
+            case MapMode.Diplomatic:
+                SetDiplomatic(); break;
             default:
                 SetTerrain(); break;
         }

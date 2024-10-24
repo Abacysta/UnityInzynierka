@@ -1,7 +1,9 @@
 ﻿using Assets.classes.Tax;
+using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -12,13 +14,15 @@ namespace Assets.classes.subclasses {
 
     [Serializable]
     internal class Save {
+        public int turnCnt;
         public string map_name;
         public List<SaveProvince> provinces;
         public List<SaveCountry> countries;
         public List<SaveArmy> armies;
         public List<Map.CountryController> controllers;
         public HashSet<SaveRelation> relations;
-        public Save(Map map) { 
+        public Save(Map map) {
+            this.turnCnt = map.turnCnt;
             this.map_name = map.name;
             this.provinces = new List<SaveProvince>();
             this.countries = new List<SaveCountry>();
@@ -38,39 +42,75 @@ namespace Assets.classes.subclasses {
                 relations.Add(new SaveRelation(r));
             }
         }
-        public static void loadDataFromSave(Save data, Map toLoad) {
+
+        public Save() {
+            provinces = new();
+            countries = new();
+            armies = new();
+            controllers = new();
+            relations = new();
+        }
+
+        public static void loadDataFromSave(Save data, Map toLoad, map_loader mapView, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
             toLoad.name = data.map_name;
+            toLoad.turnCnt = data.turnCnt;
             List<Province> loadProvinces = new();
             List<Country> loadCountries = new();
             List<Army> loadArmies = new();
             List<Map.CountryController> loadControllers = new();
             HashSet<Relation> loadRelations = new();
-            //needs to go provinces->countries->armies->relations->events otherwise funny stuff happens
-            foreach (var p in data.provinces) {
-                toLoad.Provinces.Add(p.load());
+			//needs to go provinces->countries->relations->armies->events otherwise funny stuff happens
+
+
+			foreach(var a in toLoad.Armies) {
+                toLoad.destroyArmyView(a);
             }
-            foreach(var c in data.countries.OrderBy(c=>c.id)) {
-                toLoad.Countries.Add(c.load(toLoad));
+			
+			foreach (var p in data.provinces) {
+                loadProvinces.Add(p.load());
             }
-            foreach(var a in data.armies) {
-                toLoad.Armies.Add(a.load());
+			toLoad.Provinces = null;
+			toLoad.Provinces = loadProvinces;
+            data.countries = data.countries.OrderBy(c => c.id).ToList();
+            toLoad.Countries = new();
+			for(int i = 0; i < data.countries.Count; i++) {
+                toLoad.addCountry(data.countries[i].load(toLoad, managers), data.controllers[i]);
             }
-            foreach (var r in data.relations) {
-                toLoad.Relations.Add(r.load(toLoad));
+			foreach (var r in data.relations) {
+				loadRelations.Add(r.load(toLoad));
+			}
+			toLoad.Relations = null;
+			toLoad.Relations = loadRelations;
+            toLoad.destroyAllArmyViews();
+            toLoad.Armies = new();
+			foreach (var a in data.armies) {
+                toLoad.addArmy(a.load());
             }
-            foreach (var cc in data.controllers) {
-                toLoad.Controllers.Add(cc);
+            //events on their own otherwise funni stuff
+            foreach(var c in data.countries) {
+                foreach(var eV in c.events) {
+                    toLoad.Countries[c.id].Events.Add(SaveEvent.load(eV, toLoad, managers));
+                }
             }
-            foreach(var a in toLoad.Armies) {
-                toLoad.reloadArmyView(a);
+            //
+            foreach(var c in toLoad.Countries.Where(c=>c.Id != 0)) {
+                Debug.Log(c.Events.Count + "->>");
+                foreach(var ev in c.Events) {
+                    Debug.Log(ev.msg + "<->");
+                }
             }
+            //
             for (int i = 0; i < toLoad.Controllers.Count; i++) {
                 if (toLoad.Controllers[i] == Map.CountryController.Local) {
                     toLoad.currentPlayer = i;
                     break;
                 }
             }
-            data = null;
+			//foreach (var r in toLoad.Relations) {
+			//	Debug.Log(r.type.ToString() + "->" + r.Sides[0].Id + " " + r.Sides[1].Id);
+			//}
+			data = null;
+            mapView.Reload();
         }
 
     }
@@ -84,10 +124,11 @@ namespace Assets.classes.subclasses {
         public Dictionary<Technology, int> technology;
         public SaveColor color;
         public int coat;
+        public HashSet<(int, int)> revealedTiles;
         public HashSet<(int, int)> seenTiles;
-        public List<Event_> events;
         public Dictionary<int, int> opinions;
         public int tax;
+        public HashSet<SaveEvent> events;
         public SaveCountry(Country country) {
             this.id = country.Id;
             this.name = country.Name;
@@ -96,19 +137,30 @@ namespace Assets.classes.subclasses {
             this.resources = country.Resources;
             this.technology = country.Technology_;
             this.color = new(country.Color);
+            this.revealedTiles = country.RevealedTiles;
             this.seenTiles = country.SeenTiles;
-            //this.events = country.Events;
             this.opinions = country.Opinions;
             this.coat = country.Coat;
+            events = new();
+            foreach(var e in country.Events) {
+                events.Add(new SaveEvent(e));
+            }
             if (country.Tax is LowTaxes) tax = 0;
             else if (country.Tax is HighTaxes) tax = 2;
             else if (country.Tax is WarTaxes) tax = 3;
             else if (country.Tax is InvesmentTaxes) tax = 4;
             else tax = 1;
         }
-        public Country load(Map map) {
+        public SaveCountry() {
+            resources = new();
+            technology = new();
+            seenTiles = new();
+            opinions = new();
+        }
+        public Country load(Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
+            Debug.Log("loading country " + id);
             Country loaded = new(id, name, capital, color.toColor(), coat, map);
-            foreach (var rT in resources) {
+            if(resources != null) foreach (var rT in resources) {
                 loaded.setResource(rT.Key, rT.Value);
             }
             foreach (var tT in technology) {
@@ -117,8 +169,11 @@ namespace Assets.classes.subclasses {
             foreach (var sT in seenTiles) {
                 loaded.SeenTiles.Add(sT);
             }
+            foreach(var rT in revealedTiles) {
+                loaded.RevealedTiles.Add(rT);
+            }
             foreach(var oP in opinions) {
-                loaded.Opinions.Add(oP.Key, oP.Value);
+                if (oP.Key != 0)loaded.Opinions.Add(oP.Key, oP.Value);
             }
             switch (tax) {
                 case 0:
@@ -159,12 +214,13 @@ namespace Assets.classes.subclasses {
         public bool iscoast;
         public int owner;
         public Province.TerrainType terrain;
-        public List<Status> status;
-        public List<Building> buildings;
+        public List<SaveStatus> status;
+        public Dictionary<BuildingType, int> buildings;
         public SaveProvince(Province prov) {
             id = prov.Id;
             type = prov.Type;
             name = prov.Name;
+            owner = prov.Owner_id;
             coordinates = (prov.X, prov.Y);
             resource = prov.Resources;
             resourceAmount = prov.Resources_amount;
@@ -173,14 +229,49 @@ namespace Assets.classes.subclasses {
             happinesss = prov.Happiness;
             iscoast = prov.Is_coast;
             terrain = prov.Terrain;
-            status = prov.Statuses;
-            buildings = prov.Buildings;
+            //status = prov.Statuses;
+            status = new();
+            if(prov.Statuses!=null) foreach(var s in prov.Statuses) {
+                status.Add(new(s));
+            }
+            //buildings = prov.Buildings;
+            //Debug.Log(prov.coordinates.ToString() + " -> " + prov.Buildings.ToString());
+            if (prov.Buildings != null) buildings = new() {
+                {BuildingType.Infrastructure, prov.Buildings[0].BuildingLevel },
+                {BuildingType.Fort, prov.Buildings[1].BuildingLevel },
+                {BuildingType.Mine, prov.Buildings[2].BuildingLevel },
+                {BuildingType.School, prov.Buildings[3].BuildingLevel }
+            };
+            else buildings = null;
+        }
+
+        public SaveProvince() {
+            status = new();
+            buildings = new();
         }
 
         public Province load() {
             Province loaded = new Province(id, name, coordinates.Item1, coordinates.Item2, type, terrain, resource, resourceAmount, population, recruitable, happinesss, iscoast, owner);
-            loaded.Statuses = status;
-            loaded.Buildings = buildings;
+            foreach(var s in status) {
+                loaded.Statuses.Add(s.load());
+            }
+            var so = loaded.Statuses.Find(s => s is Occupation) as Occupation;
+            if (so != null) {
+                loaded.OccupationInfo = new(true, so.duration, so.Occupier_id);
+            }
+            else loaded.OccupationInfo = new(false, 0, 0);
+            if(buildings!= null) {
+                loaded.Buildings = new() {
+                    new(BuildingType.Infrastructure, buildings[BuildingType.Infrastructure]),
+                    new(BuildingType.Fort, buildings[BuildingType.Fort]),
+				    new(BuildingType.School, buildings[BuildingType.School]),
+                    new(BuildingType.Mine, buildings[BuildingType.Mine])
+				};
+            }
+            else {
+                loaded.Buildings = Province.defaultBuildings(loaded);
+			}
+            //if(owner!=0)Debug.Log("loaded " + coordinates.ToString() + " to " + owner);
             return loaded;
         }
     }
@@ -193,6 +284,9 @@ namespace Assets.classes.subclasses {
             this.b = color.b;
             this.a = color.a;
         }
+
+        public SaveColor() { }
+
         public Color toColor() {
             return new Color(r, g, b, a);
         }
@@ -208,6 +302,10 @@ namespace Assets.classes.subclasses {
             this.count = army.Count;
             position = army.Position;
             destination = army.Destination;
+        }
+
+        public SaveArmy() {
+
         }
         public Army load() {
             Army loaded = new Army(ownerId, count, position, destination);
@@ -230,7 +328,7 @@ namespace Assets.classes.subclasses {
             duration= null;
             if(relation is Relation.War) {
                 var war = relation as Relation.War;
-                sideA = new HashSet<int>(war.participants1.Select(p=> p.Id));
+                sideA = new HashSet<int>(war.participants1.Select(p => p.Id));
                 sideD = new HashSet<int>(war.participants2.Select(p => p.Id));
             }
             else if(relation is Relation.Subsidies) {
@@ -238,6 +336,11 @@ namespace Assets.classes.subclasses {
                 duration = subs.Duration;
                 amount = subs.Amount;
             }
+        }
+
+        public SaveRelation() {
+            sideA = new();
+            sideD = new();
         }
 
         public Relation load(Map map) {
@@ -268,6 +371,7 @@ namespace Assets.classes.subclasses {
                     loaded = new Relation.Vassalage(map.Countries[countries.Item1], map.Countries[countries.Item2]);
                     break;
             }
+            Debug.Log("loaded " + loaded.type.ToString() + " between " + loaded.Sides[0] + " and " + loaded.Sides[1]);
             return loaded;
         }
     }
@@ -286,6 +390,11 @@ namespace Assets.classes.subclasses {
             }
             else occupier = null;
         }
+
+        public SaveStatus() {
+
+        }
+
         public Status load() {
             Status loaded;
             switch (id) {
@@ -332,7 +441,6 @@ namespace Assets.classes.subclasses {
     internal class SaveEvent {
         public bool? type;
         public int id;
-        public string msg;
         public int? country;
         public (int, int)? province;
         public int? from, to;
@@ -347,19 +455,221 @@ namespace Assets.classes.subclasses {
             if (ev is Event_.GlobalEvent) type = true;
             else if (ev is Event_.LocalEvent) type = false;
             else type = null;
-            msg = ev.msg;
             switch (type) {
                 case true:
                     country = (ev as Event_.GlobalEvent).country.Id;
+                    globalId(ev as Event_.GlobalEvent);
                     break;
                 case false:
                     province = ((int, int)?)(ev as Event_.LocalEvent).province.coordinates;
+                    localId(ev as Event_.LocalEvent);
                     break;
                 default:
                     from = (int?)(ev as Event_.DiploEvent).from.Id;
                     to = (int?)(ev as Event_.DiploEvent).to.Id;
+                    diploId(ev as Event_.DiploEvent);
                     break;
             }
+        }
+
+        public SaveEvent() { }
+
+        //nie da sie switchowac po klasie xddddddddd ale jazda
+        private void globalId(Event_.GlobalEvent ev) {
+            if (ev is Event_.GlobalEvent.Discontent) this.id = 0;
+            else if (ev is Event_.GlobalEvent.Happiness) this.id = 1;
+            else if (ev is Event_.GlobalEvent.Plague) this.id = 2;
+            else if (ev is Event_.GlobalEvent.EconomicReccesion) this.id = 3;
+            else if (ev is Event_.GlobalEvent.TechnologicalBreakthrough) this.id = 4;
+            else if (ev is Event_.GlobalEvent.Flood1) this.id = 5;
+            else if (ev is Event_.GlobalEvent.Fire1) this.id = 6;
+            else if (ev is Event_.GlobalEvent.Earthquake) this.id = 7;
+            else if (ev is Event_.GlobalEvent.Misfortune) this.id = 8;
+            else this.id = 0;
+        }
+        private void localId(Event_.LocalEvent ev) {
+            if (ev is Event_.LocalEvent.ProductionBoom1) this.id = 0;
+            else if (ev is Event_.LocalEvent.GoldRush) this.id = 1;
+            else if (ev is Event_.LocalEvent.BonusRecruits) this.id = 2;
+            else if (ev is Event_.LocalEvent.WorkersStrike1) this.id = 3;
+            else if (ev is Event_.LocalEvent.WorkersStrike2) this.id = 4;
+            else if (ev is Event_.LocalEvent.WorkersStrike3) this.id = 5;
+            else if (ev is Event_.LocalEvent.PlagueFound) this.id = 6;
+            else if (ev is Event_.LocalEvent.Battlefield) this.id = 7;
+            //fajne te strange ruins
+            else this.id = 0;
+        }
+        private void diploId(Event_.DiploEvent ev) {
+            if (ev is Event_.DiploEvent.WarDeclared) this.id = 0;
+            else if (ev is Event_.DiploEvent.PeaceOffer) {
+                this.id = 1;
+            }
+            else if (ev is Event_.DiploEvent.CallToWar) {
+                this.id = 2;
+                var evv = ev as Event_.DiploEvent.CallToWar;
+                this.country = evv.war.Sides.First(c => c.Id != from).Id;
+            }
+            else if (ev is Event_.DiploEvent.TruceEnd) {
+                this.id = 3;
+            }
+            else if (ev is Event_.DiploEvent.AllianceOffer) {
+                this.id = 4;
+            }
+            else if (ev is Event_.DiploEvent.AllianceAccepted) {
+                this.id = 5;
+            }
+            else if (ev is Event_.DiploEvent.AllianceDenied) {
+                this.id = 6;
+            }
+            else if (ev is Event_.DiploEvent.AllianceBroken) {
+                this.id = 7;
+            }
+            else if (ev is Event_.DiploEvent.SubsOffer) {
+                this.id = 8;
+                var evv = ev as Event_.DiploEvent.SubsOffer;
+                this.duration = evv.duration;
+                this.amount = evv.amount;
+            }
+            else if (ev is Event_.DiploEvent.SubsRequest) {
+                this.id = 9;
+                var evv = ev as Event_.DiploEvent .SubsRequest;
+                this.duration = evv.duration;
+                this.amount = evv.amount;
+            }
+            else if (ev is Event_.DiploEvent.SubsEndMaster) {
+                this.id = 10;
+            }
+            else if (ev is Event_.DiploEvent.SubsEndSlave) {
+                this.id = 11;
+            }
+            else if (ev is Event_.DiploEvent.AccessOffer) {
+                this.id = 12;
+            }
+            else if (ev is Event_.DiploEvent.AccessRequest) {
+                this.id = 13;
+            }
+            else if (ev is Event_.DiploEvent.AccessEndMaster) {
+                this.id = 14;
+            }
+            else if (ev is Event_.DiploEvent.AccessEndSlave) {
+                this.id = 15;
+            }
+            else if (ev is Event_.DiploEvent.VassalOffer) {
+                this.id = 16;
+            }
+            else if (ev is Event_.DiploEvent.VassalRebel) {
+                this.id = 17;
+            }
+            else this.id = 0;
+        }
+        public static Event_ load(SaveEvent ev, Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
+            switch (ev.type) {
+                //global
+                case true:
+                    return loadGlobal(ev, map, managers);
+                //local
+                case false:
+                    return loadLocal(ev, map, managers);
+                //diplo
+                default:
+                    return loadDiplo(ev, map, managers);
+            }
+        }
+        private static Event_.GlobalEvent loadGlobal(SaveEvent ev, Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
+            switch (ev.id) {
+                case 0:
+                    return new Event_.GlobalEvent.Discontent(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 1:
+                    return new Event_.GlobalEvent.Happiness(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 2:
+                    return new Event_.GlobalEvent.Plague(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 3:
+                    return new Event_.GlobalEvent.EconomicReccesion(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 4:
+                    return new Event_.GlobalEvent.TechnologicalBreakthrough(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 5:
+                    return new Event_.GlobalEvent.Flood1(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 6:
+                    return new Event_.GlobalEvent.Fire1(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 7:
+                    return new Event_.GlobalEvent.Earthquake(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                case 8:
+                    return new Event_.GlobalEvent.Misfortune(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                default:
+                    goto case 1;
+			}
+        }
+        private static Event_.LocalEvent loadLocal(SaveEvent ev, Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
+            switch (ev.id) {
+                case 0:
+                    return new Event_.LocalEvent.ProductionBoom1(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                case 1:
+                    return new Event_.LocalEvent.GoldRush(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                case 2:
+                    return new Event_.LocalEvent.BonusRecruits(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                case 3:
+                    return new Event_.LocalEvent.WorkersStrike1(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                case 4:
+                    return new Event_.LocalEvent.WorkersStrike2(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                case 5:
+                    return new Event_.LocalEvent.WorkersStrike3(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2, map);
+                case 6:
+                    return new Event_.LocalEvent.PlagueFound(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                case 7:
+                    return new Event_.LocalEvent.Battlefield(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                default:
+                    goto case 0;
+			}
+        }
+        private static Event_.DiploEvent loadDiplo(SaveEvent ev, Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
+            switch (ev.id) {
+                case 0:
+                    return new Event_.DiploEvent.WarDeclared(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 1:
+                    Country[] warsides = { map.Countries[(int)ev.from], map.Countries[(int)ev.to] };
+                    var war = map.Relations.First(r => r.type == Relation.RelationType.War && warsides.All(val => r.Sides.Contains(val)));
+                    return new Event_.DiploEvent.PeaceOffer(war as Relation.War, map.Countries[(int)ev.from], managers.Item3, managers.Item1, managers.Item2);
+                case 2:
+                    Country[] warsidess = {map.Countries[((int)ev.from)], map.Countries[(int)ev.country] };
+                    var warr = map.Relations.First(r => r.type == Relation.RelationType.War && warsidess.All(val => r.Sides.Contains(val)));
+                    return new Event_.DiploEvent.CallToWar(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, warr as Relation.War, managers.Item2);
+                case 3:
+                    return new Event_.DiploEvent.TruceEnd(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 4:
+                    return new Event_.DiploEvent.AllianceOffer(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 5:
+                    return new Event_.DiploEvent.AllianceAccepted(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 6:
+                    return new Event_.DiploEvent.AllianceDenied(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 7:
+                    return new Event_.DiploEvent.AllianceBroken(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 8:
+                    return new Event_.DiploEvent.SubsOffer(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, (int)ev.amount, (int)ev.duration, managers.Item2);
+                case 9:
+                    return new Event_.DiploEvent.SubsRequest(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, (int)ev.amount, (int)ev.duration, managers.Item2);
+                case 10:
+                    return new Event_.DiploEvent.SubsEndMaster(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 11:
+                    return new Event_.DiploEvent.SubsEndSlave(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 12:
+                    return new Event_.DiploEvent.AccessOffer(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 13:
+                    return new Event_.DiploEvent.AccessRequest(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 14:
+                    Country[] accessSides = { map.Countries[(int)ev.from], map.Countries[(int)ev.to] };
+                    var access = map.Relations.First(r => r.type == Relation.RelationType.MilitaryAccess && accessSides.All(val => r.Sides.Contains(val)));
+                    return new Event_.DiploEvent.AccessEndMaster(access as Relation.MilitaryAccess, map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 15:
+					Country[] accessSidess = { map.Countries[(int)ev.from], map.Countries[(int)ev.to] };
+					var accesss = map.Relations.First(r => r.type == Relation.RelationType.MilitaryAccess && accessSidess.All(val => r.Sides.Contains(val)));
+					return new Event_.DiploEvent.AccessEndMaster(accesss as Relation.MilitaryAccess, map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 16:
+                    return new Event_.DiploEvent.VassalOffer(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                case 17:
+                    return new Event_.DiploEvent.VassalRebel(map.Countries[(int)ev.from], map.Countries[(int)ev.to], managers.Item3, managers.Item1, managers.Item2);
+                default:
+                    goto case 0;
+			}
         }
     }
 }
