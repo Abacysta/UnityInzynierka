@@ -53,6 +53,7 @@ namespace Assets.classes.subclasses {
 
         public static void loadDataFromSave(Save data, Map toLoad, map_loader mapView, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
             toLoad.name = data.map_name;
+            toLoad.turnCnt = data.turnCnt;
             List<Province> loadProvinces = new();
             List<Country> loadCountries = new();
             List<Army> loadArmies = new();

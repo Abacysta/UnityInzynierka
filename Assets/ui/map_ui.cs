@@ -1,4 +1,5 @@
 using Assets.ui.scripts;
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -127,10 +128,9 @@ public class map_ui : MonoBehaviour
             }
         }
         //ctrl actions
-        if(Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)){
-            //save
-            if (Input.GetKeyDown(KeyCode.S)) {
-                game_manager.saveGame();
+        if (Input.GetKeyDown(KeyCode.S)) { 
+            if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)){
+                game_manager.saveGame("quicksave");
             }
         }
     }
