@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Assets.classes;
 using Assets.Scripts;
 using System.Reflection;
+using Assets.classes.subclasses;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -204,7 +205,7 @@ public class dialog_box_manager : MonoBehaviour
                 break;
         }
 
-        Dictionary<Resource, float> cost = map.CurrentPlayer.techStats.TechCost(map.CurrentPlayer.Technology_, type);
+        Dictionary<Resource, float> cost = CostsCalculator.TechCost(map.CurrentPlayer.Technology_, type);
 
         float costAP = cost.ContainsKey(Resource.AP) ? cost[Resource.AP] : 0;
         float costSP = cost.ContainsKey(Resource.SciencePoint) ? cost[Resource.SciencePoint] : 0;

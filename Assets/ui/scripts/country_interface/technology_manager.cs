@@ -1,3 +1,4 @@
+using Assets.classes.subclasses;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -217,8 +218,7 @@ public class technology_manager : MonoBehaviour
         GameObject nextLevelContainer, Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText, 
         TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Technology type)
     {
-        map.CurrentPlayer.techStats.Calculate(map.CurrentPlayer.Technology_);
-        Dictionary<Resource, float> cost = map.CurrentPlayer.techStats.TechCost(map.CurrentPlayer.Technology_, type);
+        Dictionary<Resource, float> cost = CostsCalculator.TechCost(map.CurrentPlayer.Technology_, type);
 
         // Tooltip
         ClearChildren(tooltip.transform);
