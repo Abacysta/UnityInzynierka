@@ -211,6 +211,7 @@ public class dialog_box_manager : MonoBehaviour
 
         Action onConfirm = () => {
             map.CurrentPlayer.Technology_[type]++;
+            map.CurrentPlayer.techStats.Calculate(map.CurrentPlayer.Technology_);
             map.CurrentPlayer.Resources[Resource.AP] -= costAP;
             map.CurrentPlayer.Resources[Resource.SciencePoint] -= costSP;
             technology_manager.UpdateData();

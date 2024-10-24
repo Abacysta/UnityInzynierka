@@ -96,6 +96,16 @@ namespace Assets.classes.subclasses {
                     return new Dictionary<Resource, float>();
             }
         }
+        public static Dictionary<Resource, float> TechCost(Dictionary<Technology, int> tech, Technology type)
+        {
+            int techLvl = tech[type];
+            int allTechLvl = tech.Values.Sum();
+
+            return new Dictionary<Resource, float> {
+                { Resource.AP, 0.1f },
+                { Resource.SciencePoint, 10 + (10 * techLvl) + (5 * allTechLvl) }
+            };
+        }
     }
 }
 
