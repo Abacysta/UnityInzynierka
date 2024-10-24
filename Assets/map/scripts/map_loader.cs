@@ -60,10 +60,12 @@ public class map_loader : MonoBehaviour
 
         int i = 0;
         int mapWidth = map.Provinces.Max(p => p.X);
-        foreach (Country country in map.Countries)
+        foreach (Country country in map.Countries.Where(c=>c.Id!=0))
         {
             country.Priority = i++;
-            if (country.Id != 0) { map.assignProvince(country.Capital, country.Id); }
+            foreach(var c in map.Countries.Where(c => c != country && c.Id !=0)) {
+                c.Opinions.Add(country.Id, 0);
+            }
             Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
         }
         foreach (var p in map.Provinces)
