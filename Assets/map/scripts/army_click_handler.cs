@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using static Assets.classes.Relation;
+using System.Linq;
 
 public class army_click_handler : cursor_helper
 {
@@ -13,8 +15,6 @@ public class army_click_handler : cursor_helper
 
     //[SerializeField] private AudioSource army_click;
     [SerializeField] private AudioSource army_move_select;
-    //[SerializeField] private GameObject disbandButtonPrefab;
-    //[SerializeField] private Canvas canvas;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private province_tooltip province_tooltip;
     [SerializeField] private province_click_handler province_click_handler;
@@ -28,8 +28,6 @@ public class army_click_handler : cursor_helper
     private float timeElapsed = 0.0f;
     private bool increasing = true;
     private bool isHighlighted = false;
-
-    //private GameObject disbandButtonInstance;
 
     private void Start()
     {
@@ -52,8 +50,6 @@ public class army_click_handler : cursor_helper
             }
             HandleLeftClick();
         }
-
-       // UpdateDisbandButtonPosition();
     }
 
     private void HandleLeftClick()
@@ -66,7 +62,7 @@ public class army_click_handler : cursor_helper
             {
                 if (armyView.ArmyData.OwnerId != map.currentPlayer) return;
 
-                ResetSelectedArmy(); // Resetuj wybran� armi� przed przypisaniem nowej
+                ResetSelectedArmy(); // Resetuj wybrana armie przed przypisaniem nowej
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
                 HighlightPossibleMoveCells(selectedArmy.ArmyData);
@@ -74,7 +70,6 @@ public class army_click_handler : cursor_helper
                 //army_click.Play();
                 Debug.Log($"Selected Army: ({armyView.ArmyData.Position.Item1}, {armyView.ArmyData.Position.Item2}), " +
                           $"Count: {armyView.ArmyData.Count} origin:{armyView.ArmyData.Position} destination:{armyView.ArmyData.Destination}");
-               //CreateDisbandButton(armyView);
                armyView.disbandButton.gameObject.SetActive(true);
             }
             else if(hit.collider.TryGetComponent<Button>(out var button)){
@@ -96,7 +91,7 @@ public class army_click_handler : cursor_helper
                     province_tooltip.OnMouseExitProvince();
                 }
 
-                ResetSelectedArmy(); // Zresetuj po zako�czeniu ruchu
+                ResetSelectedArmy(); // Zresetuj po zakonczeniu ruchu
             }
         }
     }
@@ -116,12 +111,6 @@ public class army_click_handler : cursor_helper
         highlightedCells.Clear();
         selectedArmy = null;
         isHighlighted = false;
-        /*
-        if (disbandButtonInstance != null)
-        {
-            Destroy(disbandButtonInstance);
-        }
-        */
     }
 
     private void HighlightPossibleMoveCells(Army army)
@@ -138,8 +127,7 @@ public class army_click_handler : cursor_helper
             Vector3Int cellPosition = new Vector3Int(cell.Item1, cell.Item2, 0);
             TileBase tile = base_layer.GetTile(cellPosition);
 
-            // Sprawdzenie czy na danym tile'u nie znajduje si� bie��ca armia
-            //fajne polskie znaki xd
+            // Sprawdzenie czy na danym tile'u nie znajduje sie biezaca armia
             if (cellPosition == currentArmyPosition)
             {
                 continue;
@@ -154,6 +142,8 @@ public class army_click_handler : cursor_helper
                 }
             }
 
+            if (!IsTileAccessibleForArmyMovement(cellPosition)) continue;
+
             if (tile != null)
             {
                 highlightedCells.Add(cellPosition);
@@ -162,6 +152,36 @@ public class army_click_handler : cursor_helper
             }
         }
     }
+
+    private bool IsTileAccessibleForArmyMovement(Vector3Int cellPosition)
+    {
+        bool HasCurrentPlayerRelationWithTileOwner(RelationType type, Country tileOwner)
+        {
+            return map.Relations.Any(rel => rel.type == type &&
+                rel.Sides.Contains(map.CurrentPlayer) && rel.Sides.Contains(tileOwner));
+        }
+
+        bool HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType type, Country tileOwner)
+        {
+            return map.Relations.Any(rel => rel.type == type &&
+                rel.Sides[0] == tileOwner && rel.Sides[1] == map.CurrentPlayer);
+        }
+
+        Province tileProvince = map.getProvince(cellPosition.x, cellPosition.y);
+        Country tileOwner = map.Countries[tileProvince.Owner_id];
+
+        // Highlight the tile if the tile's owner is:
+        // - at war with currentPlayer or
+        // - in a vassalage relation with currentPlayer or
+        // - granting military access to currentPlayer or
+        // - tribal
+        return tileOwner.Id == 0 ||
+            HasCurrentPlayerRelationWithTileOwner(RelationType.War, tileOwner) ||
+            HasCurrentPlayerRelationWithTileOwner(RelationType.Vassalage, tileOwner) ||
+            HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, tileOwner) ||
+            tileOwner.Id == 0;
+    }
+
 
     // https://www.redblobgames.com/grids/hexagons/#line-drawing do przyszlego pathfindingu? 
     // https://www.redblobgames.com/grids/hexagons/#pathfinding
@@ -201,38 +221,9 @@ public class army_click_handler : cursor_helper
         startColor = Color.white;
         startColor.a = 0f;
         endColor = startColor;
-        endColor.a = 60.0f / 255.0f;
+        endColor.a = 130.0f / 255.0f;
     }
 
-/*
-    private void CreateDisbandButton(army_view armyView)
-    {
-        if (disbandButtonInstance != null)
-        {
-            Destroy(disbandButtonInstance);
-        }
-
-        disbandButtonInstance = Instantiate(disbandButtonPrefab, canvas.transform);
-
-        Vector3 worldPosition = base_layer.CellToWorld(new Vector3Int(armyView.ArmyData.Position.Item1, armyView.ArmyData.Position.Item2, 0));
-        Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
-
-        disbandButtonInstance.transform.position = screenPosition + new Vector3(-50, -50, 0);
-
-        Button disbandButton = disbandButtonInstance.GetComponent<Button>();
-        disbandButton.onClick.AddListener(() => DisbandArmy(armyView));
-    }
-
-    private void UpdateDisbandButtonPosition()
-    {
-        if (selectedArmy != null && disbandButtonInstance != null)
-        {
-            Vector3 worldPosition = base_layer.CellToWorld(new Vector3Int(selectedArmy.ArmyData.Position.Item1, selectedArmy.ArmyData.Position.Item2, 0));
-            Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
-            disbandButtonInstance.transform.position = screenPosition + new Vector3(-50, -50, 0);
-        }
-    }
-    */
     public void DisbandArmy(Army army)
     {
         if (army != null)

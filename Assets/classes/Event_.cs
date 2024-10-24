@@ -81,9 +81,7 @@ namespace Assets.classes {
                     }
                 }
 
-                public override void reject() {
-                    this.accept();
-                }
+                public override void reject() {}
             }
 			//id=2
 			internal class Plague:GlobalEvent {
