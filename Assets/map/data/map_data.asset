@@ -40020,3 +40020,4 @@ MonoBehaviour:
   turnlimit: 80
   resourceRate: 100
   currentPlayer: 5
+  turnCnt: 0

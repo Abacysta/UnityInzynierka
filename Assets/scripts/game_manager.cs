@@ -424,7 +424,7 @@ public class game_manager : MonoBehaviour
     public string[] getSaveGames() {
         var saves = new List<string>();
         if (Directory.Exists(Application.persistentDataPath)) {
-            return Directory.GetFiles(Application.persistentDataPath, "*.save");
+            return Directory.GetFiles(Application.persistentDataPath, "*.save").Select(s=>s.Substring(Application.persistentDataPath.Length + 1).Replace(".save", "")).ToArray();
         }
         else {
             Debug.Log("Data directory is broken");

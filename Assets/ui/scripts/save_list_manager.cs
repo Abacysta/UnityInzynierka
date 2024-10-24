@@ -2,13 +2,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Mosframe;
+using System;
+using TMPro;
 
 public class save_list_manager : MonoBehaviour
 {
     [SerializeField] private DynamicVScrollView dynamic_vscroll_saves_view;
+    [SerializeField] private GameObject overlay;
+    [SerializeField] private TMP_InputField save_name;
     [SerializeField] private game_manager game_manager;
 
-    public List<string> Saves { get; set; }
+    public string[] Saves { get; set; }
 
     void Start()
     {
@@ -17,23 +21,28 @@ public class save_list_manager : MonoBehaviour
 
     void OnEnable()
     {
+        overlay.SetActive(true);
         SetData();
     }
 
-    private void SetData()
+	private void OnDisable() {
+		overlay.SetActive(false);
+	}
+
+	private void SetData()
     {
-        Saves = new List<string>();
-        for (int i = 1; i <= 40; i++)
-        {
-            Saves.Add($"Save {i} - 2024-10-{i:D2}");
-        }
+        Saves = game_manager.getSaveGames();
 
         //Saves = game_manager.getSaveGames().ToList();
-        dynamic_vscroll_saves_view.totalItemCount = Saves.Count;
+        dynamic_vscroll_saves_view.totalItemCount = Saves.Length;
     }
 
     private void DisplayList()
     {
         dynamic_vscroll_saves_view.refresh();
+    }
+
+    public void setSaveName(string name) {
+        save_name.text = name;
     }
 }
