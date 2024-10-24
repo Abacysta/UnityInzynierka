@@ -70,8 +70,7 @@ public class map_loader : MonoBehaviour
         {
             map.calcRecruitablePop(p.coordinates);
 
-            if (p.Type == "land")
-            {
+            
                 p.Statuses = new List<Status>();
                 p.Buildings = new List<Building>
             {
@@ -80,11 +79,12 @@ public class map_loader : MonoBehaviour
                 new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
                 new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
             };
+            if(p.Type == "land"){
                 p.OccupationInfo = new OccupationInfo();
                 p.calcStatuses();
             }
         }
-
+        map.turnCnt = 0;
         SetPolitical();
         loading = false;
     }

@@ -33,6 +33,7 @@ namespace Assets.classes.subclasses {
                 countries.Add(new SaveCountry(c));
             }
             foreach(var p in map.Provinces) {
+                Debug.Log("saving province: " + p.coordinates.ToString());
                 provinces.Add(new SaveProvince(p));
             }
             foreach(var a in map.Armies) {
