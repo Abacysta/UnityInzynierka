@@ -81,6 +81,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private Button subs_end_button;
     [SerializeField] private Button subs_request_button;
     [SerializeField] private Button mil_acc_offer_button;
+    [SerializeField] private Button mil_acc_request_button;
     [SerializeField] private Button mil_acc_end_master_button;
     [SerializeField] private Button mil_acc_end_slave_button;
     [SerializeField] private Button vassal_offer_button;
@@ -114,6 +115,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         public bool SubsEndButtonState { get; set; } = true;
         public bool SubsRequestButtonState { get; set; } = true;
         public bool MilAccOfferButtonState { get; set; } = true;
+        public bool MilAccRequestButtonState { get; set; } = true;
         public bool MilAccEndMasterButtonState { get; set; } = true;
         public bool MilAccEndSlaveButtonState { get; set; } = true;
         public bool VassalOfferButtonState { get; set; } = true;
@@ -142,6 +144,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         subs_end_button.onClick.AddListener(SetEndSubsidiesMessagePanel);
         subs_request_button.onClick.AddListener(SetRequestSubsidiesMessagePanel);
         mil_acc_offer_button.onClick.AddListener(SetOfferMilitaryAccessMessagePanel);
+        mil_acc_request_button.onClick.AddListener(SetRequestMilitaryAccessMessagePanel);
         mil_acc_end_master_button.onClick.AddListener(SetEndMilitaryAccessMasterMessagePanel);
         mil_acc_end_slave_button.onClick.AddListener(SetEndMilitaryAccessSlaveMessagePanel);
         vassal_offer_button.onClick.AddListener(SetOfferVassalizationMessagePanel);
@@ -345,16 +348,28 @@ public class diplomatic_actions_manager : MonoBehaviour
             buttonStates.SubsRequestButtonState;
 
         // interactable if the currentPlayer has no war, alliance, or truce with the receiver
-        // the currentPlayer does not have military access through the receiver's country yet,
+        // the currentPlayer is not giving military access to the receiver's country yet,
         // and neither the currentPlayer nor the receiver are vassals of anyone
         mil_acc_offer_button.interactable =
+            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
+            !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
+            !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: false) &&
+            !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
+            !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsSide1: true) &&
+            buttonStates.MilAccOfferButtonState;
+
+        // interactable if the currentPlayer has no war, alliance, or truce with the receiver
+        // the currentPlayer does not have military access through the receiver's country yet,
+        // and neither the currentPlayer nor the receiver are vassals of anyone
+        mil_acc_request_button.interactable =
             !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: true) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
             !HasReceiverOrderedRelationWithAnyone(RelationType.Vassalage, receiverCountryIsSide1: true) &&
-            buttonStates.MilAccOfferButtonState;
+            buttonStates.MilAccRequestButtonState;
 
         // interactable if the currentPlayer is already giving military access to the receiver and has no vassalage relation with him
         mil_acc_end_master_button.interactable =
@@ -561,7 +576,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
             // after this action, the following actions will not be selectable:
             // declare war, diplomatic mission, send an insult, offer alliance, subsidize
-            // request subsidy, request military access, demand vassalization
+            // request subsidy, offer military access, request military access, demand vassalization
             SetDeclareWarRelatedButtonStates(false, countryId);
         }
 
@@ -579,6 +594,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
     }
 
@@ -748,7 +764,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
             // after this action, the following actions will not be selectable:
             // send an insult, declare war, diplomatic mission, offer alliance, subsidize
-            // request subsidy, request military access, demand vassalization
+            // request subsidy, offer military access, request military access, demand vassalization
             SetInsultRelatedButtonStates(false, countryId);
         }
 
@@ -766,6 +782,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         receiverCountryButtonStates[receiverCountryId].SubsidizeButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
     }
 
@@ -1023,7 +1040,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             currentPlayer.Actions.addAction(action);
 
             // after this action, the following actions will not be selectable:
-            // request military access, send an insult, offer alliance, demand vassalization
+            // offer military access, send an insult, offer alliance, demand vassalization
             SetOfferMilitaryAccessRelatedButtonStates(false, countryId);
         }
 
@@ -1035,6 +1052,38 @@ public class diplomatic_actions_manager : MonoBehaviour
     public void SetOfferMilitaryAccessRelatedButtonStates(bool buttonState, int receiverCountryId)
     {
         receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
+    }
+
+    private void SetRequestMilitaryAccessMessagePanel()
+    {
+        message_text.text = "I kindly request military access to your territories. Allow my forces to pass through your lands.";
+        apCost = actionContainer.TurnAction.access_request.actionCost;
+        ap_text.text = $"-{apCost:0.0}";
+
+        SetEffects(null);
+
+        void onSend()
+        {
+            var action = new actionContainer.TurnAction.access_request(currentPlayer, receiverCountry,
+                diplomatic_relations_manager, dialog_box, camera_controller, this);
+            currentPlayer.Actions.addAction(action);
+
+            // after this action, the following actions will not be selectable:
+            // request military access, send an insult, offer alliance, demand vassalization
+            SetRequestMilitaryAccessRelatedButtonStates(false, countryId);
+        }
+
+        UpdateSendButtonInteractionForBasicAction();
+        SetSendButtonAction(onSend);
+        ShowPanelWithBasicArea();
+    }
+
+    public void SetRequestMilitaryAccessRelatedButtonStates(bool buttonState, int receiverCountryId)
+    {
+        receiverCountryButtonStates[receiverCountryId].MilAccRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].InsultButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].VassalOfferButtonState = buttonState;
@@ -1128,7 +1177,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
             // after this action, the following actions will not be selectable:
             // demand vassalization, declare war, diplomatic mission, send an insult,
-            // offer alliance, request subsidy, request military access, end military access
+            // offer alliance, request subsidy, offer military access, request military access, end military access
             SetOfferVassalizationRelatedButtonStates(false, countryId);
         }
 
@@ -1146,6 +1195,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         receiverCountryButtonStates[receiverCountryId].AllianceOfferButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].SubsRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].MilAccOfferButtonState = buttonState;
+        receiverCountryButtonStates[receiverCountryId].MilAccRequestButtonState = buttonState;
         receiverCountryButtonStates[receiverCountryId].MilAccEndMasterButtonState = buttonState;
     }
 
