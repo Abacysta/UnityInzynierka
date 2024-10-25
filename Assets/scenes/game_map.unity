@@ -47987,6 +47987,7 @@ MonoBehaviour:
   vassal_offer_button: {fileID: 62722113}
   send_message_button: {fileID: 758652030}
   happiness_sprite: {fileID: 21300000, guid: 66ff96f8e96a10e4dbf387a84b63dadc, type: 3}
+  opinion_sprite: {fileID: 21300000, guid: ba7f33a1723b72b45b1cea841e4a218a, type: 3}
 --- !u!1 &1840996537
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
-﻿using Assets.map.scripts;
+﻿using Assets.classes.subclasses;
+using Assets.map.scripts;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,28 +12,33 @@ namespace Assets.classes {
         internal interface IInstantAction { }
 
         public class TurnAction {
-            public static readonly float HardActionCost = 1f;
-            public static readonly float SoftActionCost = 0.1f;
+
             public static readonly int PraiseOurOpinionBonusInit = 20;
             public static readonly int PraiseTheirOpinionBonusInit = PraiseOurOpinionBonusInit / 2;
             public static readonly int InsultOurOpinionPenaltyInit = 25;
             public static readonly int InsultTheirOpinionPenaltyInit = InsultOurOpinionPenaltyInit / 2;
 
             public enum ActionType {
-                army_move,
-                army_recruitment,
-                war_offer,
-                war_end,
-                alliance_offer,
-                alliance_end,
-                milacc_offer,
-                milacc_end,
-                vasal_offer,
-                vasal_end,
-                subs_offer,
-                subs_end,
-                subs_request,
-                message
+                ArmyMove,
+                ArmyRecruitment,
+                ArmyDisbandment,
+                StartWar,
+                IntegrateVassal,
+                WarEnd,
+                AllianceOffer,
+                AllianceEnd,
+                MilAccOffer,
+                MilAccRequest,
+                MilAccEndMaster,
+                MilAccEndSlave,
+                SubsOffer,
+                SubsRequest,
+                SubsEnd,
+                VassalizationOffer,
+                VassalRebel,
+                Insult,
+                Praise,
+                CallToWar
             }
 
             public ActionType type;
@@ -85,9 +91,9 @@ namespace Assets.classes {
                 private (int, int) from, to;
                 private int count;
                 private Army army;
-                public static readonly float actionCost = HardActionCost;
 
-                public army_move((int, int) from, (int, int) to, int count, Army army) : base(ActionType.army_move, actionCost) {
+                public army_move((int, int) from, (int, int) to, int count, Army army) : base(ActionType.ArmyMove, 
+                    CostsCalculator.TurnActionApCost(ActionType.ArmyMove)) {
                     Debug.Log(from + " " + to + " " + count);
                     this.from = from;
                     this.to = to;
@@ -119,13 +125,15 @@ namespace Assets.classes {
             internal class army_recruitment :TurnAction {
                 private (int, int) coordinates;
                 private int count;
-                public static readonly float actionCost = HardActionCost;
 
-                public army_recruitment((int, int) coordinates, int count) : base(ActionType.army_recruitment, actionCost){
+                public army_recruitment((int, int) coordinates, int count) : base(ActionType.ArmyRecruitment, 
+                    CostsCalculator.TurnActionApCost(ActionType.ArmyRecruitment)) {
                     Debug.Log(coordinates + " " + count);
                     this.coordinates = coordinates;
                     this.count = count;
-                    this.altCosts = new Dictionary<Resource, float> { { Resource.Gold, 1 } };
+                    altCosts = CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment)
+                                .Where(kvp => kvp.Key != Resource.AP)
+                                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value * count);
                 }
 
                 public override string desc { get => count + " units recruited in " + coordinates.ToString();  }
@@ -153,10 +161,9 @@ namespace Assets.classes {
             internal class army_disbandment : TurnAction {
                 private Army army;
                 private int count;
-                public static readonly float actionCost = SoftActionCost;
 
-                public army_disbandment(Army army, int count) : base(ActionType.army_recruitment, actionCost)
-                {
+                public army_disbandment(Army army, int count) : base(ActionType.ArmyDisbandment,
+                    CostsCalculator.TurnActionApCost(ActionType.ArmyDisbandment)) {
                     Debug.Log(count);
                     this.army = army;
                     this.count = count;
@@ -186,11 +193,11 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public start_war(Country c1, Country c2, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera, diplomatic_actions_manager dipl_actions) : 
-                    base(ActionType.war_offer, actionCost, null) {
+                    base(ActionType.StartWar,
+                    CostsCalculator.TurnActionApCost(ActionType.StartWar)) {
                     this.c1 = c1;
                     this.c2 = c2;
                     this.diplomacy = diplomacy;
@@ -217,7 +224,8 @@ namespace Assets.classes {
                 private diplomatic_actions_manager dipl_actions;
 
                 public integrate_vassal(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, 
-                    diplomatic_actions_manager dipl_actions) : base(ActionType.vasal_end, (int)vassalage.Sides[1].Provinces.Count/10) {
+                    diplomatic_actions_manager dipl_actions) : base(ActionType.IntegrateVassal, 
+                        CostsCalculator.IntegrateVassalApCost(vassalage)) {
                     this.vassalage = vassalage;
                     this.diplomacy = diplomacy;
                     this.dipl_actions = dipl_actions;
@@ -242,10 +250,10 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
                 private Country to;
-                public static readonly float actionCost = SoftActionCost;
 
                 public end_war(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera) : base(ActionType.war_end, actionCost, null) {
+                    camera_controller camera) : base(ActionType.WarEnd,
+                    CostsCalculator.TurnActionApCost(ActionType.WarEnd)) { 
                     this.offer = offer;
                     this.war = war;
                     this.diplomacy = diplomacy;
@@ -271,10 +279,10 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public alliance_offer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.alliance_offer, actionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceOffer, 
+                        CostsCalculator.TurnActionApCost(ActionType.AllianceOffer)) {
                     this.c1 = c1;
                     this.c2 = c2;
                     this.diplomacy = diplomacy;
@@ -302,10 +310,10 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
                 private Country to;
-                public static readonly float actionCost = HardActionCost;
 
                 public alliance_end(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.alliance_end, actionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceEnd, 
+                        CostsCalculator.TurnActionApCost(ActionType.AllianceEnd)) {
                     this.from = from;
                     this.alliance = alliance;
                     this.diplomacy = diplomacy;
@@ -334,10 +342,10 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public access_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_offer, actionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccOffer, 
+                        CostsCalculator.TurnActionApCost(ActionType.MilAccOffer)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -364,11 +372,10 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public access_request(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_offer, actionCost)
-                {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccRequest, 
+                        CostsCalculator.TurnActionApCost(ActionType.MilAccRequest)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -397,11 +404,10 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
                 private MilitaryAccess militaryAccess;
-                public static readonly float actionCost = SoftActionCost;
 
                 public access_end_master(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_end, actionCost)
-                {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndMaster, 
+                        CostsCalculator.TurnActionApCost(ActionType.MilAccEndMaster)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -433,10 +439,10 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
                 private MilitaryAccess militaryAccess;
-                public static readonly float actionCost = SoftActionCost;
 
                 public access_end_slave(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_end, actionCost)
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndSlave, 
+                        CostsCalculator.TurnActionApCost(ActionType.MilAccEndSlave))
                 {
                     this.from = from;
                     this.to = to;
@@ -468,10 +474,10 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
                 private int amount, duration;
-                public static readonly float actionCost = HardActionCost;
 
                 public subs_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.subs_offer, actionCost) {
+                    int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsOffer, 
+                        CostsCalculator.TurnActionApCost(ActionType.SubsOffer)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -502,10 +508,10 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
                 private Subsidies subsidies;
-                public static readonly float actionCost = SoftActionCost;
 
                 public subs_end(Country from, Country to, Subsidies subsidies, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.subs_end, SoftActionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsEnd, 
+                        CostsCalculator.TurnActionApCost(ActionType.SubsEnd)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -537,10 +543,10 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
                 private int amount, duration;
-                public static readonly float actionCost = HardActionCost;
 
                 public subs_request(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
-                    int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.subs_request, actionCost)
+                    int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsRequest, 
+                        CostsCalculator.TurnActionApCost(ActionType.SubsRequest))
                 {
                     this.from = from;
                     this.to = to;
@@ -571,10 +577,10 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public vassal_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.vasal_offer, actionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalizationOffer, 
+                        CostsCalculator.TurnActionApCost(ActionType.VassalizationOffer)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -601,10 +607,10 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public vassal_rebel(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.war_offer, actionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalRebel, 
+                        CostsCalculator.TurnActionApCost(ActionType.VassalRebel)) {
                     this.vassalage = vassalage;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
@@ -632,10 +638,10 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.message, actionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Insult, 
+                        CostsCalculator.TurnActionApCost(ActionType.Insult)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -662,10 +668,10 @@ namespace Assets.classes {
                 private dialog_box_manager dialog_box;
                 private camera_controller camera;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, 
-                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.message, actionCost) {
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Praise, 
+                        CostsCalculator.TurnActionApCost(ActionType.Praise)) {
                     this.from = from;
                     this.to = to;
                     this.diplomacy = diplomacy;
@@ -693,11 +699,11 @@ namespace Assets.classes {
                 private camera_controller camera;
                 private diplomatic_relations_manager diplomacy;
                 private diplomatic_actions_manager dipl_actions;
-                public static readonly float actionCost = HardActionCost;
 
                 public call_to_war(Country from, Country to, Relation.War war, dialog_box_manager dialog_box, 
                     diplomatic_relations_manager diplomacy, camera_controller camera, 
-                    diplomatic_actions_manager dipl_actions) : base(ActionType.alliance_offer, actionCost) {
+                    diplomatic_actions_manager dipl_actions) : base(ActionType.CallToWar, 
+                        CostsCalculator.TurnActionApCost(ActionType.CallToWar)) {
                     this.from = from;
                     this.to = to;
                     this.war = war;

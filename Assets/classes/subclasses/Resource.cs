@@ -1,9 +1,8 @@
 using System;
-using UnityEngine;
 
 [Serializable]
-public enum Resource{
-    Gold,//action points
+public enum Resource {
+    Gold,
     Wood,
     Iron,
     SciencePoint,

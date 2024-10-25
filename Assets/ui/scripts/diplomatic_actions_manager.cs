@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using Assets.map.scripts;
 using Assets.classes;
 using static Assets.classes.Relation;
+using static Assets.classes.actionContainer.TurnAction;
+using Assets.classes.subclasses;
 
 public class Effect
 {
@@ -89,6 +91,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     // effect sprites
     [SerializeField] private Sprite happiness_sprite;
+    [SerializeField] private Sprite opinion_sprite;
 
     private readonly Dictionary<int, int> countryIdToDropdownIndexMap = new();
     private int countryId;
@@ -544,7 +547,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
     }
 
-    Relation HasRelation(RelationType type)
+    Relation GetRelationBetweenCurrentPlayerAndReceiver(RelationType type)
     {
         return map.Relations
             .FirstOrDefault(relation => relation.type == type &&
@@ -555,15 +558,15 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetDeclareWarMessagePanel()
     {
         message_text.text = "I'm declaring a war on you!";
-        apCost = actionContainer.TurnAction.start_war.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.StartWar);
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
             new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
-            new(happiness_sprite, "Your Opinion of Them", $"-{Relation.WarOpinionPenaltyInit}", false),
-            new(happiness_sprite, "Their Opinion of You", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Your Opinion of Them", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Their Opinion of You", $"-{Relation.WarOpinionPenaltyInit}", false),
         };
 
         SetEffects(action_effects);
@@ -601,22 +604,22 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetVassalRebelMessagePanel()
     {
         message_text.text = "I don't want to be your vassal anymore. Time to fight for control!";
-        apCost = actionContainer.TurnAction.vassal_rebel.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.VassalRebel);
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
             new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
-            new(happiness_sprite, "Your Opinion of Them", $"-{Relation.WarOpinionPenaltyInit}", false),
-            new(happiness_sprite, "Their Opinion of You", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Your Opinion of Them", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Their Opinion of You", $"-{Relation.WarOpinionPenaltyInit}", false),
         };
 
         SetEffects(action_effects);
 
         void onSend()
         {
-            Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
+            Vassalage vassalage = (Vassalage)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Vassalage);
             var action = new actionContainer.TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -637,10 +640,10 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void SetIntegrateVassalMessagePanel()
     {
-        Vassalage vassalage = (Vassalage)HasRelation(RelationType.Vassalage);
+        Vassalage vassalage = (Vassalage)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Vassalage);
 
         message_text.text = "I've made the decision about your integration, my vassal.";
-        apCost = (vassalage?.Sides[1].Provinces.Count / 5) ?? 1f;
+        apCost = CostsCalculator.IntegrateVassalApCost(vassalage);
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
@@ -671,20 +674,20 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferPeaceMessagePanel()
     {
         message_text.text = "I seek peace. This could be our chance for a better tomorrow.";
-        apCost = actionContainer.TurnAction.end_war.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.WarEnd);
         ap_text.text = $"-{apCost:0.0}"; ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your Opinion of Them", $"+{Relation.TruceOpinionBonusInit}", true),
-            new(happiness_sprite, "Their Opinion of You", $"+{Relation.TruceOpinionBonusInit}", true),
+            new(opinion_sprite, "Your Opinion of Them", $"+{Relation.TruceOpinionBonusInit}", true),
+            new(opinion_sprite, "Their Opinion of You", $"+{Relation.TruceOpinionBonusInit}", true),
         };
 
         SetEffects(action_effects);
 
         void onSend()
         {
-            War war = (War)HasRelation(RelationType.War);
+            War war = (War)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.War);
             var action = new actionContainer.TurnAction.end_war(currentPlayer, war, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
@@ -706,13 +709,13 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetDiplomaticMissionMessagePanel()
     {
         message_text.text = "I'm sending a diplomatic mission to you. I want to have good relations with you.";
-        apCost = actionContainer.TurnAction.praise.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.Praise);
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your Opinion of Them", $"+{actionContainer.TurnAction.PraiseOurOpinionBonusInit}", true),
-            new(happiness_sprite, "Their Opinion of You", $"+{actionContainer.TurnAction.PraiseTheirOpinionBonusInit}", true)
+            new(opinion_sprite, "Your Opinion of Them", $"+{actionContainer.TurnAction.PraiseOurOpinionBonusInit}", true),
+            new(opinion_sprite, "Their Opinion of You", $"+{actionContainer.TurnAction.PraiseTheirOpinionBonusInit}", true)
         };
 
         SetEffects(action_effects);
@@ -745,13 +748,13 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetInsultMessagePanel()
     {
         message_text.text = "You are nothing but a fool!";
-        apCost = actionContainer.TurnAction.insult.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.Insult);
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your Opinion of Them", $"-{actionContainer.TurnAction.InsultOurOpinionPenaltyInit}", false),
-            new(happiness_sprite, "Their Opinion of You", $"-{actionContainer.TurnAction.InsultTheirOpinionPenaltyInit}", false)
+            new(opinion_sprite, "Your Opinion of Them", $"-{actionContainer.TurnAction.InsultOurOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Their Opinion of You", $"-{actionContainer.TurnAction.InsultTheirOpinionPenaltyInit}", false)
         };
 
         SetEffects(action_effects);
@@ -789,17 +792,17 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferAllianceMessagePanel()
     {
         message_text.text = "I'm proposing an alliance. Together, we can be stronger!";
-        apCost = actionContainer.TurnAction.alliance_offer.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.AllianceOffer);
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
             new(happiness_sprite, "Happiness (Both)", $"+{Relation.AllianceHappinessBonusInit + diplomatic_relations_manager.AllianceHappinessBonusInit}%", true),
             new(happiness_sprite, "Happiness Per Turn (Both)", $"+{game_manager.AllianceHappinessBonusConst}%", true),
-            new(happiness_sprite, "Your Opinion of Them", $"+{Relation.AllianceOpinionBonusInit}", true),
-            new(happiness_sprite, "Their Opinion of You", $"+{Relation.AllianceOpinionBonusInit}", true),
-            new(happiness_sprite, "Your Opinion of Them Per Turn", $"+{Relation.AllianceOpinionBonusConst}", true),
-            new(happiness_sprite, "Their Opinion of You Per Turn", $"+{Relation.AllianceOpinionBonusConst}", true),
+            new(opinion_sprite, "Your Opinion of Them", $"+{Relation.AllianceOpinionBonusInit}", true),
+            new(opinion_sprite, "Their Opinion of You", $"+{Relation.AllianceOpinionBonusInit}", true),
+            new(opinion_sprite, "Your Opinion of Them Per Turn", $"+{Relation.AllianceOpinionBonusConst}", true),
+            new(opinion_sprite, "Their Opinion of You Per Turn", $"+{Relation.AllianceOpinionBonusConst}", true),
         };
 
         SetEffects(action_effects);
@@ -832,20 +835,20 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetBreakAllianceMessagePanel()
     {
         message_text.text = "I am breaking the alliance with you!";
-        apCost = actionContainer.TurnAction.alliance_end.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.AllianceEnd);
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your Opinion of Them", $"+{Relation.TruceOpinionBonusInit}", true),
-            new(happiness_sprite, "Their Opinion of You", $"+{Relation.TruceOpinionBonusInit}", true),
+            new(opinion_sprite, "Your Opinion of Them", $"+{Relation.TruceOpinionBonusInit}", true),
+            new(opinion_sprite, "Their Opinion of You", $"+{Relation.TruceOpinionBonusInit}", true),
         };
 
         SetEffects(action_effects);
 
         void onSend()
         {
-            Alliance alliance = (Alliance)HasRelation(RelationType.Alliance);
+            Alliance alliance = (Alliance)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Alliance);
             var action = new actionContainer.TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, 
                 dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
@@ -871,7 +874,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetCallToWarMessagePanel()
     {
         message_text.text = "I'm calling upon you for help in the war. As my ally, we must support each other!";
-        apCost = actionContainer.TurnAction.call_to_war.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.CallToWar);
         ap_text.text = $"-{apCost:0.0}";
 
         SetDropdownCountries();
@@ -917,16 +920,16 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetSubsidizeMessagePanel()
     {
         message_text.text = "I'm offering to subsidize you! Use these resources wisely.";
-        apCost = actionContainer.TurnAction.subs_offer.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.SubsOffer);
         ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your Opinion of Them", $"+{Relation.SubsidiesOpinionBonusInit}", true),
-            new(happiness_sprite, "Their Opinion of You", $"+{Relation.SubsidiesOpinionBonusInit}", true),
-            new(happiness_sprite, "Your Opinion of Them Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
-            new(happiness_sprite, "Their Opinion of You Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+            new(opinion_sprite, "Your Opinion of Them", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(opinion_sprite, "Their Opinion of You", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(opinion_sprite, "Your Opinion of Them Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+            new(opinion_sprite, "Their Opinion of You Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
         };
 
         SetEffects(action_effects);
@@ -959,7 +962,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetEndSubsidiesMessagePanel()
     {
         message_text.text = "I'm ending subsidizing you.";
-        apCost = actionContainer.TurnAction.subs_end.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.SubsEnd);
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
@@ -990,16 +993,16 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetRequestSubsidiesMessagePanel()
     {
         message_text.text = "I am asking for your support through subsidies.";
-        apCost = actionContainer.TurnAction.subs_request.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.SubsRequest);
         ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
         List<Effect> action_effects = new()
         {
-            new(happiness_sprite, "Your Opinion of Them", $"+{Relation.SubsidiesOpinionBonusInit}", true),
-            new(happiness_sprite, "Their Opinion of You", $"+{Relation.SubsidiesOpinionBonusInit}", true),
-            new(happiness_sprite, "Your Opinion of Them Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
-            new(happiness_sprite, "Their Opinion of You Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+            new(opinion_sprite, "Your Opinion of Them", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(opinion_sprite, "Their Opinion of You", $"+{Relation.SubsidiesOpinionBonusInit}", true),
+            new(opinion_sprite, "Your Opinion of Them Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
+            new(opinion_sprite, "Their Opinion of You Per Turn", $"+{Relation.SubsidiesOpinionBonusConst}", true),
         };
 
         SetEffects(action_effects);
@@ -1028,7 +1031,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferMilitaryAccessMessagePanel()
     {
         message_text.text = "I'm offering you military access. Feel free to pass through my territories.";
-        apCost = actionContainer.TurnAction.access_offer.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.MilAccOffer);
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
@@ -1060,7 +1063,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetRequestMilitaryAccessMessagePanel()
     {
         message_text.text = "I kindly request military access to your territories. Allow my forces to pass through your lands.";
-        apCost = actionContainer.TurnAction.access_request.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.MilAccRequest);
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
@@ -1092,7 +1095,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetEndMilitaryAccessMasterMessagePanel()
     {
         message_text.text = "Military access has been revoked. Stay vigilant!";
-        apCost = actionContainer.TurnAction.access_end_master.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.MilAccEndMaster);
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
@@ -1123,7 +1126,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetEndMilitaryAccessSlaveMessagePanel()
     {
         message_text.text = "I am stopping the use of the military access you granted to me.";
-        apCost = actionContainer.TurnAction.access_end_slave.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.MilAccEndSlave);
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);
@@ -1154,7 +1157,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetOfferVassalizationMessagePanel()
     {
         message_text.text = "You have little choice but to accept my offer of vassalization.";
-        apCost = actionContainer.TurnAction.vassal_offer.actionCost;
+        apCost = CostsCalculator.TurnActionApCost(ActionType.VassalizationOffer);
         ap_text.text = $"-{apCost:0.0}";
 
         List<Effect> action_effects = new()
@@ -1163,8 +1166,8 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.VassalageHappinessPenaltyInitC2}%", true),
             new(happiness_sprite, "Happiness Per Turn", $"+{game_manager.VassalageHappinessBonusConstC1}%", true),
             new(happiness_sprite, "Happiness Per Turn (Enemy)", $"-{game_manager.VassalageHappinessPenaltyConstC2}%", true),
-            new(happiness_sprite, "Their Opinion of You", $"-{Relation.VassalageOpinionPenaltyInitC2}", false),
-            new(happiness_sprite, "Their Opinion of You (Per Turn)", $"-{Relation.VassalageOpinionPenaltyConstC2}", false),
+            new(opinion_sprite, "Their Opinion of You", $"-{Relation.VassalageOpinionPenaltyInitC2}", false),
+            new(opinion_sprite, "Their Opinion of You (Per Turn)", $"-{Relation.VassalageOpinionPenaltyConstC2}", false),
         };
 
         SetEffects(action_effects);

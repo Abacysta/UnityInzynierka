@@ -80,8 +80,6 @@ namespace Assets.classes {
                         p.Happiness += 10;
                     }
                 }
-
-                public override void reject() {}
             }
 			//id=2
 			internal class Plague:GlobalEvent {
