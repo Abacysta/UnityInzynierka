@@ -99,15 +99,58 @@ public class Country {
         /// </summary>
         public float waterMoveFactor;
 
-        public Dictionary<Resource, float> TechCost(Dictionary<Technology, int> tech, Technology type)
+        public static class BaseModifiers
         {
-            int techLvl = tech[type];
-            int allTechLvl = tech.Values.Sum();
+            public static readonly float ProdFactor = 0.05f;
+            public static readonly float TaxFactor = 0.01f;
+            public static readonly float PopGrowth = 0.03f;
+            public static readonly float ArmyPower = 0.05f;
+            public static readonly float ArmyUpkeep = 0.03f;
+            public static readonly float ArmyCost = 0.05f;
+        }
 
-            return new Dictionary<Resource, float> {
-                { Resource.AP, 0.1f },
-                { Resource.SciencePoint, 10 + (10 * techLvl) + (5 * allTechLvl) }
-            };
+        public static class EconomicModifiers
+        {
+            public static readonly float ProdFactor1 = 0.05f;
+            public static readonly bool CanBoats = true;
+            public static readonly float ProdFactor2 = 0.05f;
+            public static readonly float TaxFactor1 = 0.15f;
+            public static readonly float ProdFactor3 = 0.1f;
+            public static readonly float TaxFactor2 = 0.05f;
+            public static readonly float ProdFactor4 = 0.05f;
+        }
+        public static class MilitaryModifiers
+        {
+            public static readonly float ArmyPower1 = 0.1f;
+            public static readonly float ArmyCost1 = 0.05f;
+            public static readonly float ArmyUpkeep1 = -0.03f;
+            public static readonly int OccTime1 = -1;
+            public static readonly float ArmyPower2 = 0.1f;
+            public static readonly float ArmyCost2 = 0.1f;
+            public static readonly float ArmyUpkeep2 = 0.02f;
+            public static readonly float ArmyCost3 = -0.1f;
+            public static readonly int MoveRange1 = 1;
+            public static readonly float ArmyUpkeep3 = 0.02f;
+            public static readonly float RecPop1 = 0.05f;
+            public static readonly float ArmyCost4 = -0.1f;
+            public static readonly float ArmyUpkeep4 = -0.15f;
+            public static readonly float OccPenalty1 = -0.35f;
+            public static readonly float ArmyPower3 = 0.15f;
+            public static readonly float WaterMoveFactor1 = 0.5f;
+        }
+
+        public static class AdministrativeModifiers
+        {
+            public static readonly bool CanInfrastructure = true;
+            public static readonly bool CanFestival = true;
+            public static readonly float TaxFactor1 = 0.03f;
+            public static readonly bool CanTaxBreak = true;
+            public static readonly float OccProd1 = 0.1f;
+            public static readonly float TaxFactor2 = 0.01f;
+            public static readonly float RecPop1 = 0.02f;
+            public static readonly bool CanRebelSupp = true;
+            public static readonly float OccPenalty1 = -0.05f;
+            public static readonly float OccProd2 = 0.4f;
         }
 
         public TechnologyInterpreter(Dictionary<Technology, int> tech) {
@@ -119,12 +162,13 @@ public class Country {
                 mil = tech[Technology.Military],
                 adm = tech[Technology.Administrative];
 
-            prodFactor = 1 + eco * 0.05f;
-            taxFactor = 1 + adm * 0.01f;
-            popGrowth = 1 + adm * 0.03f;
-            armyPower = 1 + mil * 0.05f;
-            armyUpkeep = 1 + mil * 0.03f;
-            armyCost = 1 + mil * 0.05f;
+            prodFactor = 1 + eco * BaseModifiers.ProdFactor; // 1 + eco * 0.05f
+            taxFactor = 1 + adm * BaseModifiers.TaxFactor; // 1 + adm * 0.01f
+            popGrowth = 1 + adm * BaseModifiers.PopGrowth; // 1 + adm * 0.03f
+            armyPower = 1 + mil * BaseModifiers.ArmyPower; // 1 + mil * 0.05f
+            armyUpkeep = 1 + mil * BaseModifiers.ArmyUpkeep; // 1 + mil * 0.03f
+            armyCost = 1 + mil * BaseModifiers.ArmyCost; // 1 + mil * 0.05f
+
             popGrowth = 0.05f;
             recPop = 0.05f;
             occPenalty = 0.5f;
@@ -134,126 +178,128 @@ public class Country {
             waterMoveFactor = 0.5f;
 
             //economic
-            switch (eco) {
+            switch (eco)
+            {
                 case 1:
-                    prodFactor += 0.05f;
+                    prodFactor += EconomicModifiers.ProdFactor1; // 0.05f
                     break;
                 case 2:
-                    canBoats = true;
-                    lvlMine += 1;
+                    canBoats = EconomicModifiers.CanBoats; // true
+                    lvlMine += 1; // Mine I
                     goto case 1;
                 case 3:
-                    prodFactor += 0.05f;
+                    prodFactor += EconomicModifiers.ProdFactor2; // 0.05f
                     goto case 2;
                 case 4:
-                    lvlTax += 1;
+                    lvlTax += 1; // Tax IV
                     goto case 3;
                 case 5:
-                    taxFactor += 0.15f;
+                    taxFactor += EconomicModifiers.TaxFactor1; // 0.15f
                     goto case 4;
                 case 6:
-                    lvlMine += 1;
+                    lvlMine += 1; // Mine II
                     goto case 5;
                 case 7:
-                    prodFactor += 0.1f;
+                    prodFactor += EconomicModifiers.ProdFactor3; // 0.1f
                     goto case 6;
                 case 8:
-                    taxFactor += 0.05f;
+                    taxFactor += EconomicModifiers.TaxFactor2; // 0.05f
                     goto case 7;
                 case 9:
-                    lvlTax += 1;
+                    lvlTax += 1; // Tax V
                     goto case 8;
                 case 10:
-                    lvlMine += 1;
-                    prodFactor += 0.05f;
+                    lvlMine +=1; // Mine III
+                    prodFactor += EconomicModifiers.ProdFactor4; // 0.05f
                     goto case 9;
                 default:
                     break;
             }
+
             //military
-            switch(mil) {
+            switch (mil) {
                 case 1:
-                    armyPower += 0.1f;
+                    armyPower += MilitaryModifiers.ArmyPower1; // 0.1f
                     break;
                 case 2:
-                    lvlFort += 1;
-                    armyCost += 0.05f;
+                    lvlFort += 1; // Fort I
+                    armyCost += MilitaryModifiers.ArmyCost1; // 0.05f
                     goto case 1;
                 case 3:
-                    armyUpkeep -= 0.03f;
-                    occTime -= 1;
+                    armyUpkeep += MilitaryModifiers.ArmyUpkeep1; // -0.03f
+                    occTime += MilitaryModifiers.OccTime1; // -1
                     goto case 2;
                 case 4:
-                    armyPower += 0.1f;
-                    armyCost += 0.1f;
+                    armyPower += MilitaryModifiers.ArmyPower2; // 0.1f
+                    armyCost += MilitaryModifiers.ArmyCost2; // 0.1f
                     goto case 3;
                 case 5:
-                    lvlFort += 1;
-                    armyUpkeep += 0.02f;
+                    lvlFort += 1; // Fort II
+                    armyUpkeep += MilitaryModifiers.ArmyUpkeep2; // 0.02f
                     goto case 4;
                 case 6:
-                    armyCost -= 0.1f;
-                    moveRange += 1;
+                    armyCost += MilitaryModifiers.ArmyCost3; // -0.1f
+                    moveRange += MilitaryModifiers.MoveRange1; // 1
                     goto case 5;
                 case 7:
-                    lvlFort += 1;
-                    armyUpkeep += 0.02f;
+                    lvlFort += 1; // Fort III
+                    armyUpkeep += MilitaryModifiers.ArmyUpkeep3; // 0.02f
                     goto case 6;
                 case 8:
-                    recPop += 0.05f;
-                    armyCost -= 0.10f;
-                    armyUpkeep -= 0.15f;
+                    recPop += MilitaryModifiers.RecPop1; // 0.05f
+                    armyCost += MilitaryModifiers.ArmyCost4; // -0.1f
+                    armyUpkeep += MilitaryModifiers.ArmyUpkeep4; // -0.15f
                     goto case 7;
                 case 9:
-                    occPenalty -= 0.35f;
+                    occPenalty += MilitaryModifiers.OccPenalty1; // -0.35f
                     goto case 8;
                 case 10:
-                    armyPower += 0.15f;
-                    waterMoveFactor += 0.5f;
+                    armyPower += MilitaryModifiers.ArmyPower3; // 0.15f
+                    waterMoveFactor += MilitaryModifiers.WaterMoveFactor1; // 0.5f
                     goto case 9;
                 default:
                     break;
             }
+
             //administrative
-            switch(adm) {
+            switch (adm) {
                 case 1:
-                    canInfrastructure = true;
-                    lvlFoW += 1;
+                    canInfrastructure = AdministrativeModifiers.CanInfrastructure; // true
+                    lvlFoW += 1; // Fog I
                     break;
                 case 2:
-                    lvlSchool += 1;
+                    lvlSchool += 1; // School I
                     goto case 1;
                 case 3:
-                    canFestival = true;
-                    taxFactor += 0.03f;
+                    canFestival = AdministrativeModifiers.CanFestival; // true
+                    taxFactor += AdministrativeModifiers.TaxFactor1; // 0.03f
                     goto case 2;
                 case 4:
-                    canTaxBreak = true;
+                    canTaxBreak = AdministrativeModifiers.CanTaxBreak; // true
                     goto case 3;
                 case 5:
-                    lvlFoW += 1;
+                    lvlFoW += 1; // Fog II
                     goto case 4;
                 case 6:
-                    occProd += 0.1f;
+                    occProd += AdministrativeModifiers.OccProd1; // 0.1f
                     goto case 5;
                 case 7:
                     goto case 6;
                 case 8:
-                    taxFactor += 0.01f;
-                    recPop += 0.02f;
+                    taxFactor += AdministrativeModifiers.TaxFactor2; // 0.01f
+                    recPop += AdministrativeModifiers.RecPop1; // 0.02f
                     goto case 7;
                 case 9:
-                    canRebelSupp = true;
-                    occPenalty -= 0.05f;
+                    canRebelSupp = AdministrativeModifiers.CanRebelSupp; // true
+                    occPenalty += AdministrativeModifiers.OccPenalty1; // -0.05f
                     goto case 8;
                 case 10:
-                    occProd += 0.4f;
-                    lvlFoW += 2;
+                    occProd += AdministrativeModifiers.OccProd2; // 0.4f
+                    lvlFoW += 2; // Fog III
                     goto case 9;
                 default:
                     break;
             }
-            //pos and neg effect factor is a retarded idea
         }
     }
 

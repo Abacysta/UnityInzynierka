@@ -357,6 +357,38 @@ namespace Assets.classes {
                 }
             }
 
+            internal class access_request : TurnAction, IInstantAction
+            {
+                private Country from, to;
+                private diplomatic_relations_manager diplomacy;
+                private dialog_box_manager dialog_box;
+                private camera_controller camera;
+                private diplomatic_actions_manager dipl_actions;
+                public static readonly float actionCost = HardActionCost;
+
+                public access_request(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+                    camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.milacc_offer, actionCost)
+                {
+                    this.from = from;
+                    this.to = to;
+                    this.diplomacy = diplomacy;
+                    this.dialog_box = dialog_box;
+                    this.dipl_actions = dipl_actions;
+                    this.camera = camera;
+                }
+                public override void execute(Map map)
+                {
+                    base.execute(map);
+                    to.Events.Add(new Event_.DiploEvent.AccessRequest(from, to, diplomacy, dialog_box, camera));
+                }
+
+                public override void revert(Map map)
+                {
+                    base.revert(map);
+                    dipl_actions.SetRequestMilitaryAccessRelatedButtonStates(true, to.Id);
+                }
+            }
+
             internal class access_end_master : TurnAction, IInstantAction
             {
                 private Country from, to;

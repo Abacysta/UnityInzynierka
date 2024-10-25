@@ -976,9 +976,9 @@ namespace Assets.classes {
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
                 }
-                public override string msg { get { return from.Name + " wants access to our territory"; } }
+                public override string msg { get { return from.Name + " offers access to their territory"; } }
                 public override void accept() {
-                    diplomacy.startAccess(to, from);
+                    diplomacy.startAccess(from, to);
                 }
                 public override void reject() {
                     
@@ -991,7 +991,7 @@ namespace Assets.classes {
                 }
                 public override string msg { get { return from.Name + " asks for military access to our teritorry"; } }
                 public override void accept() {
-                    diplomacy.startAccess(from, to);
+                    diplomacy.startAccess(to, from);
                 }
                 public override void reject() {
                 }
