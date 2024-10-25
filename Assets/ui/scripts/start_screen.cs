@@ -19,7 +19,7 @@ namespace Assets.ui.scripts {
                 obj.SetActive(false);
             }
             window.SetActive(true);
-            window.transform.Find("window").GetComponentInChildren<TMP_Text>().text = "You're playing as " + "takie jajca bo mapa sie jeszcze nie zaladowala xd";//map.CurrentPlayer.Name;
+            window.transform.Find("window").GetComponentInChildren<TMP_Text>().text = "You're playing as " + map.CurrentPlayer.Name;//map.CurrentPlayer.Name;
             var button = window.transform.Find("window").GetComponentInChildren<Button>();
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => alerts.loadEvents(map.CurrentPlayer));

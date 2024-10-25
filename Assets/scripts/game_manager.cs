@@ -38,6 +38,9 @@ public class game_manager : MonoBehaviour
     [SerializeField] private start_screen start_screen;
     [SerializeField] private diplomatic_relations_manager diplomacy;
     [SerializeField] private info_bar info_bar;
+    [SerializeField] private Button save_button;
+
+    public int turnCnt { get { return map.turnCnt; } }
 
     private Save toSave;
 
@@ -57,7 +60,8 @@ public class game_manager : MonoBehaviour
         while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
-    }
+		toSave = new(map);
+	}
 
     void LoadData()
     {
@@ -388,12 +392,17 @@ public class game_manager : MonoBehaviour
 				fog_Of_War.UpdateFogOfWar();
 				alerts.loadEvents(map.CurrentPlayer);
 				alerts.reloadAlerts();
+				turnCntTxt.SetText((map.turnCnt).ToString());
 			}
         }
         else {
             Debug.LogError("nie pyklo ladowanie");
         }
-    }
+		loader.Reload();
+		foreach (var a in map.Armies) {
+			map.reloadArmyView(a);
+		}
+	}
 	public void loadGameJson(string name) {
 		var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension
 		Debug.Log("loading " + path);
@@ -415,10 +424,7 @@ public class game_manager : MonoBehaviour
 		else {
 			Debug.LogError("Save file not found or loading failed.");
 		}
-        loader.Reload();
-        foreach(var a in map.Armies) {
-            map.reloadArmyView(a);
-        }
+        
 	}
 
     public string[] getSaveGames() {
@@ -429,6 +435,26 @@ public class game_manager : MonoBehaviour
         else {
             Debug.Log("Data directory is broken");
             return null;
+        }
+    }
+
+    public bool existsSaveGame(string name) {
+        var path = Path.Combine(Application.persistentDataPath, name + ".save");
+        return File.Exists(path);
+    }
+
+    public bool deleteSaveGame(string name) {
+        var path = Path.Combine(Application.persistentDataPath, name + ".save");
+        try {
+            if (File.Exists(path)) {
+                File.Delete(path);
+                return true;
+            }
+            else return false;
+        }
+        catch(Exception ex) {
+            Debug.LogError(ex.Message);
+            return false;
         }
     }
 
@@ -477,10 +503,12 @@ public class game_manager : MonoBehaviour
         }
         else {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-            if (map.turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local)
+            if (map.turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local) {
                 start_screen.welcomeScreen();
-            else if (map.turnCnt == 1)
+            }
+            else if (map.turnCnt == 1) {
                 start_screen.unHide();
+			}
             camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();
             armyReset();

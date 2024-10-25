@@ -33,7 +33,7 @@ namespace Assets.classes.subclasses {
                 countries.Add(new SaveCountry(c));
             }
             foreach(var p in map.Provinces) {
-                Debug.Log("saving province: " + p.coordinates.ToString());
+                //Debug.Log("saving province: " + p.coordinates.ToString());
                 provinces.Add(new SaveProvince(p));
             }
             foreach(var a in map.Armies) {
@@ -95,9 +95,9 @@ namespace Assets.classes.subclasses {
             }
             //
             foreach(var c in toLoad.Countries.Where(c=>c.Id != 0)) {
-                Debug.Log(c.Events.Count + "->>");
+                //Debug.Log(c.Events.Count + "->>");
                 foreach(var ev in c.Events) {
-                    Debug.Log(ev.msg + "<->");
+                    //Debug.Log(ev.msg + "<->");
                 }
             }
             //
@@ -159,7 +159,7 @@ namespace Assets.classes.subclasses {
             opinions = new();
         }
         public Country load(Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
-            Debug.Log("loading country " + id);
+            //Debug.Log("loading country " + id);
             Country loaded = new(id, name, capital, color.toColor(), coat, map);
             if(resources != null) foreach (var rT in resources) {
                 loaded.setResource(rT.Key, rT.Value);
@@ -372,7 +372,7 @@ namespace Assets.classes.subclasses {
                     loaded = new Relation.Vassalage(map.Countries[countries.Item1], map.Countries[countries.Item2]);
                     break;
             }
-            Debug.Log("loaded " + loaded.type.ToString() + " between " + loaded.Sides[0] + " and " + loaded.Sides[1]);
+            //Debug.Log("loaded " + loaded.type.ToString() + " between " + loaded.Sides[0] + " and " + loaded.Sides[1]);
             return loaded;
         }
     }
