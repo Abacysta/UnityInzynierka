@@ -60,7 +60,7 @@ public class game_manager : MonoBehaviour
         while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
-		toSave = new(map);
+		
 	}
 
     void LoadData()
@@ -365,7 +365,7 @@ public class game_manager : MonoBehaviour
         var path = Application.persistentDataPath + "/" + name + ".save";
         BinaryFormatter form = new BinaryFormatter();
         using(FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
-            form.Serialize(stream, toSave);
+            form.Serialize(stream, new Save(map));
         }
 		Debug.Log($"Game saved to: {path}");
 	}
@@ -491,9 +491,11 @@ public class game_manager : MonoBehaviour
             map.currentPlayer = 1;
 			map.Countries[1].Events.Add(new Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
 			map.Countries[1].Events.Add(new Event_.GlobalEvent.Happiness(map.Countries[1], dialog_box, camera_controller));
-			toSave = new(map);
+			//toSave = new(map);
             if (map.turnCnt % 5 == 0) {
+				toSave = new(map);
 				saveGame("autosave");
+                toSave = null;
 			}
 			loader.Reload();
         }
