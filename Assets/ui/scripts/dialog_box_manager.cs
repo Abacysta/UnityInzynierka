@@ -88,20 +88,23 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
         (string title, string message) = dialog_box_precons.army_box.toVars();
-        
+
+        int affordableValue = map.CurrentPlayer
+            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), army.Count);
+
         Action onConfirm = () => {
             var act = new Assets.classes.actionContainer.TurnAction.army_move(army.Position, destination, (int)dialog_slider.value, army);
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
         float cost = CostsCalculator.TurnActionApCost(ActionType.ArmyMove);
-        ShowSliderBox(title, message, onConfirm, army.Count, CostsCalculator.TurnActionFullCost(ActionType.ArmyMove));
+        ShowSliderBox(title, message, onConfirm, army.Count, CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), affordableValue: affordableValue);
     }
 
     public void invokeRecBox(Map map, (int, int) coordinates) {
         (string title, string message) = dialog_box_precons.rec_box.toVars();
         var province = map.getProvince(coordinates);
 
-        int maxRecruitableUnits = map.CurrentPlayer
+        int affordableValue = map.CurrentPlayer
             .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), province.RecruitablePopulation);
 
         Action onConfirm = () => {
@@ -110,12 +113,15 @@ public class dialog_box_manager : MonoBehaviour
         };
 
         ShowSliderBox(title, message, onConfirm, province.RecruitablePopulation, 
-            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), affordableValue: maxRecruitableUnits);
+            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), affordableValue: affordableValue);
     }
 
     public void invokeDisbandArmyBox(Map map, Army army)
     {
         (string title, string message) = dialog_box_precons.dis_box.toVars();
+
+        int affordableValue = map.CurrentPlayer
+            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), army.Count);
 
         Action onConfirm = () =>
         {
@@ -124,7 +130,8 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
 
-        ShowSliderBox(title, message, onConfirm, army.Count, CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment));
+        ShowSliderBox(title, message, onConfirm, army.Count, 
+            CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), affordableValue: affordableValue);
     }
 
     public void invokeUpgradeBuilding(Map map, (int, int) coordinates, BuildingType type) {

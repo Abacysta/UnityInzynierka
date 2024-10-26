@@ -240,7 +240,7 @@ public class Map:ScriptableObject {
         return armyViews.Find(view => view.ArmyData == army);
     }
 
-    public List<army_view> GetAllArmyView()
+    public List<army_view> GetAllArmyViews()
     {
         return armyViews;
     }

@@ -140,7 +140,7 @@ public class army_view : MonoBehaviour
         float offsetDistance = 0.2f;
         Vector3 adjustedPosition = targetPosition - direction * offsetDistance;
 
-        List<army_view> allArmyViews = map.GetAllArmyView();
+        List<army_view> allArmyViews = map.GetAllArmyViews();
         bool collides;
 
         for (int i = 0; i < 6; i++)
@@ -182,7 +182,7 @@ public class army_view : MonoBehaviour
             Vector3 adjustedPosition = transform.position - direction * offsetDistance;
 
             collides = false;
-            foreach (army_view army in map.GetAllArmyView())
+            foreach (army_view army in map.GetAllArmyViews())
             {
                 if (army != null && army.gameObject.activeInHierarchy)
                 {

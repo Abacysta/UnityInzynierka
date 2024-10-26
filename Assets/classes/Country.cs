@@ -461,9 +461,14 @@ public class Country {
         return can;
     }
 
-    public int CalculateMaxArmyUnits(Dictionary<Resource, float> cost, int recruitablePopulation)
+    public int CalculateMaxArmyUnits(Dictionary<Resource, float> cost, int armyCount)
     {
-        int maxUnits = recruitablePopulation;
+        if (resources[Resource.AP] < cost[Resource.AP]) 
+        {
+            return 0;
+        }
+
+        int maxUnits = armyCount;
 
         foreach (var resourceCost in cost)
         {
