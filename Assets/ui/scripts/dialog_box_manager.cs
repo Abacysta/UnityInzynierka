@@ -330,7 +330,7 @@ public class dialog_box_manager : MonoBehaviour
         choice_element.SetActive(true);
         cost_element.SetActive(true);
 
-        ShowDialogBox(actionTitle, message, onConfirm, confirmable: true, rejectable: false,
+        ShowDialogBox(actionTitle, message, onConfirm, confirmable: true, rejectable: true,
             confirmText, cancelText, onCancel, onClose);
     }
 
