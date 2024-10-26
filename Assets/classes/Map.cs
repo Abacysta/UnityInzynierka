@@ -239,6 +239,12 @@ public class Map:ScriptableObject {
     {
         return armyViews.Find(view => view.ArmyData == army);
     }
+
+    public List<army_view> GetAllArmyView()
+    {
+        return armyViews;
+    }
+
     public void updateArmyPosition(Army army, (int, int) coordinates)
     {
         Province currentProvince = getProvince(army.Position);
