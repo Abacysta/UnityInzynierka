@@ -109,7 +109,8 @@ public class dialog_box_manager : MonoBehaviour
             map.Countries[province.Owner_id].Actions.addAction(act);
         };
 
-        ShowSliderBox(title, message, onConfirm, maxRecruitableUnits, CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment));
+        ShowSliderBox(title, message, onConfirm, province.RecruitablePopulation, 
+            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), affordableValue: maxRecruitableUnits);
     }
 
     public void invokeDisbandArmyBox(Map map, Army army)
@@ -309,7 +310,7 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     private void ShowSliderBox(string actionTitle, string message, Action onConfirm, int maxValue,
-        Dictionary<Resource, float> cost = null, List<Effect> effects = null,
+        Dictionary<Resource, float> cost = null, List<Effect> effects = null, int affordableValue = int.MaxValue,
         string confirmText = "OK", string cancelText = "Cancel", Action onCancel = null, Action onClose = null) {
         dialog_slider.value = 0;
         dialog_slider.maxValue = maxValue;
@@ -323,14 +324,14 @@ public class dialog_box_manager : MonoBehaviour
         {
             quantity_text.text = value.ToString();
             SetCostContent(cost, dialog_slider.value);
-            confirm_button.interactable = value > 0;
+            confirm_button.interactable = value > 0 && value <= affordableValue;
         });
 
         zoom_button.gameObject.SetActive(false);
         choice_element.SetActive(true);
         cost_element.SetActive(true);
 
-        ShowDialogBox(actionTitle, message, onConfirm, confirmable: true, rejectable: true,
+        ShowDialogBox(actionTitle, message, onConfirm, confirmable: false, rejectable: true,
             confirmText, cancelText, onCancel, onClose);
     }
 
