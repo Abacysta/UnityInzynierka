@@ -10,9 +10,11 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.actionContainer;
+using static Assets.classes.Relation;
 
 public class game_manager : MonoBehaviour
 {
@@ -39,6 +41,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private diplomatic_relations_manager diplomacy;
     [SerializeField] private info_bar info_bar;
     [SerializeField] private Button save_button;
+    [SerializeField] private army_click_handler army_click_handler;
 
     public int turnCnt { get { return map.turnCnt; } }
 
@@ -117,6 +120,41 @@ public class game_manager : MonoBehaviour
         map.Countries[id].Actions.revert();
     }
 
+    private void TeleportUnauthorizedArmies()
+    {
+        foreach (var army in map.Armies)
+        {
+            Vector3Int tilePosition = new(army.Position.Item1, army.Position.Item2);
+            if (!army_click_handler.IsTileAccessibleForArmyMovement(tilePosition))
+            {
+                Country armyOwner = map.Countries[army.OwnerId];
+
+                // Move the army to the nearest province that meets one of the following requirements:
+                // - it is the territory of their own country, or
+                // - it is the territory of their ally, or
+                // - it is the territory of a country with which they have a vassalage relation, or
+                // - it is the territory of a country that grants them military access
+                Vector3Int nearestOwnerProvincePosition = map.Provinces
+                    .Where(p => p.Owner_id == army.OwnerId ||
+                                map.Relations.Any(rel =>
+                                    (rel.type == RelationType.Alliance || rel.type == RelationType.Vassalage) &&
+                                    rel.Sides.Contains(armyOwner) && rel.Sides.Contains(map.Countries[p.Owner_id])) ||
+                                map.Relations.Any(rel =>
+                                    rel.type == RelationType.MilitaryAccess &&
+                                    rel.Sides[0] == map.Countries[p.Owner_id] && rel.Sides[1] == armyOwner))
+                    .Select(p => new Vector3Int(p.X, p.Y, 0))
+                    .OrderBy(point => Vector3Int.Distance(tilePosition, point))
+                    .FirstOrDefault();
+
+                if (nearestOwnerProvincePosition != default)
+                {
+                    army.Position = army.Destination = (nearestOwnerProvincePosition.x, nearestOwnerProvincePosition.y);
+                    map.MoveArmy(army);
+                }
+            }
+        }
+    }
+
     private void executeActions() {
         foreach(var c in map.Countries) {
             List<Assets.classes.actionContainer.TurnAction> instants = c.Actions.extractInstants();
@@ -124,6 +162,7 @@ public class game_manager : MonoBehaviour
                 inst.execute(map);
             }
         }
+
         int acmax = map.Countries.Max(a => a.Actions.Count);
         for(int i = 0; i < acmax; i++) {
             foreach (var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
@@ -139,6 +178,8 @@ public class game_manager : MonoBehaviour
                 }
             }
         }
+
+        TeleportUnauthorizedArmies();
     }
 
     private void turnCalculations() {
@@ -499,6 +540,7 @@ public class game_manager : MonoBehaviour
 			}
 			loader.Reload();
         }
+
         if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
             aiTurn();
             TurnSimulation();
@@ -517,8 +559,5 @@ public class game_manager : MonoBehaviour
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
             alerts.loadEvents(map.CurrentPlayer);
         }
-        
-        //}
     }
-
 }

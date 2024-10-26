@@ -8736,6 +8736,7 @@ MonoBehaviour:
   diplomacy: {fileID: 311749115}
   info_bar: {fileID: 157988442}
   save_button: {fileID: 2028762502}
+  army_click_handler: {fileID: 653004899}
 --- !u!114 &311749115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36493,6 +36494,7 @@ MonoBehaviour:
   fogTilemap: {fileID: 1306300712}
   fogMemoryTilemap: {fileID: 1554396224}
   tileFog: {fileID: 11400000, guid: 99b0cb3dd79a00e42a03949f192eefed, type: 2}
+  tileMemoryFog: {fileID: 11400000, guid: 004386538a834a0449ce88b87b4e63e5, type: 2}
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
 --- !u!1 &1435031102
 GameObject:
