@@ -5,7 +5,7 @@ using static Assets.classes.actionContainer.TurnAction;
 namespace Assets.classes.subclasses {
     public static class CostsCalculator
     {
-        public static Dictionary<Resource, float> bCost(BuildingType type, int lvl)
+        private static Dictionary<Resource, float> bCost(BuildingType type, int lvl)
         {
             switch (type)
             {
@@ -113,7 +113,7 @@ namespace Assets.classes.subclasses {
                     return new Dictionary<Resource, float>();
             }
         }
-        public static Dictionary<Resource, float> TechCost(Dictionary<Technology, int> tech, Technology type)
+        private static Dictionary<Resource, float> TechCost(Dictionary<Technology, int> tech, Technology type)
         {
             int techLvl = tech[type];
             int allTechLvl = tech.Values.Sum();
@@ -124,7 +124,7 @@ namespace Assets.classes.subclasses {
             };
         }
 
-        public static float IntegrateVassalApCost(Relation vassalage)
+        private static float IntegrateVassalApCost(Relation vassalage)
         {
             return (vassalage?.Sides[1].Provinces.Count / 5) ?? 1f;
         }
@@ -168,8 +168,8 @@ namespace Assets.classes.subclasses {
             return fullCost.Count > 0 ? fullCost : new Dictionary<Resource, float>();
         }
 
-        public static readonly float HardActionCost = 1f;
-        public static readonly float SoftActionCost = 0.1f;
+        private static readonly float HardActionCost = 1f;
+        private static readonly float SoftActionCost = 0.1f;
 
         public static float TurnActionApCost(ActionType actionType, Relation vassalage = null)
         {
