@@ -14,18 +14,21 @@ namespace Assets.classes.subclasses {
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 10 }
+                                { Resource.Gold, 10f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 15 },
-                                {Resource.Wood, 25 }
+                                { Resource.Gold, 15f },
+                                { Resource.Wood, 25f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 25 },
-                                {Resource.Wood, 10 },
-                                {Resource.Iron, 25 },
+                                { Resource.Gold, 25f },
+                                { Resource.Wood, 10f },
+                                { Resource.Iron, 25f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -35,19 +38,22 @@ namespace Assets.classes.subclasses {
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Wood, 20}
+                                { Resource.Wood, 20f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
-                                { Resource.Gold, 10},
-                                {Resource.Wood, 10},
-                                {Resource.Iron, 25}
+                                { Resource.Gold, 10f },
+                                { Resource.Wood, 10f },
+                                { Resource.Iron, 25f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 30 },
-                                {Resource.Wood, 10},
-                                {Resource.Iron, 40}
+                                { Resource.Gold, 30f },
+                                { Resource.Wood, 10f },
+                                { Resource.Iron, 40f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -57,18 +63,21 @@ namespace Assets.classes.subclasses {
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 10 }
+                                { Resource.Gold, 10f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 10 },
-                                {Resource.Wood, 10}
+                                { Resource.Gold, 10f },
+                                { Resource.Wood, 10f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 10 },
-                                {Resource.Wood, 30},
-                                {Resource.Iron, 5 }
+                                { Resource.Gold, 10f },
+                                { Resource.Wood, 30f },
+                                { Resource.Iron, 5f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -78,21 +87,24 @@ namespace Assets.classes.subclasses {
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
-                                {Resource.Gold, 100 },
-                                {Resource.Wood, 50},
+                                { Resource.Gold, 100f },
+                                { Resource.Wood, 50f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
-                                { Resource.Gold, 150 },
-                                { Resource.Wood, 300 },
-                                { Resource.Iron, 50 }
+                                { Resource.Gold, 150f },
+                                { Resource.Wood, 300f },
+                                { Resource.Iron, 50f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
-                                { Resource.Gold, 250 },
-                                { Resource.Wood, 100 },
-                                { Resource.Iron, 300 },
-                                { Resource.SciencePoint, 10 }
+                                { Resource.Gold, 250f },
+                                { Resource.Wood, 100f },
+                                { Resource.Iron, 300f },
+                                { Resource.SciencePoint, 10f },
+                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -107,7 +119,7 @@ namespace Assets.classes.subclasses {
             int allTechLvl = tech.Values.Sum();
 
             return new Dictionary<Resource, float> {
-                { Resource.AP, 0.1f },
+                { Resource.AP, TurnActionApCost(ActionType.TechnologyUpgrade) },
                 { Resource.SciencePoint, 10 + (10 * techLvl) + (5 * allTechLvl) }
             };
         }
@@ -155,12 +167,15 @@ namespace Assets.classes.subclasses {
                 case ActionType.SubsOffer:
                 case ActionType.VassalizationOffer:
                 case ActionType.VassalRebel:
+                case ActionType.BuildingUpgrade:
                     return HardActionCost;
                 case ActionType.WarEnd:
                 case ActionType.ArmyDisbandment:
                 case ActionType.MilAccEndMaster:
                 case ActionType.MilAccEndSlave:
                 case ActionType.SubsEnd:
+                case ActionType.TechnologyUpgrade:
+                case ActionType.BuildingDowngrade:
                     return SoftActionCost;
                 default:
                     return SoftActionCost;

@@ -136,6 +136,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeUpgradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
         (string title, string message) = dialog_box_precons.upBuilding_box.toVars();
+
         var province = map.getProvince(coordinates);
 
         switch(type) {
@@ -159,20 +160,26 @@ public class dialog_box_manager : MonoBehaviour
                 break;
         }
 
-        var lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel + 1;
+        int lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel + 1;
         title += lvl + "?";
         message += lvl + "?";
 
         Action onConfirm = () => {
-            map.upgradeBuilding(coordinates, type);
+            var act = new building_upgrade(coordinates, type, lvl);
+            map.CurrentPlayer.Actions.addAction(act);
         };
 
-        ShowConfirmBox(title, message, onConfirm);
+        var cost = CostsCalculator.bCost(type, lvl);
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
     }
 
     public void invokeDowngradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
         (string title, string message) = dialog_box_precons.downBuilding_box.toVars();
-        switch(type) {
+
+        var province = map.getProvince(coordinates);
+
+        switch (type) {
             case BuildingType.Fort:
                 title += "Fort";
                 message += "Fort";
@@ -193,11 +200,18 @@ public class dialog_box_manager : MonoBehaviour
                 break;
         }
 
+        int lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel;
+        title += lvl + "?";
+        message += lvl + "?";
+
         Action onConfirm = () => {
-            map.downgradeBuilding(coordinates, type);
+            var act = new building_downgrade(coordinates, type);
+            map.CurrentPlayer.Actions.addAction(act);
         };
 
-        ShowConfirmBox(title, message, onConfirm);
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingDowngrade);
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
     }
 
     public void invokeTechUpgradeBox(Technology type)
@@ -222,20 +236,13 @@ public class dialog_box_manager : MonoBehaviour
                 break;
         }
 
-        Dictionary<Resource, float> cost = CostsCalculator.TechCost(map.CurrentPlayer.Technology_, type);
-
-        float costAP = cost.ContainsKey(Resource.AP) ? cost[Resource.AP] : 0;
-        float costSP = cost.ContainsKey(Resource.SciencePoint) ? cost[Resource.SciencePoint] : 0;
-
         Action onConfirm = () => {
-            map.CurrentPlayer.Technology_[type]++;
-            map.CurrentPlayer.techStats.Calculate(map.CurrentPlayer.Technology_);
-            map.CurrentPlayer.Resources[Resource.AP] -= costAP;
-            map.CurrentPlayer.Resources[Resource.SciencePoint] -= costSP;
-            technology_manager.UpdateData();
+            var act = new technology_upgrade(map.currentPlayer, map.CurrentPlayer.Technology_, type, technology_manager);
+            map.CurrentPlayer.Actions.addAction(act);
         };
 
-        ShowConfirmBox(title, message, onConfirm);
+        ShowConfirmBox(title, message, onConfirm, confirmable: true, 
+            cost: CostsCalculator.TechCost(map.CurrentPlayer.Technology_, type));
     }
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {

@@ -38,7 +38,10 @@ namespace Assets.classes {
                 VassalRebel,
                 Insult,
                 Praise,
-                CallToWar
+                CallToWar,
+                TechnologyUpgrade,
+                BuildingUpgrade,
+                BuildingDowngrade
             }
 
             public ActionType type;
@@ -184,6 +187,94 @@ namespace Assets.classes {
                 public override void revert(Map map) {
                     base.revert(map);
                     //army.count += this.count;
+                }
+            }
+
+            internal class technology_upgrade : TurnAction, IInstantAction
+            {
+                private readonly Technology techType;
+                private readonly int countryId;
+                private readonly technology_manager technology_manager;
+
+                public technology_upgrade(int countryId, Dictionary<Technology, int> tech, Technology techType, 
+                    technology_manager technology_manager) : base(ActionType.TechnologyUpgrade,
+                    CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) 
+                {
+                    this.techType = techType;
+                    this.countryId = countryId;
+                    this.technology_manager = technology_manager;
+                    altCosts = CostsCalculator.TechCost(tech, techType)
+                        .Where(kvp => kvp.Key != Resource.AP)
+                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                }
+
+                public override void preview(Map map)
+                {
+                    base.preview(map);
+                    map.Countries[countryId].Technology_[techType]++;
+                    map.Countries[countryId].techStats.Calculate(map.Countries[countryId].Technology_);
+                    technology_manager.UpdateData();
+                }
+
+                public override void revert(Map map)
+                {
+                    base.revert(map);
+                    map.Countries[countryId].Technology_[techType]--;
+                    map.Countries[countryId].techStats.Calculate(map.Countries[countryId].Technology_);
+                    technology_manager.UpdateData();
+                }
+            }
+
+            internal class building_upgrade : TurnAction, IInstantAction
+            {
+                private readonly (int, int) coordinates;
+                private readonly BuildingType bType;
+
+                public building_upgrade((int, int) coordinates, BuildingType bType, int lvl) : base(ActionType.BuildingUpgrade,
+                    CostsCalculator.TurnActionApCost(ActionType.BuildingUpgrade))
+                {
+                    this.coordinates = coordinates;
+                    this.bType = bType;
+                    altCosts = CostsCalculator.bCost(bType, lvl)
+                        .Where(kvp => kvp.Key != Resource.AP)
+                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                }
+
+                public override void preview(Map map)
+                {
+                    base.preview(map);
+                    map.upgradeBuilding(coordinates, bType);
+                }
+
+                public override void revert(Map map)
+                {
+                    base.revert(map);
+                    map.downgradeBuilding(coordinates, bType);
+                }
+            }
+
+            internal class building_downgrade : TurnAction, IInstantAction
+            {
+                private readonly (int, int) coordinates;
+                private readonly BuildingType bType;
+
+                public building_downgrade((int, int) coordinates, BuildingType bType) : base(ActionType.BuildingDowngrade,
+                    CostsCalculator.TurnActionApCost(ActionType.BuildingDowngrade))
+                {
+                    this.coordinates = coordinates;
+                    this.bType = bType;
+                }
+
+                public override void preview(Map map)
+                {
+                    base.preview(map);
+                    map.downgradeBuilding(coordinates, bType);
+                }
+
+                public override void revert(Map map)
+                {
+                    base.revert(map);
+                    map.upgradeBuilding(coordinates, bType);
                 }
             }
 
