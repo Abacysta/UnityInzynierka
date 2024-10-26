@@ -643,7 +643,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         Vassalage vassalage = (Vassalage)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Vassalage);
 
         message_text.text = "I've made the decision about your integration, my vassal.";
-        apCost = CostsCalculator.IntegrateVassalApCost(vassalage);
+        apCost = CostsCalculator.TurnActionApCost(ActionType.IntegrateVassal, vassalage);
         ap_text.text = $"-{apCost:0.0}";
 
         SetEffects(null);

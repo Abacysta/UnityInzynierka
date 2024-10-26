@@ -134,9 +134,7 @@ namespace Assets.classes {
                     Debug.Log(coordinates + " " + count);
                     this.coordinates = coordinates;
                     this.count = count;
-                    altCosts = CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment)
-                                .Where(kvp => kvp.Key != Resource.AP)
-                                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value * count);
+                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment);
                 }
 
                 public override string desc { get => count + " units recruited in " + coordinates.ToString();  }
@@ -203,9 +201,7 @@ namespace Assets.classes {
                     this.techType = techType;
                     this.countryId = countryId;
                     this.technology_manager = technology_manager;
-                    altCosts = CostsCalculator.TechCost(tech, techType)
-                        .Where(kvp => kvp.Key != Resource.AP)
-                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, tech, techType);
                 }
 
                 public override void preview(Map map)
@@ -235,9 +231,7 @@ namespace Assets.classes {
                 {
                     this.coordinates = coordinates;
                     this.bType = bType;
-                    altCosts = CostsCalculator.bCost(bType, lvl)
-                        .Where(kvp => kvp.Key != Resource.AP)
-                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, bType: bType, lvl: lvl);
                 }
 
                 public override void preview(Map map)
@@ -316,7 +310,7 @@ namespace Assets.classes {
 
                 public integrate_vassal(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, 
                     diplomatic_actions_manager dipl_actions) : base(ActionType.IntegrateVassal, 
-                        CostsCalculator.IntegrateVassalApCost(vassalage)) {
+                        CostsCalculator.TurnActionApCost(ActionType.IntegrateVassal, vassalage)) {
                     this.vassalage = vassalage;
                     this.diplomacy = diplomacy;
                     this.dipl_actions = dipl_actions;

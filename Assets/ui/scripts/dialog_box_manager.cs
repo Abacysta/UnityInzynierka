@@ -169,7 +169,7 @@ public class dialog_box_manager : MonoBehaviour
             map.CurrentPlayer.Actions.addAction(act);
         };
 
-        var cost = CostsCalculator.bCost(type, lvl);
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingUpgrade, bType: type, lvl: lvl);
 
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
     }
@@ -240,9 +240,10 @@ public class dialog_box_manager : MonoBehaviour
             var act = new technology_upgrade(map.currentPlayer, map.CurrentPlayer.Technology_, type, technology_manager);
             map.CurrentPlayer.Actions.addAction(act);
         };
-
+        
         ShowConfirmBox(title, message, onConfirm, confirmable: true, 
-            cost: CostsCalculator.TechCost(map.CurrentPlayer.Technology_, type));
+            cost: CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade,
+            tech: map.CurrentPlayer.Technology_, techType: type));
     }
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {
