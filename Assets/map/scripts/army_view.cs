@@ -112,7 +112,6 @@ public class army_view : MonoBehaviour
         isMoving = true;
         move_army_sound.Play();
         army_collider.enabled = true;
-        spriteRenderer.color = Color.white;
     }
 
     public void ReturnTo((int, int) newPosition)
@@ -120,7 +119,6 @@ public class army_view : MonoBehaviour
         targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         AdjustTargetPosition();
         army_collider.enabled = true;
-        spriteRenderer.color = Color.white;
         transform.position = targetPosition;
     }
 
@@ -131,13 +129,12 @@ public class army_view : MonoBehaviour
         isMoving = true;
         move_army_sound.Play();
         army_collider.enabled = false;
-        spriteRenderer.color = new Color(200f / 255f, 200f / 255f, 200f / 255f);
     }
 
     private void AdjustTargetPosition()
     {
         Vector3 direction = (targetPosition - transform.position).normalized;
-        float offsetDistance = 0.2f;
+        float offsetDistance = 0.35f;
         Vector3 adjustedPosition = targetPosition - direction * offsetDistance;
 
         List<army_view> allArmyViews = map.GetAllArmyViews();
@@ -172,7 +169,7 @@ public class army_view : MonoBehaviour
     private void AdjustTransformPosition()
     {
         Vector3 direction;
-        float offsetDistance = 0.2f;
+        float offsetDistance = 0.35f;
         bool collides;
 
         for (int i = 0; i < 6; i++)
