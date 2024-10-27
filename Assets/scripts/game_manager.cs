@@ -125,7 +125,7 @@ public class game_manager : MonoBehaviour
         foreach (var army in map.Armies)
         {
             Vector3Int tilePosition = new(army.Position.Item1, army.Position.Item2);
-            if (!army_click_handler.IsTileAccessibleForArmyMovement(tilePosition))
+            if (!army_click_handler.IsTileAccessibleForArmyMovement(tilePosition, army.OwnerId))
             {
                 Country armyOwner = map.Countries[army.OwnerId];
 

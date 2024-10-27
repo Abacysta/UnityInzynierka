@@ -142,7 +142,7 @@ public class army_click_handler : cursor_helper
                 }
             }
 
-            if (!IsTileAccessibleForArmyMovement(cellPosition)) continue;
+            if (!IsTileAccessibleForArmyMovement(cellPosition, army.OwnerId)) continue;
 
             if (tile != null)
             {
@@ -153,7 +153,7 @@ public class army_click_handler : cursor_helper
         }
     }
 
-    public bool IsTileAccessibleForArmyMovement(Vector3Int cellPosition)
+    public bool IsTileAccessibleForArmyMovement(Vector3Int cellPosition, int armyOwnerId)
     {
         bool HasCurrentPlayerRelationWithTileOwner(RelationType type, Country tileOwner)
         {
@@ -171,12 +171,13 @@ public class army_click_handler : cursor_helper
         Country tileOwner = map.Countries[tileProvince.Owner_id];
 
         // Highlight the tile if the tile's owner is:
-        // - tribal
+        // - currentPlayer or
+        // - tribal or
         // - at war with currentPlayer or
         // - in a alliance relation with currentPlayer or
         // - in a vassalage relation with currentPlayer or
         // - granting military access to currentPlayer or
-        return tileOwner.Id == 0 ||
+        return tileOwner.Id == 0 || tileOwner.Id == armyOwnerId ||
             HasCurrentPlayerRelationWithTileOwner(RelationType.War, tileOwner) ||
             HasCurrentPlayerRelationWithTileOwner(RelationType.Alliance, tileOwner) ||
             HasCurrentPlayerRelationWithTileOwner(RelationType.Vassalage, tileOwner) ||
