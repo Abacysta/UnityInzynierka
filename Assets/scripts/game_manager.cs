@@ -158,6 +158,7 @@ public class game_manager : MonoBehaviour
         foreach(var c in map.Countries) {
             loading_bar.value += 0.1f  * 100 / ccnt;
             map.mergeArmies(c);
+            c.AtWar = map.getRelationsOfType(c, Relation.RelationType.War) != null;
         }
         foreach(var a in map.Armies.Where(a=>a.OwnerId != 0)) {
             map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.armyUpkeep);
@@ -263,7 +264,7 @@ public class game_manager : MonoBehaviour
                 { Resource.AP, 0 }
             };
         var tax = getTaxGain(country);
-        var prod = getResourceGain(country);
+        var prod = map.getResourceGain(country);
         foreach(var res in gain.Keys.ToList()) {
             if (res == Resource.Gold) gain[res] += tax;
             gain[res] += prod[res];
@@ -282,32 +283,7 @@ public class game_manager : MonoBehaviour
         return (float)Math.Round(tax, 1);
     }
 
-    internal Dictionary<Resource, float> getResourceGain(Country country) {
-        var prod = new Dictionary<Resource, float> {
-            { Resource.Gold, 0 },
-                { Resource.Wood, 0 },
-                { Resource.Iron, 0 },
-                { Resource.SciencePoint, 0 },
-                { Resource.AP, 0 }
-            };
-        foreach (var prov in country.Provinces) {
-            prod[prov.ResourcesT] += prov.ResourcesP;
-            prod[Resource.AP] += 0.1f;
-            if (prov.Buildings.Any(b => b.BuildingType == BuildingType.School) && prov.getBuilding(BuildingType.School).BuildingLevel < 4) prod[Resource.SciencePoint] += prov.getBuilding(BuildingType.School).BuildingLevel * 3;
-        }
-        foreach(var type in prod.ToList()) {
-            if (type.Key != Resource.AP)
-                 prod[type.Key] *= country.techStats.prodFactor;
-            
-        }
-        foreach (var army in map.getCountryArmies(map.CurrentPlayer)) {
-            prod[Resource.Gold] -= (army.Count/10 + 1)*country.techStats.armyUpkeep;
-        }
-        foreach(var type in prod.ToList()) {
-            prod[type.Key] = (float)Math.Round(prod[type.Key], 1);
-        }
-        return prod;
-    }
+    
 
     private void countryCalc() {
 

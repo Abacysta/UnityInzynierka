@@ -174,6 +174,33 @@ public class Map:ScriptableObject {
         createArmyView(army);
     }
 
+    public Dictionary<Resource, float> getResourceGain(Country country) {
+        var prod = new Dictionary<Resource, float> {
+            { Resource.Gold, 0 },
+                { Resource.Wood, 0 },
+                { Resource.Iron, 0 },
+                { Resource.SciencePoint, 0 },
+                { Resource.AP, 0 }
+            };
+        foreach (var prov in country.Provinces) {
+            prod[prov.ResourcesT] += prov.ResourcesP;
+            prod[Resource.AP] += 0.1f;
+            if (prov.Buildings.Any(b => b.BuildingType == BuildingType.School) && prov.getBuilding(BuildingType.School).BuildingLevel < 4) prod[Resource.SciencePoint] += prov.getBuilding(BuildingType.School).BuildingLevel * 3;
+        }
+        foreach (var type in prod.ToList()) {
+            if (type.Key != Resource.AP)
+                prod[type.Key] *= country.techStats.prodFactor;
+
+        }
+        foreach (var army in getCountryArmies(CurrentPlayer)) {
+            prod[Resource.Gold] -= (army.Count / 10 + 1) * country.techStats.armyUpkeep;
+        }
+        foreach (var type in prod.ToList()) {
+            prod[type.Key] = (float)Math.Round(prod[type.Key], 1);
+        }
+        return prod;
+    }
+
     public void createArmyView(Army army)
     {
         var rtype = GetHardRelationType(CurrentPlayer, countries[army.OwnerId]);
