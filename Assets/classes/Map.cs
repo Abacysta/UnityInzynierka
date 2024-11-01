@@ -54,6 +54,7 @@ public class Map:ScriptableObject {
     public Country CurrentPlayer { get => countries[currentPlayer]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
     public List<CountryController> Controllers { get { return countryControllers; } set => countryControllers = value; }
+    public List<army_view> ArmyViews { get => armyViews; set => armyViews = value; }
     public void addCountry(Country country, CountryController ptype)
     {
         countries.Add(country);
@@ -240,11 +241,6 @@ public class Map:ScriptableObject {
         return armyViews.Find(view => view.ArmyData == army);
     }
 
-    public List<army_view> GetAllArmyViews()
-    {
-        return armyViews;
-    }
-
     public void updateArmyPosition(Army army, (int, int) coordinates)
     {
         Province currentProvince = getProvince(army.Position);
@@ -362,7 +358,6 @@ public class Map:ScriptableObject {
         return army;
     }
 
-    //I LOVE LINQ
     public void mergeArmies(Country country)
     {
         List<Army> ar = armies.Where(a => a.OwnerId == country.Id).ToList();
@@ -464,8 +459,11 @@ public class Map:ScriptableObject {
 
     public bool IsValidPosition(int x, int y)
     {
-        return x >= 0 && x <= 79 && y >= 0 && y <= 79;
+        Province province = getProvince(x, y);
+
+        return province != null;
     }
+
     public void ManageOccupationDuration(Province province)
     {
         if (province.OccupationInfo.IsOccupied)
