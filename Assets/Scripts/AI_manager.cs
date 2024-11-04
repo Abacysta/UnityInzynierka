@@ -1,4 +1,5 @@
 ﻿using Assets.classes;
+using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
+using static Assets.classes.Event_;
 
 namespace Assets.Scripts {
     internal class AI_manager: MonoBehaviour {
@@ -40,6 +42,7 @@ namespace Assets.Scripts {
             Normal
         }
         [SerializeField] private Map map;
+        [SerializeField] private random_events_manager random;
         /// <summary>
         /// Every turn AI lead country will asess its situation in the world and change its behavior to suit it the best.
         /// </summary>
@@ -50,7 +53,19 @@ namespace Assets.Scripts {
         /// </summary>
         public void behave() {
             this.humor = asess();
-            //body
+            while (map.CurrentPlayer.Events.Count > 0) { 
+                var e = map.CurrentPlayer.Events.Last();
+                if(!(e is Event_.DiploEvent)) {
+                    var r = random.chance;
+                    if (r > 50) e.accept();
+                    else e.reject();
+                }
+                else {
+
+                }
+                map.CurrentPlayer.Events.Remove(e);
+            }
+
             this.humor = Humor.Null;
         }
 
@@ -131,6 +146,92 @@ namespace Assets.Scripts {
         private int getArmySum(int id) {
             return map.Armies.FindAll(a=>a.OwnerId == id).Sum(a=> a.Count);
         }
+        private class diploEventResponder {
+            public static void answer(Event_ e, Map map, Humor humor) {
+                //tu sie dzieje magia
+                Type t = e.GetType();
+                //tu tez
+                var method = typeof(diploEventResponder).GetMethod("respond", new[] { t, typeof(Map), typeof(Humor) });
+                if (method != null) {
+                    //ale w sumie to konkretnie tu
+                    method.Invoke(null, new object[] { e, map, humor });
+                } else {
+                    Debug.LogError("Diplo events cause problems once again. This time ai can't respond to one.")
+                }
+            }
 
+            public static void respond(DiploEvent.WarDeclared e, Map map, Humor humor) {
+                // Custom response logic for WarDeclared
+            }
+
+            public static void respond(DiploEvent.PeaceOffer e, Map map, Humor humor) {
+                // Custom response logic for PeaceOffer
+            }
+
+            public static void respond(DiploEvent.CallToWar e, Map map, Humor humor) {
+                // Custom response logic for CallToWar
+            }
+
+            public static void respond(DiploEvent.TruceEnd e, Map map, Humor humor) {
+                // Custom response logic for TruceEnd
+            }
+
+            public static void respond(DiploEvent.AllianceOffer e, Map map, Humor humor) {
+                // Custom response logic for AllianceOffer
+            }
+
+            public static void respond(DiploEvent.AllianceAccepted e, Map map, Humor humor) {
+                // Custom response logic for AllianceAccepted
+            }
+
+            public static void respond(DiploEvent.AllianceDenied e, Map map, Humor humor) {
+                // Custom response logic for AllianceDenied
+            }
+
+            public static void respond(DiploEvent.AllianceBroken e, Map map, Humor humor) {
+                // Custom response logic for AllianceBroken
+            }
+
+            public static void respond(DiploEvent.SubsOffer e, Map map, Humor humor) {
+                // Custom response logic for SubsOffer
+            }
+
+            public static void respond(DiploEvent.SubsRequest e, Map map, Humor humor) {
+                // Custom response logic for SubsRequest
+            }
+
+            public static void respond(DiploEvent.SubsEndMaster e, Map map, Humor humor) {
+                // Custom response logic for SubsEndMaster
+            }
+
+            public static void respond(DiploEvent.SubsEndSlave e, Map map, Humor humor) {
+                // Custom response logic for SubsEndSlave
+            }
+
+            public static void respond(DiploEvent.AccessOffer e, Map map, Humor humor) {
+                // Custom response logic for AccessOffer
+            }
+
+            public static void respond(DiploEvent.AccessRequest e, Map map, Humor humor) {
+                // Custom response logic for AccessRequest
+            }
+
+            public static void respond(DiploEvent.AccessEndMaster e, Map map, Humor humor) {
+                // Custom response logic for AccessEndMaster
+            }
+
+            public static void respond(DiploEvent.AccessEndSlave e, Map map, Humor humor) {
+                // Custom response logic for AccessEndSlave
+            }
+
+            public static void respond(DiploEvent.VassalOffer e, Map map, Humor humor) {
+                // Custom response logic for VassalOffer
+            }
+
+            public static void respond(DiploEvent.VassalRebel e, Map map, Humor humor) {
+                // Custom response logic for VassalRebel
+            }
+
+        }
     }
 }
