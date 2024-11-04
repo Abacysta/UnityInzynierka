@@ -14,7 +14,7 @@ public class player_table : MonoBehaviour
     [SerializeField] private Map map; 
 
     private GameObject currentPlayerSelection = null;
-    private List<CountryController> controllers = new List<CountryController>();
+    public List<CountryController> controllers = new List<CountryController>();
     private List<CountryData> currentStates = new List<CountryData>(); 
     private List<Province> provinces = new List<Province>();
 
@@ -168,7 +168,7 @@ public class player_table : MonoBehaviour
         TMP_Text countryNameText = nameTransform.GetComponentInChildren<TMP_Text>();
         if (countryNameText != null)
         {
-            countryNameText.text = $"PLAYER {playerNumber}";
+            countryNameText.text = $"PLAYER";
         }
     }
 

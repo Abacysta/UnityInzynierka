@@ -102,6 +102,44 @@ public class army_view : MonoBehaviour
         transform.position = position;
         AdjustTransformPosition();
     }
+    public void UpdateArmyViewSortingOrder(army_view army_View)
+    {
+        if (army_View == null)
+        {
+            Debug.LogError("army_View is null in UpdateArmyViewSortingOrder");
+            return;
+        }
+        if (army_View.ArmyData == null)
+        {
+            Debug.LogError("ArmyData is null in army_View");
+            return;
+        }
+        if (army_View.map == null)
+        {
+            Debug.LogError("map is null in army_View");
+            return;
+        }
+
+        if (army_View.ArmyData.OwnerId == map.currentPlayer)
+        {
+            army_View.SetOrdingLayer(1);
+        }
+        else
+        {
+            army_View.SetOrdingLayer(0);
+        }
+    }
+
+    public void SetOrdingLayer(int order)
+    {
+        if (spriteRenderer == null)
+        {
+            Debug.LogError("spriteRenderer is null in SetOrdingLayer");
+            return;
+        }
+        spriteRenderer.sortingOrder = order;
+    }
+
 
     public void MoveTo((int, int) newPosition)
     {

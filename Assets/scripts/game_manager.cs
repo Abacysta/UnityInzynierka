@@ -42,7 +42,6 @@ public class game_manager : MonoBehaviour
     [SerializeField] private info_bar info_bar;
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
-
     public int turnCnt { get { return map.turnCnt; } }
 
     private Save toSave;
@@ -189,7 +188,6 @@ public class game_manager : MonoBehaviour
         loading_box.SetActive(true);
         provinceCalc(pcnt);
         countryCalc();
-
         loading_txt.text = "Calculating happiness from relations.";
         happinnessFromRelations();
         
@@ -402,6 +400,7 @@ public class game_manager : MonoBehaviour
     //    }
     //}
 
+
     public void saveGame(string name) {
         var path = Application.persistentDataPath + "/" + name + ".save";
         BinaryFormatter form = new BinaryFormatter();
@@ -557,6 +556,7 @@ public class game_manager : MonoBehaviour
             fog_Of_War.UpdateFogOfWar();
             armyReset();
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
+            map.UpdateAllArmyViewOrders();
             alerts.loadEvents(map.CurrentPlayer);
         }
     }
