@@ -1,5 +1,6 @@
 using Assets.classes;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -99,8 +100,7 @@ public class army_view : MonoBehaviour
     public void UpdatePosition()
     {
         Vector3 position = HexToWorldPosition(ArmyData.Position.Item1, ArmyData.Position.Item2);
-        transform.position = position;
-        AdjustTransformPosition();
+        transform.position = AdjustPosition(position);
     }
     public void UpdateArmyViewSortingOrder(army_view army_View)
     {
@@ -143,50 +143,67 @@ public class army_view : MonoBehaviour
 
     public void MoveTo((int, int) newPosition)
     {
-        UpdatePosition();
         ArmyData.Position = newPosition;
-        targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
-        AdjustTargetPosition();
-        isMoving = true;
-        move_army_sound.Play();
+        UpdatePosition();
         army_collider.enabled = true;
-        spriteRenderer.color = Color.white;
     }
 
     public void ReturnTo((int, int) newPosition)
     {
-        targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
-        AdjustTargetPosition();
+        Vector3 position = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
+        transform.position = AdjustPosition(position);
         army_collider.enabled = true;
-        spriteRenderer.color = Color.white;
-        transform.position = targetPosition;
     }
 
     public void PrepareToMoveTo((int, int) newPosition)
     {
-        targetPosition = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
-        AdjustTargetPosition();
+        Vector3 position = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
+        targetPosition = AdjustPosition(position, isNotPreparingToMove: false);
         isMoving = true;
         move_army_sound.Play();
         army_collider.enabled = false;
-        spriteRenderer.color = new Color(200f / 255f, 200f / 255f, 200f / 255f);
     }
 
-    private void AdjustTargetPosition()
+    private Vector3 AdjustPosition(Vector3 basePosition, bool isNotPreparingToMove = true)
     {
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        float offsetDistance = 0.2f;
-        Vector3 adjustedPosition = targetPosition - direction * offsetDistance;
+        Vector2 provinceCoordinates = WorldToHexPosition(basePosition);
+        Province province = map.getProvince((int)provinceCoordinates.x, (int)provinceCoordinates.y);
 
-        List<army_view> allArmyViews = map.GetAllArmyViews();
+        transform.localScale = (isNotPreparingToMove || (province != null && ArmyData.OwnerId == province.Owner_id))
+            ? new Vector3(0.45f, 0.45f, 1f)
+            : new Vector3(0.4f, 0.4f, 1f);
+
+        if (isNotPreparingToMove && province != null && ArmyData.OwnerId == province.Owner_id)
+        {
+            return basePosition;
+        }
+
+        Vector3 baseDirection = (basePosition - transform.position).normalized;
+        float offsetDistance = 0.35f;
+        Vector3 adjustedPosition;
         bool collides;
 
-        for (int i = 0; i < 6; i++)
+        List<army_view> provinceArmyViews = map.ArmyViews
+            .Where(a =>
+                a != null && a.ArmyData != null &&
+                a.ArmyData.Position == ((int)provinceCoordinates.x, (int)provinceCoordinates.y) &&
+                a.gameObject.activeInHierarchy &&
+                !a.ArmyData.Equals(ArmyData)
+            ).ToList();
+
+        float initialOffset = 0f;
+        float angleReduction = 30f;
+
+        while (angleReduction > 0.1f)
         {
-            collides = false;
-            foreach (army_view army in allArmyViews)
+            Vector3 direction = Quaternion.Euler(0, 0, initialOffset) * baseDirection;
+
+            for (int i = 0; i < 6; i++)
             {
-                if (army != null && army.gameObject.activeInHierarchy)
+                adjustedPosition = basePosition - direction * offsetDistance;
+                collides = false;
+
+                foreach (army_view army in provinceArmyViews)
                 {
                     if (Vector3.Distance(army.transform.position, adjustedPosition) < 0.1f)
                     {
@@ -194,53 +211,23 @@ public class army_view : MonoBehaviour
                         break;
                     }
                 }
-            }
 
-            if (!collides)
-            {
-                targetPosition = adjustedPosition;
-                return;
-            }
-
-            direction = Quaternion.Euler(0, 0, -60) * direction;
-            adjustedPosition = targetPosition - direction * offsetDistance;
-        }
-    }
-
-    private void AdjustTransformPosition()
-    {
-        Vector3 direction;
-        float offsetDistance = 0.2f;
-        bool collides;
-
-        for (int i = 0; i < 6; i++)
-        {
-            float randomAngle = i * 60f;
-            direction = Quaternion.Euler(0, 0, randomAngle) * Vector3.right;
-            Vector3 adjustedPosition = transform.position - direction * offsetDistance;
-
-            collides = false;
-            foreach (army_view army in map.GetAllArmyViews())
-            {
-                if (army != null && army.gameObject.activeInHierarchy)
+                if (!collides)
                 {
-                    if (Vector3.Distance(army.transform.position, adjustedPosition) < 0.1f)
-                    {
-                        collides = true;
-                        break;
-                    }
+                    return adjustedPosition;
                 }
+
+                direction = Quaternion.Euler(0, 0, -60) * direction;
             }
 
-            if (!collides)
-            {
-                transform.position = adjustedPosition;
-                return;
-            }
+            initialOffset += angleReduction;
+            angleReduction /= 2f;
         }
+
+        return basePosition;
     }
 
-    public Vector3 HexToWorldPosition(int x, int y)
+    private Vector3 HexToWorldPosition(int x, int y)
     {
         float X;
         float Y;
@@ -257,6 +244,27 @@ public class army_view : MonoBehaviour
         }
 
         return new Vector3(X, Y, 0);
+    }
+
+    private Vector2 WorldToHexPosition(Vector3 worldPosition)
+    {
+        float x = worldPosition.x;
+        float y = worldPosition.y;
+
+        int hexX, hexY;
+
+        if (Mathf.FloorToInt(y / 0.862f) % 2 == 0)
+        {
+            hexX = Mathf.FloorToInt(x);
+            hexY = Mathf.FloorToInt(y / 0.862f);
+        }
+        else
+        {
+            hexX = Mathf.FloorToInt(x - 0.5f);
+            hexY = Mathf.FloorToInt(y / 0.862f);
+        }
+
+        return new Vector2(hexX, hexY);
     }
 
     private void UpdateArmyCounter(int newCount)
