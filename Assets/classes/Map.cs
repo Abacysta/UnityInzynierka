@@ -624,6 +624,11 @@ public class Map:ScriptableObject {
     public void destroyAllArmyViews() {
         armyViews = new();
     }
+    public List<army_view> GetAllArmyViews()
+    {
+        return armyViews;
+    }
+
     public void UpdateAllArmyViewOrders()
     {
         var allArmyViews = GetAllArmyViews();
