@@ -11,11 +11,11 @@ public class player_table : MonoBehaviour
 {
     [SerializeField] private GameObject dummy;
     [SerializeField] private GameObject playerTable;
-    [SerializeField] private Map map; 
+    [SerializeField] private Map map;
 
     private GameObject currentPlayerSelection = null;
-    private List<CountryController> controllers = new List<CountryController>();
-    private List<CountryData> currentStates = new List<CountryData>(); 
+    public List<CountryController> controllers = new List<CountryController>();
+    private List<CountryData> currentStates = new List<CountryData>();
     private List<Province> provinces = new List<Province>();
 
     private int currentMaxPlayerNumber = 0;
@@ -41,10 +41,10 @@ public class player_table : MonoBehaviour
         string json = LoadJsonFromFile($"Assets/Resources/{mapName}.json");
         GameState gameState = JsonConvert.DeserializeObject<GameState>(json);
 
-        currentStates = gameState.states;  
-        provinces = gameState.provinces;   
+        currentStates = gameState.states;
+        provinces = gameState.provinces;
 
-        showCountries(currentStates);      
+        showCountries(currentStates);
 
         controllers.Clear();
         controllers = Enumerable.Repeat(CountryController.Ai, currentStates.Count).ToList();
@@ -79,8 +79,8 @@ public class player_table : MonoBehaviour
 
         map.Countries.Clear();
         map.Controllers.Clear();
-       map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
-        
+        map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+
         foreach (CountryData state in currentStates)
         {
             if (state.owner_id == 0)
@@ -96,13 +96,13 @@ public class player_table : MonoBehaviour
                 map
             );
 
-             map.addCountry(newCountry, CountryController.Ai);
+            map.addCountry(newCountry, CountryController.Ai);
 
 
             Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
         }
 
-        map.Provinces.Clear(); 
+        map.Provinces.Clear();
         int j = 1;
         foreach (var provinceData in provinces)
         {
@@ -134,28 +134,28 @@ public class player_table : MonoBehaviour
             {
                 terrain = Province.TerrainType.ocean;
             }
-        Province newProvince = new Province(
-                j++.ToString(),     
-                provinceData.Name,   
-                provinceData.X,                
-                provinceData.Y,                
-                provinceData.Type,             
-                terrain,                      
-                provinceData.Resources,       
-                (int)provinceData.Resources_amount,       
-                provinceData.Population,      
-                (int)provinceData.Rec_pop,          
-                50,                             
-                provinceData.Is_coast,         
-                provinceData.Owner_id          
-            );
+            Province newProvince = new Province(
+                    j++.ToString(),
+                    provinceData.Name,
+                    provinceData.X,
+                    provinceData.Y,
+                    provinceData.Type,
+                    terrain,
+                    provinceData.Resources,
+                    (int)provinceData.Resources_amount,
+                    provinceData.Population,
+                    (int)provinceData.Rec_pop,
+                    50,
+                    provinceData.Is_coast,
+                    provinceData.Owner_id
+                );
 
             map.Provinces.Add(newProvince);
         }
 
         for (int i = 1; i <= controllers.Count; i++)
         {
-            map.Controllers[i] = controllers[i-1];
+            map.Controllers[i] = controllers[i - 1];
         }
 
         Debug.Log("Game setup complete. Ready to start the game.");
@@ -168,7 +168,7 @@ public class player_table : MonoBehaviour
         TMP_Text countryNameText = nameTransform.GetComponentInChildren<TMP_Text>();
         if (countryNameText != null)
         {
-            countryNameText.text = $"PLAYER {playerNumber}";
+            countryNameText.text = $"PLAYER";
         }
     }
 
@@ -289,7 +289,7 @@ public class player_table : MonoBehaviour
                 Button countryButton = controllerTransform.GetComponent<Button>();
                 if (countryButton != null)
                 {
-                    int capturedId = i; 
+                    int capturedId = i;
                     countryButton.onClick.AddListener(() => OnCountryClicked(countryUI, controllerTransform, capturedId));
                 }
             }
