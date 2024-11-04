@@ -186,7 +186,8 @@ public class army_view : MonoBehaviour
         List<army_view> provinceArmyViews = map.ArmyViews
             .Where(a =>
                 a != null && a.ArmyData != null &&
-                a.ArmyData.Position == ((int)provinceCoordinates.x, (int)provinceCoordinates.y) &&
+                (a.ArmyData.Position == ((int)provinceCoordinates.x, (int)provinceCoordinates.y) 
+                || a.ArmyData.Destination == ((int)provinceCoordinates.x, (int)provinceCoordinates.y)) &&
                 a.gameObject.activeInHierarchy &&
                 !a.ArmyData.Equals(ArmyData)
             ).ToList();
