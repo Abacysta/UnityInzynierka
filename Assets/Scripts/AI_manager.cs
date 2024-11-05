@@ -156,40 +156,104 @@ namespace Assets.Scripts {
                     //ale w sumie to konkretnie tu
                     method.Invoke(null, new object[] { e, map, humor });
                 } else {
-                    Debug.LogError("Diplo events cause problems once again. This time ai can't respond to one.")
+                    Debug.LogError("Diplo events cause problems once again. This time ai can't respond to one.");
                 }
             }
 
             public static void respond(DiploEvent.WarDeclared e, Map map, Humor humor) {
-                // Custom response logic for WarDeclared
+                e.accept();
             }
 
             public static void respond(DiploEvent.PeaceOffer e, Map map, Humor humor) {
-                // Custom response logic for PeaceOffer
+                switch (humor) {
+                    case Humor.Defensive:
+                        e.accept(); break;
+                    case Humor.Offensive: 
+                        e.reject(); break;
+                    case Humor.Leading:
+                        //check if armies of the main opponent are overwhelmingly big
+                        if (map.getCountryArmies(e.from).Count >= 1.2 * (double)map.getCountryArmies(e.to).Count)
+                            e.accept();
+                        else 
+                            e.reject();
+                        break;
+                    default:
+                        if (map.getCountryArmies(e.from).Count >= 0.8 * (double)map.getCountryArmies(e.to).Count)
+                            e.accept();
+                        else
+                            e.reject();
+                        break;
+                }
             }
 
             public static void respond(DiploEvent.CallToWar e, Map map, Humor humor) {
-                // Custom response logic for CallToWar
+                var war = e.war;
+                switch (humor) {
+                    case Humor.Leading:
+                        e.accept(); break;
+                    case Humor.Defensive:
+                        e.reject(); break;
+                    case Humor.Offensive:
+                        if (Map.WarUtilities.isAttacker(map, e.from, war)) {
+                            if (Map.WarUtilities.isAttackersStronger(map, war))
+                                e.accept();
+                            else e.reject();
+                        }
+                        else {
+                            if (Map.WarUtilities.isAttackersStronger(map, war))
+                                e.reject();
+                            else e.accept();
+                        }
+                        break;
+                    case Humor.Subservient: e.accept(); break;
+                    case Humor.Rebellious: e.accept(); break;
+                    default:
+                        var powers = Map.WarUtilities.getSidePowers(map, war);
+                        if ((Map.WarUtilities.isAttacker(map, e.from, war) && powers.Item1 > 0.6 * powers.Item2) || !Map.WarUtilities.isAttacker(map, e.from, war))
+                            e.accept();
+                        else e.reject();
+                        break;
+                }
             }
 
             public static void respond(DiploEvent.TruceEnd e, Map map, Humor humor) {
-                // Custom response logic for TruceEnd
+                e.accept();
             }
 
             public static void respond(DiploEvent.AllianceOffer e, Map map, Humor humor) {
-                // Custom response logic for AllianceOffer
+                switch (humor) {
+                    case Humor.Leading:
+                        e.reject();
+                        break;
+                    case Humor.Defensive:
+                        e.accept();
+                        break;
+                    case Humor.Subservient:
+                        e.reject();
+                        break;
+                    case Humor.Rebellious:
+                        e.reject(); break;
+                    case Humor.Offensive:
+                        
+                    default:
+                        if (e.to.Opinions[e.from.Id] > 150 || (e.to.Opinions[e.from.Id] > 75 && map.getCountryArmies(e.from).Count > map.getCountryArmies(e.to).Count)) {
+                            e.accept();
+                        }
+                        else e.reject();
+                        break;
+                }
             }
 
             public static void respond(DiploEvent.AllianceAccepted e, Map map, Humor humor) {
-                // Custom response logic for AllianceAccepted
+                e.accept();
             }
 
             public static void respond(DiploEvent.AllianceDenied e, Map map, Humor humor) {
-                // Custom response logic for AllianceDenied
+                e.accept();
             }
 
             public static void respond(DiploEvent.AllianceBroken e, Map map, Humor humor) {
-                // Custom response logic for AllianceBroken
+                e.accept();
             }
 
             public static void respond(DiploEvent.SubsOffer e, Map map, Humor humor) {
@@ -201,11 +265,11 @@ namespace Assets.Scripts {
             }
 
             public static void respond(DiploEvent.SubsEndMaster e, Map map, Humor humor) {
-                // Custom response logic for SubsEndMaster
+                e.accept();
             }
 
             public static void respond(DiploEvent.SubsEndSlave e, Map map, Humor humor) {
-                // Custom response logic for SubsEndSlave
+                e.accept();
             }
 
             public static void respond(DiploEvent.AccessOffer e, Map map, Humor humor) {
@@ -217,11 +281,11 @@ namespace Assets.Scripts {
             }
 
             public static void respond(DiploEvent.AccessEndMaster e, Map map, Humor humor) {
-                // Custom response logic for AccessEndMaster
+                e.accept();
             }
 
             public static void respond(DiploEvent.AccessEndSlave e, Map map, Humor humor) {
-                // Custom response logic for AccessEndSlave
+                e.accept(); 
             }
 
             public static void respond(DiploEvent.VassalOffer e, Map map, Humor humor) {
@@ -229,7 +293,7 @@ namespace Assets.Scripts {
             }
 
             public static void respond(DiploEvent.VassalRebel e, Map map, Humor humor) {
-                // Custom response logic for VassalRebel
+                e.accept();
             }
 
         }
