@@ -384,9 +384,6 @@ public class Map : ScriptableObject {
 
         int moveRangeWater = (int)Math.Floor(moveRangeLand + moveRangeLand * waterMoveFactor);
 
-        Queue<(HexUtils.Cube, int)> frontier = new Queue<(HexUtils.Cube, int)>();
-        frontier.Enqueue((startCube, 0));
-
         Queue<(HexUtils.Cube, int)> frontier = new Queue<(HexUtils.Cube, int)>(); // queue with hex to be checked
         frontier.Enqueue((startCube, 0)); // define entry point to que with range 0
 

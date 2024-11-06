@@ -237,8 +237,9 @@ public class dialog_box_manager : MonoBehaviour
         }
 
         Action onConfirm = () => {
-            var act = new technology_upgrade(map.currentPlayer, map.CurrentPlayer.Technology_, type, technology_manager);
+            var act = new technology_upgrade(map.currentPlayer, map.CurrentPlayer.Technology_, type);
             map.CurrentPlayer.Actions.addAction(act);
+            technology_manager.UpdateData();
         };
         
         ShowConfirmBox(title, message, onConfirm, confirmable: true, 

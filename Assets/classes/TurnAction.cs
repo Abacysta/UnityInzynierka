@@ -192,15 +192,12 @@ namespace Assets.classes {
             {
                 private readonly Technology techType;
                 private readonly int countryId;
-                private readonly technology_manager technology_manager;
 
-                public technology_upgrade(int countryId, Dictionary<Technology, int> tech, Technology techType, 
-                    technology_manager technology_manager) : base(ActionType.TechnologyUpgrade,
-                    CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) 
+                public technology_upgrade(int countryId, Dictionary<Technology, int> tech, Technology techType) : 
+                    base(ActionType.TechnologyUpgrade, CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) 
                 {
                     this.techType = techType;
                     this.countryId = countryId;
-                    this.technology_manager = technology_manager;
                     altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, tech, techType);
                 }
 
@@ -209,7 +206,6 @@ namespace Assets.classes {
                     base.preview(map);
                     map.Countries[countryId].Technology_[techType]++;
                     map.Countries[countryId].techStats.Calculate(map.Countries[countryId].Technology_);
-                    technology_manager.UpdateData();
                 }
 
                 public override void revert(Map map)
@@ -217,7 +213,6 @@ namespace Assets.classes {
                     base.revert(map);
                     map.Countries[countryId].Technology_[techType]--;
                     map.Countries[countryId].techStats.Calculate(map.Countries[countryId].Technology_);
-                    technology_manager.UpdateData();
                 }
             }
 
