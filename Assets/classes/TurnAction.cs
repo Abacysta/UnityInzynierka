@@ -231,7 +231,7 @@ namespace Assets.classes {
                 {
                     this.coordinates = coordinates;
                     this.bType = bType;
-                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, bType: bType, lvl: lvl);
+                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, bType, lvl);
                 }
 
                 public override void preview(Map map)

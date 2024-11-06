@@ -2,7 +2,8 @@
 using System.Linq;
 using static Assets.classes.actionContainer.TurnAction;
 
-namespace Assets.classes.subclasses {
+namespace Assets.classes.subclasses
+{
     public static class CostsCalculator
     {
         private static Dictionary<Resource, float> bCost(BuildingType type, int lvl)
@@ -129,21 +130,10 @@ namespace Assets.classes.subclasses {
             return (vassalage?.Sides[1].Provinces.Count / 5) ?? 1f;
         }
 
-        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, 
-            Dictionary<Technology, int> tech = null, Technology techType = Technology.Military,
-            BuildingType bType = BuildingType.Fort, int lvl = 1,
-            Relation vassalage = null)
+        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType)
         {
-            switch(actionType)
+            switch (actionType)
             {
-                case ActionType.BuildingUpgrade:
-                    return bCost(bType, lvl);
-                case ActionType.TechnologyUpgrade:
-                    return TechCost(tech, techType);
-                case ActionType.IntegrateVassal:
-                    return new Dictionary<Resource, float> {
-                        { Resource.AP, IntegrateVassalApCost(vassalage) },
-                    };
                 case ActionType.ArmyRecruitment:
                     return new Dictionary<Resource, float> {
                         { Resource.Gold, 1f },
@@ -156,27 +146,78 @@ namespace Assets.classes.subclasses {
             }
         }
 
-        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType,
-            Dictionary<Technology, int> tech = null, Technology techType = Technology.Military,
-            BuildingType bType = BuildingType.Fort, int lvl = 1,
-            Relation vassalage = null)
+        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType,
+            Dictionary<Technology, int> tech, Technology techType)
         {
-            var fullCost = TurnActionFullCost(actionType, tech, techType, bType, lvl, vassalage);
+            if (actionType == ActionType.TechnologyUpgrade)
+            {
+                return TechCost(tech, techType);
+            }
+            return TurnActionFullCost(actionType);
+        }
 
+
+        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, BuildingType bType, int lvl)
+        {
+            if (actionType == ActionType.BuildingUpgrade)
+            {
+                return bCost(bType, lvl);
+            }
+            return TurnActionFullCost(actionType);
+        }
+
+        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, Relation vassalage)
+        {
+            if (actionType == ActionType.IntegrateVassal)
+            {
+                return new Dictionary<Resource, float> {
+                    { Resource.AP, IntegrateVassalApCost(vassalage) },
+                };
+            }
+            else
+            {
+                return TurnActionFullCost(actionType);
+            }
+        }
+
+        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType)
+        {
+            var fullCost = TurnActionFullCost(actionType);
+            return RemoveApCost(fullCost);
+        }
+
+        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType,
+            Dictionary<Technology, int> tech, Technology techType)
+        {
+            var fullCost = TurnActionFullCost(actionType, tech, techType);
+            return RemoveApCost(fullCost);
+        }
+
+        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, BuildingType bType, int lvl)
+        {
+            var fullCost = TurnActionFullCost(actionType, bType, lvl);
+            return RemoveApCost(fullCost);
+        }
+
+        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, Relation vassalage)
+        {
+            var fullCost = TurnActionFullCost(actionType, vassalage);
+            return RemoveApCost(fullCost);
+        }
+
+        private static Dictionary<Resource, float> RemoveApCost(Dictionary<Resource, float> fullCost)
+        {
             fullCost.Remove(Resource.AP);
-
             return fullCost.Count > 0 ? fullCost : new Dictionary<Resource, float>();
         }
 
         private static readonly float HardActionCost = 1f;
         private static readonly float SoftActionCost = 0.1f;
 
-        public static float TurnActionApCost(ActionType actionType, Relation vassalage = null)
+        public static float TurnActionApCost(ActionType actionType)
         {
             switch (actionType)
             {
-                case ActionType.IntegrateVassal:
-                    return IntegrateVassalApCost(vassalage);
                 case ActionType.ArmyRecruitment:
                 case ActionType.ArmyMove:
                 case ActionType.StartWar:
@@ -204,6 +245,15 @@ namespace Assets.classes.subclasses {
                 default:
                     return SoftActionCost;
             }
+        }
+
+        public static float TurnActionApCost(ActionType actionType, Relation vassalage)
+        {
+            if (actionType == ActionType.IntegrateVassal)
+            {
+                return IntegrateVassalApCost(vassalage);
+            }
+            return TurnActionApCost(actionType);
         }
     }
 }
