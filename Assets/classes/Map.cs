@@ -581,6 +581,21 @@ public class Map : ScriptableObject {
     public void destroyAllArmyViews() {
         armyViews = new();
     }
+    public List<army_view> GetAllArmyViews() {
+        return armyViews;
+    }
+    public void UpdateAllArmyViewOrders() {
+        var allArmyViews = GetAllArmyViews();
+        foreach (army_view armyView in allArmyViews) {
+            if (armyView != null) // Sprawdzenie, czy armyView nie jest null
+            {
+                armyView.UpdateArmyViewSortingOrder(armyView);
+            }
+            else {
+                Debug.LogWarning("armyView is null in UpdateAllArmyViewOrders()");
+            }
+        }
+    }
     /// <summary>
     /// utilites for gathering data about wars
     /// </summary>
