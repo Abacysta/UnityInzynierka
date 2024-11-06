@@ -488,6 +488,16 @@ public class Country {
     {
         this.armyVisibilityManager = manager;
     }
+    public bool isPayable(Dictionary<Resource, float> cost) {
+        bool payFlag = true;
+        foreach (var c in cost) { 
+            if(c.Value > resources[c.Key])
+                payFlag = false;
+            if (!payFlag)
+                break;
+        }
+        return payFlag;
+    }
 }
 
 

@@ -544,6 +544,17 @@ public class Map : ScriptableObject {
 
         return null;
     }
+    public Country getSeniorIfExists(Country country) {
+        Relation.Vassalage senior = relations.FirstOrDefault(r => r.Sides[1] == country) as Relation.Vassalage;
+        if (senior != null) {
+            return senior.Sides[0];
+        }
+        else return null;
+    }
+    public bool hasRelationOfType(Country c1, Country c2, Relation.RelationType type) {
+        if (relations.Any(r => r.Sides.Contains(c1) && r.Sides.Contains(c2) && r.type == type)) return true;
+        return false;
+    }
     public Country getMaster(Country country) {
         foreach (var relation in Relations) {
             if (relation.type == Relation.RelationType.Vassalage && relation.Sides[1] == country) {
@@ -677,7 +688,7 @@ public class Map : ScriptableObject {
         public static float getArmyUpkeep(Map map, Country c) {
             float res = 0;
             foreach (var army in map.getCountryArmies(map.CurrentPlayer)) {
-                 res -= (army.Count / 10 + 1) * map.Countries[i].techStats.armyUpkeep;
+                 res -= (army.Count / 10 + 1) * map.Countries[c.Id].techStats.armyUpkeep;
             }
             return res;
         }
