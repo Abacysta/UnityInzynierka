@@ -169,7 +169,7 @@ public class dialog_box_manager : MonoBehaviour
             map.CurrentPlayer.Actions.addAction(act);
         };
 
-        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingUpgrade, bType: type, lvl: lvl);
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingUpgrade, type, lvl);
 
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
     }

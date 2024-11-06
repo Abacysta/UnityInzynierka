@@ -8,9 +8,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Assets.classes.subclasses {
-    interface ILoadable {
-        object load();
-    }
+    
 
     [Serializable]
     internal class Save {

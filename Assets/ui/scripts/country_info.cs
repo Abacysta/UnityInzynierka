@@ -33,7 +33,7 @@ public class country_info : MonoBehaviour
     }
 
     public void displayInfo() {
-        var gains = game_manager.getGain(map.CurrentPlayer);
+        var gains = Map.PowerUtilites.getGain(map, map.CurrentPlayer);
         main_button.GetComponent<Image>().color = map.CurrentPlayer.Color;
         main_button.GetComponent<Button>().onClick.AddListener(() => country_interface.ShowCountryInterface());
         main_button.GetComponent<Button>().onClick.AddListener(() => province_interface.hide());
