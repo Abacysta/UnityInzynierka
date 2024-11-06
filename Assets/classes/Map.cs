@@ -555,10 +555,10 @@ public class Map : ScriptableObject {
     /// utilites for gathering data about wars
     /// </summary>
     internal class WarUtilities{
-        public static Relation.War? getWar(Map map, Country c1, Country c2) {
+        public static Relation.War getWar(Map map, Country c1, Country c2) {
             return map.getRelationsOfType(c1, Relation.RelationType.War).First(r => r.Sides.Contains(c2)) as Relation.War;
         }
-        public static Relation.War? getWar(Map map, int c1, int c2) {
+        public static Relation.War getWar(Map map, int c1, int c2) {
             return getWar(map, map.Countries[c1], map.Countries[c2]);
         }
         public static (int, int) getSidePowers(Map map, Relation.War war) {
@@ -589,9 +589,62 @@ public class Map : ScriptableObject {
             return bordering;
         }
         public static HashSet<Province> getViableArmyTargets(Map map, Country country) {
-            var regions = new HashSet<Province>();
+            var provinces = new HashSet<Province>();
             //...
-            return regions;
+            return provinces;
+        }
+        public static HashSet<Province> getProblematicProvinces(Map map, Country country) {
+            var provinces = new HashSet<Province>();
+
+            return provinces;
+        }
+        public static HashSet<Country> getNeededAccess(Map map, Country country) { 
+        }
+        
+    }
+
+    internal class PowerUtilites {
+        public static bool isArmyStronger(Map map, Country c1, Country c2) {
+            return map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a=>a.Count) * c1.techStats.armyPower > map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.armyPower;
+        }
+        public static float howArmyStronger(Map map, Country c1, Country c2) {
+            return (map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a => a.Count) * c1.techStats.armyPower) / (map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.armyPower);
+        }
+        public static int getOpinion(Country of, Country from) {
+            return from.Opinions[of.Id];
+        }
+        public static Dictionary<Resource, float> getGain(Map map, Country country) {
+            var gain = new Dictionary<Resource, float> {
+                { Resource.Gold, 0 },
+                { Resource.Wood, 0 },
+                { Resource.Iron, 0 },
+                { Resource.SciencePoint, 0 },
+                { Resource.AP, 0 }
+            };
+            var tax = getTaxGain(country);
+            var prod = map.getResourceGain(country);
+            foreach (var res in gain.Keys.ToList()) {
+                if (res == Resource.Gold) gain[res] += tax;
+                gain[res] += prod[res];
+                gain[res] = (float)Math.Round(gain[res], 1);
+            }
+            return gain;
+        }
+
+        internal static float getTaxGain(Country country) {
+            var tax = 0f;
+            foreach (var prov in country.Provinces) {
+                tax += (prov.Population / 10) * country.Tax.GoldP;
+            }
+            tax *= country.techStats.taxFactor;
+
+            return (float)Math.Round(tax, 1);
+        }
+        public static float getGoldGain(Map map, Country c) {
+            return getGain(map, c)[Resource.Gold]; 
+        }
+        public static bool isEconomyStronger(Map map, Country c1, Country c2) {
+
         }
     }
 }

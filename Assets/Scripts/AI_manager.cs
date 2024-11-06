@@ -55,14 +55,7 @@ namespace Assets.Scripts {
             this.humor = asess();
             while (map.CurrentPlayer.Events.Count > 0) { 
                 var e = map.CurrentPlayer.Events.Last();
-                if(!(e is Event_.DiploEvent)) {
-                    var r = random.chance;
-                    if (r > 50) e.accept();
-                    else e.reject();
-                }
-                else {
-
-                }
+                respondToEvent(e);
                 map.CurrentPlayer.Events.Remove(e);
             }
 
@@ -125,7 +118,14 @@ namespace Assets.Scripts {
         
         
         private void respondToEvent(Event_ e) {
-
+            if (!(e is Event_.DiploEvent)) {
+                var r = random.chance;
+                if (r > 50) e.accept();
+                else e.reject();
+            }
+            else {
+                AI_manager.diploEventResponder.Respond(e, map, humor);
+            }
         }
 
         private void moveArmies() {
@@ -147,7 +147,7 @@ namespace Assets.Scripts {
             return map.Armies.FindAll(a=>a.OwnerId == id).Sum(a=> a.Count);
         }
         private class diploEventResponder {
-            public static void answer(Event_ e, Map map, Humor humor) {
+            public static void Respond(Event_ e, Map map, Humor humor) {
                 //tu sie dzieje magia
                 Type t = e.GetType();
                 //tu tez
@@ -257,11 +257,50 @@ namespace Assets.Scripts {
             }
 
             public static void respond(DiploEvent.SubsOffer e, Map map, Humor humor) {
-                // Custom response logic for SubsOffer
+                switch (humor) {
+                    case Humor.Leading:
+                        e.reject(); break;
+                    case Humor.Subservient:
+                        e.reject(); break;
+                    case Humor.Rebellious:
+                        e.accept(); break;
+                    case Humor.Defensive:
+                        e.accept(); break;
+                    case Humor.Offensive:
+                        if (map.Countries[e.to.Id].Opinions[e.from.Id] > 100) {
+                            e.accept();
+                        }
+                        else e.reject();
+                        break;
+                    default:
+                        if (Map.PowerUtilites.getOpinion(e.from, e.to) > 0)
+                            e.accept();
+                        else e.reject();
+                        break;
+                }
             }
 
             public static void respond(DiploEvent.SubsRequest e, Map map, Humor humor) {
-                // Custom response logic for SubsRequest
+                switch (humor) {
+                    case Humor.Leading:
+                        if(Map.PowerUtilites.getOpinion(e.from, e.to) > 100 && e.amount > 0.05f*Map.PowerUtilites.getGoldGain(map, e.to)) {
+                            e.accept();
+                        }
+                        e.reject();
+                        break;
+                    case Humor.Offensive:
+                        e.reject();
+                        break;
+                    case Humor.Defensive:
+                        e.reject();
+                        break;
+                    default:
+                        if (Map.PowerUtilites.getGoldGain(map, e.to) > 0.2f * e.amount && Map.PowerUtilites.getOpinion(e.from, e.to) > 150) {
+                            e.accept();
+                        }
+                        else e.reject();
+                        break;
+                }
             }
 
             public static void respond(DiploEvent.SubsEndMaster e, Map map, Humor humor) {
@@ -273,11 +312,29 @@ namespace Assets.Scripts {
             }
 
             public static void respond(DiploEvent.AccessOffer e, Map map, Humor humor) {
-                // Custom response logic for AccessOffer
+                e.accept();
             }
 
             public static void respond(DiploEvent.AccessRequest e, Map map, Humor humor) {
-                // Custom response logic for AccessRequest
+                switch (humor) {
+                    case Humor.Leading:
+                        e.accept(); break;
+                    case Humor.Offensive:
+                        e.reject();
+                        break;
+                    case Humor.Subservient:
+                        //tak samo jak senior
+                        break;
+                    case Humor.Rebellious:
+                        //tak samo jak senior albo nie
+                        break;
+                    case Humor.Defensive:
+                        e.accept();
+                        break;
+                    default:
+                        //sprawdz czy ma dobre relacje z jego przeciwnikiem
+                        break;
+                }
             }
 
             public static void respond(DiploEvent.AccessEndMaster e, Map map, Humor humor) {
@@ -289,7 +346,26 @@ namespace Assets.Scripts {
             }
 
             public static void respond(DiploEvent.VassalOffer e, Map map, Humor humor) {
-                // Custom response logic for VassalOffer
+                switch (humor) {
+                    case Humor.Leading:
+                        e.reject();
+                        break;
+                    case Humor.Offensive:
+                        e.reject(); break;
+                    case Humor.Defensive:
+                        e.accept(); break;
+                    default:
+                        if(Map.PowerUtilites.getOpinion(e.from, e.to)> 175) {
+                            e.accept();
+                        }
+                        else if(Map.PowerUtilites.howArmyStronger(map, e.from, e.to) > 2) {
+                            e.accept();
+                        }
+                        else {
+                            e.reject();
+                        }
+                        break;
+                }
             }
 
             public static void respond(DiploEvent.VassalRebel e, Map map, Humor humor) {
