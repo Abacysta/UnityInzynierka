@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
+using Unity.VisualScripting;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 [Serializable]
@@ -356,36 +357,42 @@ public class Map : ScriptableObject {
             updateArmyDestination(to_merge, province.coordinates);
         }
     }
-
+    //sram ci do pyska BTW
     public List<(int, int)> getPossibleMoveCells(Army army) {
         List<(int, int)> possibleCells = new List<(int, int)>();
         (int startX, int startY) = army.Position;
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
+
         int moveRangeLand = country.techStats.moveRange;
         int moveRangeWater = (int)Math.Floor(country.techStats.moveRange + country.techStats.moveRange * country.techStats.waterMoveFactor);
 
         string startTerrain = getProvince(startX, startY).Type;
 
-        HexUtils.Cube startCube = HexUtils.OffsetToCube(startX, startY);
-        Queue<(HexUtils.Cube, int)> frontier = new Queue<(HexUtils.Cube, int)>();
-        frontier.Enqueue((startCube, 0));
+        HexUtils.Cube startCube = HexUtils.OffsetToCube(startX, startY); // 3d to 2d for simpler calculations 
+
+        Queue<(HexUtils.Cube, int)> frontier = new Queue<(HexUtils.Cube, int)>(); // queue with hex to be checked
+        frontier.Enqueue((startCube, 0)); // define entry point to que with range 0
 
         HashSet<(int, int)> visited = new HashSet<(int, int)>();
         visited.Add((startX, startY));
 
-        while (frontier.Count > 0) {
-            var (current, currentDistance) = frontier.Dequeue();
-            (int currentX, int currentY) = HexUtils.CubeToOffset(current);
-            possibleCells.Add((currentX, currentY));
+        while (frontier.Count > 0) // it goes thru all possible hexes
+        {
+            var (current, currentDistance) = frontier.Dequeue(); // take current hex to do smth with it
+            (int currentX, int currentY) = HexUtils.CubeToOffset(current); // 3d to 2d
+            possibleCells.Add((currentX, currentY)); // adds to list couse it can move there
 
             int currentMoveRange = startTerrain == "land" ? moveRangeLand : moveRangeWater;
 
-            for (int dir = 0; dir < 6; dir++) {
+            for (int dir = 0; dir < 6; dir++) // it goes thru all 6 directions ( left, right, top left, top right, bottom left, bottom right ) 
+            {
+                // calculate negighbor based on direction vector
                 HexUtils.Cube neighbor = HexUtils.CubeNeighbor(current, dir);
                 (int neighborX, int neighborY) = HexUtils.CubeToOffset(neighbor);
 
-                if (!IsValidPosition(neighborX, neighborY)) continue;
+                if (!IsValidPosition(neighborX, neighborY)) continue; // we dont want to check outside of map
 
+                // check type couse we want diffrent range "Land" and "water"
                 string neighborTerrain = getProvince(neighborX, neighborY).Type;
 
                 if (!visited.Contains((neighborX, neighborY))) {
@@ -593,13 +600,25 @@ public class Map : ScriptableObject {
             //...
             return provinces;
         }
-        public static HashSet<Province> getProblematicProvinces(Map map, Country country) {
-            var provinces = new HashSet<Province>();
-
-            return provinces;
+        public static List<Province> getUnhappyProvinces(Country country) {
+            return country.Provinces.Where(p=>p.Happiness<40).ToList();
         }
-        public static HashSet<Country> getNeededAccess(Map map, Country country) { 
+        public static List<Province> getGrowable(Country c) {
+            return c.Provinces.Where(p => p.ResourcesT == Resource.Gold || p.Population < 200).ToList();
         }
+        public static List<Province> getOptimalRecruitmentProvinces(Country c) {
+            return c.Provinces.Where(p=>p.RecruitablePopulation >= 50).OrderByDescending(p=>p.Population).ToList();
+        }
+        public static bool recruitAllAvailable(Country c, Province p) {
+            if (c.Resources[Resource.AP] >= 1) {
+                c.Actions.addAction(new actionContainer.TurnAction.army_recruitment(p.coordinates,
+                    p.RecruitablePopulation*c.techStats.armyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.armyCost)));
+            }
+            return p.RecruitablePopulation == 0;
+        }
+        //niech ktos kto robil te hexy mi z tym pomoze bo zakopie w piasku
+        //public static HashSet<Country> getNeededAccess(Map map, Country country) { 
+        //}
         
     }
 
@@ -643,8 +662,12 @@ public class Map : ScriptableObject {
         public static float getGoldGain(Map map, Country c) {
             return getGain(map, c)[Resource.Gold]; 
         }
-        public static bool isEconomyStronger(Map map, Country c1, Country c2) {
-
+        public static float getArmyUpkeep(Map map, Country c) {
+            float res = 0;
+            foreach (var army in map.getCountryArmies(map.CurrentPlayer)) {
+                 res -= (army.Count / 10 + 1) * map.Countries[i].techStats.armyUpkeep;
+            }
+            return res;
         }
     }
 }

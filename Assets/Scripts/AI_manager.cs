@@ -53,12 +53,14 @@ namespace Assets.Scripts {
         /// </summary>
         public void behave() {
             this.humor = asess();
+            //events block
             while (map.CurrentPlayer.Events.Count > 0) { 
                 var e = map.CurrentPlayer.Events.Last();
                 respondToEvent(e);
                 map.CurrentPlayer.Events.Remove(e);
             }
-
+            //internal block
+            manageInternal();
             this.humor = Humor.Null;
         }
 
@@ -145,6 +147,40 @@ namespace Assets.Scripts {
 
         private int getArmySum(int id) {
             return map.Armies.FindAll(a=>a.OwnerId == id).Sum(a=> a.Count);
+        }
+        private class internalAffairsManager {
+            public static void handleUnhappy(Country c, Humor humor) {
+                var unhappy = Map.LandUtilites.getUnhappyProvinces(c);
+                var unTaxBreakable = unhappy.FindAll(p => p.Happiness < 30);
+                var handlable = unhappy.FindAll(p=>p.Happiness >30);
+                //while (handlable.Count > 0) {
+                //    handlable[0]
+                //} czekamy :^))))))))
+            }
+            public static void handleGrowable(Country c, Humor humor) {
+                var growable = Map.LandUtilites.getGrowable(c);
+                //still need that actions :))))))))))))000
+            }
+            public static void handleArmyRecruitment(Country c, Humor humor) {
+                var toRecruit = new List<Province>();
+                if(humor == Humor.Defensive) {
+                    toRecruit = c.Provinces.ToList().OrderByDescending(p=>p.RecruitablePopulation).ToList();
+                }
+                else {
+                    toRecruit= Map.LandUtilites.getOptimalRecruitmentProvinces(c);
+                }
+                bool exitF = false;
+                foreach(var p in toRecruit) {
+                    if (exitF)
+                        break;
+                    exitF = !Map.LandUtilites.recruitAllAvailable(c, p);
+                }
+            }
+            public static void handleTax(Country c, Humor humor) {
+                if (humor == Humor.Defensive) {
+
+                }
+            }
         }
         private class diploEventResponder {
             public static void Respond(Event_ e, Map map, Humor humor) {

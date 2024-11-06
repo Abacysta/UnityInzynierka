@@ -137,7 +137,7 @@ public class production_tab_manager : MonoBehaviour
     }
 
     private void updateGainInfo() {
-        var gains = game_manager.getGain(map.CurrentPlayer);
+        var gains = Map.PowerUtilites.getGain(map, map.CurrentPlayer);
         var gold = panel.transform.Find("gold_text").GetComponent<TMP_Text>();
         var wood = panel.transform.Find("wood_text").GetComponent<TMP_Text>();
         var iron = panel.transform.Find("iron_text").GetComponent<TMP_Text>();
