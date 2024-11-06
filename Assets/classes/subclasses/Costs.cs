@@ -6,12 +6,12 @@ namespace Assets.classes.subclasses
 {
     public static class CostsCalculator
     {
-        private static Dictionary<Resource, float> bCost(BuildingType type, int lvl)
+        private static Dictionary<Resource, float> BuildingCost(BuildingType buildingType, int upgradeLevel)
         {
-            switch (type)
+            switch (buildingType)
             {
                 case BuildingType.Infrastructure:
-                    switch (lvl)
+                    switch (upgradeLevel)
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
@@ -35,7 +35,7 @@ namespace Assets.classes.subclasses
                             return new Dictionary<Resource, float>();
                     }
                 case BuildingType.Fort:
-                    switch (lvl)
+                    switch (upgradeLevel)
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
@@ -60,7 +60,7 @@ namespace Assets.classes.subclasses
                             return new Dictionary<Resource, float>();
                     }
                 case BuildingType.Mine:
-                    switch (lvl)
+                    switch (upgradeLevel)
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
@@ -84,7 +84,7 @@ namespace Assets.classes.subclasses
                             return new Dictionary<Resource, float>();
                     }
                 case BuildingType.School:
-                    switch (lvl)
+                    switch (upgradeLevel)
                     {
                         case 1:
                             return new Dictionary<Resource, float>() {
@@ -157,11 +157,11 @@ namespace Assets.classes.subclasses
         }
 
 
-        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, BuildingType bType, int lvl)
+        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, BuildingType buildingType, int upgradeLevel)
         {
             if (actionType == ActionType.BuildingUpgrade)
             {
-                return bCost(bType, lvl);
+                return BuildingCost(buildingType, upgradeLevel);
             }
             return TurnActionFullCost(actionType);
         }

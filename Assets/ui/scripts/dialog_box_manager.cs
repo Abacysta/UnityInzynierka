@@ -165,7 +165,7 @@ public class dialog_box_manager : MonoBehaviour
         message += lvl + "?";
 
         Action onConfirm = () => {
-            var act = new building_upgrade(coordinates, type, lvl);
+            var act = new building_upgrade(province, type);
             map.CurrentPlayer.Actions.addAction(act);
         };
 
@@ -205,7 +205,7 @@ public class dialog_box_manager : MonoBehaviour
         message += lvl + "?";
 
         Action onConfirm = () => {
-            var act = new building_downgrade(coordinates, type);
+            var act = new building_downgrade(province, type);
             map.CurrentPlayer.Actions.addAction(act);
         };
 
@@ -237,7 +237,7 @@ public class dialog_box_manager : MonoBehaviour
         }
 
         Action onConfirm = () => {
-            var act = new technology_upgrade(map.currentPlayer, map.CurrentPlayer.Technology_, type);
+            var act = new technology_upgrade(map.CurrentPlayer, type);
             map.CurrentPlayer.Actions.addAction(act);
             technology_manager.UpdateData();
         };

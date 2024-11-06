@@ -191,79 +191,80 @@ namespace Assets.classes {
             internal class technology_upgrade : TurnAction, IInstantAction
             {
                 private readonly Technology techType;
-                private readonly int countryId;
+                private readonly Country country;
 
-                public technology_upgrade(int countryId, Dictionary<Technology, int> tech, Technology techType) : 
+                public technology_upgrade(Country country, Technology techType) : 
                     base(ActionType.TechnologyUpgrade, CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) 
                 {
                     this.techType = techType;
-                    this.countryId = countryId;
-                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, tech, techType);
+                    this.country = country;
+                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, country.Technology_, techType);
                 }
 
                 public override void preview(Map map)
                 {
                     base.preview(map);
-                    map.Countries[countryId].Technology_[techType]++;
-                    map.Countries[countryId].techStats.Calculate(map.Countries[countryId].Technology_);
+                    country.Technology_[techType]++;
+                    country.techStats.Calculate(country.Technology_);
                 }
 
                 public override void revert(Map map)
                 {
                     base.revert(map);
-                    map.Countries[countryId].Technology_[techType]--;
-                    map.Countries[countryId].techStats.Calculate(map.Countries[countryId].Technology_);
+                    country.Technology_[techType]--;
+                    country.techStats.Calculate(country.Technology_);
                 }
             }
 
             internal class building_upgrade : TurnAction, IInstantAction
             {
-                private readonly (int, int) coordinates;
-                private readonly BuildingType bType;
+                private readonly Province province;
+                private readonly BuildingType buildingType;
 
-                public building_upgrade((int, int) coordinates, BuildingType bType, int lvl) : base(ActionType.BuildingUpgrade,
+                public building_upgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingUpgrade,
                     CostsCalculator.TurnActionApCost(ActionType.BuildingUpgrade))
                 {
-                    this.coordinates = coordinates;
-                    this.bType = bType;
-                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, bType, lvl);
+                    this.province = province;
+                    this.buildingType = buildingType;
+                    int upgradeLevel = province.Buildings.Find(b => b.BuildingType == buildingType).BuildingLevel + 1;
+                    altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
                 }
 
                 public override void preview(Map map)
                 {
                     base.preview(map);
-                    map.upgradeBuilding(coordinates, bType);
+                    map.upgradeBuilding(province.coordinates, buildingType);
                 }
 
                 public override void revert(Map map)
                 {
                     base.revert(map);
-                    map.downgradeBuilding(coordinates, bType);
+                    map.downgradeBuilding(province.coordinates, buildingType);
                 }
             }
 
             internal class building_downgrade : TurnAction, IInstantAction
             {
-                private readonly (int, int) coordinates;
-                private readonly BuildingType bType;
+                private readonly Province province;
+                private readonly BuildingType buildingType;
 
-                public building_downgrade((int, int) coordinates, BuildingType bType) : base(ActionType.BuildingDowngrade,
+                public building_downgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingDowngrade,
                     CostsCalculator.TurnActionApCost(ActionType.BuildingDowngrade))
                 {
-                    this.coordinates = coordinates;
-                    this.bType = bType;
+                    this.province = province;
+                    this.buildingType = buildingType;
                 }
 
                 public override void preview(Map map)
                 {
                     base.preview(map);
-                    map.downgradeBuilding(coordinates, bType);
+                    map.downgradeBuilding(province.coordinates, buildingType);
                 }
 
                 public override void revert(Map map)
                 {
                     base.revert(map);
-                    map.upgradeBuilding(coordinates, bType);
+                    map.upgradeBuilding(province.coordinates, buildingType);
                 }
             }
 
