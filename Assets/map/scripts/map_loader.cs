@@ -89,6 +89,7 @@ public class map_loader : MonoBehaviour
         map.turnCnt = 0;
         SetPolitical();
         loading = false;
+
     }
 
 

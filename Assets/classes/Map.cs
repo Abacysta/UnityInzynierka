@@ -395,15 +395,24 @@ public class Map:ScriptableObject {
 
     public List<(int, int)> getPossibleMoveCells(Army army)
     {
-        List<(int, int)> possibleCells = new List<(int, int)>();
         (int startX, int startY) = army.Position;
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
-        int moveRangeLand = country.techStats.moveRange;
-        int moveRangeWater = (int)Math.Floor(country.techStats.moveRange + country.techStats.moveRange * country.techStats.waterMoveFactor);
+        return getPossibleMoveCells(startX, startY, country.techStats.moveRange, country.techStats.waterMoveFactor);
+    }
 
+    public List<(int, int)> getPossibleMoveCells(Province province, int range)
+    {
+        return getPossibleMoveCells(province.X, province.Y, range, range);
+    }
+
+    private List<(int, int)> getPossibleMoveCells(int startX, int startY, int moveRangeLand, double waterMoveFactor)
+    {
+        List<(int, int)> possibleCells = new List<(int, int)>();
         string startTerrain = getProvince(startX, startY).Type;
-
         HexUtils.Cube startCube = HexUtils.OffsetToCube(startX, startY);
+
+        int moveRangeWater = (int)Math.Floor(moveRangeLand + moveRangeLand * waterMoveFactor);
+
         Queue<(HexUtils.Cube, int)> frontier = new Queue<(HexUtils.Cube, int)>();
         frontier.Enqueue((startCube, 0));
 
@@ -451,6 +460,7 @@ public class Map:ScriptableObject {
 
         return possibleCells;
     }
+
 
     public List<Army> getCountryArmies(Country country)
     {
