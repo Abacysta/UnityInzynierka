@@ -1,10 +1,13 @@
 ﻿using Assets.classes;
+using Assets.classes.subclasses;
+using Assets.classes.Tax;
 using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Xsl;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using static Assets.classes.Event_;
@@ -140,7 +143,12 @@ namespace Assets.Scripts {
 
         }
         private void manageInternal() {
-
+            internalAffairsManager.setProperTax(map, map.CurrentPlayer);
+            if (humor == Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.handleArmyRecruitment(map.CurrentPlayer, humor);
+            internalAffairsManager.handleUnhappy(map.CurrentPlayer, humor);
+            internalAffairsManager.handleTechnology(map.CurrentPlayer, humor);
+            internalAffairsManager.handleBuildings(map.CurrentPlayer, humor);
+            if (humor != Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.handleArmyRecruitment(map.CurrentPlayer, humor);
         }
 
 
@@ -171,16 +179,64 @@ namespace Assets.Scripts {
                 }
                 bool exitF = false;
                 foreach(var p in toRecruit) {
-                    if (exitF)
+                    if (exitF || c.Resources[Resource.AP] < 1)
                         break;
                     exitF = !Map.LandUtilites.recruitAllAvailable(c, p);
                 }
             }
-            public static void handleTax(Country c, Humor humor) {
-                if (humor == Humor.Defensive) {
+            public static void handleTax(Map map, Country c, Humor humor) {
+                if (humor == Humor.Defensive && humor == Humor.Offensive) {
+                    if (c.techStats.lvlTax >= 1) {
+                        if (!(c.Tax is WarTaxes))
+                            c.Tax = new WarTaxes();
+                        else
+                            setProperTax(map, c);
+                    }
+                }
+                else if(humor == Humor.Leading) {
+                    if (c.techStats.lvlTax >= 2) {
+                        c.Tax = new InvesmentTaxes();
+                        float tax = Map.PowerUtilites.getTaxGain(c), upkeep = Map.PowerUtilites.getArmyUpkeep(map, c);
+                        if(tax < upkeep) {
+                            setProperTax(map, c);
+                        }
+
+                    }
+                }
+                else {
+                    setProperTax(map, c);
+                }
+            }
+            public static void setProperTax(Map map, Country c) {
+                c.Tax = new LowTaxes();
+                float tax = Map.PowerUtilites.getTaxGain(c), upkeep = Map.PowerUtilites.getArmyUpkeep(map, c);
+                if(tax < upkeep) {
+                    c.Tax = new MediumTaxes();
+                    tax = Map.PowerUtilites.getTaxGain(c); upkeep = Map.PowerUtilites.getArmyUpkeep(map, c);
+                    if(tax < upkeep) {
+                        c.Tax = new HighTaxes();
+                    }
+                }
+            }
+            //AI should rush eco2(boats) into adm4(taxbreak) so it doesn't collapse immideately
+            //TODO xd
+            public static void handleTechnology(Country c, Humor humor) {
+                if (c.Resources[Resource.AP] >= 1) if (c.Technology_[Technology.Economic] < 2) {
+                    var upgrade = CostsCalculator.TechCost(c.Technology_, Technology.Economic);
+                    if (c.Resources[Resource.SciencePoint] >= upgrade[Resource.SciencePoint]) {
+                        //bym chetnie cos zrobil ale nie moge
+                    }
+                }
+            }
+            public static void handleBuildings(Country c, Humor humor) {
+                if(c.Provinces.First(p=>p.coordinates == c.Capital).Buildings[(int)BuildingType.Infrastructure].BuildingLevel == 0) {
+                    //if(c.isPayable(CostsCalculator.TurnActionFullCost(actionContainer.TurnAction.ActionType.BuildingUpgrade, bType:BuildingType.Infrastructure, )))
+                }
+                else {
 
                 }
             }
+            
         }
         private class diploEventResponder {
             public static void Respond(Event_ e, Map map, Humor humor) {
@@ -354,22 +410,30 @@ namespace Assets.Scripts {
             public static void respond(DiploEvent.AccessRequest e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        e.accept(); break;
+                        if (Map.PowerUtilites.howArmyStronger(map, e.to, e.from) <= 1.1f) {
+                            e.reject();
+                        }
+                        else e.accept();
+                        break;
                     case Humor.Offensive:
                         e.reject();
                         break;
                     case Humor.Subservient:
-                        //tak samo jak senior
+                        if(map.hasRelationOfType(map.getSeniorIfExists(e.to), e.from, Relation.RelationType.MilitaryAccess)) {
+                            e.accept();
+                        } else e.reject();
                         break;
                     case Humor.Rebellious:
-                        //tak samo jak senior albo nie
+                        if (map.hasRelationOfType(map.getSeniorIfExists(e.to), e.from, Relation.RelationType.MilitaryAccess)) {
+                            e.accept();
+                        }
+                        else e.reject();
                         break;
                     case Humor.Defensive:
                         e.accept();
                         break;
                     default:
-                        //sprawdz czy ma dobre relacje z jego przeciwnikiem
-                        break;
+                        e.accept(); break;
                 }
             }
 
