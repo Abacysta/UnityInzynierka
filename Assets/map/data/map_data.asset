@@ -17797,8 +17797,8 @@ MonoBehaviour:
     type: land
     resources: AP
     resources_amount: 4
-    population: 1794
-    recruitable_population: 89
+    population: 1750
+    recruitable_population: 87
     happiness: 50
     is_coast: 0
     occupationInfo:
@@ -35147,8 +35147,8 @@ MonoBehaviour:
     type: land
     resources: iron
     resources_amount: 4
-    population: 1934
-    recruitable_population: 96
+    population: 1983
+    recruitable_population: 99
     happiness: 50
     is_coast: 0
     occupationInfo:
@@ -40019,5 +40019,5 @@ MonoBehaviour:
   army_prefab: {fileID: 8881007966899125626, guid: 846aa32f85f24cf4d84c6e8fb004aa5a, type: 3}
   turnlimit: 80
   resourceRate: 100
-  currentPlayer: 5
+  currentPlayer: 6
   turnCnt: 1
