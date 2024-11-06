@@ -8,6 +8,7 @@ public class fog_of_war : MonoBehaviour
     [SerializeField] private Tilemap fogTilemap;
     [SerializeField] private Tilemap fogMemoryTilemap;
     [SerializeField] private TileBase tileFog;
+    [SerializeField] private TileBase tileMemoryFog;
     [SerializeField] private Map map;
 
     public void Start() 
@@ -65,7 +66,7 @@ public class fog_of_war : MonoBehaviour
     public void MemoryTile((int x, int y) coordinates)
     {
         Vector3Int position = new Vector3Int(coordinates.x, coordinates.y, 0);
-        fogMemoryTilemap.SetTile(position, tileFog);
+        fogMemoryTilemap.SetTile(position, tileMemoryFog);
     }
 
     public void HideMemoryTile((int x, int y) coordinates)

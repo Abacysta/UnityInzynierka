@@ -1,8 +1,10 @@
+
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Map;
 
 public class GameSettingsPanel : MonoBehaviour
 {
@@ -39,6 +41,7 @@ public class GameSettingsPanel : MonoBehaviour
     private void LoadAvailableMaps()
     {
         availableMaps.Add("Map1");
+        availableMaps.Add("Map2");
 
         mapDropdown.ClearOptions();
         mapDropdown.AddOptions(availableMaps);
@@ -48,7 +51,7 @@ public class GameSettingsPanel : MonoBehaviour
     }
     public void SelectMap(int mapIndex)
     {
-        if (mapIndex >= 0 && mapIndex < availableMaps.Count)
+        if (mapIndex >= 0 && mapIndex <= availableMaps.Count)
         {
             selectedMap = availableMaps[mapIndex];
             playerTable.LoadMap(selectedMap);
@@ -238,10 +241,16 @@ public class GameSettingsPanel : MonoBehaviour
     private void OnMapSelected(TMP_Dropdown dropdown)
     {
         selectedMap = availableMaps[dropdown.value];
+        playerTable.LoadMap(selectedMap);
     }
 
     public void StartGame()
     {
+        if (!playerTable.controllers.Contains(CountryController.Local))
+        {
+            Debug.Log("At least one human player!");
+            return;
+        }
         map.name = selectedMap;
         map.File_name = selectedMap;
         map.ResourceRate = selectedResourceRate;
@@ -249,7 +258,7 @@ public class GameSettingsPanel : MonoBehaviour
 
         playerTable.StartGame();
 
-       SceneManager.LoadScene("game_map");
+        SceneManager.LoadScene("game_map");
     }
 
 }

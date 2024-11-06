@@ -15,8 +15,13 @@
     [AddComponentMenu("UI/Dynamic V Scroll View")]
     public class DynamicVScrollView : DynamicScrollView {
 
-        protected override float contentAnchoredPosition    { get { return -this.contentRect.anchoredPosition.y; } set { this.contentRect.anchoredPosition = new Vector2( this.contentRect.anchoredPosition.x, -value ); } }
-	    protected override float contentSize                { get { return this.contentRect.rect.height; } }
+        //protected override float contentAnchoredPosition    { get { return -this.contentRect.anchoredPosition.y; } set { this.contentRect.anchoredPosition = new Vector2( this.contentRect.anchoredPosition.x, -value ); } }
+        protected override float contentAnchoredPosition
+        {
+            get { return this.contentRect != null ? -this.contentRect.anchoredPosition.y : 0f; }
+            set { if (this.contentRect != null) this.contentRect.anchoredPosition = new Vector2(this.contentRect.anchoredPosition.x, -value); }
+        }
+        protected override float contentSize                { get { return this.contentRect.rect.height; } }
 	    protected override float viewportSize               { get { return this.viewportRect.rect.height;} }
 	    protected override float itemSize                   { get { return this.itemPrototype.rect.height;} }
 

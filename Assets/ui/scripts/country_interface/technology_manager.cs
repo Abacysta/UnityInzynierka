@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.TestTools;
 using UnityEngine.UI;
 using static Country.TechnologyInterpreter;
+using static Assets.classes.actionContainer.TurnAction;
 
 public class technology_manager : MonoBehaviour
 {
@@ -218,7 +218,8 @@ public class technology_manager : MonoBehaviour
         GameObject nextLevelContainer, Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText, 
         TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Technology type)
     {
-        Dictionary<Resource, float> cost = CostsCalculator.TechCost(map.CurrentPlayer.Technology_, type);
+        Dictionary<Resource, float> cost = CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade, 
+            tech: map.CurrentPlayer.Technology_, techType: type);
 
         // Tooltip
         ClearChildren(tooltip.transform);

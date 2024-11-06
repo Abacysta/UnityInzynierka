@@ -55,7 +55,9 @@ public class Map : ScriptableObject {
     public Country CurrentPlayer { get => countries[currentPlayer]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
     public List<CountryController> Controllers { get { return countryControllers; } set => countryControllers = value; }
-    public void addCountry(Country country, CountryController ptype) {
+    public List<army_view> ArmyViews { get => armyViews; set => armyViews = value; }
+    public void addCountry(Country country, CountryController ptype)
+    {
         countries.Add(country);
         countryControllers.Add(ptype);
     }
@@ -423,11 +425,17 @@ public class Map : ScriptableObject {
         return armies.FindAll(a => a.OwnerId == country.Id);
     }
 
-    public bool IsValidPosition(int x, int y) {
-        return x >= 0 && x <= 79 && y >= 0 && y <= 79;
+    public bool IsValidPosition(int x, int y)
+    {
+        Province province = getProvince(x, y);
+
+        return province != null;
     }
-    public void ManageOccupationDuration(Province province) {
-        if (province.OccupationInfo.IsOccupied) {
+
+    public void ManageOccupationDuration(Province province)
+    {
+        if (province.OccupationInfo.IsOccupied)
+        {
             province.OccupationInfo.OccupationCount--;
 
             if (province.OccupationInfo.OccupationCount <= 0) {

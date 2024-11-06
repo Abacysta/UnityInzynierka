@@ -460,6 +460,30 @@ public class Country {
             }
         return can;
     }
+
+    public int CalculateMaxArmyUnits(Dictionary<Resource, float> cost, int armyCount)
+    {
+        if (resources[Resource.AP] < cost[Resource.AP]) 
+        {
+            return 0;
+        }
+
+        int maxUnits = armyCount;
+
+        foreach (var resourceCost in cost)
+        {
+            if (resourceCost.Key == Resource.AP)
+                continue;
+
+            if (resources.TryGetValue(resourceCost.Key, out float availableResource))
+            {
+                int possibleUnits = (int)(availableResource / resourceCost.Value);
+                maxUnits = Math.Min(maxUnits, possibleUnits);
+            }
+        }
+        return maxUnits;
+    }
+
     public void SetArmyVisibilityManager(army_visibility_manager manager)
     {
         this.armyVisibilityManager = manager;

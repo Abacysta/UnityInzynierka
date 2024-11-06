@@ -7,6 +7,7 @@ using Assets.classes;
 using Assets.Scripts;
 using System.Reflection;
 using Assets.classes.subclasses;
+using static Assets.classes.actionContainer.TurnAction;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -46,7 +47,7 @@ public class dialog_box_manager : MonoBehaviour
         internal class DialogBox {
             public string title, message;
 
-            public DialogBox(string title, string message, Dictionary<Resource, float> cost = null) {
+            public DialogBox(string title, string message) {
                 this.title = title;
                 this.message = message;
             }
@@ -55,9 +56,9 @@ public class dialog_box_manager : MonoBehaviour
                 return (title, message);
             }
         }
-        internal static DialogBox army_box = new("Move Army", "Select how many units you want to move");
-        internal static DialogBox rec_box = new("Recruit Army", "Select how many units you want to recruit");
-        internal static DialogBox dis_box = new("Disband Army", "Select how many units you want to disband");
+        internal static DialogBox army_box = new("Move Army", "Select how many units you want to move.");
+        internal static DialogBox rec_box = new("Recruit Army", "Select how many units you want to recruit.");
+        internal static DialogBox dis_box = new("Disband Army", "Select how many units you want to disband.");
         internal static DialogBox upBuilding_box = new("Build ", "Do you want to build ");
         internal static DialogBox downBuilding_box = new("Raze ", "Do you want to raze ");
         internal static DialogBox tech_box = new("Upgrade ", "Do you want to upgrade ");
@@ -87,43 +88,57 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
         (string title, string message) = dialog_box_precons.army_box.toVars();
-        
+
+        int affordableValue = map.CurrentPlayer
+            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), army.Count);
+
         Action onConfirm = () => {
-            //map.setMoveArmy(army, (int)dialog_slider.value, destination);
             var act = new Assets.classes.actionContainer.TurnAction.army_move(army.Position, destination, (int)dialog_slider.value, army);
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
-        Action onCancel = null;
-        ShowSliderBox(title, message, onConfirm, onCancel, army.Count);
+        float cost = CostsCalculator.TurnActionApCost(ActionType.ArmyMove);
+        ShowSliderBox(title, message, onConfirm, army.Count, CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), affordableValue: affordableValue);
     }
 
     public void invokeRecBox(Map map, (int, int) coordinates) {
         (string title, string message) = dialog_box_precons.rec_box.toVars();
         var province = map.getProvince(coordinates);
+
+        int affordableValue = map.CurrentPlayer
+            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), province.RecruitablePopulation);
+
         Action onConfirm = () => {
-            //map.recArmy(coordinates, (int)dialog_slider.value);
             var act = new Assets.classes.actionContainer.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value);
             map.Countries[province.Owner_id].Actions.addAction(act);
         };
-        Action onCancel= null;
-        ShowSliderBox(title, message, onConfirm, onCancel, province.RecruitablePopulation);
+
+        ShowSliderBox(title, message, onConfirm, province.RecruitablePopulation, 
+            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), affordableValue: affordableValue);
     }
 
-    public void invokeDisBox(Map map, Army army) {
+    public void invokeDisbandArmyBox(Map map, Army army)
+    {
         (string title, string message) = dialog_box_precons.dis_box.toVars();
-        
-        Action onConfirm = () => {
-            var act = new Assets.classes.actionContainer.TurnAction.army_disbandment(army, (int)dialog_slider.value);
+
+        int affordableValue = map.CurrentPlayer
+            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), army.Count);
+
+        Action onConfirm = () =>
+        {
+            int unitsToDisband = (int)dialog_slider.value;
+            var act = new Assets.classes.actionContainer.TurnAction.army_disbandment(army, unitsToDisband);
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
-        Action onCancel= null;
-        ShowSliderBox(title, message, onConfirm, onCancel, army.Count);
+
+        ShowSliderBox(title, message, onConfirm, army.Count, 
+            CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), affordableValue: affordableValue);
     }
-    
 
     public void invokeUpgradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
         (string title, string message) = dialog_box_precons.upBuilding_box.toVars();
+
         var province = map.getProvince(coordinates);
+
         switch(type) {
             case BuildingType.Fort:
                 title += "Fort lvl";
@@ -144,19 +159,27 @@ public class dialog_box_manager : MonoBehaviour
             default:
                 break;
         }
-        var lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel + 1;
+
+        int lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel + 1;
         title += lvl + "?";
         message += lvl + "?";
+
         Action onConfirm = () => {
-            map.upgradeBuilding(coordinates, type);
+            var act = new building_upgrade(coordinates, type, lvl);
+            map.CurrentPlayer.Actions.addAction(act);
         };
-        Action onCancel = null;
-        ShowConfirmBox(title, message, onConfirm, onCancel);
+
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingUpgrade, bType: type, lvl: lvl);
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
     }
 
     public void invokeDowngradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
         (string title, string message) = dialog_box_precons.downBuilding_box.toVars();
-        switch(type) {
+
+        var province = map.getProvince(coordinates);
+
+        switch (type) {
             case BuildingType.Fort:
                 title += "Fort";
                 message += "Fort";
@@ -176,11 +199,19 @@ public class dialog_box_manager : MonoBehaviour
             default:
                 break;
         }
+
+        int lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel;
+        title += lvl + "?";
+        message += lvl + "?";
+
         Action onConfirm = () => {
-            map.downgradeBuilding(coordinates, type);
+            var act = new building_downgrade(coordinates, type);
+            map.CurrentPlayer.Actions.addAction(act);
         };
-        Action onCancel = null;
-        ShowConfirmBox(title, message, onConfirm, onCancel);
+
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingDowngrade);
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
     }
 
     public void invokeTechUpgradeBox(Technology type)
@@ -205,51 +236,27 @@ public class dialog_box_manager : MonoBehaviour
                 break;
         }
 
-        Dictionary<Resource, float> cost = CostsCalculator.TechCost(map.CurrentPlayer.Technology_, type);
-
-        float costAP = cost.ContainsKey(Resource.AP) ? cost[Resource.AP] : 0;
-        float costSP = cost.ContainsKey(Resource.SciencePoint) ? cost[Resource.SciencePoint] : 0;
-
         Action onConfirm = () => {
-            map.CurrentPlayer.Technology_[type]++;
-            map.CurrentPlayer.techStats.Calculate(map.CurrentPlayer.Technology_);
-            map.CurrentPlayer.Resources[Resource.AP] -= costAP;
-            map.CurrentPlayer.Resources[Resource.SciencePoint] -= costSP;
-            technology_manager.UpdateData();
+            var act = new technology_upgrade(map.currentPlayer, map.CurrentPlayer.Technology_, type, technology_manager);
+            map.CurrentPlayer.Actions.addAction(act);
         };
-        Action onCancel = null;
-
-        ShowConfirmBox(title, message, onConfirm, onCancel);
+        
+        ShowConfirmBox(title, message, onConfirm, confirmable: true, 
+            cost: CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade,
+            tech: map.CurrentPlayer.Technology_, techType: type));
     }
 
-    public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel, Dictionary<Resource, float> cost) {
+    public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {
         bool confirmable = map.CurrentPlayer.canPay(cost);
-        cost_element.SetActive(cost != null);
-        ShowConfirmBox(title, message, onConfirm, onCancel, confirmable, cost: cost);
-    }
-    public void invokeDisbandArmyBox(Map map, Army army)
-    {
-        (string title, string message) = dialog_box_precons.dis_box.toVars();
-
-        Action onConfirm = () =>
-        {
-            int unitsToDisband = (int)dialog_slider.value;
-
-            var act = new Assets.classes.actionContainer.TurnAction.army_disbandment(army, unitsToDisband);
-            map.Countries[army.OwnerId].Actions.addAction(act);
-        };
-
-        Action onCancel = null;
-
-        ShowSliderBox(title,message,onConfirm, onCancel, army.Count);
+        ShowConfirmBox(title, message, onConfirm, confirmable, cost: cost);
     }
 
     public void invokeEventBox(Event_ _event) {
         bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
 
-        // wyszukaj metode niestatyczna, publiczna, nieodziedziczona o nazwie "reject"
+        // Search for a non-static, public, non-inherited method named "reject"
         MethodInfo rejectMethod = _event.GetType().GetMethod("reject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-        // jesli metoda reject nie jest pusta, to rejectable ustaw na true
+        // If the reject method exists and has a body (braces), it is rejectable
         bool rejectable = rejectMethod != null && rejectMethod.GetMethodBody() != null;
 
         cost_element.SetActive(_event.Cost != null);
@@ -273,11 +280,12 @@ public class dialog_box_manager : MonoBehaviour
             HideDialog();
         });
 
-        ShowConfirmBox("", _event.msg, onConfirm, onCancel, confirmable, rejectable, zoomable: true, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject");
+        ShowConfirmBox("", _event.msg, onConfirm, confirmable, rejectable, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject", onCancel: onCancel);
     }
 
-    private void ShowDialogBox(string actionTitle, string message, Action onConfirm, Action onCancel,
-        bool confirmable = true, bool rejectable = true, string confirmText = "OK", string cancelText = "Cancel", Action onClose = null)
+    private void ShowDialogBox(string actionTitle, string message, Action onConfirm,
+        bool confirmable = true, bool rejectable = true, string confirmText = "OK", string cancelText = "Cancel", 
+        Action onCancel = null, Action onClose = null)
     {
         map.CurrentPlayer.setCoatandColor(db_country_color_img);
 
@@ -316,10 +324,9 @@ public class dialog_box_manager : MonoBehaviour
         ShowDialog();
     }
 
-    private void ShowSliderBox(string actionTitle, string message, Action onConfirm, Action onCancel,
-        int maxValue, Dictionary<Resource, float> cost = null, List<Effect> effects = null,
-        string confirmText = "OK", string cancelText = "Cancel", Action onClose = null)
-    {
+    private void ShowSliderBox(string actionTitle, string message, Action onConfirm, int maxValue,
+        Dictionary<Resource, float> cost = null, List<Effect> effects = null, int affordableValue = int.MaxValue,
+        string confirmText = "OK", string cancelText = "Cancel", Action onCancel = null, Action onClose = null) {
         dialog_slider.value = 0;
         dialog_slider.maxValue = maxValue;
         slider_max.text = maxValue.ToString();
@@ -332,29 +339,28 @@ public class dialog_box_manager : MonoBehaviour
         {
             quantity_text.text = value.ToString();
             SetCostContent(cost, dialog_slider.value);
-            confirm_button.interactable = value > 0;
+            confirm_button.interactable = value > 0 && value <= affordableValue;
         });
 
-
- 
         zoom_button.gameObject.SetActive(false);
         choice_element.SetActive(true);
         cost_element.SetActive(true);
 
-        ShowDialogBox(actionTitle, message, onConfirm, onCancel, false);
+        ShowDialogBox(actionTitle, message, onConfirm, confirmable: false, rejectable: true,
+            confirmText, cancelText, onCancel, onClose);
     }
 
-    private void ShowConfirmBox(string actionTitle, string message, Action onConfirm, Action onCancel,
+    private void ShowConfirmBox(string actionTitle, string message, Action onConfirm,
         bool confirmable = true, bool rejectable = true, bool zoomable = false, Dictionary<Resource, float> cost = null,
-        List<Effect> effects = null, string confirmText = "OK", string cancelText = "Cancel", Action onClose = null)
+        List<Effect> effects = null, string confirmText = "OK", string cancelText = "Cancel", Action onCancel = null, Action onClose = null)
     {
-        SetCostContent(cost, effects: effects);
+        SetCostContent(cost, effects: effects, sliderValue: null);
 
         zoom_button.gameObject.SetActive(zoomable);
         choice_element.SetActive(false);
         cost_element.SetActive(cost!=null);
 
-        ShowDialogBox(actionTitle, message, onConfirm, onCancel, confirmable, rejectable, confirmText, cancelText);
+        ShowDialogBox(actionTitle, message, onConfirm, confirmable, rejectable, confirmText, cancelText, onCancel, onClose);
     }
 
     public void HideDialog()
@@ -379,8 +385,8 @@ public class dialog_box_manager : MonoBehaviour
             {
                 var (resourceName, resourceSprite) = GetResourceDetails(item.Key);
                 string costValue = sliderValue.HasValue && item.Key != Resource.AP
-                    ? (item.Value * sliderValue.Value).ToString()
-                    : item.Value.ToString();
+                ? (item.Value * sliderValue.Value).ToString("F1")
+                : item.Value.ToString("F1");
 
                 costRows.Add(new Effect(resourceSprite, $"{resourceName}:", $"-{costValue}", false));
             }
@@ -391,10 +397,7 @@ public class dialog_box_manager : MonoBehaviour
             costRows.AddRange(effects);
         }
 
-        if (costRows.Count > 0)
-        {
-            SetEffects(costRows);
-        }
+        SetEffects(costRows);
     }
 
     private void SetEffects(List<Effect> actionEffects)
@@ -404,11 +407,14 @@ public class dialog_box_manager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        foreach (var effect in actionEffects)
+        if (actionEffects != null && actionEffects.Count > 0)
         {
-            GameObject effectRow = Instantiate(effect_row_prefab, cost_content.transform);
-            var effectUI = effectRow.GetComponent<effect_ui>();
-            effectUI.SetEffect(effect);
+            foreach (var effect in actionEffects)
+            {
+                GameObject effectRow = Instantiate(effect_row_prefab, cost_content.transform);
+                var effectUI = effectRow.GetComponent<effect_ui>();
+                effectUI.SetEffect(effect);
+            }
         }
     }
 
