@@ -18,6 +18,7 @@ namespace Assets.classes {
             public Country country;
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
+
             public GlobalEvent(Country country, dialog_box_manager dialog, camera_controller camera) {
                 this.country = country;
                 this.dialog_box = dialog;
@@ -28,10 +29,13 @@ namespace Assets.classes {
             public override void accept() {
                 country.modifyResources(cost(), false);
             }
+
             public override void reject() { accept(); }
+
             public override void call() {
                 dialog_box.invokeEventBox(this);
             }
+
             public override void zoom() {
                 camera.ZoomCameraOnCountry(country);
             }
@@ -39,6 +43,7 @@ namespace Assets.classes {
             protected virtual Dictionary<Resource, float> cost() {
                 return null;
             }
+
             //id=0
             internal class Discontent:GlobalEvent {
                 public Discontent(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera) { }
@@ -60,16 +65,19 @@ namespace Assets.classes {
 
                 protected override Dictionary<Resource, float> cost() {
                     var cost = new Dictionary<Resource, float> {
-                    { Resource.Gold, 0 },
-                    { Resource.AP, 0 }
-                };
+                        { Resource.Gold, 0 },
+                        { Resource.AP, 0 }
+                    };
+
                     foreach(var p in country.Provinces) {
                         cost[Resource.Gold] += (float)Math.Round(25 * p.Population / 500f, 1);
                         cost[Resource.AP] += 0.2f;
                     }
+
                     return cost;
                 }
             }
+
 			//id=1
 			internal class Happiness:GlobalEvent {
                 public Happiness(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera) { }
@@ -229,12 +237,15 @@ namespace Assets.classes {
 
                 public override void accept()
                 {
-                    foreach (var p in country.Provinces)
+                    foreach (var province in country.Provinces)
                     {
-                        if (UnityEngine.Random.Range(0f, 1f) < 0.5f)
+                        if (province.ResourcesT == Resource.Wood)
                         {
-                            int duration = UnityEngine.Random.Range(1, 5);
-                            p.addStatus(new Fire(duration));
+                            if (UnityEngine.Random.Range(0f, 1f) < 0.5f)
+                            {
+                                int duration = UnityEngine.Random.Range(1, 5);
+                                province.addStatus(new Fire(duration));
+                            }
                         }
                     }
                     base.accept();
@@ -523,99 +534,11 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class StrangeRuins : LocalEvent
-            {
-                public StrangeRuins(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
-                {
-                }
 
-                public override string msg
-                {
-                    get { return "One of the locals found strange ruins in " + province.Name + ". Do you wish to explore them?"; }
-                }
-
-                public override void call()
-                {
-                    base.call();
-                }
-
-                public override void accept()
-                {
-                    base.accept();
-                }
-
-                public override void reject()
-                {
-                    base.reject();
-                }
-            }
-            internal class StrangeRuins1 : StrangeRuins
+            internal class StrangeRuins1 : LocalEvent
             {
                 private Map map;
                 public StrangeRuins1(Province province, dialog_box_manager dialog_box, 
-                    camera_controller camera, Map map) : base(province, dialog_box, camera)
-                {
-                    this.map = map;
-                }
-
-                public override string msg
-                {
-                    get { return "The local found an abandoned storage room."; }
-                }
-
-                public override void call()
-                {
-                    base.call();
-                }
-
-                public override void accept()
-                {
-                    base.accept();
-                    // Przyznanie zasobów
-                    float gold = UnityEngine.Random.Range(0f, 20f); // od 0 do 20 złota
-                    float wood = UnityEngine.Random.Range(0f, 30f); // od 0 do 30 drewna
-                    float iron = UnityEngine.Random.Range(0f, 30f); // od 0 do 30 żelaza
-                    Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-                    country.modifyResource(Resource.Gold, gold);
-                    country.modifyResource(Resource.Wood, gold);
-                    country.modifyResource(Resource.Iron, gold);
-                }
-
-                public override void reject()
-                {
-                    base.reject();
-                }
-            }
-            internal class StrangeRuins2 : StrangeRuins
-            {
-                public StrangeRuins2(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
-                {
-                }
-
-                public override string msg
-                {
-                    get { return "Ruins seems to be already expolred. You didn't find anythinf usefull."; }
-                }
-
-                public override void call()
-                {
-                    base.call();
-                }
-
-                public override void accept()
-                {
-                    base.accept();
-                }
-
-                public override void reject()
-                {
-                    base.reject();
-                }
-            }
-            internal class StrangeRuins3 : StrangeRuins
-            {
-                private Map map;
-                public StrangeRuins3(Province province, dialog_box_manager dialog_box, 
                     camera_controller camera, Map map) : base(province, dialog_box, camera)
                 {
                     this.map = map;
@@ -646,138 +569,10 @@ namespace Assets.classes {
                     base.reject();
                 }
             }
-            internal class StrangeRuins4 : StrangeRuins
+
+            internal class StrangeRuins2 : LocalEvent 
             {
-                private Map map;
-                public StrangeRuins4(Province province, dialog_box_manager dialog_box, 
-                    camera_controller camera, Map map) : base(province, dialog_box, camera)
-                {
-                    this.map = map;
-                }
-
-                public override string msg
-                {
-                    get { return "The local found some iron weapons.They are not in the best state but can they can be at least smelted."; }
-                }
-
-                public override void call()
-                {
-                    base.call();
-                }
-
-                public override void accept()
-                {
-                    base.accept();
-                    // Przyznanie zasobów
-                    float iron = UnityEngine.Random.Range(0f, 20f); // od 0 do 20 żelaza
-                    Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-                    country.modifyResource(Resource.Iron, iron);
-                }
-
-                public override void reject()
-                {
-                    base.reject();
-                }
-            }
-            internal class StrangeRuins5 : StrangeRuins
-            {
-                private Map map;
-                public StrangeRuins5(Province province, dialog_box_manager dialog_box, 
-                    camera_controller camera, Map map) : base(province, dialog_box, camera)
-                {
-                    this.map = map;
-                }
-
-                public override string msg
-                {
-                    get { return "The local encountered a pack of wolves."; }
-                }
-
-                public override void call()
-                {
-                    base.call();
-                }
-
-                public override void accept()
-                {
-                    base.accept();
-
-                    Army army = new Army(0, UnityEngine.Random.Range(2, 5), province.coordinates, province.coordinates);
-                    map.addArmy(army);
-                }
-
-                public override void reject()
-                {
-                    base.reject();
-                }
-            }
-            internal class StrangeRuins6 : StrangeRuins
-            {
-                private Map map;
-                public StrangeRuins6(Province province, dialog_box_manager dialog_box, 
-                    camera_controller camera, Map map) : base(province, dialog_box, camera)
-                {
-                    this.map = map;
-                }
-
-                public override string msg
-                {
-                    get { return "The local awaken guardians of the ruins."; }
-                }
-
-                public override void call()
-                {
-                    base.call();
-                }
-
-                public override void accept()
-                {
-                    base.accept();
-                    Army army = new Army(0, UnityEngine.Random.Range(10, 20), province.coordinates, province.coordinates);
-                    map.addArmy(army);
-                }
-
-                public override void reject()
-                {
-                    base.reject();
-                }
-            }
-            internal class StrangeRuins7 : StrangeRuins
-            {
-                private Map map;
-                public StrangeRuins7(Province province, dialog_box_manager dialog_box, 
-                    camera_controller camera, Map map) : base(province, dialog_box, camera)
-                {
-                    this.map = map;
-                }
-
-                public override string msg
-                {
-                    get { return "The local found a mysteroius artifact. You want to sell it?"; }
-                }
-
-                public override void call()
-                {
-                    base.call();
-                }
-
-                public override void accept()
-                {
-                    base.accept();
-                    float gold = UnityEngine.Random.Range(50f, 200f); // od 50 do 200 złota
-                    Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
-                    country.modifyResource(Resource.Gold, gold);
-                }
-
-                public override void reject()
-                {
-                    base.reject();
-                    // chce dodać tutaj dodatkowy modifier do army power
-                }
-            }
-            internal class StrangeRuins8 : StrangeRuins
-            {
-                public StrangeRuins8(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
+                public StrangeRuins2(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
                 {
                 }
 
@@ -807,7 +602,8 @@ namespace Assets.classes {
                 }
             }
         }
-        public class    DiploEvent:Event_ {
+
+        public class DiploEvent : Event_ {
             public Country from, to;
             private diplomatic_relations_manager diplomacy;
             private camera_controller camera;

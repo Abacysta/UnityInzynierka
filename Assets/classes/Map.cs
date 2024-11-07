@@ -376,7 +376,7 @@ public class Map : ScriptableObject {
         return getPossibleMoveCells(province.X, province.Y, range, range);
     }
 
-    private List<(int, int)> getPossibleMoveCells(int startX, int startY, int moveRangeLand, double waterMoveFactor)
+    public List<(int, int)> getPossibleMoveCells(int startX, int startY, int moveRangeLand, double waterMoveFactor)
     {
         List<(int, int)> possibleCells = new List<(int, int)>();
         string startTerrain = getProvince(startX, startY).Type;

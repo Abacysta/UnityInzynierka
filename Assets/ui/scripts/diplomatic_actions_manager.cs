@@ -1234,7 +1234,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         effect_area.SetActive(true);
     }
 
-    public void ResetRecevierButtonStates()
+    public void ResetReceiverButtonStates()
     {
         receiverCountryButtonStates.Clear();
     }
