@@ -7,7 +7,7 @@ using Assets.classes;
 using Assets.Scripts;
 using System.Reflection;
 using Assets.classes.subclasses;
-using static Assets.classes.actionContainer.TurnAction;
+using static Assets.classes.TurnAction;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -99,7 +99,7 @@ public class dialog_box_manager : MonoBehaviour
             .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), army.Count);
 
         Action onConfirm = () => {
-            var act = new Assets.classes.actionContainer.TurnAction.army_move(army.Position, destination, (int)dialog_slider.value, army);
+            var act = new Assets.classes.TurnAction.army_move(army.Position, destination, (int)dialog_slider.value, army);
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
         float cost = CostsCalculator.TurnActionApCost(ActionType.ArmyMove);
@@ -114,7 +114,7 @@ public class dialog_box_manager : MonoBehaviour
             .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), province.RecruitablePopulation);
 
         Action onConfirm = () => {
-            var act = new Assets.classes.actionContainer.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value);
+            var act = new Assets.classes.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value);
             map.Countries[province.Owner_id].Actions.addAction(act);
         };
 
@@ -132,7 +132,7 @@ public class dialog_box_manager : MonoBehaviour
         Action onConfirm = () =>
         {
             int unitsToDisband = (int)dialog_slider.value;
-            var act = new Assets.classes.actionContainer.TurnAction.army_disbandment(army, unitsToDisband);
+            var act = new Assets.classes.TurnAction.army_disbandment(army, unitsToDisband);
             map.Countries[army.OwnerId].Actions.addAction(act);
         };
 
@@ -177,7 +177,7 @@ public class dialog_box_manager : MonoBehaviour
 
         var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingUpgrade, type, lvl);
 
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
     }
 
     public void invokeDowngradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
@@ -217,7 +217,7 @@ public class dialog_box_manager : MonoBehaviour
 
         var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingDowngrade);
 
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost);
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
     }
 
     public void invokeTechUpgradeBox(Technology type)
@@ -273,7 +273,7 @@ public class dialog_box_manager : MonoBehaviour
             new(happiness_sprite, "Happiness static", $"+{TaxBreak.HappStatic}", true)
         };
 
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost, effects: effects);
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
     }
 
     public void invokeFestivitiesOrganizationBox(Map map, (int, int) coordinates)
@@ -296,16 +296,16 @@ public class dialog_box_manager : MonoBehaviour
             new(happiness_sprite, "Happiness static", $"+{Festivities.HappStatic}", true)
         };
 
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost, effects: effects);
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
     }
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {
-        bool confirmable = map.CurrentPlayer.canPay(cost);
+        bool confirmable = map.CurrentPlayer.isPayable(cost);
         ShowConfirmBox(title, message, onConfirm, confirmable, cost: cost);
     }
 
     public void invokeEventBox(Event_ _event) {
-        bool confirmable = map.CurrentPlayer.canPay(_event.Cost);
+        bool confirmable = map.CurrentPlayer.isPayable(_event.Cost);
 
         // Search for a non-static, public, non-inherited method named "reject"
         MethodInfo rejectMethod = _event.GetType().GetMethod("reject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);

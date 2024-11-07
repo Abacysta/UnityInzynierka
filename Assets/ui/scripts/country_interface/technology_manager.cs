@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Country.TechnologyInterpreter;
-using static Assets.classes.actionContainer.TurnAction;
+using static Assets.classes.TurnAction;
 
 public class technology_manager : MonoBehaviour
 {
@@ -242,7 +242,7 @@ public class technology_manager : MonoBehaviour
 
         if (level < 10)
         {
-            SetButtonColor(techButton, map.CurrentPlayer.canPay(cost));
+            SetButtonColor(techButton, map.CurrentPlayer.isPayable(cost));
 
             nextLevelText.text = $"Level {level + 1} effects:";
 

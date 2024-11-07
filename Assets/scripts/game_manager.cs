@@ -156,7 +156,7 @@ public class game_manager : MonoBehaviour
 
     private void executeActions() {
         foreach(var c in map.Countries) {
-            List<Assets.classes.actionContainer.TurnAction> instants = c.Actions.extractInstants();
+            List<Assets.classes.TurnAction> instants = c.Actions.extractInstants();
             foreach (var inst in instants) {
                 inst.execute(map);
             }

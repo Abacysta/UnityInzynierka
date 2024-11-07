@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Assets.map.scripts;
 using Assets.classes;
 using static Assets.classes.Relation;
-using static Assets.classes.actionContainer.TurnAction;
+using static Assets.classes.TurnAction;
 using Assets.classes.subclasses;
 
 public class Effect
@@ -573,7 +573,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.start_war(currentPlayer, receiverCountry, 
+            var action = new TurnAction.start_war(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -620,7 +620,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             Vassalage vassalage = (Vassalage)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Vassalage);
-            var action = new actionContainer.TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box, camera_controller, this);
+            var action = new TurnAction.vassal_rebel(vassalage, diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
             // after this action, the following actions will not be selectable:
@@ -650,7 +650,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.integrate_vassal(vassalage, diplomatic_relations_manager, this);
+            var action = new TurnAction.integrate_vassal(vassalage, diplomatic_relations_manager, this);
             currentPlayer.Actions.addAction(action);
 
             // after this action, the following actions will not be selectable:
@@ -688,7 +688,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             War war = (War)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.War);
-            var action = new actionContainer.TurnAction.end_war(currentPlayer, war, diplomatic_relations_manager, dialog_box, camera_controller);
+            var action = new TurnAction.end_war(currentPlayer, war, diplomatic_relations_manager, dialog_box, camera_controller);
             currentPlayer.Actions.addAction(action);
 
             // after this action, the following actions will not be selectable:
@@ -714,15 +714,15 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> action_effects = new()
         {
-            new(opinion_sprite, "Your Opinion of Them", $"+{actionContainer.TurnAction.PraiseOurOpinionBonusInit}", true),
-            new(opinion_sprite, "Their Opinion of You", $"+{actionContainer.TurnAction.PraiseTheirOpinionBonusInit}", true)
+            new(opinion_sprite, "Your Opinion of Them", $"+{TurnAction.PraiseOurOpinionBonusInit}", true),
+            new(opinion_sprite, "Their Opinion of You", $"+{TurnAction.PraiseTheirOpinionBonusInit}", true)
         };
 
         SetEffects(action_effects);
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.praise(currentPlayer, receiverCountry, diplomatic_relations_manager, 
+            var action = new TurnAction.praise(currentPlayer, receiverCountry, diplomatic_relations_manager, 
                 dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -753,15 +753,15 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> action_effects = new()
         {
-            new(opinion_sprite, "Your Opinion of Them", $"-{actionContainer.TurnAction.InsultOurOpinionPenaltyInit}", false),
-            new(opinion_sprite, "Their Opinion of You", $"-{actionContainer.TurnAction.InsultTheirOpinionPenaltyInit}", false)
+            new(opinion_sprite, "Your Opinion of Them", $"-{TurnAction.InsultOurOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Their Opinion of You", $"-{TurnAction.InsultTheirOpinionPenaltyInit}", false)
         };
 
         SetEffects(action_effects);
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.insult(currentPlayer, receiverCountry, 
+            var action = new TurnAction.insult(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -809,7 +809,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.alliance_offer(currentPlayer, receiverCountry, 
+            var action = new TurnAction.alliance_offer(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -849,7 +849,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             Alliance alliance = (Alliance)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Alliance);
-            var action = new actionContainer.TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, 
+            var action = new TurnAction.alliance_end(currentPlayer, alliance, diplomatic_relations_manager, 
                 dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -896,7 +896,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
             receiverCountryButtonStates[countryId].CountriesToSkip.Add(selectedEntry.Key);
             Relation.War war = map.getRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;
-            var action = new actionContainer.TurnAction.call_to_war(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager, camera_controller, this);
+            var action = new TurnAction.call_to_war(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager, camera_controller, this);
             currentPlayer.Actions.addAction(action);
         }
 
@@ -936,7 +936,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, 
+            var action = new TurnAction.subs_offer(currentPlayer, receiverCountry, diplomatic_relations_manager, 
                 dialog_box, goldValue, durationValue, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -970,7 +970,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         void onSend()
         {
             Subsidies subsidies = map.getRelationsOfType(currentPlayer, RelationType.Subsidies).First(r => r.Sides[1] == receiverCountry) as Subsidies;
-            var action = new actionContainer.TurnAction.subs_end(currentPlayer, receiverCountry, subsidies,
+            var action = new TurnAction.subs_end(currentPlayer, receiverCountry, subsidies,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -1009,7 +1009,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.subs_request(currentPlayer, receiverCountry, diplomatic_relations_manager,
+            var action = new TurnAction.subs_request(currentPlayer, receiverCountry, diplomatic_relations_manager,
                 dialog_box, goldValue, durationValue, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -1038,7 +1038,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.access_offer(currentPlayer, receiverCountry, 
+            var action = new TurnAction.access_offer(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -1070,7 +1070,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.access_request(currentPlayer, receiverCountry,
+            var action = new TurnAction.access_request(currentPlayer, receiverCountry,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -1104,7 +1104,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry, 
                 RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as MilitaryAccess;
-            var action = new actionContainer.TurnAction.access_end_master(currentPlayer, receiverCountry, militaryAccess,
+            var action = new TurnAction.access_end_master(currentPlayer, receiverCountry, militaryAccess,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -1135,7 +1135,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry,
                 RelationType.MilitaryAccess).First(a => a.Sides[1] == currentPlayer) as MilitaryAccess;
-            var action = new actionContainer.TurnAction.access_end_slave(currentPlayer, receiverCountry, militaryAccess,
+            var action = new TurnAction.access_end_slave(currentPlayer, receiverCountry, militaryAccess,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
@@ -1174,7 +1174,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         void onSend()
         {
-            var action = new actionContainer.TurnAction.vassal_offer(currentPlayer, receiverCountry, 
+            var action = new TurnAction.vassal_offer(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
             currentPlayer.Actions.addAction(action);
 
