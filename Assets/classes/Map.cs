@@ -648,18 +648,19 @@ public class Map : ScriptableObject {
             //...
             return provinces;
         }
+        //pewnie trzeba bedzie zmienic z numerow na jakis inny szajs
         public static List<Province> getUnhappyProvinces(Country country) {
-            return country.Provinces.Where(p=>p.Happiness<40).ToList();
+            return country.Provinces.Where(p=>p.Happiness<40 && !p.Statuses.Any(s=>s.id == 1)).ToList();
         }
         public static List<Province> getGrowable(Country c) {
-            return c.Provinces.Where(p => p.ResourcesT == Resource.Gold || p.Population < 200).ToList();
+            return c.Provinces.Where(p => (p.ResourcesT == Resource.Gold || p.Population < 400) && !p.Statuses.Any(s=>s.id== 2)).ToList();
         }
         public static List<Province> getOptimalRecruitmentProvinces(Country c) {
             return c.Provinces.Where(p=>p.RecruitablePopulation >= 50).OrderByDescending(p=>p.Population).ToList();
         }
         public static bool recruitAllAvailable(Country c, Province p) {
             if (c.Resources[Resource.AP] >= 1) {
-                c.Actions.addAction(new actionContainer.TurnAction.army_recruitment(p.coordinates,
+                c.Actions.addAction(new TurnAction.army_recruitment(p.coordinates,
                     p.RecruitablePopulation*c.techStats.armyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.armyCost)));
             }
             return p.RecruitablePopulation == 0;

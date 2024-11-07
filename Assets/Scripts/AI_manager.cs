@@ -142,13 +142,19 @@ namespace Assets.Scripts {
         private void diplomacy() {
 
         }
+        /// <summary>
+        /// responsible for taking care of internal affairs
+        /// different humors might have different squences they will take
+        /// </summary>
         private void manageInternal() {
             internalAffairsManager.setProperTax(map, map.CurrentPlayer);
             if (humor == Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.handleArmyRecruitment(map.CurrentPlayer, humor);
             internalAffairsManager.handleUnhappy(map.CurrentPlayer, humor);
+            if (humor == Humor.Leading) internalAffairsManager.handleGrowable(map.CurrentPlayer, humor);
             internalAffairsManager.handleTechnology(map.CurrentPlayer, humor);
             internalAffairsManager.handleBuildings(map.CurrentPlayer, humor);
             if (humor != Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.handleArmyRecruitment(map.CurrentPlayer, humor);
+            if(humor != Humor.Leading) internalAffairsManager.handleGrowable(map.CurrentPlayer, humor);
         }
 
 
@@ -159,15 +165,34 @@ namespace Assets.Scripts {
         private class internalAffairsManager {
             public static void handleUnhappy(Country c, Humor humor) {
                 var unhappy = Map.LandUtilites.getUnhappyProvinces(c);
-                var unTaxBreakable = unhappy.FindAll(p => p.Happiness < 30);
-                var handlable = unhappy.FindAll(p=>p.Happiness >30);
-                //while (handlable.Count > 0) {
-                //    handlable[0]
-                //} czekamy :^))))))))
+                var veryBad = unhappy.FindAll(p => p.Happiness <= 30).OrderBy(p=>p.Happiness).ToList();
+                var handlable = unhappy.FindAll(p=>p.Happiness >30).OrderBy(p=>p.Happiness).ToList();
+                //tax break on provinces with low chance of rebellion
+                while (handlable.Count > 0) {
+                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
+                        c.Actions.addAction(new TurnAction.tax_break_introduction(handlable[0]));
+                        handlable.RemoveAt(0);
+                    }
+                    else break;
+                }
+                //if can suppress, will for dire provinces
+                if(c.techStats.canRebelSupp) while(veryBad.Count > 0) {
+                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
+                        c.Actions.addAction(new TurnAction.rebel_suppresion(veryBad[0]));
+                        veryBad.RemoveAt(0);
+                    }
+                    else break;
+                }
             }
             public static void handleGrowable(Country c, Humor humor) {
                 var growable = Map.LandUtilites.getGrowable(c);
-                //still need that actions :))))))))))))000
+                int limit = humor == Humor.Leading ? c.Provinces.Count/10 : c.Provinces.Count/20;//10 and 5 % respecitvely
+                foreach(var p in growable) {
+                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
+                        c.Actions.addAction(new TurnAction.festivities_organization(p));
+                    }
+                    else break;
+                }
             }
             public static void handleArmyRecruitment(Country c, Humor humor) {
                 var toRecruit = new List<Province>();
@@ -218,19 +243,111 @@ namespace Assets.Scripts {
                     }
                 }
             }
-            //AI should rush eco2(boats) into adm4(taxbreak) so it doesn't collapse immideately
-            //TODO xd
+            //AI should rush eco2(boats) into adm4(taxbreak) so it doesn't collapse immideately(rebel suppresion is too far in administratice tree so good luck AI you're gonna need it)
             public static void handleTechnology(Country c, Humor humor) {
-                if (c.Resources[Resource.AP] >= 1) if (c.Technology_[Technology.Economic] < 2) {
-                    var upgrade = CostsCalculator.TechCost(c.Technology_, Technology.Economic);
-                    if (c.Resources[Resource.SciencePoint] >= upgrade[Resource.SciencePoint]) {
-                        //bym chetnie cos zrobil ale nie moge
+                if (c.Technology_[Technology.Economic] < 2) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    if(c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else if (c.Technology_[Technology.Administrative] < 4) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
+                    if(c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else if(humor == Humor.Defensive || humor == Humor.Offensive || humor == Humor.Rebellious) {
+                    techMEAPrio(c);
+                }
+                else if(humor == Humor.Leading || humor == Humor.Subservient) {
+                    techAEMPrio(c);
+                }
+                else {
+                    techMAEPrio(c);
+                }
+            }
+            /// <summary>
+            /// Priority Military -> Economic -> Administrative
+            /// Defensive, Offensive, Rebellious
+            /// </summary>
+            /// <param name="c"></param>
+            private static void techMEAPrio(Country c) {
+                var tech = c.Technology_;
+                if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Military);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else if (tech[Technology.Economic] - tech[Technology.Administrative] > 1) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+            }
+            /// <summary>
+            /// Priority Administrative -> Economic -> Military
+            /// Leading, Subservient
+            /// </summary>
+            /// <param name="c"></param>
+            private static void techAEMPrio(Country c) {
+                var tech = c.Technology_;
+                if (tech[Technology.Administrative] - tech[Technology.Economic] < 2 && tech[Technology.Administrative] - tech[Technology.Military] < 2) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else if (tech[Technology.Economic] - tech[Technology.Military] > 1) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Military);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+            }
+            /// <summary>
+            /// Priority Military -> Administrative -> Economic
+            /// _default
+            /// </summary>
+            /// <param name="c"></param>
+            private static void techMAEPrio(Country c) {
+                var tech = c.Technology_;
+                if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Military);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else if (tech[Technology.Administrative] - tech[Technology.Economic] > 1) {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
+                    }
+                }
+                else {
+                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                        c.Actions.addAction(action);
                     }
                 }
             }
             public static void handleBuildings(Country c, Humor humor) {
                 if(c.Provinces.First(p=>p.coordinates == c.Capital).Buildings[(int)BuildingType.Infrastructure].BuildingLevel == 0) {
-                    //if(c.isPayable(CostsCalculator.TurnActionFullCost(actionContainer.TurnAction.ActionType.BuildingUpgrade, bType:BuildingType.Infrastructure, )))
+                    
                 }
                 else {
 

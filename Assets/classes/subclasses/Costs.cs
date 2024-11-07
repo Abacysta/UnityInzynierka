@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using static Assets.classes.actionContainer.TurnAction;
+using static Assets.classes.TurnAction;
 
 namespace Assets.classes.subclasses
 {
@@ -129,7 +129,11 @@ namespace Assets.classes.subclasses
         {
             return (vassalage?.Sides[1].Provinces.Count / 5) ?? 1f;
         }
-
+        /// <summary>
+        /// Generic method for non-building and non-technology based actions
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <returns></returns>
         public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType)
         {
             switch (actionType)
@@ -145,7 +149,13 @@ namespace Assets.classes.subclasses
                 };
             }
         }
-
+        /// <summary>
+        /// Method for technology based actions
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="tech"></param>
+        /// <param name="techType"></param>
+        /// <returns></returns>
         public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType,
             Dictionary<Technology, int> tech, Technology techType)
         {
@@ -156,7 +166,13 @@ namespace Assets.classes.subclasses
             return TurnActionFullCost(actionType);
         }
 
-
+        /// <summary>
+        /// Method for building based actions
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="buildingType"></param>
+        /// <param name="upgradeLevel"></param>
+        /// <returns></returns>
         public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, BuildingType buildingType, int upgradeLevel)
         {
             if (actionType == ActionType.BuildingUpgrade)
@@ -165,7 +181,12 @@ namespace Assets.classes.subclasses
             }
             return TurnActionFullCost(actionType);
         }
-
+        /// <summary>
+        /// Method for rebellion
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="vassalage"></param>
+        /// <returns></returns>
         public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, Relation vassalage)
         {
             if (actionType == ActionType.IntegrateVassal)
@@ -210,14 +231,16 @@ namespace Assets.classes.subclasses
             fullCost.Remove(Resource.AP);
             return fullCost.Count > 0 ? fullCost : new Dictionary<Resource, float>();
         }
-
-        private static readonly float HardActionCost = 1f;
-        private static readonly float SoftActionCost = 0.1f;
+        private const float RebelSupCost = 2.5f;
+        private const float HardActionCost = 1f;
+        private const float SoftActionCost = 0.1f;
 
         public static float TurnActionApCost(ActionType actionType)
         {
             switch (actionType)
             {
+                case ActionType.RebelSuppresion:
+                    return RebelSupCost;
                 case ActionType.ArmyRecruitment:
                 case ActionType.ArmyMove:
                 case ActionType.StartWar:

@@ -451,15 +451,6 @@ public class Country {
     {
         revealedTiles.Clear();
     }
-    public bool canPay(Dictionary<Resource, float> cost) {
-        bool can = true;
-        if(cost != null) foreach(var key in cost.Keys) {
-                if(resources[key] < cost[key]) {
-                    can = false; break;
-                }
-            }
-        return can;
-    }
 
     public int CalculateMaxArmyUnits(Dictionary<Resource, float> cost, int armyCount)
     {
@@ -497,6 +488,9 @@ public class Country {
                 break;
         }
         return payFlag;
+    }
+    public bool isPayable(Resource type, float amount) {
+        return resources[type] >= amount;
     }
 }
 
