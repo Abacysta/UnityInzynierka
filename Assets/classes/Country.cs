@@ -79,9 +79,9 @@ public class Country {
         /// </summary>
         public int lvlFort;
         /// <summary>
-        /// Max level of School building
+        /// If levels above I can be built
         /// </summary>
-        public int lvlSchool;
+        public bool moreSchool;
         /// <summary>
         /// How many taxation policies were unlocked
         /// </summary>
@@ -101,56 +101,56 @@ public class Country {
 
         public static class BaseModifiers
         {
-            public static readonly float ProdFactor = 0.05f;
-            public static readonly float TaxFactor = 0.01f;
-            public static readonly float PopGrowth = 0.03f;
-            public static readonly float ArmyPower = 0.05f;
-            public static readonly float ArmyUpkeep = 0.03f;
-            public static readonly float ArmyCost = 0.05f;
+            public const float ProdFactor = 0.05f;
+            public const float TaxFactor = 0.01f;
+            public const float PopGrowth = 0.03f;
+            public const float ArmyPower = 0.05f;
+            public const float ArmyUpkeep = 0.03f;
+            public const float ArmyCost = 0.05f;
         }
 
         public static class EconomicModifiers
         {
-            public static readonly float ProdFactor1 = 0.05f;
-            public static readonly bool CanBoats = true;
-            public static readonly float ProdFactor2 = 0.05f;
-            public static readonly float TaxFactor1 = 0.15f;
-            public static readonly float ProdFactor3 = 0.1f;
-            public static readonly float TaxFactor2 = 0.05f;
-            public static readonly float ProdFactor4 = 0.05f;
+            public const float ProdFactor1 = 0.05f;
+            public const bool CanBoats = true;
+            public const float ProdFactor2 = 0.05f;
+            public const float TaxFactor1 = 0.15f;
+            public const float ProdFactor3 = 0.1f;
+            public const float TaxFactor2 = 0.05f;
+            public const float ProdFactor4 = 0.05f;
         }
         public static class MilitaryModifiers
         {
-            public static readonly float ArmyPower1 = 0.1f;
-            public static readonly float ArmyCost1 = 0.05f;
-            public static readonly float ArmyUpkeep1 = -0.03f;
-            public static readonly int OccTime1 = -1;
-            public static readonly float ArmyPower2 = 0.1f;
-            public static readonly float ArmyCost2 = 0.1f;
-            public static readonly float ArmyUpkeep2 = 0.02f;
-            public static readonly float ArmyCost3 = -0.1f;
-            public static readonly int MoveRange1 = 1;
-            public static readonly float ArmyUpkeep3 = 0.02f;
-            public static readonly float RecPop1 = 0.05f;
-            public static readonly float ArmyCost4 = -0.1f;
-            public static readonly float ArmyUpkeep4 = -0.15f;
-            public static readonly float OccPenalty1 = -0.35f;
-            public static readonly float ArmyPower3 = 0.15f;
-            public static readonly float WaterMoveFactor1 = 0.5f;
+            public const float ArmyPower1 = 0.1f;
+            public const float ArmyCost1 = 0.05f;
+            public const float ArmyUpkeep1 = -0.03f;
+            public const int OccTime1 = -1;
+            public const float ArmyPower2 = 0.1f;
+            public const float ArmyCost2 = 0.1f;
+            public const float ArmyUpkeep2 = 0.02f;
+            public const float ArmyCost3 = -0.1f;
+            public const int MoveRange1 = 1;
+            public const float ArmyUpkeep3 = 0.02f;
+            public const float RecPop1 = 0.05f;
+            public const float ArmyCost4 = -0.1f;
+            public const float ArmyUpkeep4 = -0.15f;
+            public const float OccPenalty1 = -0.35f;
+            public const float ArmyPower3 = 0.15f;
+            public const float WaterMoveFactor1 = 0.5f;
         }
 
         public static class AdministrativeModifiers
         {
-            public static readonly bool CanInfrastructure = true;
-            public static readonly bool CanFestival = true;
-            public static readonly float TaxFactor1 = 0.03f;
-            public static readonly bool CanTaxBreak = true;
-            public static readonly float OccProd1 = 0.1f;
-            public static readonly float TaxFactor2 = 0.01f;
-            public static readonly float RecPop1 = 0.02f;
-            public static readonly bool CanRebelSupp = true;
-            public static readonly float OccPenalty1 = -0.05f;
-            public static readonly float OccProd2 = 0.4f;
+            public const bool CanInfrastructure = true;
+            public const bool CanFestival = true;
+            public const float TaxFactor1 = 0.03f;
+            public const bool CanTaxBreak = true;
+            public const float OccProd1 = 0.1f;
+            public const float TaxFactor2 = 0.01f;
+            public const float RecPop1 = 0.02f;
+            public const bool CanRebelSupp = true;
+            public const float OccPenalty1 = -0.05f;
+            public const float OccProd2 = 0.4f;
         }
 
         public TechnologyInterpreter(Dictionary<Technology, int> tech) {
@@ -174,7 +174,8 @@ public class Country {
             occPenalty = 0.5f;
             occProd = 0;
             occTime = 3;
-            lvlMine = 0; lvlFort = 0; lvlSchool = 0; lvlTax = 0; lvlFoW = 2; moveRange = 1;
+            moreSchool = false;
+            lvlMine = 0; lvlFort = 0; lvlTax = 0; lvlFoW = 2; moveRange = 1;
             waterMoveFactor = 0.5f;
 
             //economic
@@ -268,7 +269,7 @@ public class Country {
                     lvlFoW += 1; // Fog I
                     break;
                 case 2:
-                    lvlSchool += 1; // School I
+                    moreSchool = true; // School I
                     goto case 1;
                 case 3:
                     canFestival = AdministrativeModifiers.CanFestival; // true
@@ -491,6 +492,9 @@ public class Country {
     }
     public bool isPayable(Resource type, float amount) {
         return resources[type] >= amount;
+    }
+    public Province getCapital() {
+        return provinces.First(p=>p.coordinates == capital);
     }
 }
 

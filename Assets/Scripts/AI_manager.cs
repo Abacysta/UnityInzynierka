@@ -5,6 +5,7 @@ using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Xsl;
@@ -64,6 +65,9 @@ namespace Assets.Scripts {
             }
             //internal block
             manageInternal();
+            //diplomacy block
+
+            //army block
             this.humor = Humor.Null;
         }
 
@@ -345,15 +349,63 @@ namespace Assets.Scripts {
                     }
                 }
             }
+            //to simplify things
+            //up to 2 infrastructures per turn
+            //up to 1 anything else
+            //if no school yet prioritize school over anything else
+            //smartest thing is probably mine -> infrastructure -> school -> fort
             public static void handleBuildings(Country c, Humor humor) {
-                if(c.Provinces.First(p=>p.coordinates == c.Capital).Buildings[(int)BuildingType.Infrastructure].BuildingLevel == 0) {
-                    
+                TurnAction.building_upgrade upgrade;
+                if (c.getCapital().Buildings[(int)BuildingType.Infrastructure].BuildingLevel == 0) {
+                    upgrade = new(c.getCapital(), BuildingType.Infrastructure);
+                    if (c.isPayable(upgrade.altCosts))
+                        c.Actions.addAction(upgrade);
                 }
-                else {
-
-                }
+                //mine block
+                List<Province> toImprove = getMineable(c);
+                upgrade = new(toImprove[0], BuildingType.Mine);
+                if (c.isPayable(upgrade.altCosts))
+                    c.Actions.addAction(upgrade);
+                //infr block
+                toImprove = getInfrastructurable(c);
+                upgrade = new(toImprove[0], BuildingType.Infrastructure);
+                if (c.isPayable(upgrade.altCosts))
+                    c.Actions.addAction(upgrade);
+                upgrade = new(toImprove[1], BuildingType.Infrastructure);
+                if (c.isPayable(upgrade.altCosts))
+                    c.Actions.addAction(upgrade);
+                //school block
+                toImprove = getSchoolable(c);
+                upgrade = new(toImprove[0], BuildingType.School);
+                if(c.isPayable(upgrade.altCosts))
+                    c.Actions.addAction(upgrade);
+                //fort block
+                toImprove = getFortable(c);
+                upgrade = new(toImprove[0], BuildingType.Fort);
+                if (c.isPayable(upgrade.altCosts))
+                    c.Actions.addAction(upgrade);
             }
-            
+            //infr limits for ai adm<2-1; adm<5-2; adm<7-3
+            //mainly to make them build other stuff as well
+            //getting lists cause I might increase limits(who knows)
+            private static List<Province> getInfrastructurable(Country c) {
+                int mode;
+                var adm = c.Technology_[Technology.Administrative];
+                if (adm < 2) mode = 1;
+                else if (adm < 5) mode = 2;
+                else mode = 3;
+                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.Infrastructure].BuildingLevel < mode).OrderByDescending(p=>p.Population).ToList();
+            }
+            private static List<Province> getFortable(Country c) {
+                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.Fort].BuildingLevel <( c.techStats.lvlFort+1)).OrderByDescending(p=>p.Population).ToList();
+            }
+            private static List<Province> getMineable(Country c) {
+                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.Mine].BuildingLevel < (c.techStats.lvlMine + 1)).OrderByDescending(p => p.Population).ToList();
+            }
+            //ograniczenie do 2 z lenistwa xd
+            private static List<Province> getSchoolable(Country c) {
+                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.School].BuildingLevel < (c.techStats.moreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
+            }
         }
         private class diploEventResponder {
             public static void Respond(Event_ e, Map map, Humor humor) {
