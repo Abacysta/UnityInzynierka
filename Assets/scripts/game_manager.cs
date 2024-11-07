@@ -51,18 +51,11 @@ public class game_manager : MonoBehaviour
     public static readonly int VassalageHappinessBonusConstC1 = 1;
     public static readonly int VassalageHappinessPenaltyConstC2 = 1;
 
-    // Loading map data before all scripts
-    void Awake()
-    {
-        //LoadData();
-    }
-
     private void Start() {
         while (loader == null) ;
         while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
-		
 	}
 
     void LoadData()
@@ -128,7 +121,7 @@ public class game_manager : MonoBehaviour
             {
                 Country armyOwner = map.Countries[army.OwnerId];
 
-                // Move the army to the nearest province that meets one of the following requirements:
+                // Move the army to the nearest province that meets at least one of the following requirements:
                 // - it is the territory of their own country, or
                 // - it is the territory of their ally, or
                 // - it is the territory of a country with which they have a vassalage relation, or
@@ -461,30 +454,28 @@ public class game_manager : MonoBehaviour
         {
             alertClear();
             map.currentPlayer++;
-            diplomaticActionsManager.ResetRecevierButtonStates();
+            diplomaticActionsManager.ResetReceiverButtonStates();
             
             Debug.Log($"Sending actions.");
         }
         else
         {
             Debug.Log($"Executing actions and performing calculations.");
+
             turn_sound.Play();
+
             rebellionCheck();
             executeActions();
             turnCalculations();
+
             for(int i = 0; i < map.Countries.Count; i++) {
                 Debug.Log(map.Countries[i].Name + "--");
                 Debug.Log("--" + map.Controllers[i]);
             }
+
             map.currentPlayer = 1;
-			map.Countries[1].Events.Add(new Event_.DiploEvent.WarDeclared(map.Countries[2], map.Countries[1], diplomacy, dialog_box, camera_controller));
-			map.Countries[1].Events.Add(new Event_.GlobalEvent.Happiness(map.Countries[1], dialog_box, camera_controller));
-			//toSave = new(map);
-            if (map.turnCnt % 5 == 0) {
-				toSave = new(map);
-				saveGame("autosave");
-                toSave = null;
-			}
+
+            AutoSave();
 			loader.Reload();
         }
 
@@ -494,18 +485,36 @@ public class game_manager : MonoBehaviour
         }
         else {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-            if (map.turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local) {
-                start_screen.welcomeScreen();
-            }
-            else if (map.turnCnt == 1) {
-                start_screen.unHide();
-			}
+
+            random_events.getRandomEvent(map.CurrentPlayer);
             camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();
             armyReset();
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
             map.UpdateAllArmyViewOrders();
             alerts.loadEvents(map.CurrentPlayer);
+        }
+    }
+
+    private void AutoSave()
+    {
+        if (map.turnCnt % 5 == 0)
+        {
+            toSave = new(map);
+            saveGame("autosave");
+            toSave = null;
+        }
+    }
+
+    private void HandleWelcomeScreen()
+    {
+        if (map.turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local)
+        {
+            start_screen.welcomeScreen();
+        }
+        else if (map.turnCnt == 1)
+        {
+            start_screen.unHide();
         }
     }
 }

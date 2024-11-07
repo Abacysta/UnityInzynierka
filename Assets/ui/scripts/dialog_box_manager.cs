@@ -300,12 +300,21 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {
-        bool confirmable = map.CurrentPlayer.isPayable(cost);
+        bool confirmable = true;
+        if (cost != null)
+        {
+            confirmable = map.CurrentPlayer.isPayable(cost);
+        }
+
         ShowConfirmBox(title, message, onConfirm, confirmable, cost: cost);
     }
 
     public void invokeEventBox(Event_ _event) {
-        bool confirmable = map.CurrentPlayer.isPayable(_event.Cost);
+        bool confirmable = true;
+        if (_event.Cost != null)
+        {
+            confirmable = map.CurrentPlayer.isPayable(_event.Cost);
+        }
 
         // Search for a non-static, public, non-inherited method named "reject"
         MethodInfo rejectMethod = _event.GetType().GetMethod("reject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
@@ -333,7 +342,7 @@ public class dialog_box_manager : MonoBehaviour
             HideDialog();
         });
 
-        ShowConfirmBox("", _event.msg, onConfirm, confirmable, rejectable, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject", onCancel: onCancel);
+        ShowConfirmBox("", _event.msg, onConfirm, confirmable, rejectable, zoomable: true, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject", onCancel: onCancel);
     }
 
     private void ShowDialogBox(string actionTitle, string message, Action onConfirm,
