@@ -241,6 +241,8 @@ namespace Assets.classes.subclasses
                 case ActionType.SubsEnd:
                 case ActionType.TechnologyUpgrade:
                 case ActionType.BuildingDowngrade:
+                case ActionType.FestivitiesOrganization:
+                case ActionType.TaxBreakIntroduction:
                     return SoftActionCost;
                 default:
                     return SoftActionCost;

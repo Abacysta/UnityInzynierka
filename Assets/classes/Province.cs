@@ -118,6 +118,14 @@ public class Province {
         statuses.Add(status);
     }
 
+    public void RemoveStatus(Status status)
+    {
+        if (statuses.Contains(status))
+        {
+            statuses.Remove(status);
+        }
+    }
+
     private float RealProduction() {
         float prod;
         if(ResourcesT!=Resource.AP){

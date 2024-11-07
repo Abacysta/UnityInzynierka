@@ -42,6 +42,9 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Sprite science_point_sprite;
     [SerializeField] private Sprite ap_sprite;
     [SerializeField] private Sprite happiness_sprite;
+    [SerializeField] private Sprite tax_mod_sprite;
+    [SerializeField] private Sprite pop_mod_sprite;
+    [SerializeField] private Sprite prod_mod_sprite;
 
     public class dialog_box_precons {
         internal class DialogBox {
@@ -56,12 +59,15 @@ public class dialog_box_manager : MonoBehaviour
                 return (title, message);
             }
         }
-        internal static DialogBox army_box = new("Move Army", "Select how many units you want to move.");
-        internal static DialogBox rec_box = new("Recruit Army", "Select how many units you want to recruit.");
-        internal static DialogBox dis_box = new("Disband Army", "Select how many units you want to disband.");
-        internal static DialogBox upBuilding_box = new("Build ", "Do you want to build ");
-        internal static DialogBox downBuilding_box = new("Raze ", "Do you want to raze ");
-        internal static DialogBox tech_box = new("Upgrade ", "Do you want to upgrade ");
+
+        internal static DialogBox armyMoveBox = new("Move Army", "Select how many units you want to move.");
+        internal static DialogBox recruitBox = new("Recruit Army", "Select how many units you want to recruit.");
+        internal static DialogBox disbandBox = new("Disband Army", "Select how many units you want to disband.");
+        internal static DialogBox upBuildingBox = new("Build ", "Do you want to build ");
+        internal static DialogBox downBuildingBox = new("Raze ", "Do you want to raze ");
+        internal static DialogBox techBox = new("Upgrade ", "Do you want to upgrade ");
+        internal static DialogBox taxBreakBox = new("Introduce Tax Break", "Do you want to introduce a tax break?");
+        internal static DialogBox festivitiesBox = new("Organize Festivities", "Do you want to organize festivities?");
     };
 
     void Update() {
@@ -87,7 +93,7 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     public void invokeArmyBox(Map map, Army army, (int, int) destination) {
-        (string title, string message) = dialog_box_precons.army_box.toVars();
+        (string title, string message) = dialog_box_precons.armyMoveBox.toVars();
 
         int affordableValue = map.CurrentPlayer
             .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), army.Count);
@@ -101,7 +107,7 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     public void invokeRecBox(Map map, (int, int) coordinates) {
-        (string title, string message) = dialog_box_precons.rec_box.toVars();
+        (string title, string message) = dialog_box_precons.recruitBox.toVars();
         var province = map.getProvince(coordinates);
 
         int affordableValue = map.CurrentPlayer
@@ -118,7 +124,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeDisbandArmyBox(Map map, Army army)
     {
-        (string title, string message) = dialog_box_precons.dis_box.toVars();
+        (string title, string message) = dialog_box_precons.disbandBox.toVars();
 
         int affordableValue = map.CurrentPlayer
             .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), army.Count);
@@ -135,7 +141,7 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     public void invokeUpgradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
-        (string title, string message) = dialog_box_precons.upBuilding_box.toVars();
+        (string title, string message) = dialog_box_precons.upBuildingBox.toVars();
 
         var province = map.getProvince(coordinates);
 
@@ -175,7 +181,7 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     public void invokeDowngradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
-        (string title, string message) = dialog_box_precons.downBuilding_box.toVars();
+        (string title, string message) = dialog_box_precons.downBuildingBox.toVars();
 
         var province = map.getProvince(coordinates);
 
@@ -216,7 +222,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeTechUpgradeBox(Technology type)
     {
-        (string title, string message) = dialog_box_precons.tech_box.toVars();
+        (string title, string message) = dialog_box_precons.taxBreakBox.toVars();
 
         switch (type)
         {
@@ -245,6 +251,52 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(title, message, onConfirm, confirmable: true, 
             cost: CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade,
             tech: map.CurrentPlayer.Technology_, techType: type));
+    }
+
+    public void invokeTaxBreakIntroductionBox(Map map, (int, int) coordinates)
+    {
+        (string title, string message) = dialog_box_precons.taxBreakBox.toVars();
+
+        var province = map.getProvince(coordinates);
+
+        Action onConfirm = () => {
+            var act = new tax_break_introduction(province);
+            map.CurrentPlayer.Actions.addAction(act);
+        };
+
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.TaxBreakIntroduction);
+
+        List<Effect> effects = new()
+        {
+            new(tax_mod_sprite, "Tax modifier", $"{TaxBreak.TaxMod}", false),
+            new(happiness_sprite, "Happiness modifier", $"+{TaxBreak.HappMod}", true),
+            new(happiness_sprite, "Happiness static", $"+{TaxBreak.HappStatic}", true)
+        };
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost, effects: effects);
+    }
+
+    public void invokeFestivitiesOrganizationBox(Map map, (int, int) coordinates)
+    {
+        (string title, string message) = dialog_box_precons.festivitiesBox.toVars();
+
+        var province = map.getProvince(coordinates);
+
+        Action onConfirm = () => {
+            var act = new festivities_organization(province);
+            map.CurrentPlayer.Actions.addAction(act);
+        };
+
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.FestivitiesOrganization);
+
+        List<Effect> effects = new()
+        {
+            new(prod_mod_sprite, "Production modifier", $"{Festivities.ProdMod}", false),
+            new(pop_mod_sprite, "Population modifier", $"+{Festivities.PopMod}", true),
+            new(happiness_sprite, "Happiness static", $"+{Festivities.HappStatic}", true)
+        };
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.canPay(cost), cost: cost, effects: effects);
     }
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {

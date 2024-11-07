@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets.classes.subclasses {
     [Serializable]
@@ -28,23 +24,33 @@ namespace Assets.classes.subclasses {
     }
     [Serializable]
     internal class TaxBreak:Status {
+
+        public static readonly float TaxMod = 0f;
+        public static readonly float HappMod = 0.2f;
+        public static readonly float HappStatic = 5f;
+
         public TaxBreak(int duration) : base(duration, StatusType.positive, "The province is exempted from paying tax", 1) {
         }
 
         public override void applyEffect(Province province) {
-            province.Tax_mod = 0;
-            province.Happ_mod += 0.2f;
-            province.Happ_static += 5;
+            province.Tax_mod = TaxMod;
+            province.Happ_mod += HappMod;
+            province.Happ_static += HappStatic;
         }
     }
 	[Serializable]
 	internal class Festivities:Status {
+
+        public static readonly float ProdMod = -0.15f;
+        public static readonly float PopMod = 0.15f;
+        public static readonly float HappStatic = 3f;
+
         public Festivities(int duration) : base(duration, StatusType.positive, "Festivities are taking place in this province", 2){}
 
         public override void applyEffect(Province province) {
-            province.Prod_mod -= 0.15f;
-            province.Pop_mod += 0.15f;
-            province.Happ_static += 3;
+            province.Prod_mod += ProdMod;
+            province.Pop_mod += PopMod;
+            province.Happ_static += HappStatic;
         }
     }
 

@@ -41,7 +41,9 @@ namespace Assets.classes {
                 CallToWar,
                 TechnologyUpgrade,
                 BuildingUpgrade,
-                BuildingDowngrade
+                BuildingDowngrade,
+                FestivitiesOrganization,
+                TaxBreakIntroduction
             }
 
             public ActionType type;
@@ -265,6 +267,56 @@ namespace Assets.classes {
                 {
                     base.revert(map);
                     map.upgradeBuilding(province.coordinates, buildingType);
+                }
+            }
+
+            internal class festivities_organization : TurnAction, IInstantAction
+            {
+                private readonly Province province;
+                private readonly Status status;
+
+                public festivities_organization(Province province) : base(ActionType.FestivitiesOrganization,
+                    CostsCalculator.TurnActionApCost(ActionType.FestivitiesOrganization))
+                {
+                    this.province = province;
+                    status = new Festivities(5);
+                }
+
+                public override void preview(Map map)
+                {
+                    base.preview(map);
+                    province.addStatus(status);
+                }
+
+                public override void revert(Map map)
+                {
+                    base.revert(map);
+                    province.RemoveStatus(status);
+                }
+            }
+
+            internal class tax_break_introduction : TurnAction, IInstantAction
+            {
+                private readonly Province province;
+                private readonly Status status;
+
+                public tax_break_introduction(Province province) : base(ActionType.TaxBreakIntroduction,
+                    CostsCalculator.TurnActionApCost(ActionType.TaxBreakIntroduction))
+                {
+                    this.province = province;
+                    status = new TaxBreak(5);
+                }
+
+                public override void preview(Map map)
+                {
+                    base.preview(map);
+                    province.addStatus(status);
+                }
+
+                public override void revert(Map map)
+                {
+                    base.revert(map);
+                    province.RemoveStatus(status);
                 }
             }
 
