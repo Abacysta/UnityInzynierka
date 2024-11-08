@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static Assets.classes.Relation;
 
 public class army_view : MonoBehaviour
 {
@@ -83,10 +84,9 @@ public class army_view : MonoBehaviour
     {
         ArmyData = armyData;
         UpdateArmyCounter(ArmyData.Count);
-        int tval = type != null ? (int)type.Value : 50;
-        UpdateArmyCounterColor(tval);
+        int typeValue = type != null ? (int)type.Value : 50;
+        UpdateArmyCounterColor(typeValue);
         ArmyData.OnArmyCountChanged += UpdateArmyCounter;
-        ArmyData.OnArmyCountChanged += UpdateArmyCounterColor;
         UpdatePosition();
 
         country = map.Countries[armyData.OwnerId];
@@ -278,19 +278,19 @@ public class army_view : MonoBehaviour
         Color adjusted;
         switch (type)
         {
-            case -1: // war
+            case (int)RelationType.War: // war
                 adjusted = WarColor;
                 break;
-            case 0: // truce
+            case (int)RelationType.Truce: // truce
                 adjusted = TruceColor;
                 break;
-            case 3: // alliance
+            case (int)RelationType.Alliance: // alliance
                 adjusted = AllianceColor;
                 break;
-            case 4: // vassalage
+            case (int)RelationType.Vassalage: // vassalage
                 adjusted = VassalageColor;
                 break;
-            case -2: // rebellion
+            case (int)RelationType.Rebellion: // rebellion
                 adjusted = RebellionColor;
                 break;
             default:

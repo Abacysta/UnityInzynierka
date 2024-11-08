@@ -460,6 +460,7 @@ public class game_manager : MonoBehaviour
         rebellionCheck();
         executeActions();
         turnCalculations();
+        GenerateEventsForCountries();
 
         for (int i = 0; i < map.Countries.Count; i++)
         {
@@ -484,12 +485,19 @@ public class game_manager : MonoBehaviour
         {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
             HandleWelcomeScreen();
-            random_events.getRandomEvent(map.CurrentPlayer);
             camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
             map.UpdateAllArmyViewOrders();
             alerts.loadEvents(map.CurrentPlayer);
+        }
+    }
+
+    private void GenerateEventsForCountries()
+    {
+        foreach (var country in map.Countries) 
+        {
+            if (country.Id != 0) random_events.getRandomEvent(country);         
         }
     }
 

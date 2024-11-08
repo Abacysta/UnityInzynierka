@@ -119,7 +119,7 @@ namespace Assets.map.scripts
         {
             int c = chance;
             int countryPopulation = country.Provinces.Sum(p => p.Population);
-            var countryHappiness = map.CurrentPlayer.Provinces.Average(p => p.Happiness);
+            var countryHappiness = country.Provinces.Average(p => p.Happiness);
             
             if (c < 5)
             {
