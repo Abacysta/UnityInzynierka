@@ -354,7 +354,7 @@ public class Map : ScriptableObject {
     }
 
     private void mergeToProvince(Province province, Army to_merge) {
-        Army base_ = armies.Find(a => a.Position == province.coordinates && a.Destination == a.Position);
+        Army base_ = armies.Find(a => a.OwnerId == to_merge.OwnerId && a.Position == province.coordinates && a.Destination == a.Position);
         if (base_ != null) {
             base_.Count += to_merge.Count;
             removeArmy(to_merge);

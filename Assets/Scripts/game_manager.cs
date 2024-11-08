@@ -42,8 +42,6 @@ public class game_manager : MonoBehaviour
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
 
-    private Dictionary<Army, Army> armiesAtStartOfTurn;
-
     public int turnCnt { get { return map.turnCnt; } }
 
     private Save toSave;
@@ -53,25 +51,13 @@ public class game_manager : MonoBehaviour
     public static readonly int VassalageHappinessBonusConstC1 = 1;
     public static readonly int VassalageHappinessPenaltyConstC2 = 1;
 
-    private void Start() {
-        SaveArmiesAtStartOfTurn();
+    private void Start()
+    {
         while (loader == null) ;
         while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
 	}
-
-    // For each original army object, we save its fields from the start of the turn.
-    void SaveArmiesAtStartOfTurn()
-    {
-        armiesAtStartOfTurn = new Dictionary<Army, Army>();
-
-        foreach (var army in map.Armies)
-        {
-            Army armyAtStartOfTurn = new(army);
-            armiesAtStartOfTurn.Add(army, armyAtStartOfTurn);
-        }
-    }
 
     void LoadData()
     {
@@ -453,7 +439,7 @@ public class game_manager : MonoBehaviour
 
     private void PreTurnInstructions()
     {
-        RestoreArmyToTurnStart();
+        ResetArmies();
     }
 
     private void NextPlayerInstructions()
@@ -474,8 +460,6 @@ public class game_manager : MonoBehaviour
         rebellionCheck();
         executeActions();
         turnCalculations();
-
-        SaveArmiesAtStartOfTurn();
 
         for (int i = 0; i < map.Countries.Count; i++)
         {
@@ -509,25 +493,20 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    public void RestoreArmyToTurnStart()
+    public void ResetArmies()
     {
         foreach (Army army in map.Armies)
         {
             map.destroyArmyView(army);
         }
-        // We restore the original army objects' fields from the start of the turn.
-        map.Armies.Clear();
-        foreach (var entry in armiesAtStartOfTurn)
+
+        for (int i = 0; i < map.Armies.Count; i++)
         {
-            Army army = entry.Key;
-            Army armyAtStartOfTurn = entry.Value;
-
-            army.OwnerId = armyAtStartOfTurn.OwnerId;
-            army.Count = armyAtStartOfTurn.Count;
-            army.Position = armyAtStartOfTurn.Position;
-            army.Destination = armyAtStartOfTurn.Destination;
-
-            map.Armies.Add(army);
+            Army army = map.Armies[i];
+            if (army.Destination != army.Position)
+            {
+                map.undoSetMoveArmy(army);
+            }
         }
 
         foreach (Army army in map.Armies)

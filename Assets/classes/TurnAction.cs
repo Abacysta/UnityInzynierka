@@ -98,8 +98,7 @@ namespace Assets.classes {
             private (int, int) from, to;
             private int count;
             private Army army;
-            private Army newPreviewArmy;
-            private Army basePreviewArmy;
+            private Army armyPreview;
 
             public army_move((int, int) from, (int, int) to, int count, Army army) : base(ActionType.ArmyMove,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyMove)) {
@@ -114,25 +113,18 @@ namespace Assets.classes {
 
             public override void execute(Map map) {
                 base.execute(map);
-                if (basePreviewArmy != null) map.removeArmy(basePreviewArmy);
-                if (newPreviewArmy != null) map.removeArmy(newPreviewArmy);
                 army = map.setMoveArmy(army, count, to);
                 map.MoveArmy(army);
             }
 
             public override void preview(Map map) {
                 base.preview(map);
-                map.removeArmy(army);
-                basePreviewArmy = new(army);
-                map.addArmy(basePreviewArmy);
-                newPreviewArmy = map.setMoveArmy(basePreviewArmy, count, to);
+                armyPreview = map.setMoveArmy(army, count, to);
             }
 
             public override void revert(Map map) {
                 base.revert(map);
-                if (basePreviewArmy != null) map.removeArmy(basePreviewArmy);
-                if (newPreviewArmy != null) map.removeArmy(newPreviewArmy);
-                map.addArmy(army);
+                map.undoSetMoveArmy(armyPreview);
             }
 
             public Army Army { get { return army; } }
