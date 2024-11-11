@@ -330,13 +330,33 @@ public class technology_manager : MonoBehaviour
             .SelectMany(level => level.Effects)
             .Where(b => b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
-            .Select(g => new TechEffect(
-                g.Key,
-                g.Max(b => b.IntValue ?? 0),
-                g.OrderByDescending(b => b.IntValue).First().Icon,
-                true
-            ))
-        .ToList();
+            .Select(g =>
+            {
+                var hasBoolValue = g.Any(b => b.BoolValue.HasValue);
+
+                if (hasBoolValue)
+                {
+                    var boolEffect = g.First(b => b.BoolValue.HasValue);
+                    return new TechEffect(
+                        g.Key,
+                        boolEffect.BoolValue.Value,
+                        boolEffect.Icon,
+                        true
+                    );
+                }
+                else
+                {
+                    var intEffect = g.OrderByDescending(b => b.IntValue).First();
+                    return new TechEffect(
+                        g.Key,
+                        intEffect.IntValue ?? 0,
+                        intEffect.Icon,
+                        true
+                    );
+                }
+            })
+            .ToList();
+
 
         consolidatedEffects.AddRange(nonBuildingEffects);
         consolidatedEffects.AddRange(buildingEffects);
@@ -472,7 +492,7 @@ public class technology_manager : MonoBehaviour
         {
             // Level 1
             new(new List<TechEffect> {
-                new("Building the infrastructure", true, building_the_infrastructure_sprite, true),
+                new("Building the infrastructure (I-III)", true, building_the_infrastructure_sprite, true),
                 new("Fog of war", 1, fog_of_war_sprite, true)
             }),
             // Level 2
@@ -506,7 +526,7 @@ public class technology_manager : MonoBehaviour
             // Level 9
             new(new List<TechEffect> {
                 new("Suppressing the rebellion", true, supressing_the_rebelion_sprite, true),
-                new("Army cost", AdministrativeModifiers.OccPenalty, army_cost_sprite, false)
+                new("Occupation penalty", AdministrativeModifiers.OccPenalty, army_cost_sprite, false)
             }),
             // Level 10
             new(new List<TechEffect> {
@@ -532,10 +552,12 @@ public class technology_manager : MonoBehaviour
                     if (baseEffect.NumericValue.HasValue && existingEffect.NumericValue.HasValue)
                     {
                         existingEffect.NumericValue += baseEffect.NumericValue.Value;
+                        if (Math.Abs(existingEffect.NumericValue.Value) < 0.0001f) level.Effects.Remove(existingEffect);
                     }
                     else if (baseEffect.IntValue.HasValue && existingEffect.IntValue.HasValue)
                     {
                         existingEffect.IntValue += baseEffect.IntValue.Value;
+                        if (existingEffect.IntValue == 0) level.Effects.Remove(existingEffect);
                     }
                     else if (baseEffect.BoolValue.HasValue && existingEffect.BoolValue.HasValue)
                     {

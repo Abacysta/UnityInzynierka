@@ -88,9 +88,15 @@ public class Map : ScriptableObject {
     }
 
     public void growPop((int, int) coordinates) {
-        int prov = getProvinceIndex(coordinates);
-        var stats = countries[Provinces[prov].Owner_id].techStats;
-        Provinces[prov].Population += (int)Math.Floor(Provinces[prov].Population * stats.popGrowth);
+        Province province = getProvince(coordinates);
+        var provinceOwnerTechStats = countries[province.Owner_id].techStats;
+
+        if (province.OccupationInfo.IsOccupied)
+        {
+            var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
+            province.Population += (int)Math.Floor(province.Population * (provinceOwnerTechStats.popGrowth - occupierTechStats.occPenalty));
+        }
+        else province.Population += (int)Math.Floor(province.Population * provinceOwnerTechStats.popGrowth);
     }
 
     public void calcRecruitablePop((int, int) coordinates) {
@@ -100,26 +106,18 @@ public class Map : ScriptableObject {
     }
 
     public void growHap((int, int) coordinates, int value) {
-        int prov = getProvinceIndex(coordinates);
-        Provinces[prov].Happiness += value;
+        Province province = getProvince(coordinates);
+        var provinceOwnerTechStats = countries[province.Owner_id].techStats;
+
+        float happGrowth = 1.5f;
+
+        if (province.OccupationInfo.IsOccupied)
+        {
+            var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
+            province.Happiness += (int)Math.Floor(value * (happGrowth - occupierTechStats.occPenalty));
+        }
+        else province.Happiness += (int)Math.Floor(value * happGrowth);
     }
-
-
-    //jebnij sie w leb
-
-    //public void addBuilding((int,int) coordinates, Building building)
-    //{
-    //    int prov = getProvinceIndex(coordinates);
-    //    bool buildingExist = Provinces[prov].Buildings.Any(b => b.BuildingType == building.BuildingType);
-    //    if(!buildingExist)
-    //    {
-    //        Provinces[prov].Buildings.Add(building);
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("Building of this type already exists!");
-    //    }
-    //}
 
     public void upgradeBuilding((int, int) coordinates, BuildingType buildingType) {
         int prov = getProvinceIndex(coordinates);
@@ -661,7 +659,7 @@ public class Map : ScriptableObject {
         public static bool recruitAllAvailable(Country c, Province p) {
             if (c.Resources[Resource.AP] >= 1) {
                 c.Actions.addAction(new TurnAction.army_recruitment(p.coordinates,
-                    p.RecruitablePopulation*c.techStats.armyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.armyCost)));
+                    p.RecruitablePopulation*c.techStats.armyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.armyCost), c.techStats));
             }
             return p.RecruitablePopulation == 0;
         }

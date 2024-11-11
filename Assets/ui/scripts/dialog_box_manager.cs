@@ -110,17 +110,18 @@ public class dialog_box_manager : MonoBehaviour
     public void invokeRecBox(Map map, (int, int) coordinates) {
         (string title, string message) = dialog_box_precons.recruitBox.toVars();
         var province = map.getProvince(coordinates);
+        Country.TechnologyInterpreter techStats = map.Countries[province.Owner_id].techStats;
 
         int affordableValue = map.CurrentPlayer
-            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), province.RecruitablePopulation);
+            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats), province.RecruitablePopulation);
 
         Action onConfirm = () => {
-            var act = new Assets.classes.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value);
+            var act = new Assets.classes.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value, techStats);
             map.Countries[province.Owner_id].Actions.addAction(act);
         };
 
         ShowSliderBox(title, message, onConfirm, province.RecruitablePopulation, 
-            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), affordableValue: affordableValue);
+            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats), affordableValue: affordableValue);
     }
 
     public void invokeDisbandArmyBox(Map map, Army army)

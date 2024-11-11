@@ -134,12 +134,12 @@ namespace Assets.classes {
             private (int, int) coordinates;
             private int count;
 
-            public army_recruitment((int, int) coordinates, int count) : base(ActionType.ArmyRecruitment,
+            public army_recruitment((int, int) coordinates, int count, Country.TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyRecruitment)) {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
                 this.count = count;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment);
+                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment, techStats);
             }
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }

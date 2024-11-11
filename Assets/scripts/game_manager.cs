@@ -257,9 +257,19 @@ public class game_manager : MonoBehaviour
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
         map.Countries[i].Tax.applyCountryTax(map.Countries[i]);
         foreach (var p in map.Countries[i].Provinces) {
-            p.Happiness += 3;
+            map.growHap(p.coordinates, 3);
             if (p.Buildings.Any(b => b.BuildingType == BuildingType.School) && p.getBuilding(BuildingType.School).BuildingLevel < 4) resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
-            resources[p.ResourcesT] += p.ResourcesP;
+
+            if (p.OccupationInfo.IsOccupied)
+            {
+                var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
+                resources[p.ResourcesT] += p.ResourcesP * occupierTechStats.occProd;
+            }
+            else
+            {
+                resources[p.ResourcesT] += p.ResourcesP;
+            }
+
             resources[Resource.AP] += 0.1f;
         }
         

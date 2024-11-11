@@ -23,9 +23,16 @@ public class tech_effect_ui : MonoBehaviour
         float? value = effect.NumericValue ?? effect.IntValue;
         if (value.HasValue) 
         {
-            effect_value.color = (effect.IsEffectPositive ^ value < 0) ? 
-                new Color32(0, 159, 18, 255) : // green
-                new Color32(180, 25, 37, 255); // red
+            if (value == 0)
+            {
+                effect_value.color = new Color32(255, 204, 0, 255); // yellow
+            }
+            else
+            {
+                effect_value.color = (effect.IsEffectPositive ^ value < 0) ?
+                    new Color32(0, 159, 18, 255) : // green
+                    new Color32(180, 25, 37, 255); // red
+            }
         }
         else if (effect.BoolValue.HasValue)
         {
