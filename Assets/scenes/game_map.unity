@@ -20510,7 +20510,7 @@ MonoBehaviour:
   army_combat_power_sprite: {fileID: 21300000, guid: ea6b91f6655369a4caa3994f38d3c511, type: 3}
   army_cost_sprite: {fileID: 21300000, guid: 9e63791496d757f4b9ed1b3ac3ef47e2, type: 3}
   army_upkeep_cost_sprite: {fileID: 21300000, guid: 13021c244a1cd554cb8e436ed16da868, type: 3}
-  army_move_range_sprite: {fileID: 21300000, guid: c9f745e8c6a178d4398198edfecd1787, type: 3}
+  army_move_range_sprite: {fileID: 21300000, guid: 3d26b3349718a5f468fc2e13f3d93549, type: 3}
   recruitable_population_sprite: {fileID: 21300000, guid: baa350e5333b116448b99716d317db56, type: 3}
   occupation_penalty_sprite: {fileID: 21300000, guid: 38a221d1740d9bb42b4720b5c8854405, type: 3}
   occupation_time_sprite: {fileID: 21300000, guid: 4bf9289265a27e04eafd1004ca504a9b, type: 3}
@@ -20519,19 +20519,19 @@ MonoBehaviour:
   tax_revenue_sprite: {fileID: 21300000, guid: 2b914fca972dce04ebff213aa2df935f, type: 3}
   can_boat_sprite: {fileID: 21300000, guid: 7ef3f526025b06d45bee131bdee49c6c, type: 3}
   choosing_new_tax_law_sprite: {fileID: 21300000, guid: fc4f99d4bec9c1a40b40d8cbc67f544c, type: 3}
-  fog_of_war_sprite: {fileID: -1195541432, guid: 15fa8c95e51cea34f936c3f5840323ef, type: 3}
+  fog_of_war_sprite: {fileID: 21300000, guid: f2a36a6e364e7f24f8fbbbb4e106e7ec, type: 3}
   building_the_fort_sprite:
   - {fileID: 21300000, guid: eae19a8bb665b7c4f8677c34c019a720, type: 3}
   - {fileID: 21300000, guid: 4b5ad49d1156dbc4c8a9e05ba987b774, type: 3}
   - {fileID: 21300000, guid: 032966c5da1a16f48a2820c05a651bf5, type: 3}
   building_the_mine_sprite:
-  - {fileID: 21300000, guid: 9a6cd2a139364484ba582d3cda365481, type: 3}
-  - {fileID: 21300000, guid: e06a09e4a482d434b92db2b4b4511377, type: 3}
-  - {fileID: 21300000, guid: ce6e25d60f17c2a47bdbda73533fa7c1, type: 3}
-  building_the_infrastructure_sprite:
   - {fileID: 21300000, guid: 2a9cad791d994a14f9a9e11a7370a53b, type: 3}
   - {fileID: 21300000, guid: a7045e3999879d446a777c32c6c42271, type: 3}
   - {fileID: 21300000, guid: 6f6f97a3524196348b650ff26f8daca2, type: 3}
+  building_the_infrastructure_sprite:
+  - {fileID: 21300000, guid: 9a6cd2a139364484ba582d3cda365481, type: 3}
+  - {fileID: 21300000, guid: e06a09e4a482d434b92db2b4b4511377, type: 3}
+  - {fileID: 21300000, guid: ce6e25d60f17c2a47bdbda73533fa7c1, type: 3}
   building_the_school_sprite:
   - {fileID: 21300000, guid: 2aa1c7f8c79a3c04a828d6b86f9e198b, type: 3}
   - {fileID: 21300000, guid: 306b454697c02714da040a7483328870, type: 3}

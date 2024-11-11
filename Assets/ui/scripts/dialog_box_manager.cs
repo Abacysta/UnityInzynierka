@@ -222,7 +222,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeTechUpgradeBox(Technology type)
     {
-        (string title, string message) = dialog_box_precons.taxBreakBox.toVars();
+        (string title, string message) = dialog_box_precons.techBox.toVars();
 
         switch (type)
         {
