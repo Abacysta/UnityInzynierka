@@ -69,8 +69,8 @@ public class technology_manager : MonoBehaviour
 
     [SerializeField] private List<Sprite> building_the_fort_sprite;
     [SerializeField] private List<Sprite> building_the_mine_sprite;
-    [SerializeField] private List<Sprite> building_the_infrastructure_sprite;
-    [SerializeField] private List<Sprite> building_the_school_sprite;
+    [SerializeField] private Sprite building_the_infrastructure_sprite;
+    [SerializeField] private Sprite building_the_school_sprite;
 
     [SerializeField] private Sprite holding_the_festival_sprite;
     [SerializeField] private Sprite introducing_the_tax_break_sprite;
@@ -383,7 +383,7 @@ public class technology_manager : MonoBehaviour
             // Level 3
             new(new List<TechEffect> {
                 new("Army upkeep cost", MilitaryModifiers.ArmyUpkeep1, army_upkeep_cost_sprite, false),
-                new("Occupation time", MilitaryModifiers.OccTime1, occupation_time_sprite, false)
+                new("Occupation time", MilitaryModifiers.OccTime, occupation_time_sprite, false)
             }),
             // Level 4
             new(new List<TechEffect> {
@@ -398,7 +398,7 @@ public class technology_manager : MonoBehaviour
             // Level 6
             new(new List<TechEffect> {
                 new("Army cost", MilitaryModifiers.ArmyCost3, army_cost_sprite, false),
-                new("Army move range", MilitaryModifiers.MoveRange1, army_move_range_sprite, true)
+                new("Army move range", MilitaryModifiers.MoveRange, army_move_range_sprite, true)
             }),
             // Level 7
             new(new List<TechEffect> {
@@ -407,18 +407,18 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 8
             new(new List<TechEffect> {
-                new("Recruitable population", MilitaryModifiers.RecPop1, recruitable_population_sprite, true),
+                new("Recruitable population", MilitaryModifiers.RecPop, recruitable_population_sprite, true),
                 new("Army cost", MilitaryModifiers.ArmyCost4, army_cost_sprite, false),
                 new("Army upkeep cost", MilitaryModifiers.ArmyUpkeep4, army_upkeep_cost_sprite, false),
             }),
             // Level 9
             new(new List<TechEffect> {
-                new("Occupation penalty", MilitaryModifiers.OccPenalty1, occupation_penalty_sprite, false)
+                new("Occupation penalty", MilitaryModifiers.OccPenalty, occupation_penalty_sprite, false)
             }),
             // Level 10
             new(new List<TechEffect> {
                 new("Army combat power", MilitaryModifiers.ArmyPower3, army_combat_power_sprite, true),
-                new("Water move factor", MilitaryModifiers.WaterMoveFactor1, water_move_factor_sprite, true)
+                new("Water move factor", MilitaryModifiers.WaterMoveFactor, water_move_factor_sprite, true)
             }),
         };
 
@@ -430,7 +430,7 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 2
             new(new List<TechEffect> {
-                new("Can boat", EconomicModifiers.CanBoats, can_boat_sprite, true),
+                new("Can boat", true, can_boat_sprite, true),
                 new("Building the mine", 1, building_the_mine_sprite[0], true)
             }),
             // Level 3
@@ -439,7 +439,7 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 4
             new(new List<TechEffect> {
-                new("Choosing tax law I", true, choosing_new_tax_law_sprite, true)
+                new("Choosing tax law IV", true, choosing_new_tax_law_sprite, true)
             }),
             // Level 5
             new(new List<TechEffect> {
@@ -459,7 +459,7 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 9
             new(new List<TechEffect> {
-                new("Choosing tax law II", true, choosing_new_tax_law_sprite, true)
+                new("Choosing tax law V", true, choosing_new_tax_law_sprite, true)
             }),
             // Level 10
             new(new List<TechEffect> {
@@ -472,12 +472,12 @@ public class technology_manager : MonoBehaviour
         {
             // Level 1
             new(new List<TechEffect> {
-                new("Building the infrastructure", AdministrativeModifiers.CanInfrastructure, building_the_infrastructure_sprite[0], true),
+                new("Building the infrastructure", true, building_the_infrastructure_sprite, true),
                 new("Fog of war", 1, fog_of_war_sprite, true)
             }),
             // Level 2
             new(new List<TechEffect> {
-                new("Building the school", 1, building_the_school_sprite[0], true)
+                new("Building the school II and III", true, building_the_school_sprite, true)
             }),
             // Level 3
             new(new List<TechEffect> {
@@ -490,7 +490,6 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 5
             new(new List<TechEffect> {
-                new("Building the infrastructure", 2, building_the_infrastructure_sprite[1], true),
                 new("Fog of war", 1, fog_of_war_sprite, true)
             }),
             // Level 6
@@ -502,17 +501,16 @@ public class technology_manager : MonoBehaviour
             // Level 8
             new(new List<TechEffect> {
                 new("Tax revenue", AdministrativeModifiers.TaxFactor2, tax_revenue_sprite, true),
-                new("Recruitable population", AdministrativeModifiers.RecPop1, recruitable_population_sprite, true)
+                new("Recruitable population", AdministrativeModifiers.RecPop, recruitable_population_sprite, true)
             }),
             // Level 9
             new(new List<TechEffect> {
-                new("Suppressing the rebellion", AdministrativeModifiers.CanRebelSupp, supressing_the_rebelion_sprite, true),
-                new("Army cost", AdministrativeModifiers.OccPenalty1, army_cost_sprite, false)
+                new("Suppressing the rebellion", true, supressing_the_rebelion_sprite, true),
+                new("Army cost", AdministrativeModifiers.OccPenalty, army_cost_sprite, false)
             }),
             // Level 10
             new(new List<TechEffect> {
                 new("Occupation production factor", AdministrativeModifiers.OccProd2, occupation_production_factor_sprite, true),
-                new("Building the infrastructure", 3, building_the_infrastructure_sprite[2], true),
                 new("Fog of war", 2, fog_of_war_sprite, true)
             }),
         };

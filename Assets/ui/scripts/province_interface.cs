@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class province_interface : MonoBehaviour
 {
-    private class EffectDisplay
+    private class StatusDisplay
     {
         public static void deleteIcons(GameObject obj)
         {
@@ -73,6 +73,7 @@ public class province_interface : MonoBehaviour
     [SerializeField] private GameObject emblem;
     [SerializeField] private GameObject festivities_button;
     [SerializeField] private GameObject tax_break_button;
+    [SerializeField] private GameObject rebel_suppress_button;
 
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
     private int prov;
@@ -124,42 +125,27 @@ public class province_interface : MonoBehaviour
         recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRecBox(map, map.Selected_province));
         festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeFestivitiesOrganizationBox(map, map.Selected_province));
         tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeTaxBreakIntroductionBox(map, map.Selected_province));
+        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRebelSuppressionBox(map, map.Selected_province));
     }
 
     private void Update() {
         var coordinates = map.Selected_province;
         Province p = map.getProvince(coordinates);
 
-        id_.Txt.SetText (coordinates.ToString()+ (p.Owner_id!=0 ? " " + map.Countries[p.Owner_id].Name : ""));
-        type_.Txt.SetText (""+p.Type);
+        id_.Txt.SetText (coordinates.ToString() + (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name : ""));
+        type_.Txt.SetText($"{p.Type}");
 
         if (p.Type == "land") 
         {
-            res.SetActive(true);
-            happ.SetActive(true);
-            pop.SetActive(true);
-            rec_pop.SetActive(true);
-
-            building_interface.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-            recruitment_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-            festivities_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-            tax_break_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-
-            recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
-            festivities_button.GetComponent<Button>().interactable = !p.Statuses.Any(status => status is Festivities);
-            tax_break_button.GetComponent<Button>().interactable = !p.Statuses.Any(status => status is TaxBreak);
-
             res_.Txt.SetText("" + p.ResourcesP + "(" + p.Resources_amount + ")");
             res_.Img.sprite = res_images[((int)p.ResourcesT)];
             happ_.Txt.SetText("" + p.Happiness);
             pop_.Txt.SetText("" + p.Population);
             rec_pop_.Txt.SetText("" + p.RecruitablePopulation);
 
-            UpdateBuildings(p);
+            UpdateUIElementStates(p); 
             UpdateEmblem(p.Owner_id);
-
-            EffectDisplay.showIcons(statuses_list, p.Statuses, status_sprites);
-
+            StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites);
         }
         else {
             res.SetActive(false);
@@ -171,7 +157,30 @@ public class province_interface : MonoBehaviour
             recruitment_button.SetActive(false);
             festivities_button.SetActive(false);
             tax_break_button.SetActive(false);
+            rebel_suppress_button.SetActive(false);
         }
+    }
+
+    private void UpdateUIElementStates(Province p)
+    {
+        res.SetActive(true);
+        happ.SetActive(true);
+        pop.SetActive(true);
+        rec_pop.SetActive(true);
+
+        building_interface.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+        recruitment_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+        festivities_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+        tax_break_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+        rebel_suppress_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+
+        UpdateBuildings(p);
+        recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
+        festivities_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.canFestival && !p.Statuses.Any(status => status is Festivities);
+        tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.canTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
+        rebel_suppress_button.GetComponent<Button>().interactable =
+            map.CurrentPlayer.techStats.canRebelSupp &&
+            map.Armies.Any(a => a.Position == p.coordinates && a.OwnerId == 0);
     }
 
     private void UpdateBuildings(Province province)
@@ -188,18 +197,45 @@ public class province_interface : MonoBehaviour
         b_3.sprite = b_3_spr[buildings[2].BuildingLevel];
         b_4.sprite = b_4_spr[buildings[3].BuildingLevel];
 
-        UpdateBuildingButtons(buildings, province.Owner_id);
+        UpdateBuildingButtonsStates(buildings, province.Owner_id);
     }
 
-    private void UpdateBuildingButtons(List<Building> buildings, int ownerId)
+    private void UpdateBuildingButtonsStates(List<Building> buildings, int ownerId)
     {
-        if (map.CurrentPlayer.Id == ownerId)
+        if (map.CurrentPlayer.Id != ownerId) return;
+
+        var buttonMappings = new List<(Transform ButtonTransform, BuildingType Type, int BuildingIndex)>
         {
-            foreach (var bt in new List<(Transform, int)> { (b_1_m, 0), (b_2_m, 1), (b_3_m, 2), (b_4_m, 3) })
-            {
-                bt.Item1.Find("add").GetComponent<Button>().interactable = buildings[bt.Item2].BuildingLevel < 3 ? true : false;
-                bt.Item1.Find("remove").GetComponent<Button>().interactable = buildings[bt.Item2].BuildingLevel > 0 && buildings[bt.Item2].BuildingLevel < 4 ? true : false;
-            }
+            (b_1_m, BuildingType.Infrastructure, 0),
+            (b_2_m, BuildingType.Fort, 1),
+            (b_3_m, BuildingType.School, 2),
+            (b_4_m, BuildingType.Mine, 3)
+        };
+
+        foreach (var (buttonTransform, buildingType, buildingIndex) in buttonMappings)
+        {
+            int buildingLevel = buildings[buildingIndex].BuildingLevel;
+            int maxTechLevel = GetMaxTechLevel(buildingType);
+
+            buttonTransform.Find("add").GetComponent<Button>().interactable = buildingLevel < maxTechLevel;
+            buttonTransform.Find("remove").GetComponent<Button>().interactable = buildingLevel > 0 && buildingLevel < 4;
+        }
+    }
+
+    private int GetMaxTechLevel(BuildingType buildingType)
+    {
+        switch (buildingType)
+        {
+            case BuildingType.Infrastructure:
+                return map.CurrentPlayer.techStats.canInfrastructure ? 3 : 0;
+            case BuildingType.School:
+                return map.CurrentPlayer.techStats.moreSchool ? 3 : 1;
+            case BuildingType.Fort:
+                return map.CurrentPlayer.techStats.lvlFort;
+            case BuildingType.Mine:
+                return map.CurrentPlayer.techStats.lvlMine;
+            default:
+                return 3;
         }
     }
 

@@ -13,7 +13,7 @@ public class Country {
         /// <summary>
         /// Able to build boats
         /// </summary>
-        public bool canBoats;
+        public bool canBoat;
         /// <summary>
         /// Can start a festival effect for provinces
         /// </summary>
@@ -112,7 +112,6 @@ public class Country {
         public static class EconomicModifiers
         {
             public const float ProdFactor1 = 0.05f;
-            public const bool CanBoats = true;
             public const float ProdFactor2 = 0.05f;
             public const float TaxFactor1 = 0.15f;
             public const float ProdFactor3 = 0.1f;
@@ -124,32 +123,28 @@ public class Country {
             public const float ArmyPower1 = 0.1f;
             public const float ArmyCost1 = 0.05f;
             public const float ArmyUpkeep1 = -0.03f;
-            public const int OccTime1 = -1;
+            public const int OccTime = -1;
             public const float ArmyPower2 = 0.1f;
             public const float ArmyCost2 = 0.1f;
             public const float ArmyUpkeep2 = 0.02f;
             public const float ArmyCost3 = -0.1f;
-            public const int MoveRange1 = 1;
+            public const int MoveRange = 1;
             public const float ArmyUpkeep3 = 0.02f;
-            public const float RecPop1 = 0.05f;
+            public const float RecPop = 0.05f;
             public const float ArmyCost4 = -0.1f;
             public const float ArmyUpkeep4 = -0.15f;
-            public const float OccPenalty1 = -0.35f;
+            public const float OccPenalty = -0.35f;
             public const float ArmyPower3 = 0.15f;
-            public const float WaterMoveFactor1 = 0.5f;
+            public const float WaterMoveFactor = 0.5f;
         }
 
         public static class AdministrativeModifiers
         {
-            public const bool CanInfrastructure = true;
-            public const bool CanFestival = true;
             public const float TaxFactor1 = 0.03f;
-            public const bool CanTaxBreak = true;
             public const float OccProd1 = 0.1f;
             public const float TaxFactor2 = 0.01f;
-            public const float RecPop1 = 0.02f;
-            public const bool CanRebelSupp = true;
-            public const float OccPenalty1 = -0.05f;
+            public const float RecPop = 0.02f;
+            public const float OccPenalty = -0.05f;
             public const float OccProd2 = 0.4f;
         }
 
@@ -185,7 +180,7 @@ public class Country {
                     prodFactor += EconomicModifiers.ProdFactor1; // 0.05f
                     break;
                 case 2:
-                    canBoats = EconomicModifiers.CanBoats; // true
+                    canBoat = true;
                     lvlMine += 1; // Mine I
                     goto case 1;
                 case 3:
@@ -228,7 +223,7 @@ public class Country {
                     goto case 1;
                 case 3:
                     armyUpkeep += MilitaryModifiers.ArmyUpkeep1; // -0.03f
-                    occTime += MilitaryModifiers.OccTime1; // -1
+                    occTime += MilitaryModifiers.OccTime; // -1
                     goto case 2;
                 case 4:
                     armyPower += MilitaryModifiers.ArmyPower2; // 0.1f
@@ -240,23 +235,23 @@ public class Country {
                     goto case 4;
                 case 6:
                     armyCost += MilitaryModifiers.ArmyCost3; // -0.1f
-                    moveRange += MilitaryModifiers.MoveRange1; // 1
+                    moveRange += MilitaryModifiers.MoveRange; // 1
                     goto case 5;
                 case 7:
                     lvlFort += 1; // Fort III
                     armyUpkeep += MilitaryModifiers.ArmyUpkeep3; // 0.02f
                     goto case 6;
                 case 8:
-                    recPop += MilitaryModifiers.RecPop1; // 0.05f
+                    recPop += MilitaryModifiers.RecPop; // 0.05f
                     armyCost += MilitaryModifiers.ArmyCost4; // -0.1f
                     armyUpkeep += MilitaryModifiers.ArmyUpkeep4; // -0.15f
                     goto case 7;
                 case 9:
-                    occPenalty += MilitaryModifiers.OccPenalty1; // -0.35f
+                    occPenalty += MilitaryModifiers.OccPenalty; // -0.35f
                     goto case 8;
                 case 10:
                     armyPower += MilitaryModifiers.ArmyPower3; // 0.15f
-                    waterMoveFactor += MilitaryModifiers.WaterMoveFactor1; // 0.5f
+                    waterMoveFactor += MilitaryModifiers.WaterMoveFactor; // 0.5f
                     goto case 9;
                 default:
                     break;
@@ -265,18 +260,18 @@ public class Country {
             //administrative
             switch (adm) {
                 case 1:
-                    canInfrastructure = AdministrativeModifiers.CanInfrastructure; // true
+                    canInfrastructure = true;
                     lvlFoW += 1; // Fog I
                     break;
                 case 2:
-                    moreSchool = true; // School I
+                    moreSchool = true; // School II, III
                     goto case 1;
                 case 3:
-                    canFestival = AdministrativeModifiers.CanFestival; // true
+                    canFestival = true;
                     taxFactor += AdministrativeModifiers.TaxFactor1; // 0.03f
                     goto case 2;
                 case 4:
-                    canTaxBreak = AdministrativeModifiers.CanTaxBreak; // true
+                    canTaxBreak = true;
                     goto case 3;
                 case 5:
                     lvlFoW += 1; // Fog II
@@ -288,11 +283,11 @@ public class Country {
                     goto case 6;
                 case 8:
                     taxFactor += AdministrativeModifiers.TaxFactor2; // 0.01f
-                    recPop += AdministrativeModifiers.RecPop1; // 0.02f
+                    recPop += AdministrativeModifiers.RecPop; // 0.02f
                     goto case 7;
                 case 9:
-                    canRebelSupp = AdministrativeModifiers.CanRebelSupp; // true
-                    occPenalty += AdministrativeModifiers.OccPenalty1; // -0.05f
+                    canRebelSupp = true;
+                    occPenalty += AdministrativeModifiers.OccPenalty; // -0.05f
                     goto case 8;
                 case 10:
                     occProd += AdministrativeModifiers.OccProd2; // 0.4f

@@ -68,6 +68,7 @@ public class dialog_box_manager : MonoBehaviour
         internal static DialogBox techBox = new("Upgrade ", "Do you want to upgrade ");
         internal static DialogBox taxBreakBox = new("Introduce Tax Break", "Do you want to introduce a tax break?");
         internal static DialogBox festivitiesBox = new("Organize Festivities", "Do you want to organize festivities?");
+        internal static DialogBox rebelSuppressBox = new("Suppress the Rebellion", "Do you want to suppress the rebellion?");
     };
 
     void Update() {
@@ -297,6 +298,22 @@ public class dialog_box_manager : MonoBehaviour
         };
 
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
+    }
+
+    public void invokeRebelSuppressionBox(Map map, (int, int) coordinates)
+    {
+        (string title, string message) = dialog_box_precons.rebelSuppressBox.toVars();
+
+        var province = map.getProvince(coordinates);
+
+        Action onConfirm = () => {
+            var act = new rebel_suppresion(province);
+            map.CurrentPlayer.Actions.addAction(act);
+        };
+
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.RebelSuppresion);
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
     }
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {
