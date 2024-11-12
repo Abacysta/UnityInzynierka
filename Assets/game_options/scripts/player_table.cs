@@ -77,6 +77,7 @@ public class player_table : MonoBehaviour
             return;
         }
 
+        map.Armies.Clear();
         map.Countries.Clear();
         map.Controllers.Clear();
         map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);

@@ -68,6 +68,7 @@ public class dialog_box_manager : MonoBehaviour
         internal static DialogBox techBox = new("Upgrade ", "Do you want to upgrade ");
         internal static DialogBox taxBreakBox = new("Introduce Tax Break", "Do you want to introduce a tax break?");
         internal static DialogBox festivitiesBox = new("Organize Festivities", "Do you want to organize festivities?");
+        internal static DialogBox rebelSuppressBox = new("Suppress the Rebellion", "Do you want to suppress the rebellion?");
     };
 
     void Update() {
@@ -109,17 +110,18 @@ public class dialog_box_manager : MonoBehaviour
     public void invokeRecBox(Map map, (int, int) coordinates) {
         (string title, string message) = dialog_box_precons.recruitBox.toVars();
         var province = map.getProvince(coordinates);
+        Country.TechnologyInterpreter techStats = map.Countries[province.Owner_id].techStats;
 
         int affordableValue = map.CurrentPlayer
-            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), province.RecruitablePopulation);
+            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats), province.RecruitablePopulation);
 
         Action onConfirm = () => {
-            var act = new Assets.classes.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value);
+            var act = new Assets.classes.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value, techStats);
             map.Countries[province.Owner_id].Actions.addAction(act);
         };
 
         ShowSliderBox(title, message, onConfirm, province.RecruitablePopulation, 
-            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment), affordableValue: affordableValue);
+            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats), affordableValue: affordableValue);
     }
 
     public void invokeDisbandArmyBox(Map map, Army army)
@@ -222,7 +224,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void invokeTechUpgradeBox(Technology type)
     {
-        (string title, string message) = dialog_box_precons.taxBreakBox.toVars();
+        (string title, string message) = dialog_box_precons.techBox.toVars();
 
         switch (type)
         {
@@ -297,6 +299,22 @@ public class dialog_box_manager : MonoBehaviour
         };
 
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
+    }
+
+    public void invokeRebelSuppressionBox(Map map, (int, int) coordinates)
+    {
+        (string title, string message) = dialog_box_precons.rebelSuppressBox.toVars();
+
+        var province = map.getProvince(coordinates);
+
+        Action onConfirm = () => {
+            var act = new rebel_suppresion(province);
+            map.CurrentPlayer.Actions.addAction(act);
+        };
+
+        var cost = CostsCalculator.TurnActionFullCost(ActionType.RebelSuppresion);
+
+        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
     }
 
     public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {

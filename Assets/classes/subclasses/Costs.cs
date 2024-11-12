@@ -129,26 +129,44 @@ namespace Assets.classes.subclasses
         {
             return (vassalage?.Sides[1].Provinces.Count / 5) ?? 1f;
         }
+
+        private static Dictionary<Resource, float> ArmyRecruitmentCost(Country.TechnologyInterpreter techStats)
+        {
+            var armyCost = techStats.armyCost;
+            return new Dictionary<Resource, float> {
+                { Resource.Gold, 1f * armyCost},
+                { Resource.AP, TurnActionApCost(ActionType.ArmyRecruitment) },
+            };
+        }
+
         /// <summary>
-        /// Generic method for non-building and non-technology based actions
+        /// Generic method for non-building, non-technology and non-recruitment based actions
         /// </summary>
         /// <param name="actionType"></param>
         /// <returns></returns>
         public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType)
         {
-            switch (actionType)
-            {
-                case ActionType.ArmyRecruitment:
-                    return new Dictionary<Resource, float> {
-                        { Resource.Gold, 1f },
-                        { Resource.AP, TurnActionApCost(ActionType.ArmyRecruitment) },
-                    };
-                default:
-                    return new Dictionary<Resource, float> {
-                    { Resource.AP, TurnActionApCost(actionType) }
-                };
-            }
+            return new Dictionary<Resource, float> {
+                { Resource.AP, TurnActionApCost(actionType) }
+            };
         }
+
+        /// <summary>
+        /// Method for am army recruitment action
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="tech"></param>
+        /// <param name="techType"></param>
+        /// <returns></returns>
+        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, Country.TechnologyInterpreter techStats)
+        {
+            if (actionType == ActionType.ArmyRecruitment)
+            {
+                return ArmyRecruitmentCost(techStats);
+            }
+            return TurnActionFullCost(actionType);
+        }
+
         /// <summary>
         /// Method for technology based actions
         /// </summary>
@@ -181,6 +199,7 @@ namespace Assets.classes.subclasses
             }
             return TurnActionFullCost(actionType);
         }
+
         /// <summary>
         /// Method for rebellion
         /// </summary>
@@ -204,6 +223,11 @@ namespace Assets.classes.subclasses
         public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType)
         {
             var fullCost = TurnActionFullCost(actionType);
+            return RemoveApCost(fullCost);
+        }
+        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, Country.TechnologyInterpreter techStats)
+        {
+            var fullCost = TurnActionFullCost(actionType, techStats);
             return RemoveApCost(fullCost);
         }
 

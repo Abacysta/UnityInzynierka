@@ -98,6 +98,7 @@ namespace Assets.classes {
             private (int, int) from, to;
             private int count;
             private Army army;
+            private Army armyPreview;
 
             public army_move((int, int) from, (int, int) to, int count, Army army) : base(ActionType.ArmyMove,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyMove)) {
@@ -112,18 +113,18 @@ namespace Assets.classes {
 
             public override void execute(Map map) {
                 base.execute(map);
-                map.MoveArmy(army);// temp and to be explained by someone who knows what the fuck is going on with army movement
+                army = map.setMoveArmy(army, count, to);
+                map.MoveArmy(army);
             }
 
             public override void preview(Map map) {
                 base.preview(map);
-                this.army = map.setMoveArmy(this.army, count, to);
+                armyPreview = map.setMoveArmy(army, count, to);
             }
 
             public override void revert(Map map) {
                 base.revert(map);
-                map.undoSetMoveArmy(army);
-
+                map.undoSetMoveArmy(armyPreview);
             }
 
             public Army Army { get { return army; } }
@@ -133,12 +134,12 @@ namespace Assets.classes {
             private (int, int) coordinates;
             private int count;
 
-            public army_recruitment((int, int) coordinates, int count) : base(ActionType.ArmyRecruitment,
+            public army_recruitment((int, int) coordinates, int count, Country.TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyRecruitment)) {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
                 this.count = count;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment);
+                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment, techStats);
             }
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }

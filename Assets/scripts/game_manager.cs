@@ -1,4 +1,4 @@
-using Assets.classes;
+﻿using Assets.classes;
 using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
@@ -13,7 +13,6 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using static Assets.classes.actionContainer;
 using static Assets.classes.Relation;
 
 public class game_manager : MonoBehaviour
@@ -42,6 +41,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private info_bar info_bar;
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
+
     public int turnCnt { get { return map.turnCnt; } }
 
     private Save toSave;
@@ -51,7 +51,8 @@ public class game_manager : MonoBehaviour
     public static readonly int VassalageHappinessBonusConstC1 = 1;
     public static readonly int VassalageHappinessPenaltyConstC2 = 1;
 
-    private void Start() {
+    private void Start()
+    {
         while (loader == null) ;
         while (loader.loading) ;
         while (start_screen == null) ;
@@ -81,23 +82,6 @@ public class game_manager : MonoBehaviour
         while(map.CurrentPlayer.Actions.Count > 0) {
             map.CurrentPlayer.Actions.revert();
         }
-        //foreach (var army in map.Armies)
-        //{
-        //    if (army.position != army.destination)
-        //    {
-        //        army_view armyView = map.getView(army);
-        //        if (armyView != null)
-        //        {
-        //            armyView.ReturnTo(army.position);
-        //        }
-        //        map.updateArmyDestination(army, army.position);
-        //    }
-        //}
-
-        //foreach (var c in map.Countries)
-        //{
-        //    map.mergeArmies(c);
-        //}
     }
 
     public void invokeEvent(int id) {
@@ -203,6 +187,7 @@ public class game_manager : MonoBehaviour
         turnCntTxt.SetText((++map.turnCnt).ToString());
         loading_box.SetActive(false);
         Debug.Log("stopped bar");
+
     }
 
     private void provinceCalc(int pcnt) {
@@ -272,9 +257,19 @@ public class game_manager : MonoBehaviour
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
         map.Countries[i].Tax.applyCountryTax(map.Countries[i]);
         foreach (var p in map.Countries[i].Provinces) {
-            p.Happiness += 3;
+            map.growHap(p.coordinates, 3);
             if (p.Buildings.Any(b => b.BuildingType == BuildingType.School) && p.getBuilding(BuildingType.School).BuildingLevel < 4) resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
-            resources[p.ResourcesT] += p.ResourcesP;
+
+            if (p.OccupationInfo.IsOccupied)
+            {
+                var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
+                resources[p.ResourcesT] += p.ResourcesP * occupierTechStats.occProd;
+            }
+            else
+            {
+                resources[p.ResourcesT] += p.ResourcesP;
+            }
+
             resources[Resource.AP] += 0.1f;
         }
         
@@ -289,22 +284,10 @@ public class game_manager : MonoBehaviour
         map.Countries[i].setResource(Resource.AP, resources[Resource.AP]);
     }
 
-    
-
-    
-
     private void countryCalc() {
 
         for(int i = 1; i < map.Countries.Count; i++) {
             ccc(i);
-        }
-    }
-    public void armyReset()
-    {
-        foreach(Army army in map.Armies)
-        {
-            map.destroyArmyView(army);
-            map.createArmyView(army);
         }
     }
 
@@ -450,49 +433,103 @@ public class game_manager : MonoBehaviour
 
     public void TurnSimulation()
     {
+        PreTurnInstructions();
+
         if (map.currentPlayer < map.Countries.Count - 1)
         {
-            alertClear();
-            map.currentPlayer++;
-            diplomaticActionsManager.ResetReceiverButtonStates();
-            
-            Debug.Log($"Sending actions.");
+            NextPlayerInstructions();
         }
         else
         {
-            Debug.Log($"Executing actions and performing calculations.");
-
-            turn_sound.Play();
-
-            rebellionCheck();
-            executeActions();
-            turnCalculations();
-
-            for(int i = 0; i < map.Countries.Count; i++) {
-                Debug.Log(map.Countries[i].Name + "--");
-                Debug.Log("--" + map.Controllers[i]);
-            }
-
-            map.currentPlayer = 1;
-
-            AutoSave();
-			loader.Reload();
+            EndOfTurnInstructions();
         }
 
-        if (map.Controllers[map.currentPlayer] != Map.CountryController.Local) {
+        PostTurnInstructions();
+    }
+
+    private void PreTurnInstructions()
+    {
+        ResetArmies();
+    }
+
+    private void NextPlayerInstructions()
+    {
+        alertClear();
+        map.currentPlayer++;
+        diplomaticActionsManager.ResetReceiverButtonStates();
+
+        Debug.Log($"Sending actions.");
+    }
+
+    private void EndOfTurnInstructions()
+    {
+        Debug.Log($"Executing actions and performing calculations.");
+
+        turn_sound.Play();
+
+        rebellionCheck();
+        executeActions();
+        turnCalculations();
+        GenerateEventsForCountries();
+
+        for (int i = 0; i < map.Countries.Count; i++)
+        {
+            Debug.Log(map.Countries[i].Name + "--");
+            Debug.Log("--" + map.Controllers[i]);
+        }
+
+        map.currentPlayer = 1;
+
+        AutoSave();
+        loader.Reload();
+    }
+
+    private void PostTurnInstructions()
+    {
+        if (map.Controllers[map.currentPlayer] != Map.CountryController.Local)
+        {
             aiTurn();
             TurnSimulation();
         }
-        else {
+        else
+        {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
-
-            random_events.getRandomEvent(map.CurrentPlayer);
+            HandleWelcomeScreen();
             camera_controller.ZoomCameraOnCountry(map.currentPlayer);
             fog_Of_War.UpdateFogOfWar();
-            armyReset();
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
             map.UpdateAllArmyViewOrders();
             alerts.loadEvents(map.CurrentPlayer);
+        }
+    }
+
+    private void GenerateEventsForCountries()
+    {
+        foreach (var country in map.Countries) 
+        {
+            if (country.Id != 0) random_events.getRandomEvent(country);         
+        }
+    }
+
+    public void ResetArmies()
+    {
+        foreach (Army army in map.Armies)
+        {
+            map.destroyArmyView(army);
+        }
+
+        for (int i = 0; i < map.Armies.Count; i++)
+        {
+            Army army = map.Armies[i];
+            if (army.Destination != army.Position)
+            {
+                map.undoSetMoveArmy(army);
+            }
+        }
+
+        foreach (Army army in map.Armies)
+        {
+            map.createArmyView(army);
         }
     }
 
