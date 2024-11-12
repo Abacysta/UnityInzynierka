@@ -633,6 +633,21 @@ public class Map : ScriptableObject {
         public static bool isAttacker(Map map, Country c, Relation.War war) {
             return war.participants1.Contains(c);
         }
+        public static HashSet<Relation.War> getAllWars(Map map, Country c) {
+            return map.getRelationsOfType(c, Relation.RelationType.War).Cast<Relation.War>().ToHashSet();
+        }
+        public static HashSet<Army> getEnemyArmies(Map map, Country c) {
+            HashSet<Army> enemy = new();
+
+            foreach (var war in getAllWars(map, c)) {
+                var opposingParticipants = war.participants1.Contains(c) ? war.participants2 : war.participants1;
+                foreach (var country in opposingParticipants) {
+                    enemy.UnionWith(map.getCountryArmies(country));
+                }
+            }
+
+            return enemy;
+        }
     }
     /// <summary>
     /// utilites for managing borders and armies [FOR AI]

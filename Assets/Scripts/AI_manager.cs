@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Xsl;
 using UnityEditor.PackageManager.Requests;
@@ -136,9 +137,15 @@ namespace Assets.Scripts {
                 AI_manager.diploEventResponder.Respond(e, map, humor);
             }
         }
-
+        //no moving over water cuz i dont care at this point(splitting is too complicated as well)
         private void moveArmies() {
+            var armies = map.getCountryArmies(map.CurrentPlayer).OrderByDescending(a=>a.Count).ToList();
+            foreach(var a in armies) {
+                //get all land- no water
+                var possible = map.getPossibleMoveCells(a).Where(c => map.getProvince(c).Type == "land").ToList();
 
+            }
+            
         }
         /// <summary>
         /// the way AI acts diplomaticly this turn
@@ -247,15 +254,9 @@ namespace Assets.Scripts {
                     }
                 }
             }
-            //AI should rush eco2(boats) into adm4(taxbreak) so it doesn't collapse immideately(rebel suppresion is too far in administratice tree so good luck AI you're gonna need it)
+            //AI should rush adm4(taxbreak) so it doesn't collapse immideately(rebel suppresion is too far in administratice tree so good luck AI you're gonna need it)
             public static void handleTechnology(Country c, Humor humor) {
-                if (c.Technology_[Technology.Economic] < 2) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
-                    if(c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
-                        c.Actions.addAction(action);
-                    }
-                }
-                else if (c.Technology_[Technology.Administrative] < 4) {
+                if (c.Technology_[Technology.Administrative] < 4) {
                     var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
                     if(c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
