@@ -149,7 +149,7 @@ namespace Assets.classes.subclasses {
         public override void applyEffect(Province province)
         {
             province.Rec_pop -= 0.15f;
-            province.Prod_mod -= 1.5f;
+            province.Prod_mod -= .7f;
         }
     }
 }

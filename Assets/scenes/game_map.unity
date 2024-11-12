@@ -22302,6 +22302,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 53d234f0cc869044aa1d614c859fe4a9, type: 3}
   - {fileID: 21300000, guid: a5c5c781d20b7da409d0b5a93675cb47, type: 3}
   - {fileID: 21300000, guid: 0f81b4feae4d12e4b931379078cac957, type: 3}
+  - {fileID: 21300000, guid: f4133dfbe10ba1841a61d235cbe07941, type: 3}
+  - {fileID: 21300000, guid: fd276d98d65aac1419ed9f03823755f4, type: 3}
+  - {fileID: 21300000, guid: c2ec8574e3a91684a83e6d38d30c0b1e, type: 3}
   recruitment_button: {fileID: 1334031952}
   emblem: {fileID: 1356045976}
   festivities_button: {fileID: 110636756}
