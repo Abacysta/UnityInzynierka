@@ -12,6 +12,7 @@ public class player_table : MonoBehaviour
     [SerializeField] private GameObject dummy;
     [SerializeField] private GameObject playerTable;
     [SerializeField] private Map map;
+    [SerializeField] private GameSettingsPanel optionsTable;
 
     private GameObject currentPlayerSelection = null;
     public List<CountryController> controllers = new List<CountryController>();
@@ -45,7 +46,7 @@ public class player_table : MonoBehaviour
         provinces = gameState.provinces;
 
         showCountries(currentStates);
-
+        showButton();
         controllers.Clear();
         controllers = Enumerable.Repeat(CountryController.Ai, currentStates.Count).ToList();
     }
@@ -181,6 +182,7 @@ public class player_table : MonoBehaviour
         {
             countryNameText.text = "AI";
         }
+
     }
 
     private void OnCountryClicked(GameObject countryUI, Transform nameTransform, int countryId)
@@ -200,7 +202,7 @@ public class player_table : MonoBehaviour
             controllers[countryId] = CountryController.Local;
 
             Debug.Log($"Kraj {countryId} został ustawiony jako Gracz {currentMaxPlayerNumber}.");
-        }
+		}
         else
         {
             int playerNumber = countryPlayerAssignment[countryId];
@@ -216,9 +218,21 @@ public class player_table : MonoBehaviour
                 currentMaxPlayerNumber--;
             }
         }
+        showButton();
     }
 
-
+    public void showButton()
+    {
+		GameObject button =  optionsTable.transform.Find("startgame").gameObject;
+        if (controllers.Contains(CountryController.Local))
+        {
+            button.SetActive(true);
+        }
+        else
+        {
+            button.SetActive(false);
+        }
+	}
 
 
     public void showCountries(List<CountryData> states)
