@@ -223,14 +223,14 @@ public class player_table : MonoBehaviour
 
     public void showButton()
     {
-		GameObject button =  optionsTable.transform.Find("startgame").gameObject;
+		Button button =  optionsTable.transform.Find("startgame").GetComponent<Button>();
         if (controllers.Contains(CountryController.Local))
         {
-            button.SetActive(true);
+            button.interactable = true;
         }
         else
         {
-            button.SetActive(false);
+            button.interactable = false;
         }
 	}
 
