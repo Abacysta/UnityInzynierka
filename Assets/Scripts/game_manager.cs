@@ -256,14 +256,19 @@ public class game_manager : MonoBehaviour
         loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
         map.Countries[i].Tax.applyCountryTax(map.Countries[i]);
+
         foreach (var p in map.Countries[i].Provinces) {
             map.growHap(p.coordinates, 3);
-            if (p.Buildings.Any(b => b.BuildingType == BuildingType.School) && p.getBuilding(BuildingType.School).BuildingLevel < 4) resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
+
+            if (p.Buildings.Any(b => b.BuildingType == BuildingType.School)
+                && p.getBuilding(BuildingType.School).BuildingLevel < 4) {
+                resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
+            }
 
             if (p.OccupationInfo.IsOccupied)
             {
                 var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
-                resources[p.ResourcesT] += p.ResourcesP * occupierTechStats.occProd;
+                resources[p.ResourcesT] += p.ResourcesP * (1 - occupierTechStats.occPenalty);
             }
             else
             {
@@ -272,7 +277,7 @@ public class game_manager : MonoBehaviour
 
             resources[Resource.AP] += 0.1f;
         }
-        
+
         resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;

@@ -107,16 +107,13 @@ public class Map : ScriptableObject {
 
     public void growHap((int, int) coordinates, int value) {
         Province province = getProvince(coordinates);
-        var provinceOwnerTechStats = countries[province.Owner_id].techStats;
-
-        float happGrowth = 1.5f;
 
         if (province.OccupationInfo.IsOccupied)
         {
             var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
-            province.Happiness += (int)Math.Floor(value * (happGrowth - occupierTechStats.occPenalty));
+            province.Happiness += (int)Math.Floor(value * (1 - occupierTechStats.occPenalty));
         }
-        else province.Happiness += (int)Math.Floor(value * happGrowth);
+        else province.Happiness += value;
     }
 
     public void upgradeBuilding((int, int) coordinates, BuildingType buildingType) {
