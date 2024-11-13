@@ -32,10 +32,7 @@ public class map_loader : MonoBehaviour
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
     [SerializeField] private TilemapRenderer province_select_layer_rnd;
     [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
-    [SerializeField] private dialog_box_manager dialog_box;
-    [SerializeField] private camera_controller camera_controller;
     [SerializeField] private GameObject mapmodes_buttons;
-    [SerializeField] private Assets.map.scripts.diplomatic_relations_manager diplomacy;
 
     private MapMode mode;
     public bool loading;
@@ -44,6 +41,7 @@ public class map_loader : MonoBehaviour
 
     void Start()
     {
+
         loading = true;
 
         int playerIndex = map.Controllers.FindIndex(controller => controller == Map.CountryController.Local);
@@ -68,20 +66,23 @@ public class map_loader : MonoBehaviour
             }
             Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
         }
+
         foreach (var p in map.Provinces)
         {
             map.calcRecruitablePop(p.coordinates);
 
-            
-                p.Statuses = new List<Status>();
-                p.Buildings = new List<Building>
+            p.Statuses = new List<Status>();
+            if (p.Owner_id == 0) p.addStatus(new Tribal(-1));
+
+            p.Buildings = new List<Building>
             {
                 new Building(BuildingType.Infrastructure, 0),
                 new Building(BuildingType.Fort, 0),
                 new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
                 new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
             };
-            if(p.Type == "land"){
+
+            if (p.Type == "land") {
                 p.OccupationInfo = new OccupationInfo();
                 p.calcStatuses();
             }
@@ -89,9 +90,7 @@ public class map_loader : MonoBehaviour
         map.turnCnt = 0;
         SetPolitical();
         loading = false;
-
     }
-
 
     public void Reload() {
         switch (mode) {

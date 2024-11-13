@@ -378,6 +378,7 @@ public class Country {
     public bool assignProvince(Province province) {
         if(province.Owner_id != 0 || province.Owner_id == id) return false;
         provinces.Add(province);
+        if (province.Owner_id == 0) province.RemoveStatus(province.Statuses.Find(s => s is Tribal));
         province.Owner_id = this.id;
         return true;
     }
