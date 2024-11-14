@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Assets.classes.subclasses;
 using UnityEngine;
 
 public class HexUtils
@@ -139,18 +141,16 @@ public class HexUtils
         return results;
     }
 
-    public static void hexPathingTest()
-    {
+    public static void hexPathingTest() {
         var start = new HexUtils.Cube(0, 0, 0); // Punkt startowy
         var end = new HexUtils.Cube(4, -4, 0);  // Punkt koñcowy 
 
         // U¿ycie CubeLineDraw, aby wygenerowaæ œcie¿kê miêdzy start a end
-        List<(int,int)> path = HexUtils.CubeLineDraw(start, end);
+        List<(int, int)> path = HexUtils.CubeLineDraw(start, end);
 
         // Wyœwietlenie wyników na konsoli
         Debug.Log("Linia miêdzy punktami startowym i koñcowym:");
-        foreach (var hex in path)
-        {
+        foreach (var hex in path) {
             Debug.Log($"Hex: x:{hex.Item1}, y:{hex.Item2}");
         }
         // Dodatkowe sprawdzenie, czy œcie¿ka ma poprawn¹ d³ugoœæ
@@ -160,5 +160,74 @@ public class HexUtils
         Debug.Log(correctLength
             ? "Test przeszed³ pomyœlnie: d³ugoœæ œcie¿ki jest poprawna."
             : $"B³¹d: oczekiwano d³ugoœci {expectedDistance + 1}, otrzymano {path.Count}");
+    }
+
+    //to jest super fajne ze sam usze to omplementowac normalnie to skacze z radosci i podskakuje jak pojebany
+    public static int getProvinceDistance(Province p1, Province p2) {
+        Cube c1 = OffsetToCube(p1.X, p2.Y), c2=OffsetToCube(p2.X, p2.Y);
+        return CubeDistance(c1, c2);
+    }
+    //A* algo - like Djikstra but better
+    //also using imported from normal .net PriorityQueue cuz pretty good for this
+    public static List<Province> getBestPathProvinces(Map map, Country country, Province start, Province end) {
+        return getBestPathProvinces(map, country, (start.X, start.Y), (end.X, end.Y));
+    }
+    public static bool isPathPossible(Map map, Country country, Province start, Province end) {
+        return getBestPathProvinces(map, country, start, end) != null;
+    }
+    public static List<Province> getBestPathProvinces(Map map, Country country, (int, int) start, (int, int) end) {
+        var provinces = map.Provinces.Select(p=>(p.X, p.Y)).ToHashSet();
+        var unavailable = Map.LandUtilites.getUnpassableProvinces(map, country).Select(p=>(p.X, p.Y)).ToHashSet();
+
+        //for now no misc costs but in future maybe
+        return findBestPath(provinces, unavailable, null, start, end).Select(cord => map.getProvince(cord)).ToList();
+    }
+    private static List<(int, int)> findBestPath(
+        HashSet<(int, int)> provinces,
+        HashSet<(int, int)> unavailable,
+        Dictionary<(int, int), int> miscCosts,
+        (int, int) start, (int, int) end) {
+        if (miscCosts == null) miscCosts = new();
+        var startCube = OffsetToCube(start.Item1, start.Item2);
+        var endCube = OffsetToCube (end.Item1, end.Item2);
+        var prioQ = new PriorityQueue<Cube, int>();
+        var costSoFar= new Dictionary<Cube, int>();
+        var cameFrom=new Dictionary<Cube, Cube>();
+        prioQ.Enqueue(startCube, 0);
+        costSoFar[startCube] = 0;
+        while (prioQ.Count > 0) { 
+            var current = prioQ.Dequeue();
+            if (current.Equals(endCube)) {
+                return ReconstructPath(cameFrom, startCube, endCube).Select(CubeToOffset).ToList();
+            }
+            for (int dir = 0; dir < 6; dir++){
+                var neighbour = CubeNeighbor(current, dir);
+                var (nx, ny) = CubeToOffset(neighbour);
+                if (unavailable.Contains((nx, ny)) || !provinces.Contains((nx, ny)))
+                    continue;
+                int newCost = costSoFar[current] + 1 + (miscCosts.TryGetValue((nx, ny), out var additional) ? additional : 0);
+
+                if (!costSoFar.ContainsKey(neighbour) || newCost < costSoFar[neighbour]) {
+                    costSoFar[neighbour] = newCost;
+                    cameFrom[neighbour] = current;
+                    int prio = newCost + CubeDistance(neighbour, endCube);
+                    prioQ.Enqueue(neighbour, prio);
+                }
+            }
+        }
+        return null;
+    }
+    private static List<Cube> ReconstructPath(Dictionary<Cube, Cube> cameFrom, Cube start, Cube end) {
+        var path = new List<Cube>();
+        var current = end;
+
+        while (!current.Equals(start)) {
+            path.Add(current);
+            current = cameFrom[current];
+        }
+
+        path.Add(start);
+        path.Reverse();
+        return path;
     }
 }

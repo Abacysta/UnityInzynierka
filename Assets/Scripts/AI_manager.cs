@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Xsl;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using static Assets.classes.Event_;
 
@@ -141,9 +140,32 @@ namespace Assets.Scripts {
         private void moveArmies() {
             var armies = map.getCountryArmies(map.CurrentPlayer).OrderByDescending(a=>a.Count).ToList();
             foreach(var a in armies) {
+                if (map.CurrentPlayer.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
                 //get all land- no water
                 var possible = map.getPossibleMoveCells(a).Where(c => map.getProvince(c).Type == "land").ToList();
-
+                //trbal first I guess
+                var target = possible.FirstOrDefault(p => map.getProvince(p).Owner_id == 0);
+                if(target != (0,0)) {
+                    map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, target, a.Count, a));
+                    continue;
+                }
+                //then enemy provinces
+                var Eprov = possible.FindAll(p => Map.WarUtilities.getEnemyIds(map, map.CurrentPlayer).Contains(map.getProvince(p).Owner_id));
+                //no armies first
+                var withnoarmies = Eprov.Where(p => !Map.WarUtilities.getEnemyArmies(map, map.CurrentPlayer).Select(a => a.Position).Contains(p));
+                if (withnoarmies.Any()) {
+                    map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, target, a.Count, a));
+                    continue;
+                }
+                //with smaller armies
+                Eprov = (List<(int, int)>)Eprov.Except(withnoarmies);
+                foreach (var pp in Eprov) {
+                    if (Map.WarUtilities.getEnemyArmiesInProvince(map, map.CurrentPlayer, map.getProvince(pp)).Sum(a => a.Count) < a.Count) {
+                        map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, pp, a.Count, a));
+                        break;
+                    }
+                }
+                //plus pathfinding...
             }
             
         }
@@ -167,7 +189,6 @@ namespace Assets.Scripts {
             if (humor != Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.handleArmyRecruitment(map.CurrentPlayer, humor);
             if(humor != Humor.Leading) internalAffairsManager.handleGrowable(map.CurrentPlayer, humor);
         }
-
 
 
         private int getArmySum(int id) {

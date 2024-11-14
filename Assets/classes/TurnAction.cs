@@ -139,7 +139,7 @@ namespace Assets.classes {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
                 this.count = count;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment, techStats);
+                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment);
             }
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }

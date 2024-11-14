@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
-using Unity.VisualScripting;
+using static UnityEngine.EventSystems.EventTrigger;
+using Unity.Loading;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 [Serializable]
@@ -631,19 +632,31 @@ public class Map : ScriptableObject {
         public static bool isAttacker(Map map, Country c, Relation.War war) {
             return war.participants1.Contains(c);
         }
-        //public static HashSet<Relation.War> getAllWars(Map map, Country c) => map.getRelationsOfType(c, Relation.RelationType.War).Cast<Relation.War>().ToHashSet<Relation.War>();
-        //public static HashSet<Army> getEnemyArmies(Map map, Country c) {
-        //    HashSet<Army> enemy = new();
+        public static HashSet<Relation.War> getAllWars(Map map, Country c) => map.getRelationsOfType(c, Relation.RelationType.War).Cast<Relation.War>().ToHashSet();
+        public static HashSet<Army> getEnemyArmies(Map map, Country c) {
+            HashSet<Army> enemy = new();
 
-        //    foreach (var war in getAllWars(map, c)) {
-        //        var opposingParticipants = war.participants1.Contains(c) ? war.participants2 : war.participants1;
-        //        foreach (var country in opposingParticipants) {
-        //            enemy.UnionWith(map.getCountryArmies(country));
-        //        }
-        //    }
+            foreach (var war in getAllWars(map, c)) {
+                var opposingParticipants = war.participants1.Contains(c) ? war.participants2 : war.participants1;
+                foreach (var country in opposingParticipants) {
+                    enemy.UnionWith(map.getCountryArmies(country));
+                }
+            }
 
-        //    return enemy;
-        //}
+            return enemy;
+        }
+        public static HashSet<int> getEnemyIds(Map map, Country c) {
+            HashSet<int> ids = new();
+            foreach (var war in getAllWars(map, c)) {
+                var opposingParticipants = war.participants1.Contains(c) ? war.participants2 : war.participants1;
+                foreach (var country in opposingParticipants) {
+                    ids.Add(country.Id);
+                }
+            }
+            return ids;
+        }
+        public static HashSet<Army> getEnemyArmiesInProvince(Map map, Country c, Province p) => getEnemyArmies(map, c).Where(a => a.Position == p.coordinates).ToHashSet();
+
     }
     /// <summary>
     /// utilites for managing borders and armies [FOR AI]
@@ -675,6 +688,33 @@ public class Map : ScriptableObject {
                     p.RecruitablePopulation*c.techStats.armyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.armyCost), c.techStats));
             }
             return p.RecruitablePopulation == 0;
+        }
+        public static HashSet<Province> getUnpassableProvinces(Map map, Country c) {
+            HashSet<Province> unpassable = new();
+            if (!c.techStats.canBoat) {
+                unpassable.UnionWith(map.Provinces.FindAll(p => p.Type != "land").ToHashSet());
+            }
+            HashSet<int> accessible = new();
+            foreach(var r in map.Relations) {
+                if (r.type == Relation.RelationType.MilitaryAccess && r.Sides[1].Id == c.Id)
+                    accessible.Add(r.Sides[1].Id);
+                else if (r.type == Relation.RelationType.Alliance || r.type == Relation.RelationType.Vassalage)
+                    if (r.Sides.Any(rs => rs.Id == c.Id)) {
+                        accessible.Add(r.Sides[0].Id);
+                        accessible.Add(r.Sides[1].Id);
+                    }
+                else if(r.type == Relation.RelationType.War)
+                        if((r as Relation.War).participants1.Contains(c) || (r as Relation.War).participants2.Contains(c)) {
+                            accessible.UnionWith((r as Relation.War).participants1.Select(part => part.Id).ToHashSet());
+                            accessible.UnionWith((r as Relation.War).participants2.Select(part => part.Id).ToHashSet());
+                        }
+            }
+            accessible.Remove(c.Id);
+            foreach(var province in map.Provinces) {
+                if (province.Owner_id != c.Id && !accessible.Contains(province.Owner_id))
+                    unpassable.Add(province);
+            }
+            return unpassable;
         }
         //niech ktos kto robil te hexy mi z tym pomoze bo zakopie w piasku
         //public static HashSet<Country> getNeededAccess(Map map, Country country) { 
