@@ -8,6 +8,7 @@ using Assets.classes;
 using static Assets.classes.Relation;
 using static Assets.classes.TurnAction;
 using Assets.classes.subclasses;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class Effect
 {
@@ -201,6 +202,16 @@ public class diplomatic_actions_manager : MonoBehaviour
                 rel.Sides.Contains(currentPlayer) && rel.Sides.Contains(receiverCountry));
         }
 
+        bool HasCurrentPlayerWarRelationWithReceiver()
+        {
+            return map.Relations
+                .OfType<Relation.War>()
+                .Any(warRelation =>
+                    (warRelation.participants1.Contains(currentPlayer) && warRelation.participants2.Contains(receiverCountry)) ||
+                    (warRelation.participants2.Contains(currentPlayer) && warRelation.participants1.Contains(receiverCountry))
+                );
+        }
+
         //bool HasCurrentPlayerRelationWithAnyone(RelationType type)
         //{
         //    return map.Relations.Any(rel => rel.type == type && rel.Sides.Contains(currentPlayer));
@@ -258,7 +269,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         // is not a vassal of any country
         // and if the currentPlayer's opinion of the receiver is less than zero
         war_declare_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.MilitaryAccess) &&
@@ -277,14 +288,14 @@ public class diplomatic_actions_manager : MonoBehaviour
             HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Vassalage, curentPlayerIsSide1: false) &&
             buttonStates.IntegrateVassalButtonState;
 
-        // interactable if the currentPlayer is at war with the receiver
+        // interactable if the currentPlayer is at war with the receiver as one of the leaders (not an ally who joined war)
         peace_offer_button.interactable = HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
             buttonStates.PeaceOfferButtonState;
 
         // interactable if the currentPlayer has no war, alliance, or truce with the receiver
         // and neither the currentPlayer nor the receiver are vassals of anyone
         diplomatic_mission_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
@@ -294,7 +305,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         // interactable if the currentPlayer has no war, alliance, or truce with the receiver 
         // and neither the currentPlayer nor the receiver are vassals of anyone
         insult_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
@@ -305,7 +316,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         // is not a vassal of any country
         // and if the currentPlayer's opinion of the receiver is greater than 2
         alliance_offer_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
@@ -328,7 +339,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         // interactable if the currentPlayer has no war and truce with the receiver
         // and if the currentPlayer is not subsidizing the receiver yet and is not a vassal of any country
         subsidize_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, curentPlayerIsSide1: false) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
@@ -343,7 +354,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         // the currentPlayer is not being subsidized by the receiver yet
         // and neither the currentPlayer nor the receiver are vassals of anyone
         subs_request_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.Subsidies, curentPlayerIsSide1: true) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
@@ -354,7 +365,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         // the currentPlayer is not giving military access to the receiver's country yet,
         // and neither the currentPlayer nor the receiver are vassals of anyone
         mil_acc_offer_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: false) &&
@@ -366,7 +377,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         // the currentPlayer does not have military access through the receiver's country yet,
         // and neither the currentPlayer nor the receiver are vassals of anyone
         mil_acc_request_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerOrderedRelationWithReceiver(RelationType.MilitaryAccess, curentPlayerIsSide1: true) &&
@@ -388,7 +399,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         // interactable if the currentPlayer has no war, alliance, truce with the receiver
         vassal_offer_button.interactable =
-            !HasCurrentPlayerRelationWithReceiver(RelationType.War) &&
+            !HasCurrentPlayerWarRelationWithReceiver() &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Alliance) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Truce) &&
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
@@ -565,8 +576,8 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
-            new(opinion_sprite, "Your Opinion of Them", $"-{Relation.WarOpinionPenaltyInit}", false),
-            new(opinion_sprite, "Their Opinion of You", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Your Opinion of Them", $"{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Their Opinion of You", $"{Relation.WarOpinionPenaltyInit}", false),
         };
 
         SetEffects(action_effects);
@@ -611,8 +622,8 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
-            new(opinion_sprite, "Your Opinion of Them", $"-{Relation.WarOpinionPenaltyInit}", false),
-            new(opinion_sprite, "Their Opinion of You", $"-{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Your Opinion of Them", $"{Relation.WarOpinionPenaltyInit}", false),
+            new(opinion_sprite, "Their Opinion of You", $"{Relation.WarOpinionPenaltyInit}", false),
         };
 
         SetEffects(action_effects);
@@ -1166,8 +1177,8 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.VassalageHappinessPenaltyInitC2}%", true),
             new(happiness_sprite, "Happiness Per Turn", $"+{game_manager.VassalageHappinessBonusConstC1}%", true),
             new(happiness_sprite, "Happiness Per Turn (Enemy)", $"-{game_manager.VassalageHappinessPenaltyConstC2}%", true),
-            new(opinion_sprite, "Their Opinion of You", $"-{Relation.VassalageOpinionPenaltyInitC2}", false),
-            new(opinion_sprite, "Their Opinion of You (Per Turn)", $"-{Relation.VassalageOpinionPenaltyConstC2}", false),
+            new(opinion_sprite, "Their Opinion of You", $"{Relation.VassalageOpinionPenaltyInitC2}", false),
+            new(opinion_sprite, "Their Opinion of You (Per Turn)", $"{Relation.VassalageOpinionPenaltyConstC2}", false),
         };
 
         SetEffects(action_effects);
