@@ -59,13 +59,9 @@ public class Country {
         /// </summary>
         public float recPop;
         /// <summary>
-        /// Penalty to population growth and happiness growth in occupied provinces
+        /// Penalty to population growth, happiness growth and produced resource in occupied provinces
         /// </summary>
         public float occPenalty;
-        /// <summary>
-        /// Multiplier of production in occupied provinces. Always calculated last
-        /// </summary>
-        public float occProd;
         /// <summary>
         /// Amount of turns needed to change province status from "occupied" to "owned"
         /// </summary>
@@ -141,11 +137,9 @@ public class Country {
         public static class AdministrativeModifiers
         {
             public const float TaxFactor1 = 0.03f;
-            public const float OccProd1 = 0.1f;
             public const float TaxFactor2 = 0.01f;
             public const float RecPop = 0.02f;
             public const float OccPenalty = -0.05f;
-            public const float OccProd2 = 0.4f;
         }
 
         public TechnologyInterpreter(Dictionary<Technology, int> tech) {
@@ -167,7 +161,6 @@ public class Country {
             popGrowth += 0.05f;
             recPop = 0.05f;
             occPenalty = 0.5f;
-            occProd = 0;
             occTime = 3;
             moreSchool = false;
             lvlMine = 0; lvlFort = 0; lvlTax = 0; lvlFoW = 2; moveRange = 1;
@@ -277,7 +270,6 @@ public class Country {
                     lvlFoW += 1; // Fog II
                     goto case 4;
                 case 6:
-                    occProd += AdministrativeModifiers.OccProd1; // 0.1f
                     goto case 5;
                 case 7:
                     goto case 6;
@@ -290,7 +282,6 @@ public class Country {
                     occPenalty += AdministrativeModifiers.OccPenalty; // -0.05f
                     goto case 8;
                 case 10:
-                    occProd += AdministrativeModifiers.OccProd2; // 0.4f
                     lvlFoW += 2; // Fog III
                     goto case 9;
                 default:
@@ -387,6 +378,7 @@ public class Country {
     public bool assignProvince(Province province) {
         if(province.Owner_id != 0 || province.Owner_id == id) return false;
         provinces.Add(province);
+        if (province.Owner_id == 0) province.RemoveStatus(province.Statuses.Find(s => s is Tribal));
         province.Owner_id = this.id;
         return true;
     }

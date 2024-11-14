@@ -59,31 +59,12 @@ public class game_manager : MonoBehaviour
         start_screen.welcomeScreen();
 	}
 
-    void LoadData()
-    {
-        map.Map_name = "map1";
-        map.File_name = "map_prototype_3";
-        TextAsset jsonFile = Resources.Load<TextAsset>(map.File_name);
-
-        if (jsonFile != null)
-        {
-            string jsonContent = "{\"provinces\":" + jsonFile.text + "}";
-            JsonUtility.FromJsonOverwrite(jsonContent, map);
-        }
-        else
-        {
-            Debug.LogError("JSON map file not found in Resources!");
-        }
-
-    }
-
     public void UndoAll()
     {
         while(map.CurrentPlayer.Actions.Count > 0) {
             map.CurrentPlayer.Actions.revert();
         }
     }
-
     public void invokeEvent(int id) {
         map.Countries[id].Events[1].call();
     }
@@ -193,9 +174,11 @@ public class game_manager : MonoBehaviour
     private void provinceCalc(int pcnt) {
         loading_txt.text = "Calculating provinces";
         Debug.Log("started bar");
+
         foreach(var p in map.Provinces) {
             loading_bar.value = (0.2f * 100 / pcnt);
             map.growPop(p.coordinates);
+            if (p.Owner_id != 0) map.growHap(p.coordinates, 3);
             map.calcRecruitablePop(p.coordinates);
             map.calcPopExtremes();
             p.calcStatuses();
@@ -207,6 +190,7 @@ public class game_manager : MonoBehaviour
             }
         }
     }
+
     private void happinnessFromRelations()
     {
         foreach(var country in map.Countries)
@@ -244,6 +228,7 @@ public class game_manager : MonoBehaviour
             }
         }
     }
+
     private void ccc(int i) {
         Dictionary<Resource, float> resources = new Dictionary<Resource, float> {
                 { Resource.Gold, 0 },
@@ -256,14 +241,17 @@ public class game_manager : MonoBehaviour
         loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
         map.Countries[i].Tax.applyCountryTax(map.Countries[i]);
+
         foreach (var p in map.Countries[i].Provinces) {
-            map.growHap(p.coordinates, 3);
-            if (p.Buildings.Any(b => b.BuildingType == BuildingType.School) && p.getBuilding(BuildingType.School).BuildingLevel < 4) resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
+            if (p.Buildings.Any(b => b.BuildingType == BuildingType.School)
+                && p.getBuilding(BuildingType.School).BuildingLevel < 4) {
+                resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
+            }
 
             if (p.OccupationInfo.IsOccupied)
             {
                 var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
-                resources[p.ResourcesT] += p.ResourcesP * occupierTechStats.occProd;
+                resources[p.ResourcesT] += p.ResourcesP * (1 - occupierTechStats.occPenalty);
             }
             else
             {
@@ -272,7 +260,7 @@ public class game_manager : MonoBehaviour
 
             resources[Resource.AP] += 0.1f;
         }
-        
+
         resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
@@ -367,6 +355,7 @@ public class game_manager : MonoBehaviour
 			map.reloadArmyView(a);
 		}
 	}
+
 	public void loadGameJson(string name) {
 		var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension
 		Debug.Log("loading " + path);

@@ -26,10 +26,10 @@ public class province_interface : MonoBehaviour
                 float height = rect.rect.height, currentX = 0f;
                 foreach (Status status in statuses)
                 {
-                    GameObject child = new GameObject("icon_" + status.id);
+                    GameObject child = new GameObject("icon_" + status.Id);
                     child.transform.SetParent(obj.transform);
                     Image image = child.AddComponent<Image>();
-                    image.sprite = status_sprites[status.id];
+                    image.sprite = status_sprites[status.Id];
                     RectTransform rectT = child.GetComponent<RectTransform>();
                     rectT.sizeDelta = new Vector2(height, height);
                     rectT.anchorMin = new Vector2(0, 0.5f);

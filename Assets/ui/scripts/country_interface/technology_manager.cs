@@ -513,9 +513,7 @@ public class technology_manager : MonoBehaviour
                 new("Fog of war", 1, fog_of_war_sprite, true)
             }),
             // Level 6
-            new(new List<TechEffect> {
-                new("Occupation production factor", AdministrativeModifiers.OccProd1, occupation_production_factor_sprite, true)
-            }),
+            new(new List<TechEffect> {}),
             // Level 7
             new(new List<TechEffect> {}),
             // Level 8
@@ -530,7 +528,6 @@ public class technology_manager : MonoBehaviour
             }),
             // Level 10
             new(new List<TechEffect> {
-                new("Occupation production factor", AdministrativeModifiers.OccProd2, occupation_production_factor_sprite, true),
                 new("Fog of war", 2, fog_of_war_sprite, true)
             }),
         };

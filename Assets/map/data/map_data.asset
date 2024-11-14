@@ -40019,5 +40019,5 @@ MonoBehaviour:
   army_prefab: {fileID: 8881007966899125626, guid: 846aa32f85f24cf4d84c6e8fb004aa5a, type: 3}
   turnlimit: 80
   resourceRate: 100
-  currentPlayer: 4
+  currentPlayer: 5
   turnCnt: 0

@@ -17,7 +17,7 @@ public class GameSettingsPanel : MonoBehaviour
     public string SelectedMap => selectedMap;
     private int selectedResourceRate = 100;
 
-
+    
     private int selectedTurnLimit = 80;
 
     private int minResourceRate = 50;
@@ -30,13 +30,13 @@ public class GameSettingsPanel : MonoBehaviour
     private int shiftInc = 5;
 
     private int turnValue = 1;
-
     void Start()
     {
         LoadAvailableMaps();
         SetupResourceOptions();
         SetupTurnOptions();
-    }
+
+	}
 
     private void LoadAvailableMaps()
     {
@@ -251,7 +251,7 @@ public class GameSettingsPanel : MonoBehaviour
             Debug.Log("At least one human player!");
             return;
         }
-        map.name = selectedMap;
+		map.name = selectedMap;
         map.File_name = selectedMap;
         map.ResourceRate = selectedResourceRate;
         map.Turnlimit = selectedTurnLimit;
@@ -260,5 +260,8 @@ public class GameSettingsPanel : MonoBehaviour
 
         SceneManager.LoadScene("game_map");
     }
-
+    public void exitButton()
+    {
+        SceneManager.LoadScene("main_menu");
+    }
 }

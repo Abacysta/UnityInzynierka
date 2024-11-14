@@ -136,7 +136,7 @@ namespace Assets.Scripts {
                 AI_manager.diploEventResponder.Respond(e, map, humor);
             }
         }
-        //no moving over water cuz i dont care at this point(splitting is too complicated as well)
+        //no moving over water unless enemy land cuz i dont care at this point(splitting is too complicated as well)
         private void moveArmies() {
             var armies = map.getCountryArmies(map.CurrentPlayer).OrderByDescending(a=>a.Count).ToList();
             var unavailable = Map.LandUtilites.getUnpassableProvinces(map, map.CurrentPlayer);
