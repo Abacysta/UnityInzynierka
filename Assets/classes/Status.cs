@@ -8,100 +8,107 @@ namespace Assets.classes.subclasses {
             negative = -1,
             neutral = 0
         }
-        public int id;
-        public int duration;
-        public string description;
-        public StatusType type;
+
+        public int Id { get; set; }
+        public int Duration { get; set; }
+        public string Description { get; set; }
+        public StatusType Type { get; set; }
 
         public Status(int duration, StatusType type, string description, int id) {
-            this.duration = duration;
-            this.type = type;
-            this.description = description;
-            this.id = id;
+            Duration = duration;
+            Type = type;
+            Description = description;
+            Id = id;
         }
 
-        public virtual void applyEffect(Province province) { }
+        public virtual void applyEffect(Province province) {}
     }
+
     [Serializable]
-    internal class TaxBreak:Status {
+    internal class TaxBreak : Status {
 
         public static readonly float TaxMod = 0f;
         public static readonly float HappMod = 0.2f;
         public static readonly float HappStatic = 5f;
 
-        public TaxBreak(int duration) : base(duration, StatusType.positive, "The province is exempted from paying tax", 1) {
-        }
+        public TaxBreak(int duration) : base(duration, StatusType.positive, "The province is exempted from paying tax", 1) {}
 
         public override void applyEffect(Province province) {
-            province.Tax_mod = TaxMod;
-            province.Happ_mod += HappMod;
-            province.Happ_static += HappStatic;
+            province.Modifiers.TaxMod = TaxMod;
+            province.Modifiers.HappMod += HappMod;
+            province.Modifiers.HappStatic += HappStatic;
         }
     }
+
 	[Serializable]
-	internal class Festivities:Status {
+	internal class Festivities : Status {
 
         public static readonly float ProdMod = -0.15f;
         public static readonly float PopMod = 0.15f;
         public static readonly float HappStatic = 3f;
 
-        public Festivities(int duration) : base(duration, StatusType.positive, "Festivities are taking place in this province", 2){}
+        public Festivities(int duration) : base(duration, StatusType.positive, "Festivities are taking place in this province", 2) {}
 
         public override void applyEffect(Province province) {
-            province.Prod_mod += ProdMod;
-            province.Pop_mod += PopMod;
-            province.Happ_static += HappStatic;
+            province.Modifiers.ProdMod += ProdMod;
+            province.Modifiers.PopMod += PopMod;
+            province.Modifiers.HappStatic += HappStatic;
         }
     }
 
 	[Serializable]
-	internal class ProdBoom:Status {
-        public ProdBoom(int duration) : base(duration, StatusType.positive, "This province is experiencing a temporary production boom", 3) { }
+	internal class ProdBoom : Status {
+        public ProdBoom(int duration) : base(duration, StatusType.positive, "This province is experiencing a temporary production boom", 3) {}
 
         public override void applyEffect(Province province) {
-            province.Prod_mod += 0.15f;
+            province.Modifiers.ProdMod += 0.15f;
         }
     }
+
 	[Serializable]
-	internal class ProdDown:Status {
-        public ProdDown(int duration) : base(duration, StatusType.negative, "This province is experiencing a temporary recession", 4) { }
+	internal class ProdDown : Status {
+        public ProdDown(int duration) : base(duration, StatusType.negative, "This province is experiencing a temporary recession", 4) {}
 
         public override void applyEffect(Province province) {
-            province.Prod_mod -= 0.15f;
+            province.Modifiers.ProdMod -= 0.15f;
         }
     }
+
 	[Serializable]
-	internal class Tribal:Status {
-        public Tribal(int duration) : base (duration, StatusType.neutral, "No civilization has been introduced in this province", 0) { }
+	internal class Tribal : Status {
+        public Tribal(int duration) : base (duration, StatusType.neutral, "No civilization has been introduced in this province", 0) {}
 
         public override void applyEffect(Province province) {
-            province.Pop_mod = 0.5f;
-            province.Happ_mod = 0;
-            province.Happ_static = 0;
-            province.Prod_mod = 1;
-            province.Rec_pop = 0;
-            province.Tax_mod = 0;
+            province.Modifiers.PopMod = 0.5f;
+            province.Modifiers.HappMod = 0;
+            province.Modifiers.HappStatic = 0;
+            province.Modifiers.ProdMod = 1;
+            province.Modifiers.RecPop = 0;
+            province.Modifiers.TaxMod = 0;
         }
     }
+
 	[Serializable]
-	internal class Illness:Status {
-        public Illness(int duration) : base(duration, StatusType.negative, "This province is going through a plague", 5) { }
+	internal class Illness : Status {
+        public Illness(int duration) : base(duration, StatusType.negative, "This province is going through a plague", 5) {}
 
         public override void applyEffect(Province province) {
-            province.Pop_mod -= 0.6f;
-            province.Pop_static -= province.Population / 10;
-            province.Happ_static -= 4;
+            province.Modifiers.PopMod -= 0.6f;
+            province.Modifiers.PopStatic -= province.Population / 10;
+            province.Modifiers.HappStatic -= 4;
         }
     }
+
 	[Serializable]
-	internal class Disaster:Status {
-        public Disaster(int duration) : base(duration, StatusType.negative, "A disaster has struck this province", 6) { }
+	internal class Disaster : Status {
+        public Disaster(int duration) : base(duration, StatusType.negative, "A disaster has struck this province", 6) {}
 
         public override void applyEffect(Province province) {
-            province.Pop_mod -= 0.1f;
-            province.Prod_mod -= 0.3f;
+            province.Modifiers.PopMod -= 0.1f;
+            province.Modifiers.ProdMod -= 0.3f;
         }
     }
+
 	[Serializable]
 	internal class Occupation : Status
     {
@@ -116,40 +123,38 @@ namespace Assets.classes.subclasses {
             province.OccupationInfo.OccupyingCountryId = this.Occupier_id;
         }
     }
+
 	[Serializable]
-	internal class RecBoom:Status {
-        public RecBoom(int duration) : base(duration, StatusType.neutral, "More recruits appear, hindering your economic growth", 8) {
-        }
+	internal class RecBoom : Status {
+        public RecBoom(int duration) : base(duration, StatusType.neutral, "More recruits appear, hindering your economic growth", 8) {}
 
         public override void applyEffect(Province province) {
-            province.Rec_pop += 0.02f;
-            province.Prod_mod -= 0.03f;
+            province.Modifiers.RecPop += 0.02f;
+            province.Modifiers.ProdMod -= 0.03f;
         }
     }
+
 	[Serializable]
-	internal class Flood:Status
+	internal class Flood : Status
     {
-        public Flood(int duration) : base(duration, StatusType.negative, "This province is flooded.", 9)
-        {
-        }
+        public Flood(int duration) : base(duration, StatusType.negative, "This province is flooded.", 9) {}
 
         public override void applyEffect(Province province)
         {
-            province.Rec_pop -= 0.05f;
-            province.Prod_mod -= 0.5f;
+            province.Modifiers.RecPop -= 0.05f;
+            province.Modifiers.ProdMod -= 0.5f;
         }
     }
+
 	[Serializable]
 	internal class Fire : Status
     {
-        public Fire(int duration) : base(duration, StatusType.negative, "This province is on fire!", 10)
-        {
-        }
+        public Fire(int duration) : base(duration, StatusType.negative, "This province is on fire!", 10) {}
 
         public override void applyEffect(Province province)
         {
-            province.Rec_pop -= 0.15f;
-            province.Prod_mod -= .7f;
+            province.Modifiers.RecPop -= 0.15f;
+            province.Modifiers.ProdMod -= .7f;
         }
     }
 }

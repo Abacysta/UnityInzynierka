@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -81,30 +82,8 @@ public class player_table : MonoBehaviour
         map.Armies.Clear();
         map.Countries.Clear();
         map.Controllers.Clear();
-        map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
-
-        foreach (CountryData state in currentStates)
-        {
-            if (state.owner_id == 0)
-            {
-                continue;
-            }
-            Country newCountry = new Country(
-                state.owner_id,
-                state.name,
-                (state.capitol[0], state.capitol[1]),
-                toColor(state.color),
-                state.coat,
-                map
-            );
-
-            map.addCountry(newCountry, CountryController.Ai);
-
-
-            Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
-        }
-
         map.Provinces.Clear();
+
         int j = 1;
         foreach (var provinceData in provinces)
         {
@@ -137,22 +116,45 @@ public class player_table : MonoBehaviour
                 terrain = Province.TerrainType.ocean;
             }
             Province newProvince = new Province(
-                    j++.ToString(),
-                    provinceData.Name,
-                    provinceData.X,
-                    provinceData.Y,
-                    provinceData.Type,
-                    terrain,
-                    provinceData.Resources,
-                    (int)provinceData.Resources_amount,
-                    provinceData.Population,
-                    (int)provinceData.Rec_pop,
-                    50,
-                    provinceData.Is_coast,
-                    provinceData.Owner_id
-                );
+                j++.ToString(),
+                provinceData.Name,
+                provinceData.X,
+                provinceData.Y,
+                provinceData.Type,
+                terrain,
+                provinceData.Resources,
+                (int)provinceData.Resources_amount,
+                provinceData.Population,
+                1,
+                50,
+                provinceData.Is_coast,
+                provinceData.Owner_id
+            );
 
             map.Provinces.Add(newProvince);
+        }
+
+        map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+
+        foreach (CountryData state in currentStates)
+        {
+            if (state.owner_id == 0)
+            {
+                continue;
+            }
+            Country newCountry = new Country(
+                state.owner_id,
+                state.name,
+                (state.capitol[0], state.capitol[1]),
+                toColor(state.color),
+                state.coat,
+                map
+            );
+
+            map.addCountry(newCountry, CountryController.Ai);
+
+
+            Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
         }
 
         for (int i = 1; i <= controllers.Count; i++)
@@ -162,8 +164,6 @@ public class player_table : MonoBehaviour
 
         Debug.Log("Game setup complete. Ready to start the game.");
     }
-
-
 
     private void SetCountryAsPlayer(Transform nameTransform, int playerNumber)
     {

@@ -16,13 +16,13 @@ namespace Assets.classes {
                 country.modifyResource((Resource.Gold), sum);
             }
             public void applyProvinceTax(Province province, Country country, ref float sum) {
-                sum += GoldP * province.Population / 100;
+                sum += GoldP * province.Population / 100 * province.Modifiers.TaxMod;
                 province.Happiness += HappP;
             }
             public float getProjectedTax(Country country) {
                 float goldsum = 0;
                 foreach (var prov in country.Provinces) {
-                    goldsum += GoldP * prov.Population / 100;
+                    goldsum += GoldP * prov.Population / 100 * prov.Modifiers.TaxMod;
                 }
                 return (float)Math.Round(goldsum, 1) * country.techStats.taxFactor;
             }

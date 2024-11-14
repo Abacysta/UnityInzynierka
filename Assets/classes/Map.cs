@@ -94,15 +94,18 @@ public class Map : ScriptableObject {
         if (province.OccupationInfo.IsOccupied)
         {
             var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
-            province.Population += (int)Math.Floor(province.Population * (provinceOwnerTechStats.popGrowth - occupierTechStats.occPenalty));
+            province.Population += (int)Math.Floor(province.Population * ((provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod) - occupierTechStats.occPenalty));
         }
-        else province.Population += (int)Math.Floor(province.Population * provinceOwnerTechStats.popGrowth);
+        else province.Population += (int)Math.Floor(province.Population * provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod);
+
+        province.Population += (int)Math.Floor(province.Modifiers.PopStatic);
     }
 
     public void calcRecruitablePop((int, int) coordinates) {
-        int prov = getProvinceIndex(coordinates);
-        var stats = countries[Provinces[prov].Owner_id].techStats;
-        Provinces[prov].RecruitablePopulation = (int)Math.Floor(Provinces[prov].Population * stats.recPop);
+        Province province = getProvince(coordinates);
+        var techStats = countries[province.Owner_id].techStats;
+
+        province.RecruitablePopulation = (int)Math.Floor(province.Population * techStats.recPop * province.Modifiers.RecPop);
     }
 
     public void growHap((int, int) coordinates, int value) {
@@ -111,9 +114,11 @@ public class Map : ScriptableObject {
         if (province.OccupationInfo.IsOccupied)
         {
             var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
-            province.Happiness += (int)Math.Floor(value * (1 - occupierTechStats.occPenalty));
+            province.Happiness += (int)Math.Floor(value * (province.Modifiers.HappMod - occupierTechStats.occPenalty));
         }
-        else province.Happiness += value;
+        else province.Happiness += (int)Math.Floor(value * province.Modifiers.HappMod);
+
+        province.Happiness += (int)Math.Floor(province.Modifiers.HappStatic);
     }
 
     public void upgradeBuilding((int, int) coordinates, BuildingType buildingType) {
@@ -504,7 +509,7 @@ public class Map : ScriptableObject {
 
         if (occupationStatus != null && province.Type == "land") {
             province.addStatus(occupationStatus);
-            province.OccupationInfo = new OccupationInfo(true, occupationStatus.duration + 1, army.OwnerId);
+            province.OccupationInfo = new OccupationInfo(true, occupationStatus.Duration + 1, army.OwnerId);
         }
     }
     public void CancelOccupation(Province province) // jak odbija panstwo prowincje 
@@ -658,10 +663,10 @@ public class Map : ScriptableObject {
         }
         //pewnie trzeba bedzie zmienic z numerow na jakis inny szajs
         public static List<Province> getUnhappyProvinces(Country country) {
-            return country.Provinces.Where(p=>p.Happiness<40 && !p.Statuses.Any(s=>s.id == 1)).ToList();
+            return country.Provinces.Where(p=>p.Happiness<40 && !p.Statuses.Any(s=>s.Id == 1)).ToList();
         }
         public static List<Province> getGrowable(Country c) {
-            return c.Provinces.Where(p => (p.ResourcesT == Resource.Gold || p.Population < 400) && !p.Statuses.Any(s=>s.id== 2)).ToList();
+            return c.Provinces.Where(p => (p.ResourcesT == Resource.Gold || p.Population < 400) && !p.Statuses.Any(s=>s.Id== 2)).ToList();
         }
         public static List<Province> getOptimalRecruitmentProvinces(Country c) {
             return c.Provinces.Where(p=>p.RecruitablePopulation >= 50).OrderByDescending(p=>p.Population).ToList();

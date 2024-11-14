@@ -256,7 +256,7 @@ namespace Assets.classes.subclasses {
             }
             var so = loaded.Statuses.Find(s => s is Occupation) as Occupation;
             if (so != null) {
-                loaded.OccupationInfo = new(true, so.duration, so.Occupier_id);
+                loaded.OccupationInfo = new(true, so.Duration, so.Occupier_id);
             }
             else loaded.OccupationInfo = new(false, 0, 0);
             if(buildings!= null) {
@@ -381,9 +381,9 @@ namespace Assets.classes.subclasses {
         Status.StatusType type;
         public int? occupier;
         public SaveStatus(Status status) {
-            duration = status.duration;
-            id = status.id;
-            type = status.type;
+            duration = status.Duration;
+            id = status.Id;
+            type = status.Type;
             if (status is Occupation) {
                 occupier = (status as Occupation).Occupier_id;
             }
