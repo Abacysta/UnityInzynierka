@@ -230,15 +230,15 @@ public class dialog_box_manager : MonoBehaviour
         {
             case Technology.Military:
                 title += "Military Technology";
-                message += $"Military Technology to level {map.CurrentPlayer.Technology_[Technology.Military] + 1}?";
+                message += $"Military Technology to level {map.CurrentPlayer.Technologies[Technology.Military] + 1}?";
                 break;
             case Technology.Economic:
                 title += "Economic Technology";
-                message += $"Economic Technology to level {map.CurrentPlayer.Technology_[Technology.Economic] + 1}?";
+                message += $"Economic Technology to level {map.CurrentPlayer.Technologies[Technology.Economic] + 1}?";
                 break;
             case Technology.Administrative:
                 title += "Administrative Technology";
-                message += $"Administrative Technology to level {map.CurrentPlayer.Technology_[Technology.Administrative] + 1}?";
+                message += $"Administrative Technology to level {map.CurrentPlayer.Technologies[Technology.Administrative] + 1}?";
                 break;
             default:
                 break;
@@ -252,7 +252,7 @@ public class dialog_box_manager : MonoBehaviour
         
         ShowConfirmBox(title, message, onConfirm, confirmable: true, 
             cost: CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade,
-            tech: map.CurrentPlayer.Technology_, techType: type));
+            tech: map.CurrentPlayer.Technologies, techType: type));
     }
 
     public void invokeTaxBreakIntroductionBox(Map map, (int, int) coordinates)
@@ -360,7 +360,7 @@ public class dialog_box_manager : MonoBehaviour
             HideDialog();
         });
 
-        ShowConfirmBox("", _event.msg, onConfirm, confirmable, rejectable, zoomable: true, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject", onCancel: onCancel);
+        ShowConfirmBox("", _event.Message, onConfirm, confirmable, rejectable, zoomable: true, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject", onCancel: onCancel);
     }
 
     private void ShowDialogBox(string actionTitle, string message, Action onConfirm,

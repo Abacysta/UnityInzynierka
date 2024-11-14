@@ -31,7 +31,8 @@ namespace Assets.classes.subclasses {
         public static readonly float HappMod = 0.2f;
         public static readonly float HappStatic = 5f;
 
-        public TaxBreak(int duration) : base(duration, StatusType.positive, "The province is exempted from paying tax", 1) {}
+        public TaxBreak(int duration) : base(duration, StatusType.positive, 
+            "The province is exempted from paying tax", 1) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.TaxMod = TaxMod;
@@ -47,7 +48,8 @@ namespace Assets.classes.subclasses {
         public static readonly float PopMod = 0.15f;
         public static readonly float HappStatic = 3f;
 
-        public Festivities(int duration) : base(duration, StatusType.positive, "Festivities are taking place in this province", 2) {}
+        public Festivities(int duration) : base(duration, StatusType.positive, 
+            "Festivities are taking place in this province", 2) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.ProdMod += ProdMod;
@@ -58,7 +60,8 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class ProdBoom : Status {
-        public ProdBoom(int duration) : base(duration, StatusType.positive, "This province is experiencing a temporary production boom", 3) {}
+        public ProdBoom(int duration) : base(duration, StatusType.positive, 
+            "This province is experiencing a temporary production boom", 3) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.ProdMod += 0.15f;
@@ -67,7 +70,8 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class ProdDown : Status {
-        public ProdDown(int duration) : base(duration, StatusType.negative, "This province is experiencing a temporary recession", 4) {}
+        public ProdDown(int duration) : base(duration, StatusType.negative, 
+            "This province is experiencing a temporary recession", 4) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.ProdMod -= 0.15f;
@@ -76,7 +80,8 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class Tribal : Status {
-        public Tribal(int duration) : base (duration, StatusType.neutral, "No civilization has been introduced in this province", 0) {}
+        public Tribal(int duration) : base (duration, StatusType.neutral, 
+            "No civilization has been introduced in this province", 0) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.PopMod = 0.5f;
@@ -90,7 +95,8 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class Illness : Status {
-        public Illness(int duration) : base(duration, StatusType.negative, "This province is going through a plague", 5) {}
+        public Illness(int duration) : base(duration, StatusType.negative, 
+            "This province is going through a plague", 5) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.PopMod -= 0.6f;
@@ -101,7 +107,8 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class Disaster : Status {
-        public Disaster(int duration) : base(duration, StatusType.negative, "A disaster has struck this province", 6) {}
+        public Disaster(int duration) : base(duration, StatusType.negative, 
+            "A disaster has struck this province", 6) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.PopMod -= 0.1f;
@@ -113,7 +120,8 @@ namespace Assets.classes.subclasses {
 	internal class Occupation : Status
     {
         public int Occupier_id { get; private set; }
-        public Occupation(int duration, int occupierId) : base(duration, StatusType.negative, "This province is currently occupied", 7) 
+        public Occupation(int duration, int occupierId) : base(duration, StatusType.negative, 
+            "This province is currently occupied", 7) 
         {
             this.Occupier_id = occupierId;
         }
@@ -126,7 +134,8 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class RecBoom : Status {
-        public RecBoom(int duration) : base(duration, StatusType.neutral, "More recruits appear, hindering your economic growth", 8) {}
+        public RecBoom(int duration) : base(duration, StatusType.neutral, 
+            "More recruits appear, hindering your economic growth", 8) {}
 
         public override void applyEffect(Province province) {
             province.Modifiers.RecPop += 0.02f;
@@ -135,9 +144,10 @@ namespace Assets.classes.subclasses {
     }
 
 	[Serializable]
-	internal class Flood : Status
+	internal class FloodStatus : Status
     {
-        public Flood(int duration) : base(duration, StatusType.negative, "This province is flooded.", 9) {}
+        public FloodStatus(int duration) : base(duration, StatusType.negative, 
+            "This province is flooded.", 9) {}
 
         public override void applyEffect(Province province)
         {
@@ -147,9 +157,10 @@ namespace Assets.classes.subclasses {
     }
 
 	[Serializable]
-	internal class Fire : Status
+	internal class FireStatus : Status
     {
-        public Fire(int duration) : base(duration, StatusType.negative, "This province is on fire!", 10) {}
+        public FireStatus(int duration) : base(duration, StatusType.negative, 
+            "This province is on fire!", 10) {}
 
         public override void applyEffect(Province province)
         {
