@@ -86,32 +86,29 @@ namespace Assets.map.scripts {
 
         private void endWar(Relation.War relation)
         {
-            void EndOccupation(Province province)
+            void EndOccupationInNextTurn(Province province)
             {
-                Occupation status = province.Statuses.Find(s => s is Occupation) as Occupation;
-                if (status != null)
+                if (province.Statuses.Find(s => s is Occupation) is Occupation status)
                 {
                     status.Duration = 1;
                 }
             }
 
-            var participants1 = relation.participants1;
-            var participants2 = relation.participants2;
+            var participants1 = new HashSet<int>(relation.participants1.Select(c => c.Id));
+            var participants2 = new HashSet<int>(relation.participants2.Select(c => c.Id));
 
             map.Relations.Remove(relation);
 
             foreach (var province in map.Provinces)
             {
-                foreach (var country1 in relation.participants1)
-                {
-                    foreach (var country2 in relation.participants2)
-                    {
-                        if ((province.Owner_id == country1.Id && province.OccupationInfo.OccupyingCountryId == country2.Id) ||
-                            (province.Owner_id == country2.Id && province.OccupationInfo.OccupyingCountryId == country1.Id))
-                        {
-                            EndOccupation(province);
-                        }
-                    }
+                bool isOwnerFromParticipants1 = participants1.Contains(province.Owner_id);
+                bool isOccupyingFromParticipants2 = participants2.Contains(province.OccupationInfo.OccupyingCountryId);
+                bool isOwnerFromParticipants2 = participants2.Contains(province.Owner_id);
+                bool isOccupyingFromParticipants1 = participants1.Contains(province.OccupationInfo.OccupyingCountryId);
+
+                if ((isOwnerFromParticipants1 && isOccupyingFromParticipants2) || 
+                    (isOwnerFromParticipants2 && isOccupyingFromParticipants1)) {
+                    EndOccupationInNextTurn(province);
                 }
             }
 
@@ -119,7 +116,9 @@ namespace Assets.map.scripts {
             {
                 foreach (var country2 in participants2)
                 {
-                    map.Relations.Add(new Relation.Truce(country1, country2, 5));
+                    Country c1 = map.Countries[country1];
+                    Country c2 = map.Countries[country2];
+                    map.Relations.Add(new Relation.Truce(c1, c2, 5));
                 }
             }
         }
