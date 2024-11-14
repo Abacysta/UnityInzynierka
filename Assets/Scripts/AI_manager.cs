@@ -139,6 +139,8 @@ namespace Assets.Scripts {
         //no moving over water cuz i dont care at this point(splitting is too complicated as well)
         private void moveArmies() {
             var armies = map.getCountryArmies(map.CurrentPlayer).OrderByDescending(a=>a.Count).ToList();
+            var unavailable = Map.LandUtilites.getUnpassableProvinces(map, map.CurrentPlayer);
+            var enemyIds = Map.WarUtilities.getEnemyIds(map, map.CurrentPlayer);
             foreach(var a in armies) {
                 if (map.CurrentPlayer.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
                 //get all land- no water
@@ -165,7 +167,16 @@ namespace Assets.Scripts {
                         break;
                     }
                 }
-                //plus pathfinding...
+                //get nearest enemy pos
+                var nearestProv = HexUtils.getNearestProvince(map, a.Position, enemyIds);
+                if (nearestProv != null) {
+                    //if exists get best path
+                    var bestPath = HexUtils.getBestPathProvinces(map, map.CurrentPlayer, unavailable.Select(p=>(p.X, p.Y)).ToHashSet(), a.Position, (nearestProv.X, nearestProv.Y));
+                    if (bestPath != null) {
+                        //if exists move
+                        map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, bestPath[1].coordinates, a.Count, a));
+                    }
+                }
             }
             
         }

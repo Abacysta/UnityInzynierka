@@ -180,9 +180,16 @@ public class HexUtils
         var unavailable = Map.LandUtilites.getUnpassableProvinces(map, country).Select(p=>(p.X, p.Y)).ToHashSet();
 
         //for now no misc costs but in future maybe
-        return findBestPath(provinces, unavailable, null, start, end).Select(cord => map.getProvince(cord)).ToList();
+        return getBestPath(provinces, unavailable, null, start, end).Select(cord => map.getProvince(cord)).ToList();
     }
-    private static List<(int, int)> findBestPath(
+    public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<(int, int)> unpassable, (int, int) start, (int, int) end) {
+        var provinces = map.Provinces.Select(p => (p.X, p.Y)).ToHashSet();
+        return getBestPath(provinces, unpassable, null, start, end).Select(cord => map.getProvince(cord)).ToList();
+    }
+    public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<Province> unpassable, Province start, Province end) {
+        return getBestPathProvinces(map, country, unpassable.Select(p=>(p.X, p.Y)).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
+    }
+    private static List<(int, int)> getBestPath(
         HashSet<(int, int)> provinces,
         HashSet<(int, int)> unavailable,
         Dictionary<(int, int), int> miscCosts,
@@ -229,5 +236,31 @@ public class HexUtils
         path.Add(start);
         path.Reverse();
         return path;
+    }
+    public static Province getNearestProvince(Map map, (int,int) start, HashSet<int> ids) {
+        var startCube = OffsetToCube(start.Item1, start.Item2);
+        Queue<Cube> front = new Queue<Cube>();
+        front.Enqueue(startCube);
+        HashSet<Cube> visited = new HashSet<Cube>();
+        visited.Add(startCube);
+        while (front.Count > 0) {
+            var current = front.Dequeue();
+            var (x, y) = CubeToOffset(current);
+            Province province = map.getProvince(x, y);
+            if (province != null && ids.Contains(province.Owner_id))
+                return province;
+
+            for (int dir = 0; dir > 6; dir++) {
+                var neighbour = CubeNeighbor(current, dir);
+                if (!visited.Contains(neighbour)) {
+                    var (nx, ny) = CubeToOffset(neighbour);
+                    if (map.IsValidPosition(nx, ny)) {
+                        visited.Add(neighbour);
+                        front.Enqueue(neighbour);
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

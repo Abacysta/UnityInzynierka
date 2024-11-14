@@ -657,6 +657,13 @@ public class Map : ScriptableObject {
         }
         public static HashSet<Army> getEnemyArmiesInProvince(Map map, Country c, Province p) => getEnemyArmies(map, c).Where(a => a.Position == p.coordinates).ToHashSet();
 
+        public static HashSet<Province> getEnemyProvinces(Map map, Country c) {
+            HashSet<Province> prov = new();
+            foreach(var id in getEnemyIds(map, c)) {
+                prov.UnionWith(map.Countries[id].Provinces);
+            }
+            return prov;
+        }
     }
     /// <summary>
     /// utilites for managing borders and armies [FOR AI]
