@@ -199,9 +199,9 @@ public class technology_manager : MonoBehaviour
 
     public void UpdateData()
     {
-        int militaryLevel = map.CurrentPlayer.Technology_[Technology.Military];
-        int economicLevel = map.CurrentPlayer.Technology_[Technology.Economic];
-        int administrativeLevel = map.CurrentPlayer.Technology_[Technology.Administrative];
+        int militaryLevel = map.CurrentPlayer.Technologies[Technology.Military];
+        int economicLevel = map.CurrentPlayer.Technologies[Technology.Economic];
+        int administrativeLevel = map.CurrentPlayer.Technologies[Technology.Administrative];
 
         SetTechnologyData(mil_tooltip_container, mil_tooltip_text, militaryLevel, militaryTree,
             mil_next_level_container, mil_tech_button, mil_current_level_text, mil_next_level_text, 
@@ -219,7 +219,7 @@ public class technology_manager : MonoBehaviour
         TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Technology type)
     {
         Dictionary<Resource, float> cost = CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade, 
-            tech: map.CurrentPlayer.Technology_, techType: type);
+            tech: map.CurrentPlayer.Technologies, techType: type);
 
         // Tooltip
         ClearChildren(tooltip.transform);

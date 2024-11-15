@@ -5,8 +5,8 @@ namespace Assets.classes {
     [Serializable]
     public abstract class Relation {
 
-        public static readonly int WarOpinionPenaltyInit = 100;
-        public static readonly int WarOpinionPenaltyConst = 15;
+        public static readonly int WarOpinionPenaltyInit = -100;
+        public static readonly int WarOpinionPenaltyConst = -15;
 
         public static readonly int AllianceOpinionBonusInit = 100;
         public static readonly int AllianceOpinionBonusConst = 10;
@@ -16,8 +16,8 @@ namespace Assets.classes {
 
         public static readonly int AllianceHappinessBonusInit = 3;
 
-        public static readonly int VassalageOpinionPenaltyInitC2 = 30;
-        public static readonly int VassalageOpinionPenaltyConstC2 = 5;
+        public static readonly int VassalageOpinionPenaltyInitC2 = -30;
+        public static readonly int VassalageOpinionPenaltyConstC2 = -5;
 
         public static readonly int SubsidiesOpinionBonusInit = 20;
         public static readonly int SubsidiesOpinionBonusConst = 5;
@@ -54,7 +54,7 @@ namespace Assets.classes {
 
         internal class War:Relation {
             public HashSet<Country> participants1, participants2;
-            public War(Country c1, Country c2) : base(c1, c2, RelationType.War, -WarOpinionPenaltyInit, -WarOpinionPenaltyConst) {
+            public War(Country c1, Country c2) : base(c1, c2, RelationType.War, WarOpinionPenaltyInit, WarOpinionPenaltyConst) {
                 countries[0].AtWar = true;
                 countries[1].AtWar = true;
                 participants1 = new HashSet<Country> { c1 };
@@ -95,12 +95,13 @@ namespace Assets.classes {
         }
 
         internal class Vassalage:Relation {
-            public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, -VassalageOpinionPenaltyInitC2, VassalageOpinionPenaltyConstC2) {
-                countries[0].Opinions[countries[1].Id] -= initialChange;
+            public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, VassalageOpinionPenaltyInitC2, VassalageOpinionPenaltyConstC2) {
+                // Senior needs to receive an adjustment of to be back to zero
+                countries[0].Opinions[countries[1].Id] -= initialChange; 
             }
 
             public override void turnEffect() {
-                countries[1].Opinions[countries[0].Id] -= constChange;
+                countries[1].Opinions[countries[0].Id] += constChange;
             }
         }
 

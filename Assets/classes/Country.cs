@@ -295,7 +295,7 @@ public class Country {
     [SerializeField] private int prio;
     [SerializeField] private (int, int) capital;
     [SerializeField] private Dictionary<Resource, float> resources;
-    [SerializeField] private Dictionary<Technology, int> technology;
+    [SerializeField] private Dictionary<Technology, int> technologies;
     private actionContainer actions;
     /// <summary>
     /// Container for all stats modified by technology
@@ -318,8 +318,8 @@ public class Country {
         this.color = id == 0 ? new Color(0.8392f, 0.7216f, 0.4706f) : color;
         this.coat = coat;
         this.resources = new(technicalDefaultResources.defaultValues);
-        this.technology = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
-        this.techStats = new TechnologyInterpreter(this.technology);
+        this.technologies = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
+        this.techStats = new TechnologyInterpreter(this.technologies);
         this.provinces = new HashSet<Province> { map.getProvince(capital) };
         revealedTiles = new HashSet<(int, int)>();
         this.actions = new(map);
@@ -355,7 +355,7 @@ public class Country {
     public bool AtWar { get => atWar; set => atWar = value; }
 
     public int Coat { get => coat; }
-    public Dictionary<Technology, int> Technology_ { get => technology; set => technology = value; }
+    public Dictionary<Technology, int> Technologies { get => technologies; set => technologies = value; }
     public ITax Tax { get => tax; set => tax = value; }
 
     public Sprite getCoat() {

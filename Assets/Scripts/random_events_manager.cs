@@ -75,9 +75,9 @@ namespace Assets.map.scripts
             {
                 randomCountryProvince.ResourcesT == Resource.Gold
                     ? new Event_.LocalEvent.GoldRush(randomCountryProvince, dialog_box, camera_controller)
-                    : new Event_.LocalEvent.ProductionBoom1(randomCountryProvince, dialog_box, camera_controller),
+                    : new Event_.LocalEvent.ProductionBoom(randomCountryProvince, dialog_box, camera_controller),
 
-                new Event_.LocalEvent.ProductionBoom1(randomCountryProvince, dialog_box, camera_controller),
+                new Event_.LocalEvent.ProductionBoom(randomCountryProvince, dialog_box, camera_controller),
                 new Event_.LocalEvent.BonusRecruits(randomCountryProvince, dialog_box, camera_controller),
                 new Event_.LocalEvent.WorkersStrike1(randomCountryProvince, dialog_box, camera_controller),
                 new Event_.LocalEvent.WorkersStrike2(randomCountryProvince, dialog_box, camera_controller),
@@ -87,7 +87,7 @@ namespace Assets.map.scripts
                     ? new Event_.LocalEvent.PlagueFound(randomCountryProvince, dialog_box, camera_controller)
                     : new Event_.LocalEvent.WorkersStrike3(randomCountryProvince, dialog_box, camera_controller, map),
 
-                new Event_.LocalEvent.Battlefield(randomCountryProvince, dialog_box, camera_controller),
+                new Event_.LocalEvent.DisasterEvent(randomCountryProvince, dialog_box, camera_controller),
                 new Event_.LocalEvent.StrangeRuins1(randomCountryProvince, dialog_box, camera_controller, map),
                 new Event_.LocalEvent.StrangeRuins2(randomCountryProvince, dialog_box, camera_controller)
             };
@@ -129,12 +129,12 @@ namespace Assets.map.scripts
                 }
                 else
                 {
-                    country.Events.Add(new Event_.GlobalEvent.Flood1(country, dialog_box, camera_controller));
+                    country.Events.Add(new Event_.GlobalEvent.FloodEvent(country, dialog_box, camera_controller));
                 }
             }
             else if (c < 10)
             {
-                country.Events.Add(new Event_.GlobalEvent.Flood1(country, dialog_box, camera_controller));
+                country.Events.Add(new Event_.GlobalEvent.FloodEvent(country, dialog_box, camera_controller));
             }
             else if (c < 15)
             {
@@ -142,7 +142,7 @@ namespace Assets.map.scripts
             }
             else if (c < 20)
             {
-                country.Events.Add(new Event_.GlobalEvent.Fire1(country, dialog_box, camera_controller));
+                country.Events.Add(new Event_.GlobalEvent.FireEvent(country, dialog_box, camera_controller));
             }
             else if (c < 25)
             {
@@ -156,7 +156,7 @@ namespace Assets.map.scripts
             {
                 if (IsWarNearbyCountry(country))
                 {
-                    country.Events.Add(new Event_.GlobalEvent.EconomicReccesion(country, dialog_box, camera_controller));
+                    country.Events.Add(new Event_.GlobalEvent.EconomicRecession(country, dialog_box, camera_controller));
                 }
                 else
                 {

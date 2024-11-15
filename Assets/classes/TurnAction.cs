@@ -224,19 +224,19 @@ namespace Assets.classes {
                 base(ActionType.TechnologyUpgrade, CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) {
                 this.techType = techType;
                 this.country = country;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, country.Technology_, techType);
+                altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
             }
 
             public override void preview(Map map) {
                 base.preview(map);
-                country.Technology_[techType]++;
-                country.techStats.Calculate(country.Technology_);
+                country.Technologies[techType]++;
+                country.techStats.Calculate(country.Technologies);
             }
 
             public override void revert(Map map) {
                 base.revert(map);
-                country.Technology_[techType]--;
-                country.techStats.Calculate(country.Technology_);
+                country.Technologies[techType]--;
+                country.techStats.Calculate(country.Technologies);
             }
         }
 

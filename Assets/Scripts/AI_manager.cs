@@ -312,7 +312,7 @@ namespace Assets.Scripts {
             }
             //AI should rush adm4(taxbreak) so it doesn't collapse immideately(rebel suppresion is too far in administratice tree so good luck AI you're gonna need it)
             public static void handleTechnology(Country c, Humor humor) {
-                if (c.Technology_[Technology.Administrative] < 4) {
+                if (c.Technologies[Technology.Administrative] < 4) {
                     var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
                     if(c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
@@ -334,7 +334,7 @@ namespace Assets.Scripts {
             /// </summary>
             /// <param name="c"></param>
             private static void techMEAPrio(Country c) {
-                var tech = c.Technology_;
+                var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.technology_upgrade(c, Technology.Military);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
@@ -360,7 +360,7 @@ namespace Assets.Scripts {
             /// </summary>
             /// <param name="c"></param>
             private static void techAEMPrio(Country c) {
-                var tech = c.Technology_;
+                var tech = c.Technologies;
                 if (tech[Technology.Administrative] - tech[Technology.Economic] < 2 && tech[Technology.Administrative] - tech[Technology.Military] < 2) {
                     var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
@@ -386,7 +386,7 @@ namespace Assets.Scripts {
             /// </summary>
             /// <param name="c"></param>
             private static void techMAEPrio(Country c) {
-                var tech = c.Technology_;
+                var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.technology_upgrade(c, Technology.Military);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
@@ -447,7 +447,7 @@ namespace Assets.Scripts {
             //getting lists cause I might increase limits(who knows)
             private static List<Province> getInfrastructurable(Country c) {
                 int mode;
-                var adm = c.Technology_[Technology.Administrative];
+                var adm = c.Technologies[Technology.Administrative];
                 if (adm < 2) mode = 1;
                 else if (adm < 5) mode = 2;
                 else mode = 3;
@@ -490,13 +490,13 @@ namespace Assets.Scripts {
                         e.reject(); break;
                     case Humor.Leading:
                         //check if armies of the main opponent are overwhelmingly big
-                        if (map.getCountryArmies(e.from).Count >= 1.2 * (double)map.getCountryArmies(e.to).Count)
+                        if (map.getCountryArmies(e.From).Count >= 1.2 * (double)map.getCountryArmies(e.To).Count)
                             e.accept();
                         else 
                             e.reject();
                         break;
                     default:
-                        if (map.getCountryArmies(e.from).Count >= 0.8 * (double)map.getCountryArmies(e.to).Count)
+                        if (map.getCountryArmies(e.From).Count >= 0.8 * (double)map.getCountryArmies(e.To).Count)
                             e.accept();
                         else
                             e.reject();
@@ -505,14 +505,14 @@ namespace Assets.Scripts {
             }
 
             public static void respond(DiploEvent.CallToWar e, Map map, Humor humor) {
-                var war = e.war;
+                var war = e.War;
                 switch (humor) {
                     case Humor.Leading:
                         e.accept(); break;
                     case Humor.Defensive:
                         e.reject(); break;
                     case Humor.Offensive:
-                        if (Map.WarUtilities.isAttacker(map, e.from, war)) {
+                        if (Map.WarUtilities.isAttacker(map, e.From, war)) {
                             if (Map.WarUtilities.isAttackersStronger(map, war))
                                 e.accept();
                             else e.reject();
@@ -527,7 +527,7 @@ namespace Assets.Scripts {
                     case Humor.Rebellious: e.accept(); break;
                     default:
                         var powers = Map.WarUtilities.getSidePowers(map, war);
-                        if ((Map.WarUtilities.isAttacker(map, e.from, war) && powers.Item1 > 0.6 * powers.Item2) || !Map.WarUtilities.isAttacker(map, e.from, war))
+                        if ((Map.WarUtilities.isAttacker(map, e.From, war) && powers.Item1 > 0.6 * powers.Item2) || !Map.WarUtilities.isAttacker(map, e.From, war))
                             e.accept();
                         else e.reject();
                         break;
@@ -554,7 +554,7 @@ namespace Assets.Scripts {
                     case Humor.Offensive:
                         
                     default:
-                        if (e.to.Opinions[e.from.Id] > 150 || (e.to.Opinions[e.from.Id] > 75 && map.getCountryArmies(e.from).Count > map.getCountryArmies(e.to).Count)) {
+                        if (e.To.Opinions[e.From.Id] > 150 || (e.To.Opinions[e.From.Id] > 75 && map.getCountryArmies(e.From).Count > map.getCountryArmies(e.To).Count)) {
                             e.accept();
                         }
                         else e.reject();
@@ -585,13 +585,13 @@ namespace Assets.Scripts {
                     case Humor.Defensive:
                         e.accept(); break;
                     case Humor.Offensive:
-                        if (map.Countries[e.to.Id].Opinions[e.from.Id] > 100) {
+                        if (map.Countries[e.To.Id].Opinions[e.From.Id] > 100) {
                             e.accept();
                         }
                         else e.reject();
                         break;
                     default:
-                        if (Map.PowerUtilites.getOpinion(e.from, e.to) > 0)
+                        if (Map.PowerUtilites.getOpinion(e.From, e.To) > 0)
                             e.accept();
                         else e.reject();
                         break;
@@ -601,7 +601,7 @@ namespace Assets.Scripts {
             public static void respond(DiploEvent.SubsRequest e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        if(Map.PowerUtilites.getOpinion(e.from, e.to) > 100 && e.amount > 0.05f*Map.PowerUtilites.getGoldGain(map, e.to)) {
+                        if(Map.PowerUtilites.getOpinion(e.From, e.To) > 100 && e.Amount > 0.05f*Map.PowerUtilites.getGoldGain(map, e.To)) {
                             e.accept();
                         }
                         e.reject();
@@ -613,7 +613,7 @@ namespace Assets.Scripts {
                         e.reject();
                         break;
                     default:
-                        if (Map.PowerUtilites.getGoldGain(map, e.to) > 0.2f * e.amount && Map.PowerUtilites.getOpinion(e.from, e.to) > 150) {
+                        if (Map.PowerUtilites.getGoldGain(map, e.To) > 0.2f * e.Amount && Map.PowerUtilites.getOpinion(e.From, e.To) > 150) {
                             e.accept();
                         }
                         else e.reject();
@@ -636,7 +636,7 @@ namespace Assets.Scripts {
             public static void respond(DiploEvent.AccessRequest e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        if (Map.PowerUtilites.howArmyStronger(map, e.to, e.from) <= 1.1f) {
+                        if (Map.PowerUtilites.howArmyStronger(map, e.To, e.From) <= 1.1f) {
                             e.reject();
                         }
                         else e.accept();
@@ -645,12 +645,12 @@ namespace Assets.Scripts {
                         e.reject();
                         break;
                     case Humor.Subservient:
-                        if(map.hasRelationOfType(map.getSeniorIfExists(e.to), e.from, Relation.RelationType.MilitaryAccess)) {
+                        if(map.hasRelationOfType(map.getSeniorIfExists(e.To), e.From, Relation.RelationType.MilitaryAccess)) {
                             e.accept();
                         } else e.reject();
                         break;
                     case Humor.Rebellious:
-                        if (map.hasRelationOfType(map.getSeniorIfExists(e.to), e.from, Relation.RelationType.MilitaryAccess)) {
+                        if (map.hasRelationOfType(map.getSeniorIfExists(e.To), e.From, Relation.RelationType.MilitaryAccess)) {
                             e.accept();
                         }
                         else e.reject();
@@ -681,10 +681,10 @@ namespace Assets.Scripts {
                     case Humor.Defensive:
                         e.accept(); break;
                     default:
-                        if(Map.PowerUtilites.getOpinion(e.from, e.to)> 175) {
+                        if(Map.PowerUtilites.getOpinion(e.From, e.To)> 175) {
                             e.accept();
                         }
-                        else if(Map.PowerUtilites.howArmyStronger(map, e.from, e.to) > 2) {
+                        else if(Map.PowerUtilites.howArmyStronger(map, e.From, e.To) > 2) {
                             e.accept();
                         }
                         else {

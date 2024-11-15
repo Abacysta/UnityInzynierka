@@ -1,3 +1,4 @@
+using Assets.classes;
 using Mosframe;
 using System.Linq;
 using TMPro;
@@ -50,7 +51,9 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
             Destroy(child.gameObject);
         }
 
+        // Add relation icons, skipping War-type relations
         country_relations_table_manager.Map.Relations
+            .Where(r => r.type != Relation.RelationType.War)
             .Where(r => r.Sides.Contains(currentPlayer) && r.Sides.Contains(country))
             .Select(r => new { relationSprite = GetResourceSpriteForSide(r.type, r.Sides[0] == currentPlayer) })
             .Where(r => r.relationSprite != null)
@@ -58,6 +61,19 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
             .ForEach(r => {
                 GameObject relationImageObj = Instantiate(relation_type_img_prefab, relations_container.transform);
                 relationImageObj.GetComponent<Image>().sprite = r.relationSprite;
+            });
+
+        // Add a war icon if currentPlayer and country are on opposite sides of the conflict
+        country_relations_table_manager.Map.Relations
+            .OfType<Relation.War>()
+            .Where(warRelation =>
+                (warRelation.participants1.Contains(currentPlayer) && warRelation.participants2.Contains(country)) ||
+                (warRelation.participants2.Contains(currentPlayer) && warRelation.participants1.Contains(country))
+            )
+            .ToList()
+            .ForEach(warRelation => {
+                GameObject warImageObj = Instantiate(relation_type_img_prefab, relations_container.transform);
+                warImageObj.GetComponent<Image>().sprite = war_sprite;
             });
     }
 

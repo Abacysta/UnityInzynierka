@@ -7,27 +7,27 @@ using System.Linq;
 namespace Assets.classes {
     [Serializable]
     public class Event_ {
+        public Dictionary<Resource, float> Cost { get; set; }
+        public virtual void call() {}
+        public virtual void accept() {}
+        public virtual void reject() {}
+        public virtual void zoom() {}
+        public virtual string Message { get { return ""; } }
 
-        public Dictionary<Resource, float> Cost;
-        public virtual void call() { }
-        public virtual void accept() { }
-        public virtual void reject() { }
-        public virtual void zoom() { }
-        public virtual string msg { get { return ""; } }
-        public class GlobalEvent:Event_ {
-            public Country country;
+        public class GlobalEvent : Event_ {
+            public Country Country { get; set; }
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
 
             public GlobalEvent(Country country, dialog_box_manager dialog, camera_controller camera) {
-                this.country = country;
-                this.dialog_box = dialog;
+                Country = country;
                 this.camera = camera;
-                this.Cost = cost();
+                dialog_box = dialog;
+                Cost = cost();
             }
 
             public override void accept() {
-                country.modifyResources(cost(), false);
+                Country.modifyResources(cost(), false);
             }
 
             public override void reject() { accept(); }
@@ -37,7 +37,7 @@ namespace Assets.classes {
             }
 
             public override void zoom() {
-                camera.ZoomCameraOnCountry(country);
+                camera.ZoomCameraOnCountry(Country);
             }
 
             protected virtual Dictionary<Resource, float> cost() {
@@ -45,20 +45,26 @@ namespace Assets.classes {
             }
 
             //id=0
-            internal class Discontent:GlobalEvent {
-                public Discontent(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera) { }
-                public override string msg { get { return "A discontent has spread in the country. You can bribe officials to lower its impact"; } }
+            internal class Discontent : GlobalEvent {
+                public Discontent(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+
+                public override string Message { get { 
+                        return "A discontent has spread in the country. You can bribe officials to lower its impact"; 
+                    } 
+                }
+
                 public override void accept() {
                     base.accept();
-                    foreach(var p in country.Provinces) {
-                        if(p.coordinates != country.Capital) p.Happiness -= 5;
+                    foreach (var p in Country.Provinces) {
+                        if(p.coordinates != Country.Capital) p.Happiness -= 5;
                         p.Happiness -= 5;
                     }
                 }
 
                 public override void reject() {
-                    foreach(var p in country.Provinces) {
-                        if(p.coordinates != country.Capital) p.Happiness -= 10;
+                    foreach (var p in Country.Provinces) {
+                        if(p.coordinates != Country.Capital) p.Happiness -= 10;
                         p.Happiness -= 20;
                     }
                 }
@@ -69,7 +75,7 @@ namespace Assets.classes {
                         { Resource.AP, 0 }
                     };
 
-                    foreach(var p in country.Provinces) {
+                    foreach (var p in Country.Provinces) {
                         cost[Resource.Gold] += (float)Math.Round(25 * p.Population / 500f, 1);
                         cost[Resource.AP] += 0.2f;
                     }
@@ -79,37 +85,48 @@ namespace Assets.classes {
             }
 
 			//id=1
-			internal class Happiness:GlobalEvent {
-                public Happiness(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera) { }
-                public override string msg { get { return "Happiness has increased in the country"; } }
+			internal class Happiness : GlobalEvent {
+                public Happiness(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+
+                public override string Message { get { 
+                        return "Happiness has increased in the country"; 
+                    } 
+                }
+
                 public override void accept() {
                     base.accept();
-                    foreach(var p in country.Provinces) {
+                    foreach (var p in Country.Provinces) {
                         p.Happiness += 10;
                     }
                 }
             }
+
 			//id=2
-			internal class Plague:GlobalEvent {
-                public Plague(Country country, dialog_box_manager dialog,camera_controller camera) : base(country, dialog, camera) {
+			internal class Plague : GlobalEvent {
+                public Plague(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {
                 }
 
-                public override string msg { get { return "Plague has struck the nation. You may pay to your researchers to quicken the cure's invention."; } }
+                public override string Message { get { 
+                        return "Plague has struck the nation. You may pay to your researchers to quicken the cure's invention."; 
+                    } 
+                }
 
                 public override void accept() {
                     base.accept();
-                }
-
-                public override void call() {
-                    base.call();
+                    foreach (var p in Country.Provinces)
+                    {
+                        p.addStatus(new Illness(2));
+                    }
                 }
 
                 protected override Dictionary<Resource, float> cost() {
                     var cost = new Dictionary<Resource, float> {
                         {Resource.Gold, 0 }
                     };
-                    foreach(var p in country.Provinces) {
-                        if(p.coordinates == country.Capital) cost[Resource.Gold] += 15;
+                    foreach (var p in Country.Provinces) {
+                        if (p.coordinates == Country.Capital) cost[Resource.Gold] += 15;
                         cost[Resource.Gold] += 30;
                     }
                     return cost;
@@ -117,21 +134,29 @@ namespace Assets.classes {
 
                 public override void reject() {
                     base.reject();
+                    foreach (var p in Country.Provinces)
+                    {
+                        p.addStatus(new Illness(5));
+                    }
                 }
             }
-			//id=3
-			internal class EconomicReccesion : GlobalEvent // jak jest wojna w sąsiednim królestwie? albo jak jestes w stanie wojny
-            {
-                public EconomicReccesion(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
-                {
-                }
 
-                public override string msg { get { return "The global economy has entered a downturn. Your nation's production is suffering as a result. Will you attempt to fight the reccesion by paying a cost in gold and ap?"; } }
+			//id=3
+			internal class EconomicRecession : GlobalEvent
+            {
+                public EconomicRecession(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+
+                public override string Message { get { 
+                        return "The global economy has entered a downturn. Your nation's production is suffering as a result. " +
+                            "Will you attempt to fight the reccesion by paying a cost in gold and AP?"; 
+                    } 
+                }
 
                 public override void accept()
                 {
                     base.accept();
-                    foreach(var p in country.Provinces)
+                    foreach(var p in Country.Provinces)
                     {
                         if (UnityEngine.Random.Range(0f,1f) < 0.05f)
                         {
@@ -140,20 +165,15 @@ namespace Assets.classes {
                     }
                 }
 
-                public override void call()
-                {
-                    base.call();
-                }
-
                 protected override Dictionary<Resource, float> cost()
                 {
                     var cost = new Dictionary<Resource, float> {
                         {Resource.Gold, 0 },
                         {Resource.AP,0 }
                     };
-                    foreach (var p in country.Provinces)
+                    foreach (var p in Country.Provinces)
                     {
-                        if (p.coordinates == country.Capital) cost[Resource.Gold] += 5;
+                        if (p.coordinates == Country.Capital) cost[Resource.Gold] += 5;
                         cost[Resource.Gold] += 10;
                         cost[Resource.AP] += 0.1f;
                     }
@@ -163,30 +183,33 @@ namespace Assets.classes {
                 public override void reject()
                 {
                     base.reject();
-                    foreach (var p in country.Provinces)
+                    foreach (var p in Country.Provinces)
                     {
                         p.addStatus(new ProdDown(5));
                     }
                 }
             }
+
 			//id=4
 			internal class TechnologicalBreakthrough : GlobalEvent
             {
-                public TechnologicalBreakthrough(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
-                {
+                public TechnologicalBreakthrough(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+
+                public override string Message { get { 
+                        return "Your researchers have made a significant technological breakthrough. " +
+                            "Do you wish to invest more resources into its development?"; 
+                    } 
                 }
-                public override string msg { get { return "Your researchers have made a significant technological breakthrough. Do you wish to invest more resources into its development?"; } }
 
                 public override void accept()
                 {
-                    // propozycja ulepszenie o 1 kazdej techologii.
                     base.accept();
+                    Country.Technologies[Technology.Economic] += 1;
+                    Country.Technologies[Technology.Military] += 1;
+                    Country.Technologies[Technology.Administrative] += 1;
                 }
 
-                public override void call()
-                {
-                    base.call();
-                }
                 protected override Dictionary<Resource, float> cost()
                 {
                     var cost = new Dictionary<Resource, float> {
@@ -195,81 +218,78 @@ namespace Assets.classes {
                     };
                     return cost;
                 }
+
                 public override void reject()
                 {
-                    // ulepszenie losowej technologii albo SP?
                     base.reject();
+                    int randomTechnology = UnityEngine.Random.Range(0, 3);
+                    Country.Technologies[(Technology)randomTechnology] += 1;
                 }
             }
+
 			//id=5
-			internal class Flood1:GlobalEvent
+			internal class FloodEvent : GlobalEvent
             {
-                public Flood1(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
-                {
+                public FloodEvent(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+                public override string Message { get { 
+                        return "The water levels have risen dramatically, flooding several provinces."; 
+                    } 
                 }
-                public override string msg { get { return "The water levels have risen dramatically, flooding several provinces."; } }
 
                 public override void accept()
                 {
-                    foreach(var p in country.Provinces)
+                    foreach(var p in Country.Provinces)
                     {
-                        if(p.Is_coast) { p.addStatus(new Flood(3)); }
+                        if (p.Is_coast) p.addStatus(new FloodStatus(3));
+                        else
+                        {
+                            if (UnityEngine.Random.Range(0f, 1f) < 0.3f)
+                            {
+                                p.addStatus(new FloodStatus(3));
+                            }
+                        }
                     }
                     base.accept();
                 }
-
-                public override void call()
-                {
-                    base.call();
-                }
-                public override void reject()
-                {
-                    base.reject();
-                }
             }
+
 			//id=6
-			internal class Fire1 : GlobalEvent
+			internal class FireEvent : GlobalEvent
             {
-                public Fire1(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
-                {
-                }
-                public override string msg { get { return "Severial provinces are on fire."; } }
+                public FireEvent(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+
+                public override string Message { get { return "Severial provinces are on fire."; } }
 
                 public override void accept()
                 {
-                    foreach (var province in country.Provinces)
+                    foreach (var province in Country.Provinces)
                     {
                         if (province.ResourcesT == Resource.Wood)
                         {
                             if (UnityEngine.Random.Range(0f, 1f) < 0.5f)
                             {
                                 int duration = UnityEngine.Random.Range(1, 5);
-                                province.addStatus(new Fire(duration));
+                                province.addStatus(new FireStatus(duration));
                             }
                         }
                     }
                     base.accept();
                 }
-                public override void call()
-                {
-                    base.call();
-                }
-                public override void reject()
-                {
-                    base.reject();
-                }
             }
+
 			//id=7
 			internal class Earthquake : GlobalEvent
             {
-                public Earthquake(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
-                {
-                }
-                public override string msg { get { return "Severial provinces suffered from earthquake."; } }
+                public Earthquake(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+
+                public override string Message { get { return "Severial provinces suffered from earthquake."; } }
 
                 public override void accept()
                 {
-                    foreach (var p in country.Provinces)
+                    foreach (var p in Country.Provinces)
                     {
                         var mine = p.Buildings.Find(b => b.BuildingType == BuildingType.Mine);
                         mine.Downgrade();
@@ -277,26 +297,19 @@ namespace Assets.classes {
                     }
                     base.accept();
                 }
-                public override void call()
-                {
-                    base.call();
-                }
-                public override void reject()
-                {
-                    base.reject();
-                }
             }
+
 			//id=8
 			internal class Misfortune : GlobalEvent
             {
-                public Misfortune(Country country, dialog_box_manager dialog, camera_controller camera) : base(country, dialog, camera)
-                {
-                }
-                public override string msg { get { return "It seems you have angered the gods."; } }
+                public Misfortune(Country country, dialog_box_manager dialog, camera_controller camera) : 
+                    base(country, dialog, camera) {}
+
+                public override string Message { get { return "It seems you have angered the gods."; } }
 
                 public override void accept()
                 {
-                    foreach (var p in country.Provinces)
+                    foreach (var p in Country.Provinces)
                     {
                         if(UnityEngine.Random.Range(0f,1f) < 0.5f)
                         {
@@ -306,34 +319,32 @@ namespace Assets.classes {
                     }
                     base.accept();
                 }
-
-                public override void call()
-                {
-                    base.call();
-                }
-                public override void reject()
-                {
-                    base.reject();
-                }
             }
         }
-        public class LocalEvent:Event_ {
-            public Province province;
+
+        public class LocalEvent : Event_ {
+            public Province Province { get; set; }
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
+
             public LocalEvent(Province province, dialog_box_manager dialog_box, camera_controller camera)
             {
-                this.province = province;
+                Province = province;
                 this.dialog_box = dialog_box;
-                this.Cost = cost();
+                Cost = cost();
                 this.camera = camera;
             }
-            public override void accept() { /*tbd*/}
+
+            public override void accept() {}
+
             public override void reject() { accept(); }
-            public override string msg { get { return ""; } }
+
+            public override string Message { get { return ""; } }
+
             public override void zoom() {
-                camera.ZoomCameraOnProvince(province);
+                camera.ZoomCameraOnProvince(Province);
             }
+
             public override void call() {
                 var cost = this.cost();
                 dialog_box.invokeEventBox(this);
@@ -342,106 +353,112 @@ namespace Assets.classes {
             protected virtual Dictionary<Resource, float> cost() {
                 return null;
             }
+
             //id=0
-            internal class ProductionBoom1:LocalEvent {
-                public ProductionBoom1(Province province, dialog_box_manager dialog, camera_controller camera) : base(province, dialog , camera) { }
-                public override string msg { get { return "Work enthusiasm has increased in " + province.Name + ". Should you use it now or invest for future."; } }
+            internal class ProductionBoom : LocalEvent {
+                public ProductionBoom(Province province, dialog_box_manager dialog, camera_controller camera) : 
+                    base(province, dialog , camera) {}
+
+                public override string Message { get { 
+                        return "Work enthusiasm has increased in " + Province.Name + 
+                            ". Should you use it now or invest for future."; 
+                    } 
+                }
+                
                 public override void accept() {
                     base.accept();
-                    province.addStatus(new ProdBoom(5));
+                    Province.addStatus(new ProdBoom(5));
                 }
 
                 public override void reject() {
-                    province.Resources_amount += 0.2f;
+                    Province.Resources_amount += 0.2f;
                 }
             }
+
 			//id=1
-			internal class GoldRush:LocalEvent {
-                public override string msg { get { return province.Name + " is experiencing a gold rush!"; } }
+			internal class GoldRush : LocalEvent {
+                public override string Message { get { return Province.Name + " is experiencing a gold rush!"; } }
 
-                public GoldRush(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera) {
-                        
-                }
-
-                public override void call() {
-                    base.call();
-                }
+                public GoldRush(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(province, dialog_box, camera) {}
 
                 public override void accept() {
-                    province.addStatus(new ProdBoom(6));
-                }
-
-                public override void reject() {
-                    base.reject();
+                    Province.addStatus(new ProdBoom(6));
                 }
             }
+
 			//id=2
-			internal class BonusRecruits:LocalEvent {
-                public BonusRecruits(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera) {
-                }
+			internal class BonusRecruits : LocalEvent {
+                public BonusRecruits(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(province, dialog_box, camera) {}
 
-                public override string msg { get { return "More recruits started appearing in " + province.Name; } }
+                public override string Message { get { return "More recruits started appearing in " + Province.Name; } }
 
                 public override void accept() {
-                    province.RecruitablePopulation += (int)(province.Population * 0.05);
-                    province.addStatus(new RecBoom(4));
-                }
-
-                public override void call() {
-                    base.call();
-                }
-
-                public override void reject() {
-                    base.reject();
+                    Province.RecruitablePopulation += (int)(Province.Population * 0.05);
+                    Province.addStatus(new RecBoom(4));
                 }
             }
+
 			//id=3
-			internal class WorkersStrike1:LocalEvent // turmoil mass migration
+			internal class WorkersStrike1 : LocalEvent // turmoil mass migration
             {
-                public WorkersStrike1(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera) { 
-                }
-                public override string msg { get { return "Workers are displeased with their workplace in " + province.Name + ". Do you want to help them?"; } }
-                public override void call()
+                public WorkersStrike1(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(province, dialog_box, camera) {}
+
+                public override string Message { get { return "Workers are displeased with their workplace in " + Province.Name 
+                            + ". Do you want to help them?"; } }
+
+                protected override Dictionary<Resource, float> cost()
                 {
-                    base.call();
+                    var cost = new Dictionary<Resource, float> {
+                        {Resource.Gold, 50 },
+                        {Resource.AP, 0.1f }
+                    };
+                    return cost;
                 }
+
                 public override void accept()
                 {
                     base.accept();
-                    // dodac koszt
                 }
+
                 public override void reject()
                 {
                     base.reject();
                     if (UnityEngine.Random.Range(0, 1f) < 0.5f)
                     {
-                        province.addStatus(new ProdDown(3));
+                        Province.addStatus(new ProdDown(3));
                     }
                 }
             }
+
 			//id=4
 			internal class WorkersStrike2 : LocalEvent
             {
-                public WorkersStrike2(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
-                {
+                public WorkersStrike2(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(province, dialog_box, camera) {}
+
+                public override string Message { get { 
+                        return "Workers in " + Province.Name + " want fewer work hours for a few days. Will you agree?"; 
+                    } 
                 }
-                public override string msg { get { return "Workers in " + province.Name + " want fewer work hours for a few days. Will you agree?"; } }
-                public override void call()
-                {
-                    base.call();
-                }
+               
                 public override void accept()
                 {
                     base.accept();
-                    province.addStatus(new ProdDown(5));
-                    province.Happiness += 10;
+                    Province.addStatus(new ProdDown(5));
+                    Province.Happiness += 10;
                 }
+
                 public override void reject()
                 {
                     base.reject();
-                    province.Happiness -= 30;
+                    Province.Happiness -= 30;
                 }
             }
+
+            //id=5
             internal class WorkersStrike3 : LocalEvent
             {
                 private Map map;
@@ -450,91 +467,82 @@ namespace Assets.classes {
                 {
                     this.map = map;
                 }
-                public override string msg { get { return "Displeased workers formed armed movement. They demand lower taxes or they will destroy their workplace in " + province.Name+ ". Will you listen to their threats?"; } }
-                public override void call()
-                {
-                    base.call();
+
+                public override string Message { get { 
+                        return "Displeased workers formed armed movement. " +
+                            "They demand lower taxes or they will destroy their workplace in " + Province.Name 
+                            + ". Will you listen to their threats?"; 
+                    } 
                 }
+
                 public override void accept()
                 {
                     base.accept();
-                    province.addStatus(new TaxBreak(3));
-                    province.Happiness += 10;
+                    Province.addStatus(new TaxBreak(3));
+                    Province.Happiness += 10;
                 }
+
                 public override void reject()
                 {
                     base.reject();
-                    province.addStatus(new ProdDown(5));
-
-                    Army strikeArmy = new Army(0, UnityEngine.Random.Range(10, 50), province.coordinates, province.coordinates);
+                    Province.addStatus(new ProdDown(5));
+                    Army strikeArmy = new(0, UnityEngine.Random.Range(10, 50), Province.coordinates, Province.coordinates);
                     map.addArmy(strikeArmy);
                 }
             }
+
+            //id=6
             internal class PlagueFound : LocalEvent
             {
-                public PlagueFound(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera) { }
-                public override string msg { get { return "Your scientists suspect that the population in " + province.Name + " is suffering from an unknown plague. Will you banish those showing symptoms?"; } }
-                public override void call()
-                {
-                    base.call();
+                public PlagueFound(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(province, dialog_box, camera) {}
+
+                public override string Message { get { 
+                        return "Your scientists suspect that the population in " 
+                            + Province.Name + " is suffering from an unknown plague. " +
+                            "Will you banish those showing symptoms?"; 
+                    }
                 }
+
                 public override void accept()
                 {
                     float percent = UnityEngine.Random.Range(5f, 10f) / 100;
-                    province.Population -= (int)(province.Population * percent);
-                    province.Happiness -= 10;
+                    Province.Population -= (int)(Province.Population * percent);
+                    Province.Happiness -= 10;
                     base.accept();
                 }
+
                 public override void reject()
                 {
                     base.reject();
                     if(UnityEngine.Random.Range(0f,1f) < 0.2f)
                     {
-                        province.addStatus(new Illness(8));
+                        Province.addStatus(new Illness(8));
                     }
                 }
             }
-            internal class Battlefield : LocalEvent // po bitwie na prowincji jak np jest wiecej 100+ poległych
+
+            //id=7
+            internal class DisasterEvent : LocalEvent
             {
-                public Battlefield(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
-                {
-                }
+                public DisasterEvent(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(province, dialog_box, camera) {}
 
-                public override string msg
+                public override string Message
                 {
-                    get { return "On this province was recently huge battle  " + province.Name; }
-                }
-
-                public override void call()
-                {
-                    base.call();
+                    get { return "A severe disaster has struck the province of " + Province.Name + "."; }
                 }
 
                 public override void accept()
                 {
-                    int rand = UnityEngine.Random.Range(0, 3);
-                    switch (rand)
-                    {
-                        case 0:
-                            province.addStatus(new ProdDown(4)); break;
-                        case 1:
-                            province.addStatus(new Disaster(4)); break;
-                        case 2:
-                            province.addStatus(new Illness(4)); break;
-                        case 3:
-                            break;
-                    }
-
-                    province.Happiness -= 10;
                     base.accept();
-                }
 
-                public override void reject()
-                {
-                    base.reject();
+                    Province.addStatus(new Disaster(5));
+                    Province.Happiness -= 10;
                 }
             }
 
+            //id=8
             internal class StrangeRuins1 : LocalEvent
             {
                 private Map map;
@@ -544,55 +552,40 @@ namespace Assets.classes {
                     this.map = map;
                 }
 
-                public override string msg
+                public override string Message
                 {
                     get { return "The local found some gold."; }
                 }
 
-                public override void call()
-                {
-                    base.call();
-                }
-
                 public override void accept()
                 {
                     base.accept();
-                    // Przyznanie zasobów
-                    float gold = UnityEngine.Random.Range(0f, 5f); // od 0 do 5 złota
+                    // Resource allocation
+                    float gold = UnityEngine.Random.Range(0f, 5f); // From 0 to 5 gold
 
-                    Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
+                    Country country = map.Countries.FirstOrDefault(c => c.Id == Province.Owner_id);
                     country.modifyResource(Resource.Gold, gold);
-                }
-
-                public override void reject()
-                {
-                    base.reject();
                 }
             }
 
+            //id=9
             internal class StrangeRuins2 : LocalEvent 
             {
-                public StrangeRuins2(Province province, dialog_box_manager dialog_box, camera_controller camera) : base(province, dialog_box, camera)
-                {
-                }
+                public StrangeRuins2(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(province, dialog_box, camera) {}
 
-                public override string msg
+                public override string Message
                 {
                     get { return "The local found a storage full of wine. Do you want to make use of it?"; }
                 }
 
-                public override void call()
-                {
-                    base.call();
-                }
-
                 public override void accept()
                 {
                     base.accept();
-                    province.addStatus(new Festivities(4));
+                    Province.addStatus(new Festivities(4));
                     if (UnityEngine.Random.Range(0f,1f) < 0.5f)
                     {
-                        province.addStatus(new Illness(2));
+                        Province.addStatus(new Illness(2));
                     }
                 }
 
@@ -604,238 +597,297 @@ namespace Assets.classes {
         }
 
         public class DiploEvent : Event_ {
-            public Country from, to;
+            public Country From {  get; set; }
+            public Country To { get; set; }
             private diplomatic_relations_manager diplomacy;
             private camera_controller camera;
             private dialog_box_manager dialog_box;
-            public override string msg { get { return ""; } }
+
+            public override string Message { get { return ""; } }
             
             public override void zoom() {
-                camera.ZoomCameraOnCountry(from);
+                camera.ZoomCameraOnCountry(From);
             }
+
             public override void call() {
                 dialog_box.invokeEventBox(this);
             }
-            DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) {
-                this.from = from;
-                this.to = to;
+
+            DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                dialog_box_manager dialog_box, camera_controller camera) {
+                From = from;
+                To = to;
                 this.diplomacy = diplomacy;
                 this.camera = camera;
                 this.dialog_box = dialog_box;
-                this.Cost = null;
+                Cost = null;
             }
-			//internal class WarDeclaration:DiploEvent {
-			//    WarDeclaration(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box) : base(from, to, diplomacy, dialog_box) {
-			//        diplomacy.startWar(from, to);
-			//    }
-			//    public override void accept() {
-			//        diplomacy.startWar(from, to);
-			//    }
-			//    public override void reject() { }
-			//    public override string msg { get { return "Are you sure you want to declare war on " + to.Name; } }
-			//}
+
 			internal class WarDeclared : DiploEvent {
-				public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
+				public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {
 				}
-				public override string msg { get { return from.Name + " has declared a war on you!"; } }
+
+				public override string Message { get { return From.Name + " has declared a war on you!"; } }
 			}
-			internal class PeaceOffer:DiploEvent {
+
+			internal class PeaceOffer : DiploEvent {
                 private Country offer;
                 private Relation.War war;
-                public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box, camera) { 
+
+                public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box, camera) { 
                     this.offer = offer;
                     this.war = war;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
                 }
-                public override string msg { get { return (offer == war.Sides[0] ? war.Sides[1].Name : war.Sides[0].Name) + " has offered peace."; } }
+
+                public override string Message { get { 
+                        return (offer == war.Sides[0] ? war.Sides[1].Name : war.Sides[0].Name) + " has offered peace."; 
+                    } 
+                }
+
                 public override void accept() {
                     diplomacy.endRelation(war);
                 }
-                public override void reject() { 
-                    
-                }
-            }
-            internal class CallToWar:DiploEvent {
-                public Relation.War war;
-                public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, Relation.War war, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
-                    this.war = war;
-                }
 
-                public override string msg { get { return from.Name + " has called you to war against " + (war.Sides[0] == from ? war.Sides[0].Name : war.Sides[1].Name); } }
+                public override void reject() {}
+            }
+
+            internal class CallToWar : DiploEvent {
+                public Relation.War War { get; private set; }
+
+                public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, Relation.War war, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { 
+                        return From.Name + " has called you to war against " 
+                            + (War.Sides[0] == From ? War.Sides[0].Name : War.Sides[1].Name); 
+                    } 
+                }
 
                 public override void accept() {
-                    diplomacy.joinWar(war, to, from);
+                    diplomacy.joinWar(War, To, From);
                 }
 
                 public override void reject() {
-                    diplomacy.declineWar(to, from);
+                    diplomacy.declineWar(To, From);
                 }
             }
-            internal class TruceEnd:DiploEvent {
-                public TruceEnd(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
-                }
-                public override string msg { get { return "A truce with " + from.Name + " has ended"; } }
-            }
-            internal class AllianceOffer:DiploEvent {
-                public AllianceOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
 
-                }
-                public override string msg { get { return from.Name + " has sent you an alliance offer"; } }
+            internal class TruceEnd : DiploEvent {
+                public TruceEnd(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return "A truce with " + From.Name + " has ended"; } }
+            }
+
+            internal class AllianceOffer : DiploEvent {
+                public AllianceOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return From.Name + " has sent you an alliance offer"; } }
+
                 public override void accept() {
                     base.accept();
-                    from.Events.Add(new AllianceAccepted(to, from, diplomacy, dialog_box, camera));
-                    diplomacy.startAlliance(to, from);
+                    From.Events.Add(new AllianceAccepted(To, From, diplomacy, dialog_box, camera));
+                    diplomacy.startAlliance(To, From);
                 }
+
                 public override void reject() {
-                    from.Events.Add(new AllianceDenied(to, from, diplomacy, dialog_box, camera));
+                    From.Events.Add(new AllianceDenied(To, From, diplomacy, dialog_box, camera));
                 }
             }
-            internal class AllianceAccepted:DiploEvent {
-                public AllianceAccepted(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
-                }
-                public override string msg { get { return from.Name + " has accepted the alliance offer"; } }
+
+            internal class AllianceAccepted : DiploEvent {
+                public AllianceAccepted(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return From.Name + " has accepted the alliance offer"; } }
             }
-            internal class AllianceDenied:DiploEvent {
-                public AllianceDenied(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera) {
-                }
-                public override string msg { get { return from.Name + " has denied our alliance offer"; } }
+
+            internal class AllianceDenied : DiploEvent {
+                public AllianceDenied(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return From.Name + " has denied our alliance offer"; } }
             }
-            internal class AllianceBroken:DiploEvent {
-                public AllianceBroken(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                }
-                public override string msg { get { return from.Name + " has broken our pact"; } }
+
+            internal class AllianceBroken : DiploEvent {
+                public AllianceBroken(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return From.Name + " has broken our pact"; } }
             }
-            internal class SubsOffer:DiploEvent {
-                public int amount, duration;
-                public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                    this.duration = duration;
-                    this.amount = amount;
+
+            internal class SubsOffer : DiploEvent {
+                public int Amount { get; set; }
+                public int Duration { get; set; }
+
+                public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {
+                    Duration = duration;
+                    Amount = amount;
                 }
-                public override string msg { get { return from.Name + " has offered you subsidies."; } }
+
+                public override string Message { get { return From.Name + " has offered you subsidies."; } }
+
                 public override void accept() {
                     base.accept();
-                    if(duration != 0) {
-                        diplomacy.startSub(from, to, amount, false, duration);
+                    if(Duration != 0) {
+                        diplomacy.startSub(From, To, Amount, false, Duration);
                     }
                     else {
-                        diplomacy.startSub(from, to, amount);
+                        diplomacy.startSub(From, To, Amount);
                     }
                 }
-                public override void reject() {
-                    
-                }
+
+                public override void reject() {}
             }
+
             internal class SubsRequest : DiploEvent {
-                public int amount, duration;
-                public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                    this.amount = amount;
-                    this.duration = duration;
+                public int Amount {  get; set; }
+                public int Duration { get; set; }
+
+                public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {
+                    Amount = amount;
+                    Duration = duration;
                 }
-                public override string msg { get { return from.Name + " has requested our subsidies of " + amount + " gold for " + duration + " turns"; } }
+
+                public override string Message { get { 
+                        return From.Name + " has requested our subsidies of " 
+                            + Amount + " gold for " + Duration + " turns"; 
+                    } 
+                }
+
                 public override void accept() {
                     base.accept();
-                    if (duration != 0) { 
-                        diplomacy.startSub(to, from, amount, false, duration);
+                    if (Duration != 0) { 
+                        diplomacy.startSub(To, From, Amount, false, Duration);
                     }
                     else {
-                        diplomacy.startSub(to, from, amount);
+                        diplomacy.startSub(To, From, Amount);
                     }
                 }
-                public override void reject() {
-                    
-                }
+                public override void reject() {}
             }
 
-            internal class SubsEndMaster:DiploEvent {
-                public SubsEndMaster(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                }
-                public override string msg { get { return "Subsidies from " + from.Name + " have stopped."; } }
+            internal class SubsEndMaster : DiploEvent {
+                public SubsEndMaster(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return "Subsidies from " + From.Name + " have stopped."; } }
             }
-            internal class SubsEndSlave:DiploEvent {
-                public SubsEndSlave(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                }
-                public override string msg { get { return "We ended subsidizing " + to.Name; } }
+
+            internal class SubsEndSlave : DiploEvent {
+                public SubsEndSlave(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return "We ended subsidizing " + To.Name; } }
             }
-            internal class AccessOffer:DiploEvent {
-                public AccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                    this.from = from;
-                    this.to = to;
+
+            internal class AccessOffer : DiploEvent {
+                public AccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {
+                    From = from;
+                    To = to;
                     this.diplomacy = diplomacy;
                     this.dialog_box = dialog_box;
                 }
-                public override string msg { get { return from.Name + " offers access to their territory"; } }
+
+                public override string Message { get { return From.Name + " offers access to their territory"; } }
+
                 public override void accept() {
-                    diplomacy.startAccess(from, to);
+                    diplomacy.startAccess(From, To);
                 }
-                public override void reject() {
-                    
-                }
+
+                public override void reject() {}
             }
+
             internal class AccessRequest : DiploEvent {
-                public AccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
+                public AccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
 
-                }
-                public override string msg { get { return from.Name + " asks for military access to our teritorry"; } }
+                public override string Message { get { return From.Name + " asks for military access to our teritorry"; } }
+
                 public override void accept() {
-                    diplomacy.startAccess(to, from);
+                    diplomacy.startAccess(To, From);
                 }
-                public override void reject() {
-                }
+
+                public override void reject() {}
             }
+
             internal class AccessEndMaster : DiploEvent {
-                public Relation.MilitaryAccess access;
-                public AccessEndMaster(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                    this.access = access;
-                }
-                public override string msg { get { return from.Name + " has stopped giving us the military access"; } }
-                public override void accept() {
-                    diplomacy.endRelation(access);
-                }
-                public override void reject() {
-                    
-                }
-            }
-            internal class AccessEndSlave : DiploEvent {
-                public Relation.MilitaryAccess access;
+                public Relation.MilitaryAccess Access { get; set; }
 
-                public AccessEndSlave(Relation.MilitaryAccess access, Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                    this.access = access;
+                public AccessEndMaster(Relation.MilitaryAccess access, Country from, Country to, 
+                    diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {
+                    Access = access;
                 }
-                public override string msg { get { return from.Name + " stopped using our military access"; } }
+
+                public override string Message { get { return From.Name + " has stopped giving us the military access"; } }
+
                 public override void accept() {
-                    diplomacy.endRelation(access);
+                    diplomacy.endRelation(Access);
                 }
-                public override void reject() { }
             }
-            internal class VassalOffer:DiploEvent {
-                public VassalOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
+
+            internal class AccessEndSlave : DiploEvent {
+                public Relation.MilitaryAccess Access { get; set; }
+
+                public AccessEndSlave(Relation.MilitaryAccess access, Country from, Country to, 
+                    diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {
+                    Access = access;
                 }
-                public override string msg { get { return from.Name + " demands our submission"; } }
+
+                public override string Message { get { return From.Name + " stopped using our military access"; } }
+
                 public override void accept() {
-                    diplomacy.startVassalage(from, to);
+                    diplomacy.endRelation(Access);
                 }
+            }
+
+            internal class VassalOffer : DiploEvent {
+                public VassalOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return From.Name + " demands our submission"; } }
+
+                public override void accept() {
+                    diplomacy.startVassalage(From, To);
+                }
+
                 public override void reject() {
-                    diplomacy.startWar(from, to);
+                    diplomacy.startWar(From, To);
                 }
             }
+
             internal class VassalRebel:DiploEvent {
-                public VassalRebel(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : base(from, to, diplomacy, dialog_box, camera)
-                {
-                }
-                public override string msg { get { return from.Name + " has rebelled against us"; } }
+                public VassalRebel(Country from, Country to, diplomatic_relations_manager diplomacy, 
+                    dialog_box_manager dialog_box, camera_controller camera) : 
+                    base(from, to, diplomacy, dialog_box, camera) {}
+
+                public override string Message { get { return From.Name + " has rebelled against us"; } }
             }
         }
     }
-    
 }

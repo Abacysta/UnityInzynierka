@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using static Assets.classes.Relation;
 using System.Linq;
+using Assets.classes;
 
 public class army_click_handler : cursor_helper
 {
@@ -167,6 +168,16 @@ public class army_click_handler : cursor_helper
                 rel.Sides[0] == tileOwner && rel.Sides[1] == map.CurrentPlayer);
         }
 
+        bool HasCurrentPlayerWarRelationWithTileOwner(Country tileOwner)
+        {
+            return map.Relations
+                .OfType<Relation.War>()
+                .Any(warRelation =>
+                    (warRelation.participants1.Contains(map.CurrentPlayer) && warRelation.participants2.Contains(tileOwner)) ||
+                    (warRelation.participants2.Contains(map.CurrentPlayer) && warRelation.participants1.Contains(tileOwner))
+                );
+        }
+
         Province tileProvince = map.getProvince(cellPosition.x, cellPosition.y);
         Country tileOwner = map.Countries[tileProvince.Owner_id];
         Country armyOwner = map.Countries[armyOwnerId];
@@ -187,7 +198,7 @@ public class army_click_handler : cursor_helper
         // - in a vassalage relation with currentPlayer or
         // - granting military access to currentPlayer or
         return tileOwner.Id == 0 || tileOwner.Id == armyOwnerId ||
-            HasCurrentPlayerRelationWithTileOwner(RelationType.War, tileOwner) ||
+            HasCurrentPlayerWarRelationWithTileOwner(tileOwner) ||
             HasCurrentPlayerRelationWithTileOwner(RelationType.Alliance, tileOwner) ||
             HasCurrentPlayerRelationWithTileOwner(RelationType.Vassalage, tileOwner) ||
             HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, tileOwner);

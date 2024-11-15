@@ -134,7 +134,7 @@ namespace Assets.classes.subclasses {
             this.prio = country.Priority;
             this.capital = country.Capital;
             this.resources = country.Resources;
-            this.technology = country.Technology_;
+            this.technology = country.Technologies;
             this.color = new(country.Color);
             this.revealedTiles = country.RevealedTiles;
             this.seenTiles = country.SeenTiles;
@@ -163,7 +163,7 @@ namespace Assets.classes.subclasses {
                 loaded.setResource(rT.Key, rT.Value);
             }
             foreach (var tT in technology) {
-                loaded.Technology_[tT.Key] = tT.Value;
+                loaded.Technologies[tT.Key] = tT.Value;
             }
             foreach (var sT in seenTiles) {
                 loaded.SeenTiles.Add(sT);
@@ -201,7 +201,7 @@ namespace Assets.classes.subclasses {
     }
     [Serializable]
     internal class SaveProvince {
-        public string? id;
+        public string id;
         public string name;
         public string type;
         public (int, int) coordinates;
@@ -422,10 +422,10 @@ namespace Assets.classes.subclasses {
                     loaded = new RecBoom(duration);
                     break ;
                 case 9:
-                    loaded = new Flood(duration);
+                    loaded = new FloodStatus(duration);
                     break;
                 case 10:
-                    loaded = new Fire(duration);
+                    loaded = new FireStatus(duration);
                     break;
                 default:
                     loaded = new Tribal(duration);
@@ -456,16 +456,16 @@ namespace Assets.classes.subclasses {
             else type = null;
             switch (type) {
                 case true:
-                    country = (ev as Event_.GlobalEvent).country.Id;
+                    country = (ev as Event_.GlobalEvent).Country.Id;
                     globalId(ev as Event_.GlobalEvent);
                     break;
                 case false:
-                    province = ((int, int)?)(ev as Event_.LocalEvent).province.coordinates;
+                    province = ((int, int)?)(ev as Event_.LocalEvent).Province.coordinates;
                     localId(ev as Event_.LocalEvent);
                     break;
                 default:
-                    from = (int?)(ev as Event_.DiploEvent).from.Id;
-                    to = (int?)(ev as Event_.DiploEvent).to.Id;
+                    from = (int?)(ev as Event_.DiploEvent).From.Id;
+                    to = (int?)(ev as Event_.DiploEvent).To.Id;
                     diploId(ev as Event_.DiploEvent);
                     break;
             }
@@ -478,24 +478,25 @@ namespace Assets.classes.subclasses {
             if (ev is Event_.GlobalEvent.Discontent) this.id = 0;
             else if (ev is Event_.GlobalEvent.Happiness) this.id = 1;
             else if (ev is Event_.GlobalEvent.Plague) this.id = 2;
-            else if (ev is Event_.GlobalEvent.EconomicReccesion) this.id = 3;
+            else if (ev is Event_.GlobalEvent.EconomicRecession) this.id = 3;
             else if (ev is Event_.GlobalEvent.TechnologicalBreakthrough) this.id = 4;
-            else if (ev is Event_.GlobalEvent.Flood1) this.id = 5;
-            else if (ev is Event_.GlobalEvent.Fire1) this.id = 6;
+            else if (ev is Event_.GlobalEvent.FloodEvent) this.id = 5;
+            else if (ev is Event_.GlobalEvent.FireEvent) this.id = 6;
             else if (ev is Event_.GlobalEvent.Earthquake) this.id = 7;
             else if (ev is Event_.GlobalEvent.Misfortune) this.id = 8;
             else this.id = 0;
         }
         private void localId(Event_.LocalEvent ev) {
-            if (ev is Event_.LocalEvent.ProductionBoom1) this.id = 0;
+            if (ev is Event_.LocalEvent.ProductionBoom) this.id = 0;
             else if (ev is Event_.LocalEvent.GoldRush) this.id = 1;
             else if (ev is Event_.LocalEvent.BonusRecruits) this.id = 2;
             else if (ev is Event_.LocalEvent.WorkersStrike1) this.id = 3;
             else if (ev is Event_.LocalEvent.WorkersStrike2) this.id = 4;
             else if (ev is Event_.LocalEvent.WorkersStrike3) this.id = 5;
             else if (ev is Event_.LocalEvent.PlagueFound) this.id = 6;
-            else if (ev is Event_.LocalEvent.Battlefield) this.id = 7;
-            //fajne te strange ruins
+            else if (ev is Event_.LocalEvent.DisasterEvent) this.id = 7;
+            else if (ev is Event_.LocalEvent.StrangeRuins1) this.id = 8;
+            else if (ev is Event_.LocalEvent.StrangeRuins2) this.id = 9;
             else this.id = 0;
         }
         private void diploId(Event_.DiploEvent ev) {
@@ -506,7 +507,7 @@ namespace Assets.classes.subclasses {
             else if (ev is Event_.DiploEvent.CallToWar) {
                 this.id = 2;
                 var evv = ev as Event_.DiploEvent.CallToWar;
-                this.country = evv.war.Sides.First(c => c.Id != from).Id;
+                this.country = evv.War.Sides.First(c => c.Id != from).Id;
             }
             else if (ev is Event_.DiploEvent.TruceEnd) {
                 this.id = 3;
@@ -526,14 +527,14 @@ namespace Assets.classes.subclasses {
             else if (ev is Event_.DiploEvent.SubsOffer) {
                 this.id = 8;
                 var evv = ev as Event_.DiploEvent.SubsOffer;
-                this.duration = evv.duration;
-                this.amount = evv.amount;
+                this.duration = evv.Duration;
+                this.amount = evv.Amount;
             }
             else if (ev is Event_.DiploEvent.SubsRequest) {
                 this.id = 9;
                 var evv = ev as Event_.DiploEvent .SubsRequest;
-                this.duration = evv.duration;
-                this.amount = evv.amount;
+                this.duration = evv.Duration;
+                this.amount = evv.Amount;
             }
             else if (ev is Event_.DiploEvent.SubsEndMaster) {
                 this.id = 10;
@@ -583,13 +584,13 @@ namespace Assets.classes.subclasses {
                 case 2:
                     return new Event_.GlobalEvent.Plague(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
                 case 3:
-                    return new Event_.GlobalEvent.EconomicReccesion(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                    return new Event_.GlobalEvent.EconomicRecession(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
                 case 4:
                     return new Event_.GlobalEvent.TechnologicalBreakthrough(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
                 case 5:
-                    return new Event_.GlobalEvent.Flood1(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                    return new Event_.GlobalEvent.FloodEvent(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
                 case 6:
-                    return new Event_.GlobalEvent.Fire1(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
+                    return new Event_.GlobalEvent.FireEvent(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
                 case 7:
                     return new Event_.GlobalEvent.Earthquake(map.Countries[(int)ev.country], managers.Item1, managers.Item2);
                 case 8:
@@ -601,7 +602,7 @@ namespace Assets.classes.subclasses {
         private static Event_.LocalEvent loadLocal(SaveEvent ev, Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
             switch (ev.id) {
                 case 0:
-                    return new Event_.LocalEvent.ProductionBoom1(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                    return new Event_.LocalEvent.ProductionBoom(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
                 case 1:
                     return new Event_.LocalEvent.GoldRush(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
                 case 2:
@@ -615,7 +616,11 @@ namespace Assets.classes.subclasses {
                 case 6:
                     return new Event_.LocalEvent.PlagueFound(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
                 case 7:
-                    return new Event_.LocalEvent.Battlefield(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                    return new Event_.LocalEvent.DisasterEvent(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2);
+                case 8:
+                    return new Event_.LocalEvent.StrangeRuins1(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2, map);
+                case 9:
+                    return new Event_.LocalEvent.StrangeRuins1(map.getProvince(((int, int))ev.province), managers.Item1, managers.Item2, map);
                 default:
                     goto case 0;
 			}

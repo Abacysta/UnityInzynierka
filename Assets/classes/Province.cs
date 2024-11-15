@@ -2,7 +2,6 @@ using Assets.classes.subclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 public class ProvinceModifiers
@@ -37,8 +36,6 @@ public class Province {
         ocean
     }
 
-
-
     [SerializeField] private string id;
     [SerializeField] private string name;
     [SerializeField] private int x;
@@ -53,7 +50,7 @@ public class Province {
     [SerializeField] private OccupationInfo occupationInfo;
     [SerializeField] private int owner_id;
     [SerializeField] private List<Building> buildings;
-    [SerializeField] private ProvinceModifiers modifiers;
+    private ProvinceModifiers modifiers;
     private TerrainType terrain;
     private List<Status> statuses;
 
