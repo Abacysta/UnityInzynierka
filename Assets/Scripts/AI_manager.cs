@@ -5,11 +5,6 @@ using Assets.map.scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Xsl;
 using UnityEngine;
 using static Assets.classes.Event_;
 
@@ -184,7 +179,26 @@ namespace Assets.Scripts {
         /// the way AI acts diplomaticly this turn
         /// </summary>
         private void diplomacy() {
-
+            switch (humor) {
+                case Humor.Leading:
+                    diplomacyManager.leadingDiplo(map, map.CurrentPlayer);
+                    break;
+                case Humor.Defensive:
+                    diplomacyManager.defensiveDiplo(map, map.CurrentPlayer);
+                    break;
+                case Humor.Subservient:
+                    diplomacyManager.subservientDiplo(map, map.CurrentPlayer);
+                    break;
+                case Humor.Rebellious:
+                    diplomacyManager.rebelliousDiplo(map, map.CurrentPlayer);
+                    break;
+                case Humor.Offensive:
+                    diplomacyManager.offensiveDiplo(map, map.CurrentPlayer);
+                    break;
+                default:
+                    diplomacyManager.defaultDiplo(map, map.CurrentPlayer);
+                    break;
+            }
         }
         /// <summary>
         /// responsible for taking care of internal affairs
@@ -204,6 +218,16 @@ namespace Assets.Scripts {
 
         private int getArmySum(int id) {
             return map.Armies.FindAll(a=>a.OwnerId == id).Sum(a=> a.Count);
+        }
+        private class diplomacyManager {
+            public static void leadingDiplo(Map map, Country c) { 
+                
+            }
+            public static void defensiveDiplo(Map map, Country c) { }
+            public static void offensiveDiplo(Map map, Country c) { }
+            public static void subservientDiplo(Map map, Country c) { }
+            public static void rebelliousDiplo(Map map, Country c) { }
+            public static void defaultDiplo(Map map, Country c) { }
         }
         private class internalAffairsManager {
             public static void handleUnhappy(Country c, Humor humor) {
