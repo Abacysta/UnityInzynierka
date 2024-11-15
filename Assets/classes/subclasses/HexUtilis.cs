@@ -51,6 +51,10 @@ public class HexUtils
         int s = -q - r;                           
         return new Cube(q, r, s);
     }
+
+    public static Cube OffsetToCube((int, int) xy) {
+        return OffsetToCube(xy.Item1, xy.Item2);
+    }
     public static (int, int) CubeToOffset(Cube cube) // 3d to 2d
     {
         int x = cube.q + (cube.r - (cube.r & 1)) / 2;
@@ -139,6 +143,13 @@ public class HexUtils
         }
 
         return results;
+    }
+
+    public static List<(int, int)> CubeLineDraw((int, int) start, (int, int) end) {
+        return CubeLineDraw(OffsetToCube(start), OffsetToCube(end));
+    }
+    public static List<(int, int)> CubeLineDraw(Province start, Province end) {
+        return CubeLineDraw(start.coordinates, end.coordinates);
     }
 
     public static void hexPathingTest() {

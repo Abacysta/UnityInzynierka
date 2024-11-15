@@ -666,6 +666,7 @@ public class Map : ScriptableObject {
             }
             return prov;
         }
+        public static bool isAtWarWIth(Map map, Country c1, Country c2)=> getEnemyIds(map, c1).Contains(c2.Id);
     }
     /// <summary>
     /// utilites for managing borders and armies [FOR AI]
@@ -778,5 +779,29 @@ public class Map : ScriptableObject {
             }
             return res;
         }
-    }
+        public static HashSet<Country> getVassals(Map map, Country c) => map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[0] == c).Cast<Relation.Vassalage>().Select(v => v.Sides[0]).ToHashSet();
+
+        public static HashSet<Relation.Vassalage> getVassalRelations(Map map, Country c) => map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[0] == c).Cast<Relation.Vassalage>().ToHashSet();
+        public static HashSet<Country> getWeakCountries(Map map, Country c) {
+            HashSet<Country> weaklings = new();
+            for (int i = 0; i < map.Countries.Count; i++) { 
+                if(i==c.Id) continue;
+                if (c.Opinions[i] > 120) continue;
+                if (c.Opinions[i] < -120) {
+                    weaklings.Add(c);
+                    continue;
+                }
+                var cc = map.Countries[i];
+                if (c.Technologies[Technology.Military] > cc.Technologies[Technology.Military]+ 4) {
+                    weaklings.Add(cc);
+                    continue;
+                }
+                if(howArmyStronger(map, c, cc) > 2) {
+                    weaklings.Add(cc);
+                    continue;
+                }
+            }
+            return weaklings;
+        }    
+}
 }
