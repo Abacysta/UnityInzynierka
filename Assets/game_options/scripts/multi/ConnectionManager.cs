@@ -38,13 +38,12 @@ public class ConnectionManager : MonoBehaviour
 
     public void JoinGame()
     {
-        // Save player name for use in other scenes
         playerName = playerNameInput.text;
 
-        // Set network address from join code and start client
         string joinCode = joinCodeInput.text;
         NetworkManager.singleton.networkAddress = GetAddressFromJoinCode(joinCode);
         NetworkManager.singleton.StartClient();
+        joinCodeDisplay.text = $"Join Code: {joinCode}";
     }
 
     public void StartGame()
@@ -52,7 +51,7 @@ public class ConnectionManager : MonoBehaviour
         if (isHost)
         {
             // Host proceeds to the game scene
-            NetworkManager.singleton.ServerChangeScene("multiplayer"); // Replace with actual game scene name
+           NetworkManager.singleton.ServerChangeScene("multiplayer");
         }
     }
 

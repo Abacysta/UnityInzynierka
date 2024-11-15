@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Mirror;
 using static Map;
+using System.Linq;
 
 public class MultiplayerMapOptions : NetworkBehaviour
 {
@@ -79,7 +80,6 @@ public class MultiplayerMapOptions : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
     void RpcUpdateMapSelection(string mapName)
     {
         selectedMap = mapName;
@@ -267,32 +267,25 @@ public class MultiplayerMapOptions : NetworkBehaviour
         }
     }
 
-    // Zmiana liczby tur
-
-    public void CmdAddValueTurn() { /* analogicznie do CmdAddValueRes */ }
-
-    public void CmdDecValueTurn() { /* analogicznie do CmdDecValueRes */ }
-
-    // Rozpoczêcie gry tylko na serwerze
-
     public void StartGame()
     {
         if(isServer)
         {
-            if (!playerTable.controllers.Contains(CountryController.Local))
+            if (playerTable.countryPlayerAssignment.Any(p => p != 0))
+            {
+                map.name = selectedMap;
+                map.File_name = selectedMap;
+                map.ResourceRate = selectedResourceRate;
+                map.Turnlimit = selectedTurnLimit;
+
+                playerTable.StartGame();
+
+                NetworkManager.singleton.ServerChangeScene("multiplayer");
+            }
+            else
             {
                 Debug.Log("At least one human player!");
-                return;
             }
-
-            map.name = selectedMap;
-            map.File_name = selectedMap;
-            map.ResourceRate = selectedResourceRate;
-            map.Turnlimit = selectedTurnLimit;
-
-            playerTable.StartGame();
-
-            SceneManager.LoadScene("game_map");
         }
         else
         {

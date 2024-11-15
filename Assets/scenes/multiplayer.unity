@@ -3298,9 +3298,9 @@ MonoBehaviour:
   syncInterval: 0
   dummy: {fileID: 5921772175561108611, guid: 968a68da990db4f469d174182c0365d9, type: 3}
   playerTable: {fileID: 1879620401}
-  roomTable: {fileID: 567649511}
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   controllers: 
+  currentMaxPlayerNumber: 0
   localPlayer: {fileID: 0}
 --- !u!1 &1903779272
 GameObject:

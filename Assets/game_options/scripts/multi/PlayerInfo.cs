@@ -1,15 +1,15 @@
 using Mirror;
-
+using UnityEngine;
 public class PlayerInfo : NetworkBehaviour
 {
     [SyncVar]
     public string playerName;
+    [SyncVar]
+    public int playerId;
 
     public override void OnStartLocalPlayer()
     {
         base.OnStartLocalPlayer();
-
-        // Set the player name on the server using a command
         CmdSetPlayerName(ConnectionManager.playerName);
     }
 
@@ -17,9 +17,20 @@ public class PlayerInfo : NetworkBehaviour
     private void CmdSetPlayerName(string name)
     {
         playerName = name;
+        playerId = (int)netId;
     }
+
     public string GetPlayerName()
     {
         return playerName;
+    }
+    public void SetPlayerId(int id)
+    {
+        playerId = id;
+    }
+
+    public int GetPlayerId()
+    {
+        return playerId;
     }
 }

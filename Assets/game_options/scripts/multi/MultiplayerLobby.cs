@@ -1,14 +1,16 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using TMPro;
+﻿using Mirror;
 using UnityEngine;
-using UnityEngine.UI;
-using Mirror;
-using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using Newtonsoft.Json;
 using static Map;
 using static player_table;
+using System.Collections;
+using System.Linq;
+using UnityEngine.UI;
+using System.IO;
+using Telepathy;
+using Unity.VisualScripting;
 
 public class MultiplayerLobby : NetworkBehaviour
 {
@@ -16,41 +18,25 @@ public class MultiplayerLobby : NetworkBehaviour
     [SerializeField] private GameObject playerTable;
     [SerializeField] private Map map;
 
-    public List<CountryController> controllers = new List<CountryController>();
     private List<CountryData> currentStates = new List<CountryData>();
     private List<Province> provinces = new List<Province>();
 
-    public int currentMaxPlayerNumber = 0;
+    [SyncVar(hook = nameof(UpdateCountryAssignmentWithDelay))]
+    
+    public SyncList<int> countryPlayerAssignment = new SyncList<int>();
 
-    [SyncVar] public readonly SyncDictionary<int, int> countryPlayerAssignment = new SyncDictionary<int, int>();
-
-    public GameObject localPlayer;
-
-    public override void OnStartClient()
+    private IEnumerator DelayedRpcUpdateCountryUI()
     {
-        base.OnStartClient();
-        localPlayer = NetworkClient.localPlayer?.gameObject;
-        if (localPlayer == null)
-        {
-            StartCoroutine(AssignLocalPlayer());
-        }
+
+        yield return new WaitForSeconds(0.1f);
+        RpcUpdateCountryUI();
     }
 
-    public override void OnStartServer()
+    public void UpdateCountryAssignmentWithDelay()
     {
-        base.OnStartServer();
-        Debug.Log("Server is up.");
+        StartCoroutine(DelayedRpcUpdateCountryUI());
     }
-    private IEnumerator AssignLocalPlayer()
-    {
-        while (NetworkClient.localPlayer == null)
-        {
-            yield return null;
-        }
 
-        localPlayer = NetworkClient.localPlayer.gameObject;
-        Debug.Log("Local player successfully assigned in MultiplayerLobby.");
-    }
     public void LoadMap(string mapName)
     {
         string json = LoadJsonFromFile($"Assets/Resources/{mapName}.json");
@@ -61,8 +47,15 @@ public class MultiplayerLobby : NetworkBehaviour
 
         showCountries(currentStates);
 
-        controllers.Clear();
-        controllers = Enumerable.Repeat(CountryController.Ai, currentStates.Count).ToList();
+        if (isServer)
+        {
+            countryPlayerAssignment.Clear();
+            for (int i = 0; i < currentStates.Count; i++)
+            {
+                countryPlayerAssignment.Add(0); // Dodajemy 0, czyli AI
+            }
+            UpdateCountryAssignmentWithDelay();
+        }
     }
     private string LoadJsonFromFile(string filePath)
     {
@@ -77,36 +70,32 @@ public class MultiplayerLobby : NetworkBehaviour
         }
     }
 
-    // Assigns country to player on the server
     [Server]
-    public void AssignCountryToPlayer(int countryId, int playerNumber)
+    public void AssignCountryToPlayer(int countryId, NetworkIdentity playerIdentity)
     {
-        if (countryPlayerAssignment.ContainsKey(countryId))
+        if (countryId < 0 || countryId >= countryPlayerAssignment.Count)
         {
-            countryPlayerAssignment.Remove(countryId);
+            return;
         }
 
-        countryPlayerAssignment[countryId] = playerNumber;
-        foreach (var assignment in countryPlayerAssignment)
+        if (countryPlayerAssignment[countryId] == 0)
         {
-            Debug.Log($"Country {assignment.Key} assigned to player {assignment.Value}");
+            if(countryPlayerAssignment.Contains((int)playerIdentity.netId))
+            {
+                countryPlayerAssignment[countryPlayerAssignment.IndexOf((int)playerIdentity.netId)] = 0;
+            }
+            countryPlayerAssignment[countryId] = (int)playerIdentity.netId;
         }
-        // Update the UI after the change
-        RpcUpdateCountryUI();
+        UpdateCountryAssignmentWithDelay();
     }
 
     [ClientRpc]
     private void RpcUpdateCountryUI()
-    {
-        UpdateCountryUI();
-    }
-    [Command(requiresAuthority = false)]
-    public void UpdateCountryUI()
-    {
-        foreach (var assignment in countryPlayerAssignment)
+    { 
+        for (int i = 0; i < countryPlayerAssignment.Count; i++)
         {
-            int countryId = assignment.Key;
-            int playerNumber = assignment.Value;
+            int countryId = i;
+            int playerNumber = countryPlayerAssignment[i];
 
             GameObject countryUI = playerTable.transform.Cast<Transform>()
                 .Select(child => child.gameObject)
@@ -117,10 +106,21 @@ public class MultiplayerLobby : NetworkBehaviour
                 TMP_Text countryNameText = countryUI.transform.Find("controller")?.GetComponentInChildren<TMP_Text>();
                 if (countryNameText != null)
                 {
-                    if (countryId != 0)
+                    if (playerNumber != 0)
                     {
-                        var playerInfo = localPlayer.GetComponent<PlayerInfo>();
-                        countryNameText.text = playerInfo != null ? playerInfo.GetPlayerName() : "Player";
+                        PlayerInfo playerInfo;
+                        if (isServer)
+                        {
+                            playerInfo = FindPlayerById(playerNumber);
+                        }
+                        else
+                        {
+                            playerInfo = FindPlayerByIdOnClient(playerNumber);
+                        }
+                        if (playerInfo != null)
+                        {
+                            countryNameText.text = playerInfo.GetPlayerName();
+                        }
                     }
                     else
                     {
@@ -129,6 +129,30 @@ public class MultiplayerLobby : NetworkBehaviour
                 }
             }
         }
+    }
+
+    public PlayerInfo FindPlayerById(int id)
+    {
+        foreach (var networkIdentity in NetworkServer.spawned.Values) // Działa tylko na serwerze
+        {
+            PlayerInfo playerInfo = networkIdentity.GetComponent<PlayerInfo>();
+            if (playerInfo != null && playerInfo.playerId == id)
+            {
+                return playerInfo;
+            }
+        }
+        return null; 
+    }
+    public static PlayerInfo FindPlayerByIdOnClient(int id)
+    {
+        foreach (var playerInfo in FindObjectsOfType<PlayerInfo>())
+        {
+            if (playerInfo.playerId == id)
+            {
+                return playerInfo;
+            }
+        }
+        return null;
     }
 
     private int GetCountryIdFromUI(GameObject countryUI)
@@ -217,29 +241,24 @@ public class MultiplayerLobby : NetworkBehaviour
                 if (countryButton != null)
                 {
                     int capturedId = i;
-                    countryButton.onClick.AddListener(() => OnCountryClicked(countryUI, controllerTransform, capturedId));
+                    countryButton.onClick.AddListener(() => OnCountryClicked(capturedId));
                 }
             }
         }
     }
 
-    private void OnCountryClicked(GameObject countryUI, Transform nameTransform, int countryId)
+    private void OnCountryClicked(int countryId)
     {
-        if (countryId < 0 || countryId >= controllers.Count)
+
+        if (countryPlayerAssignment[countryId] != 0)
         {
-            Debug.LogError($"Invalid countryId: {countryId}. Must be between 0 and {controllers.Count - 1}.");
             return;
         }
-
+        var localPlayer = FindPlayerByIdOnClient((int)NetworkClient.localPlayer.netId);
         var playerCommands = localPlayer.GetComponent<PlayerLobbyCommands>();
         if (playerCommands != null)
         {
-            Debug.Log($"Assigning country {countryId} to player via CmdAssignCountryToPlayer.");
             playerCommands.CmdAssignCountryToPlayer(countryId);
-        }
-        else
-        {
-            Debug.LogError("PlayerLobbyCommands component not found on localPlayer.");
         }
     }
 
@@ -247,11 +266,11 @@ public class MultiplayerLobby : NetworkBehaviour
     {
         return new Color(color[0] / 255f, color[1] / 255f, color[2] / 255f);
     }
+
     public void StartGame()
     {
         if (currentStates == null || currentStates.Count == 0)
         {
-            Debug.LogError("Brak wczytanych stanów w currentStates.");
             return;
         }
 
@@ -275,7 +294,6 @@ public class MultiplayerLobby : NetworkBehaviour
             );
 
             map.addCountry(newCountry, CountryController.Ai);
-
 
             Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
         }
@@ -313,29 +331,24 @@ public class MultiplayerLobby : NetworkBehaviour
                 terrain = Province.TerrainType.ocean;
             }
             Province newProvince = new Province(
-                    j++.ToString(),
-                    provinceData.Name,
-                    provinceData.X,
-                    provinceData.Y,
-                    provinceData.Type,
-                    terrain,
-                    provinceData.Resources,
-                    (int)provinceData.Resources_amount,
-                    provinceData.Population,
-                    (int)provinceData.Rec_pop,
-                    50,
-                    provinceData.Is_coast,
-                    provinceData.Owner_id
-                );
+                j++.ToString(),
+                provinceData.Name,
+                provinceData.X,
+                provinceData.Y,
+                provinceData.Type,
+                terrain,
+                provinceData.Resources,
+                (int)provinceData.Resources_amount,
+                provinceData.Population,
+                (int)provinceData.Rec_pop,
+                50,
+                provinceData.Is_coast,
+                provinceData.Owner_id
+            );
 
             map.Provinces.Add(newProvince);
         }
-
-        for (int i = 1; i <= controllers.Count; i++)
-        {
-            map.Controllers[i] = controllers[i - 1];
-        }
-
-        Debug.Log("Game setup complete. Ready to start the game.");
+        // dodać przekazanie kraje do mapy moze zapisywanie do playera wybranego kraju? bedzie tak najprościej bo netId bedzie wieksze o player count.
+        // i np niech bedzie przekazywana lista controllerow i jak bedzie Net to bedzie pobierać kontrolowany kraj z gracza
     }
 }
