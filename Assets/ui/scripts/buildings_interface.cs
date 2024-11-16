@@ -75,7 +75,7 @@ public class buildings_interface : MonoBehaviour
     {
         Debug.Log("UpgradeBuilding called with type: " + buildingType);
         var coordinates = map.Selected_province;
-        map.upgradeBuilding(coordinates, buildingType);
+        //map.upgradeBuilding(coordinates, buildingType);
         UpdateInterface();
     }
 
@@ -83,7 +83,7 @@ public class buildings_interface : MonoBehaviour
     {
         Debug.Log("DowngradeBuilding called with type: " + buildingType);
         var coordinates = map.Selected_province;
-        map.downgradeBuilding(coordinates, buildingType);
+        //map.downgradeBuilding(coordinates, buildingType);
         UpdateInterface();
     }
 

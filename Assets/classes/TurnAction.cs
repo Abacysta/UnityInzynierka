@@ -254,12 +254,12 @@ namespace Assets.classes {
 
             public override void preview(Map map) {
                 base.preview(map);
-                map.upgradeBuilding(province.coordinates, buildingType);
+                province.UpgradeBuilding(buildingType);
             }
 
             public override void revert(Map map) {
                 base.revert(map);
-                map.downgradeBuilding(province.coordinates, buildingType);
+                province.DowngradeBuilding(buildingType);
             }
         }
 
@@ -275,12 +275,12 @@ namespace Assets.classes {
 
             public override void preview(Map map) {
                 base.preview(map);
-                map.downgradeBuilding(province.coordinates, buildingType);
+                province.DowngradeBuilding(buildingType);
             }
 
             public override void revert(Map map) {
                 base.revert(map);
-                map.upgradeBuilding(province.coordinates, buildingType);
+                province.UpgradeBuilding(buildingType);
             }
         }
 

@@ -106,6 +106,16 @@ public class Province {
         }
     }
 
+    public void UpgradeBuilding(BuildingType buildingType) {
+        var building = getBuilding(buildingType);
+        building?.Upgrade();
+    }
+
+    public void DowngradeBuilding(BuildingType buildingType) {
+        var building = getBuilding(buildingType);
+        building?.Downgrade();
+    }
+
     public void calcStatuses() {
         modifiers.ResetModifiers();
 
@@ -123,7 +133,7 @@ public class Province {
     }
 
     public Building getBuilding(BuildingType type) {
-        return buildings.Find(b => b.BuildingType == type);
+        return buildings?.Find(b => b.BuildingType == type);
     }
 
     public void addStatus(Status status) { 

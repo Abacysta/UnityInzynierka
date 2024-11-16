@@ -122,17 +122,6 @@ public class Map : ScriptableObject {
         province.Happiness += (int)Math.Floor(province.Modifiers.HappStatic);
     }
 
-    public void upgradeBuilding((int, int) coordinates, BuildingType buildingType) {
-        int prov = getProvinceIndex(coordinates);
-        Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType).Upgrade();
-        Debug.Log(getProvince(coordinates).Buildings.ToString());
-    }
-    public void downgradeBuilding((int, int) coordinates, BuildingType buildingType) {
-        int prov = getProvinceIndex(coordinates);
-        Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType).Downgrade();
-        Debug.Log(getProvince(coordinates).Buildings.ToString());
-    }
-
     public void assignProvince((int, int) coordinates, int id) {
         var p = getProvince(coordinates);
         assignProvince(p, id);
