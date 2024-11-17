@@ -102,19 +102,19 @@ public class filter_modes : MonoBehaviour
 
     public void SetResources()
     {
-        Color getResourceColor(string resources)
+        Color getResourceColor(Resource resourceType)
         {
-            switch (resources)
+            switch (resourceType)
             {
-                case "gold":
+                case Resource.Gold:
                     return ChooseRGBColor(255, 215, 0); // yellow
-                case "iron":
+                case Resource.Iron:
                     return ChooseRGBColor(169, 169, 169); // gray
-                case "wood":
+                case Resource.Wood:
                     return ChooseRGBColor(139, 69, 19); // brown
-                case "empty":
+                case Resource.AP:
                 default:
-                    return ChooseRGBColor(255, 255, 255); // white
+                    return ChooseRGBColor(0, 255, 115); // green
             }
         }
 
@@ -129,7 +129,7 @@ public class filter_modes : MonoBehaviour
 
             if (province.Type == "land")
             {
-                color = getResourceColor(province.Resources);
+                color = getResourceColor(province.ResourcesT);
                 filter_layer.SetTile(position, base_tile);
                 filter_layer.SetColor(position, color);
             }

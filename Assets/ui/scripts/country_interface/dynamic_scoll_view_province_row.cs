@@ -33,30 +33,29 @@ public class dynamic_scoll_view_province_row : UIBehaviour, IDynamicScrollViewIt
         happiness_text.text = province_table_manager.SortedProvinces[index].Happiness.ToString() + "%";
         happiness_text.color = GetHappinessColor(province_table_manager.SortedProvinces[index].Happiness);
 
-        resource_img.sprite = GetResourceSprite(province_table_manager.SortedProvinces[index].Resources);
+        resource_img.sprite = GetResourceSprite(province_table_manager.SortedProvinces[index].ResourcesT);
     }
 
-    private Color32 GetHappinessColor(float happiness)
+    public Color32 GetHappinessColor(float happiness)
     {
         return happiness < 9 ? new Color32(255, 41, 35, 255) : // red
                happiness < 50 ? new Color32(255, 162, 0, 255) : // orange
                Color.green;
     }
 
-    private Sprite GetResourceSprite(string resourceName)
+    public Sprite GetResourceSprite(Resource resourceType)
     {
-        switch (resourceName)
+        switch (resourceType)
         {
-            case "gold":
+            case Resource.Gold:
                 return gold_sprite;
-            case "wood":
+            case Resource.Wood:
                 return wood_sprite;
-            case "iron":
+            case Resource.Iron:
                 return iron_sprite;
-            case "empty":
-                return ap_sprite;
+            case Resource.AP:
             default:
-                return null;
+                return ap_sprite;
         }
     }
 
