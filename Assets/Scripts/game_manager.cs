@@ -28,7 +28,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private GameObject loading_box;
     [SerializeField] private Slider loading_bar;
     [SerializeField] private TMP_Text loading_txt;
-    [SerializeField] private map_loader loader;
+    [SerializeField] private filter_modes loader;
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
     [SerializeField] private dialog_box_manager dialog_box;
@@ -53,8 +53,6 @@ public class game_manager : MonoBehaviour
 
     private void Start()
     {
-        while (loader == null) ;
-        while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
 	}
@@ -148,7 +146,8 @@ public class game_manager : MonoBehaviour
         countryCalc();
         loading_txt.text = "Calculating happiness from relations.";
         happinnessFromRelations();
-        
+        map.calcPopExtremes();
+
 
         //yield return new WaitForSeconds(2f);
         //map.moveArmies();
@@ -175,12 +174,11 @@ public class game_manager : MonoBehaviour
         loading_txt.text = "Calculating provinces";
         Debug.Log("started bar");
 
-        foreach(var p in map.Provinces) {
+        foreach(var p in map.Provinces.Where(p => p.Type == "land")) {
             loading_bar.value = (0.2f * 100 / pcnt);
             map.growPop(p.coordinates);
             if (p.Owner_id != 0) map.growHap(p.coordinates, 3);
             map.calcRecruitablePop(p.coordinates);
-            map.calcPopExtremes();
             p.calcStatuses();
 
             // zarzadzanie okupacja

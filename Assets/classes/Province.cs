@@ -70,10 +70,13 @@ public class Province {
         this.is_coast = is_coast;
         this.owner_id = owner_id;
 
-        occupationInfo = new OccupationInfo();
-        buildings = new List<Building>();
-        statuses = new List<Status>();
-        modifiers = new ProvinceModifiers();
+        if (type == "land")
+        {
+            occupationInfo = new OccupationInfo();
+            buildings = defaultBuildings(this);
+            modifiers = new ProvinceModifiers();
+            statuses = new List<Status>();
+        }
     }
 
     public string Id { get => id; set => id = value; }

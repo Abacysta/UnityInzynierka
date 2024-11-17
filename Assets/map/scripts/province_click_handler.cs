@@ -17,7 +17,7 @@ public class province_click_handler : cursor_helper
     [SerializeField] private army_click_handler armyClickHandler;
     [SerializeField] private camera_controller cameraController;
     [SerializeField] private country_interface_manager country_interface_manager;
-    [SerializeField] private map_loader map_loader;
+    [SerializeField] private filter_modes map_loader;
 
     private Vector3Int previousCellPosition = new(-1, -1, -1);
     private Vector3Int cellPosition;
@@ -207,8 +207,8 @@ public class province_click_handler : cursor_helper
 
     public Color GetHighlightColor((int x, int y) coordinates)
     {
-        Tilemap tileMap = (map_loader.CurrentMode == map_loader.MapMode.Terrain ||
-                           map_loader.CurrentMode == map_loader.MapMode.Political)
+        Tilemap tileMap = (map_loader.CurrentMode == filter_modes.MapMode.Terrain ||
+                           map_loader.CurrentMode == filter_modes.MapMode.Political)
                            ? base_layer
                            : filter_layer;
 

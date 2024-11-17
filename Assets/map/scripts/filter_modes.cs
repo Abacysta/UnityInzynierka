@@ -1,11 +1,8 @@
 using Assets.classes;
-using Assets.classes.subclasses;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class map_loader : MonoBehaviour
+public class filter_modes : MonoBehaviour
 {
     public enum MapMode {
         Terrain,
@@ -31,65 +28,16 @@ public class map_loader : MonoBehaviour
 
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
     [SerializeField] private TilemapRenderer province_select_layer_rnd;
-    [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
+    [SerializeField] private TilemapRenderer filter_layer_rnd;
     [SerializeField] private GameObject mapmodes_buttons;
 
     private MapMode mode;
-    public bool loading;
 
     public MapMode CurrentMode { get => mode; set => mode = value; }
 
     void Start()
     {
-
-        loading = true;
-
-        int playerIndex = map.Controllers.FindIndex(controller => controller == Map.CountryController.Local);
-        if (playerIndex >= 0)
-        {
-            map.currentPlayer = playerIndex;
-            Debug.Log($"Gracz ustawiony na kraj: {map.CurrentPlayer.Name}");
-        }
-        else
-        {
-            Debug.LogError("Nie uda³o siê znaleŸæ gracza (CountryController.Local)");
-        }
-        map.calcPopExtremes();
-
-        int i = 0;
-        int mapWidth = map.Provinces.Max(p => p.X);
-        foreach (Country country in map.Countries.Where(c=>c.Id!=0))
-        {
-            country.Priority = i++;
-            foreach(var c in map.Countries.Where(c => c != country && c.Id !=0)) {
-                c.Opinions.Add(country.Id, 0);
-            }
-            Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
-        }
-
-        foreach (var p in map.Provinces)
-        {
-            map.calcRecruitablePop(p.coordinates);
-
-            p.Statuses = new List<Status>();
-            if (p.Owner_id == 0) p.addStatus(new Tribal(-1));
-
-            p.Buildings = new List<Building>
-            {
-                new Building(BuildingType.Infrastructure, 0),
-                new Building(BuildingType.Fort, 0),
-                new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
-                new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
-            };
-
-            if (p.Type == "land") {
-                p.OccupationInfo = new OccupationInfo();
-                p.calcStatuses();
-            }
-        }
-        map.turnCnt = 0;
         SetPolitical();
-        loading = false;
     }
 
     public void Reload() {
@@ -372,11 +320,11 @@ public class map_loader : MonoBehaviour
 
     private void SetProvinceHoverAndSelectAboveFilterLayer()
     {
-        province_select_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 1;
-        mouse_hover_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 2;
+        province_select_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 1;
+        mouse_hover_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 2;
     }
 
-    private void greyOutUnused(map_loader.MapMode mapMode) {
+    private void greyOutUnused(filter_modes.MapMode mapMode) {
         string name;
         switch (mapMode) {
             case MapMode.Terrain:
