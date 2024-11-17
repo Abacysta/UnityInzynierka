@@ -78,7 +78,8 @@ public class province_interface : MonoBehaviour
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
     private int prov;
 
-    public bool Recruitable { get { return map.getProvince(map.Selected_province).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
+    public (int, int) SelectedProvince { get; set; }
+    public bool Recruitable { get { return map.getProvince(SelectedProvince).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
 
     private void Start()
     {
@@ -118,18 +119,18 @@ public class province_interface : MonoBehaviour
 
         foreach (var (btnTransform, buildingType) in buildingTypes)
         {
-            btnTransform.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeUpgradeBuilding(map, map.Selected_province, buildingType));
-            btnTransform.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeDowngradeBuilding(map, map.Selected_province, buildingType));
+            btnTransform.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeUpgradeBuilding(map, SelectedProvince, buildingType));
+            btnTransform.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeDowngradeBuilding(map, SelectedProvince, buildingType));
         }
 
-        recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRecBox(map, map.Selected_province));
-        festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeFestivitiesOrganizationBox(map, map.Selected_province));
-        tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeTaxBreakIntroductionBox(map, map.Selected_province));
-        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRebelSuppressionBox(map, map.Selected_province));
+        recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRecBox(map, SelectedProvince));
+        festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeFestivitiesOrganizationBox(map, SelectedProvince));
+        tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeTaxBreakIntroductionBox(map, SelectedProvince));
+        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRebelSuppressionBox(map, SelectedProvince));
     }
 
     private void Update() {
-        var coordinates = map.Selected_province;
+        var coordinates = SelectedProvince;
         Province p = map.getProvince(coordinates);
 
         id_.Txt.SetText (coordinates.ToString() + (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name : ""));

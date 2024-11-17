@@ -126,7 +126,7 @@ public class province_click_handler : cursor_helper
 
         if (province != null)
         {
-            map.Selected_province = (province.X, province.Y);
+            province_interface.GetComponent<province_interface>().SelectedProvince = (province.X, province.Y);
             province_interface.SetActive(true);
         }
     }

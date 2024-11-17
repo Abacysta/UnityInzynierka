@@ -45,10 +45,7 @@ public class Map : ScriptableObject {
     public string Map_name { get => map_name; set => map_name = value; }
     public string File_name { get => file_name; set => file_name = value; }
     public List<Province> Provinces { get => provinces; set => provinces = value; }
-
     public List<Country> Countries { get => countries; set => countries = value; }
-
-    public (int, int) Selected_province { get => selected_province; set => selected_province = value; }
     public (int, int) Pop_extremes { get => pop_extremes; set => pop_extremes = value; }
     public int Turnlimit { get => turnlimit; set => turnlimit = value; }
     public int ResourceRate { get => resourceRate; set => resourceRate = value; }
