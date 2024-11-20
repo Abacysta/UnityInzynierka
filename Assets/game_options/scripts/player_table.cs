@@ -156,13 +156,13 @@ public class player_table : MonoBehaviour
         {
             map.Controllers[i] = controllers[i - 1];
         }
+		createTestCountrys();
 
-        SetCurrentPlayer();
+		SetCurrentPlayer();
         SetCountryPrioritiesAndOpinions();
         InitializeProvinces();
         map.calcPopExtremes();
         map.turnCnt = 0;
-
         Debug.Log("Game setup complete. Ready to start the game.");
     }
 
@@ -376,4 +376,22 @@ public class player_table : MonoBehaviour
         }
         return -1;
     }
+    private void createTestCountrys()
+    {
+        map.addCountry(new Country(9, "Temeria", (6, 6), Color.cyan, 1, map), CountryController.Local);
+		map.addCountry(new Country(10, "Kaedwen", (9, 9), Color.green, 2, map), CountryController.Local);
+        map.assignProvince(map.getProvince(7, 7), 9);
+		map.assignProvince(map.getProvince(7, 6), 9);
+        map.assignProvince(map.getProvince(6,6), 9);
+		map.assignProvince(map.getProvince(8, 7), 9);
+		map.assignProvince(map.getProvince(9, 8), 9);
+
+		map.assignProvince(map.getProvince(9,9),10);
+		map.assignProvince(map.getProvince(10, 9), 10);
+		map.assignProvince(map.getProvince(8, 9), 10);
+		map.assignProvince(map.getProvince(7, 9), 10);
+		map.assignProvince(map.getProvince(8, 8), 10);
+		map.assignProvince(map.getProvince(7, 8), 10);
+		map.assignProvince(map.getProvince(6, 7), 10);
+	}
 }

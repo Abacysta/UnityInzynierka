@@ -41,6 +41,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private info_bar info_bar;
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
+    
 
     public int turnCnt { get { return map.turnCnt; } }
 
@@ -166,6 +167,7 @@ public class game_manager : MonoBehaviour
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.turnCnt).ToString());
         loading_box.SetActive(false);
+        testRelations();
         Debug.Log("stopped bar");
 
     }
@@ -540,5 +542,106 @@ public class game_manager : MonoBehaviour
         {
             start_screen.unHide();
         }
+    }
+
+    private void testRelations()
+    {
+        Country c1 = map.Countries[9];
+        Country c2 = map.Countries[10];
+		map.Relations.Clear();
+        testBuildings();
+        if (turnCnt == 1)
+        {
+            testHapp();
+            testPopulation();
+            testTech();
+            testStatus();
+            testEvent();
+            map.Relations.Add(new Relation.War(c1, c2));
+        }
+		if (turnCnt == 2)
+		{
+			map.Relations.Add(new Relation.Alliance(c1,c2));
+		}
+		if (turnCnt == 3)
+		{
+			map.Relations.Add(new Relation.Truce(c1,c2,1));
+		}
+		if (turnCnt == 4)
+		{
+			map.Relations.Add(new Relation.Vassalage(c1,c2));
+		}
+        if(turnCnt == 5)
+        {
+            map.Relations.Add(new Relation.MilitaryAccess(c1,c2));
+        }
+	}
+    private void testBuildings()
+    {
+		Province p = map.getProvince(6, 6);
+        Country c = map.Countries[9];
+        c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.Fort));
+		c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.Mine));
+		c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.Infrastructure));
+		c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.School));
+
+	}
+    private void testHapp()
+    {
+        int x = 4;
+        int happ = 0;
+        while (true)
+        {
+			map.getProvince(x++, 6).Happiness = happ;
+            happ += 20;
+            if (x == 10) return;
+		}
+	}
+	private void testPopulation()
+	{
+		int x = 4;
+		int Pop = 0;
+		while (true)
+		{
+			map.getProvince(x++, 6).Population += Pop;
+			Pop += 500;
+			if (x == 10) return;
+		}
+	}
+    private void testTech()
+    {
+        Country c = map.Countries[9];
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Economic));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Economic));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Economic));
+
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+	}
+	private void testStatus()
+	{
+		Province p = map.getProvince(7, 7);
+        p.addStatus(new Illness(1));
+        p.addStatus(new Festivities(1));
+	}
+    private void testEvent()
+    {
+        Province p = map.getProvince(7, 7);
+        Country c = map.Countries[9];
+
+        c.Events.Add(new Event_.GlobalEvent.FloodEvent(c,dialog_box,camera_controller));
+        c.Events.Add(new Event_.LocalEvent.GoldRush(p,dialog_box,camera_controller));
     }
 }
