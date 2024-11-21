@@ -9,6 +9,8 @@ public class province_interface : MonoBehaviour
 {
     private class StatusDisplay
     {
+        private static List<Status> previousStatuses = new();
+
         public static void deleteIcons(GameObject obj)
         {
             foreach (Transform child in obj.transform)
@@ -18,6 +20,8 @@ public class province_interface : MonoBehaviour
         }
         public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites)
         {
+            if (statuses.SequenceEqual(previousStatuses)) return;
+
             deleteIcons(obj);
 
             if (statuses != null)
@@ -38,7 +42,12 @@ public class province_interface : MonoBehaviour
 
                     rectT.anchoredPosition = new Vector2(currentX, 0);
                     currentX += height;
+
+                    help_tooltip_trigger trigger = child.AddComponent<help_tooltip_trigger>();
+                    trigger.TooltipText = status.Description;
                 }
+
+                previousStatuses = new List<Status>(statuses);
             }
         }
     }
