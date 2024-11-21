@@ -60,6 +60,10 @@ namespace Assets.Scripts {
                     alert.GetComponentInChildren<Button>().onClick.AddListener(() => e.call());
                     setAlertView(alert, e);
                     setSprite(alert, e);
+
+                    help_tooltip_trigger trigger = alert.AddComponent<help_tooltip_trigger>();
+                    trigger.TooltipText = "Event";
+
                     alert.SetActive(true);
                 }
                 if (sortedevents.Count > 10) {
