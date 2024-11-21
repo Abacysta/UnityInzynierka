@@ -71,7 +71,7 @@ public class army_click_handler : cursor_helper
                 //army_click.Play();
                 Debug.Log($"Selected Army: ({armyView.ArmyData.Position.Item1}, {armyView.ArmyData.Position.Item2}), " +
                           $"Count: {armyView.ArmyData.Count} origin:{armyView.ArmyData.Position} destination:{armyView.ArmyData.Destination}");
-               armyView.disbandButton.gameObject.SetActive(true);
+               armyView.DisbandButton.gameObject.SetActive(true);
             }
             else if(hit.collider.TryGetComponent<Button>(out var button)){
                 button.onClick.Invoke();
@@ -102,7 +102,7 @@ public class army_click_handler : cursor_helper
         if (selectedArmy != null)
         {
             selectedArmy.GetComponent<SpriteRenderer>().color = Color.white;
-            selectedArmy.disbandButton.gameObject.SetActive(false);
+            selectedArmy.DisbandButton.gameObject.SetActive(false);
         }
 
         foreach (var highlightCell in highlightedCells)

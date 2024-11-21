@@ -13,6 +13,15 @@ public class filter_modes : MonoBehaviour
         Diplomatic
     }
 
+    public static readonly Color WarColor = new(1f, 0f, 0f); // Red
+    public static readonly Color TruceColor = new(0.8f, 0.9f, 0.8f); // Light Green
+    public static readonly Color AllianceColor = new(0.5f, 0.8f, 1f); // Light Blue
+    public static readonly Color VassalageColor = new(0.6f, 0.4f, 0.8f); // Purple
+    public static readonly Color RebellionColor = new(0.8f, 0.4f, 0.8f); // Pink
+    public static readonly Color DefaultColor = new(1f, 0.95f, 0.5f); // Light Yellow
+    public static readonly Color TribalColor = new(0.9f, 0.75f, 0.6f); // Light Beige
+    public static readonly Color CurrentPlayerColor = new(0.6f, 0.7f, 0.4f); // Soft Olive Green
+
     [SerializeField] private Map map;
 
     [SerializeField] private Tilemap base_layer;
@@ -222,17 +231,17 @@ public class filter_modes : MonoBehaviour
             switch (relationType)
             {
                 case Relation.RelationType.War:
-                    return army_view.WarColor;
+                    return WarColor;
                 case Relation.RelationType.Truce:
-                    return army_view.TruceColor;
+                    return TruceColor;
                 case Relation.RelationType.Alliance:
-                    return army_view.AllianceColor;
+                    return AllianceColor;
                 case Relation.RelationType.Vassalage:
-                    return army_view.VassalageColor;
+                    return VassalageColor;
                 case Relation.RelationType.Rebellion:
-                    return army_view.RebellionColor;
+                    return RebellionColor;
                 default:
-                    return army_view.DefaultColor;
+                    return DefaultColor;
             }
         }
 
@@ -248,11 +257,11 @@ public class filter_modes : MonoBehaviour
                 filter_layer.SetTile(position, base_tile);
                 if (province.Owner_id == map.CurrentPlayer.Id)
                 {
-                    filter_layer.SetColor(position, army_view.DefaultColor);
+                    filter_layer.SetColor(position, CurrentPlayerColor);
                 }
                 else if (province.Owner_id == 0)
                 {
-                    filter_layer.SetColor(position, army_view.TribalColor);
+                    filter_layer.SetColor(position, TribalColor);
                 }
                 else
                 {
