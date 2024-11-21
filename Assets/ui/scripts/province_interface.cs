@@ -2,6 +2,7 @@ using Assets.classes.subclasses;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,81 @@ public class province_interface : MonoBehaviour
     private class StatusDisplay
     {
         private static List<Status> previousStatuses = new();
+        private static int previousTurn = 0;
+
+        private static string FormatPercentChangeText(string label, float value)
+        {
+            string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
+            string formattedValue = value > 0 ? $"+{value * 100}%" : value < 0 ? $"{value * 100}%" : "0";
+            return $"{label}: <color={color}>{formattedValue}</color>";
+        }
+
+        private static string FormatValueChangeText(string label, float value)
+        {
+            string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
+            string formattedValue = value > 0 ? $"+{value}" : value < 0 ? $"{value}" : "0";
+            return $"{label}: <color={color}>{formattedValue}</color>";
+        }
+
+        private static string GenerateTooltipText(Status status, Province province, Map map)
+        {
+            string tooltipText = $"{status.Description}\n\n";
+
+            tooltipText += "<align=left>";
+
+            tooltipText += (status.Duration > 0) ? $"Duration: {status.Duration}\n\n" : "";
+
+            switch (status.Id)
+            {
+                case 1: // TaxBreak
+                    tooltipText += FormatPercentChangeText("Happiness growth", TaxBreak.HappMod);
+                    tooltipText += "\n" + FormatValueChangeText("Happiness", TaxBreak.HappStatic);
+                    break;
+                case 2: // Festivities
+                    tooltipText += FormatPercentChangeText("Production", Festivities.ProdMod);
+                    tooltipText += "\n" + FormatPercentChangeText("Population growth", Festivities.PopMod);
+                    tooltipText += "\n" + FormatValueChangeText("Happiness", Festivities.HappStatic);
+                    break;
+                case 3: // ProdBoom
+                    tooltipText += FormatPercentChangeText("Production", ProdBoom.ProdMod);
+                    break;
+                case 4: // ProdDown
+                    tooltipText += FormatPercentChangeText("Production", ProdDown.ProdMod);
+                    break;
+                case 5: // Illness
+                    tooltipText += FormatPercentChangeText("Population growth", Illness.PopMod);
+                    tooltipText += "\n" + FormatValueChangeText("Population", -province.Population / Illness.PopulationDivisor);
+                    tooltipText += "\n" + FormatValueChangeText("Happiness", Illness.HappStatic);
+                    break;
+                case 6: // Disaster
+                    tooltipText += FormatPercentChangeText("Population growth", Disaster.PopMod);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", Disaster.ProdMod);
+                    break;
+                case 7: // Occupation
+                    tooltipText += $"Occupying country: {map.Countries[province.OccupationInfo.OccupyingCountryId].Name}\n";
+                    break;
+                case 8: // RecBoom
+                    tooltipText += FormatPercentChangeText("Recruitable population", RecBoom.RecPop);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", RecBoom.ProdMod);
+                    break;
+                case 9: // FloodStatus
+                    tooltipText += FormatPercentChangeText("Recruitable population", FloodStatus.RecPop);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", FloodStatus.ProdMod);
+                    break;
+                case 10: // FireStatus
+                    tooltipText += FormatPercentChangeText("Recruitable population", FireStatus.RecPop);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", FireStatus.ProdMod);
+                    break;
+                case 0: // Tribal
+                default:
+                    tooltipText += "";
+                    break;
+            }
+
+            tooltipText += "</align>";
+
+            return tooltipText;
+        }
 
         public static void deleteIcons(GameObject obj)
         {
@@ -18,9 +94,11 @@ public class province_interface : MonoBehaviour
                 Destroy(child.gameObject);
             }
         }
-        public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites)
+
+        public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites,
+            Province province, Map map)
         {
-            if (statuses.SequenceEqual(previousStatuses)) return;
+            if (statuses.SequenceEqual(previousStatuses) && previousTurn == map.turnCnt) return;
 
             deleteIcons(obj);
 
@@ -28,6 +106,7 @@ public class province_interface : MonoBehaviour
             {
                 RectTransform rect = obj.GetComponent<RectTransform>();
                 float height = rect.rect.height, currentX = 0f;
+
                 foreach (Status status in statuses)
                 {
                     GameObject child = new GameObject("icon_" + status.Id);
@@ -44,10 +123,11 @@ public class province_interface : MonoBehaviour
                     currentX += height;
 
                     help_tooltip_trigger trigger = child.AddComponent<help_tooltip_trigger>();
-                    trigger.TooltipText = status.Description;
+                    trigger.TooltipText = GenerateTooltipText(status, province, map);
                 }
 
                 previousStatuses = new List<Status>(statuses);
+                previousTurn = map.turnCnt;
             }
         }
     }
@@ -159,7 +239,7 @@ public class province_interface : MonoBehaviour
 
             UpdateUIElementStates(p); 
             UpdateEmblem(p.Owner_id);
-            StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites);
+            StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites, p, map);
         }
         else {
             res.SetActive(false);
