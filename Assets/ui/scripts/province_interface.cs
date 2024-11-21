@@ -132,8 +132,12 @@ public class province_interface : MonoBehaviour
     private void Update() {
         var coordinates = SelectedProvince;
         Province p = map.getProvince(coordinates);
+        int countryId = map.Countries[p.Owner_id].Id;
 
-        id_.Txt.SetText (coordinates.ToString() + (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name : ""));
+        id_.Txt.SetText(coordinates.ToString() +
+            (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name +
+            (map.Controllers[countryId] == Map.CountryController.Ai ? " (AI)" : "") : ""));
+
         type_.Txt.SetText($"{p.Type}");
 
         if (p.Type == "land") 

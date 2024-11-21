@@ -14,8 +14,7 @@ public class Map : ScriptableObject {
     [Serializable]
     public enum CountryController {
         Local,
-        Ai,
-        Net
+        Ai
     }
 
     [SerializeField] private string map_name;
@@ -33,6 +32,7 @@ public class Map : ScriptableObject {
     private HashSet<Relation> relations = new HashSet<Relation>();
     public int currentPlayer;
     public int turnCnt = 0;
+
     public Map() {
         map_name = null;
         file_name = null;
@@ -321,7 +321,6 @@ public class Map : ScriptableObject {
         return army;
     }
 
-    //I LOVE LINQ
     public void mergeArmies(Country country) {
         List<Army> ar = armies.Where(a => a.OwnerId == country.Id).ToList();
         var grouped = ar.GroupBy(a => a.Position)

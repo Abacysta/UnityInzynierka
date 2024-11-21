@@ -176,7 +176,9 @@ public class diplomatic_actions_manager : MonoBehaviour
     private void SetCountryInfo()
     {
         receiverCountry.setCoatandColor(country_color_img);
-        country_name_txt.text = receiverCountry.Name;
+
+        country_name_txt.text = receiverCountry.Name +
+            (map.Controllers[receiverCountry.Id] == Map.CountryController.Ai ? " (AI)" : "");
 
         provinces_count_text.text = receiverCountry.Provinces.Count.ToString();
         population_text.text = receiverCountry.Provinces.Sum(p => p.Population).ToString();
