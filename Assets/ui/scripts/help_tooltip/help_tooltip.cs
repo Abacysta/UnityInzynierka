@@ -28,12 +28,12 @@ public class help_tooltip : MonoBehaviour
 
         if (mousePos.x + container.GetComponent<RectTransform>().rect.width > screenWidth)
         {
-            mousePos.x = screenWidth - container.GetComponent<RectTransform>().rect.width;
+            mousePos.x = screenWidth - container.GetComponent<RectTransform>().rect.width - 30f;
         }
 
         if (mousePos.y + container.GetComponent<RectTransform>().rect.height > screenHeight)
         {
-            mousePos.y = screenHeight - container.GetComponent<RectTransform>().rect.height;
+            mousePos.y = screenHeight - container.GetComponent<RectTransform>().rect.height - 30f;
         }
 
         transform.position = mousePos;
