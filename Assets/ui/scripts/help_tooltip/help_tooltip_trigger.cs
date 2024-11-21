@@ -5,16 +5,17 @@ public class help_tooltip_trigger : MonoBehaviour
 {
     [TextArea]
     [SerializeField] private string tooltipText;
-    private help_tooltip help_tooltip;
+    private help_tooltip helpTooltipScript;
 
     public string TooltipText { get => tooltipText; set => tooltipText = value; }
 
     void Start()
     {
         GameObject helpTooltipObject = GameObject.Find("help_tooltip");
+
         if (helpTooltipObject != null)
         {
-            help_tooltip = helpTooltipObject.GetComponent<help_tooltip>();
+            helpTooltipScript = helpTooltipObject.GetComponent<help_tooltip>();
         }
     }
 
@@ -45,19 +46,20 @@ public class help_tooltip_trigger : MonoBehaviour
 
     private void OnPointerEnter()
     {
-        if (help_tooltip != null)
+        if (helpTooltipScript != null)
         {
-            help_tooltip.Info = tooltipText;
-            help_tooltip.OnMouseEnterElement();
+            helpTooltipScript.Info = tooltipText;
+            helpTooltipScript.OnMouseEnterElement();
         }
+
     }
 
     private void OnPointerExit()
     {
-        if (help_tooltip != null)
+        if (helpTooltipScript != null)
         {
-            help_tooltip.Info = tooltipText;
-            help_tooltip.OnMouseExitElement();
+            helpTooltipScript.Info = tooltipText;
+            helpTooltipScript.OnMouseExitElement();
         }
     }
 }

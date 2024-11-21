@@ -17,9 +17,14 @@ public class province_tooltip : MonoBehaviour
     [SerializeField] private TMP_Text population_value;
     [SerializeField] private Image relation_img;
 
+    [SerializeField] private GameObject terrain_row;
+    [SerializeField] private GameObject resource_row;
+    [SerializeField] private GameObject happiness_row;
+    [SerializeField] private GameObject population_row;
+    [SerializeField] private GameObject relation_row;
+
     [SerializeField] private Map map;
 
-    [SerializeField] private Sprite neutral_sprite;
     [SerializeField] private Sprite war_sprite;
     [SerializeField] private Sprite alliance_sprite;
     [SerializeField] private Sprite truce_sprite;
@@ -39,7 +44,7 @@ public class province_tooltip : MonoBehaviour
 
     private void Update() {
         Vector3 mousePos = Input.mousePosition; 
-        mousePos.y += 150f;
+        mousePos.y += 90f;
         transform.position = mousePos;
     }
 
@@ -66,18 +71,72 @@ public class province_tooltip : MonoBehaviour
     public void SetTooltipData(Province province)
     {
         Country provinceOwner = map.Countries[province.Owner_id];
-
         country_province_name.text = (province.Owner_id != 0 ? provinceOwner.Name : "Tribal") + " - " + province.Name;
-
         provinceOwner.setCoatandColor(country_coat);
-        terrain_name.text = GetTerrainName(province.Terrain);
-        resource_img.sprite = province_row_script.GetResourceSprite(province.ResourcesT);
-        happiness_value.text = province.Happiness.ToString() + "%";
-        happiness_value.color = province_row_script.GetHappinessColor(province.Happiness);
-        population_value.text = province.Population.ToString();
 
-        var relationType = map.GetHardRelationType(map.CurrentPlayer, provinceOwner);
-        relation_img.sprite = GetRelationSprite(relationType, provinceOwner);
+        switch (filter_modes.CurrentMode)
+        {
+            case filter_modes.MapMode.Terrain:
+                terrain_name.text = GetTerrainName(province.Terrain);
+                terrain_row.SetActive(true);
+                resource_row.SetActive(false);
+                happiness_row.SetActive(false);
+                population_row.SetActive(false);
+                relation_row.SetActive(false);
+                break;
+
+            case filter_modes.MapMode.Resource:
+                resource_img.sprite = province_row_script.GetResourceSprite(province.ResourcesT);
+                terrain_row.SetActive(false);
+                resource_row.SetActive(true);
+                happiness_row.SetActive(false);
+                population_row.SetActive(false);
+                relation_row.SetActive(false);
+                break;
+
+            case filter_modes.MapMode.Happiness:
+                happiness_value.text = province.Happiness.ToString() + "%";
+                happiness_value.color = province_row_script.GetHappinessColor(province.Happiness);
+                terrain_row.SetActive(false);
+                resource_row.SetActive(false);
+                happiness_row.SetActive(true);
+                population_row.SetActive(false);
+                relation_row.SetActive(false);
+                break;
+
+            case filter_modes.MapMode.Population:
+                population_value.text = province.Population.ToString();
+                terrain_row.SetActive(false);
+                resource_row.SetActive(false);
+                happiness_row.SetActive(false);
+                population_row.SetActive(true);
+                relation_row.SetActive(false);
+                break;
+
+            case filter_modes.MapMode.Political:
+                terrain_row.SetActive(false);
+                resource_row.SetActive(false);
+                happiness_row.SetActive(false);
+                population_row.SetActive(false);
+                relation_row.SetActive(false);
+                break;
+
+            case filter_modes.MapMode.Diplomatic:
+                var relationType = map.GetHardRelationType(map.CurrentPlayer, provinceOwner);
+                Sprite relationSprite = GetRelationSprite(relationType, provinceOwner);
+                if (relationSprite != null)
+                {
+                    relation_img.gameObject.SetActive(true);
+                    relation_img.sprite = relationSprite;
+                }
+                else relation_img.gameObject.SetActive(false);
+                terrain_row.SetActive(false);
+                resource_row.SetActive(false);
+                happiness_row.SetActive(false);
+                population_row.SetActive(false);
+                relation_row.SetActive(true);
+                break;
+        }
     }
 
     private string GetTerrainName(Province.TerrainType terrainType)
@@ -118,7 +177,7 @@ public class province_tooltip : MonoBehaviour
             case RelationType.Rebellion:
                 return rebellion_sprite;
             default:
-                return neutral_sprite;
+                return null;
         }
     }
 }
