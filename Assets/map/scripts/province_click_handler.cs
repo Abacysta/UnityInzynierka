@@ -18,6 +18,7 @@ public class province_click_handler : cursor_helper
     [SerializeField] private camera_controller cameraController;
     [SerializeField] private country_interface_manager country_interface_manager;
     [SerializeField] private filter_modes map_loader;
+    [SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 
     private Vector3Int previousCellPosition = new(-1, -1, -1);
     private Vector3Int cellPosition;
@@ -59,6 +60,7 @@ public class province_click_handler : cursor_helper
         {
             province_tooltip.OnMouseExitProvince();
             country_interface_manager.HideCountryInterface();
+            diplomatic_actions_manager.gameObject.SetActive(false);
             if (IsCursorOverArmy() || armyClickHandler.IsCursorOverHighlightedCell()) return;
             HandleLeftClick();
         }
@@ -110,7 +112,8 @@ public class province_click_handler : cursor_helper
                 SelectProvince(cellPosition.x, cellPosition.y);
                 DisplayProvinceInterface(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
-                Debug.Log("res:" + map.getProvince((cellPosition.x, cellPosition.y)).ResourcesP + "mul:" + map.getProvince((cellPosition.x, cellPosition.y)).Modifiers.ProdMod);
+                Province province = map.getProvince(cellPosition.y, cellPosition.x);
+                if (province.Type == "land") Debug.Log("Resource:" + province.ResourcesP + "mul:" + province.Modifiers.ProdMod);
             }
             else
             {

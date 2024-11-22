@@ -15,10 +15,7 @@ public class map_ui : MonoBehaviour
     [SerializeField] private country_interface_manager country_interface;
     [SerializeField] private start_screen start_screen;
     [SerializeField] private GameObject overlay;
-    void Start()
-    {
-        
-    }
+	[SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 
     void Update()
     {   
@@ -137,4 +134,11 @@ public class map_ui : MonoBehaviour
     }
 
     public bool isBlocked { get { return !(settings_menu_ui.activeSelf || dialog_box.activeSelf || country_interface.gameObject.activeSelf || start_screen.gameObject.activeSelf); } }
+
+    public void DeactivateInterfaces()
+    {
+        country_interface.gameObject.SetActive(false);
+        province_interface.gameObject.SetActive(false);
+        diplomatic_actions_manager.gameObject.SetActive(false);
+    }
 }

@@ -163,6 +163,7 @@ public class province_interface : MonoBehaviour
     [SerializeField] private GameObject festivities_button;
     [SerializeField] private GameObject tax_break_button;
     [SerializeField] private GameObject rebel_suppress_button;
+    [SerializeField] private GameObject help_tooltip;
 
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
     private int prov;
@@ -351,7 +352,7 @@ public class province_interface : MonoBehaviour
         {
             emblem.GetComponent<Button>().onClick.AddListener(() => diplomatic_interface.ShowDiplomaticActionsInterface(ownerId));
         }
-        emblem.GetComponent<Button>().onClick.AddListener(() => gameObject.SetActive(false));
+        emblem.GetComponent<Button>().onClick.AddListener(() => help_tooltip.transform.GetChild(0).gameObject.SetActive(false));
     }
 
     public void PopulationIncrease(int val) {

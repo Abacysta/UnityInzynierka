@@ -20,10 +20,10 @@ public class game_manager : MonoBehaviour
     [SerializeField] private Map map;
     [SerializeField] private TMP_Text turnCntTxt;
     [SerializeField] private AudioSource turn_sound;
-    [SerializeField] private float RecruitablePopulationFactor = 0.2f;
-    [SerializeField] private float PopulationFactor = 0.1f;
-    [SerializeField] private int HappinessFactor = 5;
-    [SerializeField] private float ArmyFactor = 0.1f;
+    //[SerializeField] private float RecruitablePopulationFactor = 0.2f;
+    //[SerializeField] private float PopulationFactor = 0.1f;
+    //[SerializeField] private int HappinessFactor = 5;
+    //[SerializeField] private float ArmyFactor = 0.1f;
     [SerializeField] private fog_of_war fog_Of_War;
     [SerializeField] private GameObject loading_box;
     [SerializeField] private Slider loading_bar;
@@ -41,8 +41,8 @@ public class game_manager : MonoBehaviour
     [SerializeField] private info_bar info_bar;
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
+    [SerializeField] private map_ui map_ui;
     
-
     public int turnCnt { get { return map.turnCnt; } }
 
     private Save toSave;
@@ -60,6 +60,7 @@ public class game_manager : MonoBehaviour
 
     public void UndoAll()
     {
+        map_ui.DeactivateInterfaces();
         while(map.CurrentPlayer.Actions.Count > 0) {
             map.CurrentPlayer.Actions.revert();
         }
@@ -69,6 +70,7 @@ public class game_manager : MonoBehaviour
     }
 
     public void undoLast() {
+        map_ui.DeactivateInterfaces();
         map.CurrentPlayer.Actions.revert();
     }
 

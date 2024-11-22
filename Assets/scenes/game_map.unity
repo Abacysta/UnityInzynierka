@@ -9143,10 +9143,6 @@ MonoBehaviour:
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   turnCntTxt: {fileID: 2103896297}
   turn_sound: {fileID: 613489382}
-  RecruitablePopulationFactor: 0.2
-  PopulationFactor: 0.1
-  HappinessFactor: 5
-  ArmyFactor: 0.1
   fog_Of_War: {fileID: 1430160039}
   loading_box: {fileID: 638296373}
   loading_bar: {fileID: 1704613929}
@@ -9164,6 +9160,7 @@ MonoBehaviour:
   info_bar: {fileID: 157988442}
   save_button: {fileID: 2028762502}
   army_click_handler: {fileID: 653004899}
+  map_ui: {fileID: 2034192575}
 --- !u!114 &311749115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17430,6 +17427,7 @@ MonoBehaviour:
   cameraController: {fileID: 1043393647}
   country_interface_manager: {fileID: 1907945647}
   map_loader: {fileID: 653004896}
+  diplomatic_actions_manager: {fileID: 1839368325}
 --- !u!114 &653004899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17462,13 +17460,14 @@ GameObject:
   - component: {fileID: 660708471}
   - component: {fileID: 660708470}
   - component: {fileID: 660708469}
+  - component: {fileID: 660708472}
   m_Layer: 5
   m_Name: camera_button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &660708468
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17582,6 +17581,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 660708467}
   m_CullTransparentMesh: 1
+--- !u!114 &660708472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660708467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5a72020a0d9d8b46a49cc7f32ad96c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipText: Reset the camera
 --- !u!1 &664222737
 GameObject:
   m_ObjectHideFlags: 0
@@ -22850,6 +22862,7 @@ MonoBehaviour:
   festivities_button: {fileID: 110636756}
   tax_break_button: {fileID: 236481839}
   rebel_suppress_button: {fileID: 1808436585}
+  help_tooltip: {fileID: 103416675}
 --- !u!1 &890621496
 GameObject:
   m_ObjectHideFlags: 0
@@ -50317,6 +50330,7 @@ MonoBehaviour:
   camera_controller: {fileID: 1043393647}
   diplomatic_relations_manager: {fileID: 311749115}
   country_relations_table_manager: {fileID: 362878723}
+  province_interface: {fileID: 888877808}
   country_color_img: {fileID: 1801374720}
   country_name_txt: {fileID: 186022247}
   provinces_count_text: {fileID: 798522209}
@@ -52542,6 +52556,8 @@ MonoBehaviour:
   - {fileID: 362878721}
   subwindows:
   - {fileID: 1839368320}
+  province_interface: {fileID: 888877808}
+  diplomatic_actions_manager: {fileID: 1839368325}
   activeColor: {r: 0.36078432, g: 0.36078432, b: 0.36078432, a: 1}
   inactiveColor: {r: 0.3019608, g: 0.3019608, b: 0.3019608, a: 1}
 --- !u!114 &1907945648
@@ -52641,8 +52657,6 @@ MonoBehaviour:
   map: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
   main_button: {fileID: 1404375652}
   country_interface: {fileID: 1907945647}
-  province_interface: {fileID: 888877808}
-  game_manager: {fileID: 311749113}
 --- !u!1 &1915631677
 GameObject:
   m_ObjectHideFlags: 0
@@ -56732,6 +56746,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2013527430}
   - {fileID: 660708468}
   - {fileID: 1911199294}
   - {fileID: 1758574783}
@@ -56739,18 +56754,17 @@ RectTransform:
   - {fileID: 1907945646}
   - {fileID: 1839368321}
   - {fileID: 888877805}
-  - {fileID: 2013527430}
+  - {fileID: 486171400}
+  - {fileID: 2028762501}
+  - {fileID: 150498084}
   - {fileID: 1999248937}
   - {fileID: 198795765}
   - {fileID: 638296376}
-  - {fileID: 486171400}
-  - {fileID: 103416676}
-  - {fileID: 2028762501}
   - {fileID: 825479718}
   - {fileID: 316045546}
   - {fileID: 546502334}
-  - {fileID: 150498084}
   - {fileID: 157988441}
+  - {fileID: 103416676}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -56780,6 +56794,7 @@ MonoBehaviour:
   country_interface: {fileID: 1907945647}
   start_screen: {fileID: 546502337}
   overlay: {fileID: 1999248936}
+  diplomatic_actions_manager: {fileID: 1839368325}
 --- !u!1 &2035763952
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,8 +11,6 @@ public class country_info : MonoBehaviour
     private TMP_Text goldG, woodG, ironG, techG, apG;
     [SerializeField] private GameObject main_button;
     [SerializeField] private country_interface_manager country_interface;
-    [SerializeField] private province_interface province_interface;
-    [SerializeField] game_manager game_manager;
 
     void Start()
     {
@@ -37,11 +35,10 @@ public class country_info : MonoBehaviour
 
         main_button.GetComponent<Image>().color = map.CurrentPlayer.Color;
         main_button.GetComponent<Button>().onClick.AddListener(() => country_interface.ShowCountryInterface());
-        main_button.GetComponent<Button>().onClick.AddListener(() => province_interface.hide());
 
         gold.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Gold], 1));
-        wood.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Wood],1));
-        iron.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Iron],1));
+        wood.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Wood], 1));
+        iron.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.Iron], 1));
         tech.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.SciencePoint], 1));
         ap.SetText("" + Math.Round(map.CurrentPlayer.Resources[Resource.AP], 1));
 
