@@ -184,25 +184,26 @@ namespace Assets.Scripts {
         /// the way AI acts diplomaticly this turn
         /// </summary>
         private void diplomacy() {
+            var toolbox = (diplo, dialog_box, camera, diplo_actions);
             diplomacyManager.manageAccess(map, map.CurrentPlayer, diplo, dialog_box, camera, diplo_actions);
             switch (humor) {
                 case Humor.Leading:
-                    diplomacyManager.leadingDiplo(map, map.CurrentPlayer, (diplo, dialog_box, camera, diplo_actions));
+                    diplomacyManager.leadingDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 case Humor.Defensive:
-                    diplomacyManager.defensiveDiplo(map, map.CurrentPlayer, (diplo, dialog_box, camera, diplo_actions));
+                    diplomacyManager.defensiveDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 case Humor.Subservient:
-                    diplomacyManager.subservientDiplo(map, map.CurrentPlayer, (diplo, dialog_box, camera, diplo_actions));
+                    diplomacyManager.subservientDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 case Humor.Rebellious:
-                    diplomacyManager.rebelliousDiplo(map, map.CurrentPlayer, (diplo, dialog_box, camera, diplo_actions));
+                    diplomacyManager.rebelliousDiplo(map, map.CurrentPlayer, toolbox, random);
                     break;
                 case Humor.Offensive:
-                    diplomacyManager.offensiveDiplo(map, map.CurrentPlayer, (diplo, dialog_box, camera, diplo_actions));
+                    diplomacyManager.offensiveDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 default:
-                    diplomacyManager.defaultDiplo(map, map.CurrentPlayer, (diplo, dialog_box, camera, diplo_actions));
+                    diplomacyManager.defaultDiplo(map, map.CurrentPlayer, toolbox, random);
                     break;
             }
         }
@@ -276,12 +277,41 @@ namespace Assets.Scripts {
                     }
                 }
             }
-            public static void offensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { 
-                
+            public static void offensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
+                //cant think of anything so just call all allies like defensive
+                defensiveDiplo(map, c, toolbox);
             }
-            public static void subservientDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }
-            public static void rebelliousDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }
-            public static void defaultDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }
+            public static void subservientDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { 
+                //cant think of anything
+            }
+            public static void rebelliousDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
+                if(Map.PowerUtilites.howArmyStronger(map, c, Map.PowerUtilites.getSenior(map, c)) >= 0.3) {
+                    if(random.chance <= 10) {
+                        c.Actions.addAction(new TurnAction.vassal_rebel(Map.PowerUtilites.getVassalage(map, c), toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                    }
+                }
+            }
+            public static void defaultDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
+                for(int i = 1; i <= map.Countries.Count; i++) {
+                    if(i == c.Id) continue;
+                    //just make them do something, even if it is very retarded and chaotic
+                    if(c.Opinions[i] <= -100 && random.chance <= 25) {
+                        c.Actions.addAction(new TurnAction.start_war(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        continue;
+                    }
+                    if(c.Opinions[i]>=100 && random.chance <= 25) {
+                        c.Actions.addAction(new TurnAction.alliance_offer(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        continue;
+                    }
+                    var rnd = random.chance;
+                    if(rnd <= 25) {
+                        c.Actions.addAction(new TurnAction.praise(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                    }
+                    else if(rnd >= 75) {
+                        c.Actions.addAction(new TurnAction.insult(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                    }
+                }
+            }
         }
         private class internalAffairsManager {
             public static void handleUnhappy(Country c, Humor humor) {

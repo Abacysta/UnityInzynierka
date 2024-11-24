@@ -653,6 +653,7 @@ public class Map : ScriptableObject {
         }
         public static bool isAtWarWIth(Map map, Country c1, Country c2)=> getEnemyIds(map, c1).Contains(c2.Id);
         public static HashSet<Country> getAllies(Map map, Country c) => map.getRelationsOfType(c, Relation.RelationType.Alliance).Cast<Relation.Alliance>().Select(a => a.Sides.First(s => s != c)).ToHashSet();
+
     }
     /// <summary>
     /// utilites for managing borders and armies
@@ -765,8 +766,9 @@ public class Map : ScriptableObject {
             return res;
         }
         public static HashSet<Country> getVassals(Map map, Country c) => map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[0] == c).Cast<Relation.Vassalage>().Select(v => v.Sides[0]).ToHashSet();
-
+        public static Country getSenior(Map map, Country c) => map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[1] == c).Cast<Relation.Vassalage>().Select(v => v.Sides[0]).First();
         public static HashSet<Relation.Vassalage> getVassalRelations(Map map, Country c) => map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[0] == c).Cast<Relation.Vassalage>().ToHashSet();
+        public static Relation.Vassalage getVassalage(Map map, Country c) => map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides.Any(s => s.Equals(c))).Cast<Relation.Vassalage>().First();
         public static HashSet<Country> getWeakCountries(Map map, Country c) {
             HashSet<Country> weaklings = new();
             for (int i = 0; i < map.Countries.Count; i++) { 
