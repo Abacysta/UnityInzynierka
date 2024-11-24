@@ -9162,6 +9162,7 @@ MonoBehaviour:
   save_button: {fileID: 2028762502}
   army_click_handler: {fileID: 653004899}
   map_ui: {fileID: 2034192575}
+  ai_manager: {fileID: 311749118}
 --- !u!114 &311749115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17409,7 +17410,6 @@ MonoBehaviour:
   province_select_layer_rnd: {fileID: 1342113967}
   filter_layer_rnd: {fileID: 1022513886}
   mapmodes_buttons: {fileID: 1758574782}
-  loading: 0
 --- !u!156049354 &653004897
 Grid:
   m_ObjectHideFlags: 0

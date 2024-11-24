@@ -156,14 +156,14 @@ public class player_table : MonoBehaviour
         {
             map.Controllers[i] = controllers[i - 1];
         }
-		createTestCountrys();
-
+		//createTestCountrys();
+        map.initCountries();
 		SetCurrentPlayer();
         SetCountryPrioritiesAndOpinions();
         InitializeProvinces();
         map.calcPopExtremes();
         map.turnCnt = 0;
-        Debug.Log("Game setup complete. Ready to start the game.");
+        Debug.Log("Game setup complete. Ready to start the game. " + map.Countries.Count + " countries present.");
     }
 
     private void ClearMap()
@@ -196,10 +196,10 @@ public class player_table : MonoBehaviour
         foreach (Country country in map.Countries.Where(c => c.Id != 0))
         {
             country.Priority = i++;
-            foreach (var c in map.Countries.Where(c => c != country && c.Id != 0))
-            {
-                c.Opinions.Add(country.Id, 0);
-            }
+            //foreach (var c in map.Countries.Where(c => c != country && c.Id != 0))
+            //{
+            //    c.Opinions.Add(country.Id, 0);
+            //}
             Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
         }
     }

@@ -171,7 +171,7 @@ public class game_manager : MonoBehaviour
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.turnCnt).ToString());
         loading_box.SetActive(false);
-        testRelations();
+        //testRelations();
         Debug.Log("stopped bar");
 
     }
@@ -298,7 +298,13 @@ public class game_manager : MonoBehaviour
     }
 
     private void aiTurn() {
-        ai_manager.behave();
+        try {
+            ai_manager.behave();
+        }
+        catch(Exception e) { 
+            Debug.LogError(e);
+        }
+        
     }
 
     //private void welcomeScreen() {

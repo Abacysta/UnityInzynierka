@@ -76,7 +76,7 @@ namespace Assets.Scripts {
         /// </summary>
         private Humor asess() {
             //first block; vassal comparison with senior
-            var vassalage = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).First(rel => rel.Sides[1] == map.CurrentPlayer);
+            var vassalage = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).FirstOrDefault(rel => rel.Sides[1] == map.CurrentPlayer);
             if (vassalage != null) {
                 var senior = vassalage.Sides[0];
                 var vassal = vassalage.Sides[1];
@@ -109,10 +109,15 @@ namespace Assets.Scripts {
             wars = null;
             //third block; overall competetiveness (vassal count and gold production)
             var vassals = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).Where(r => r.Sides[0] == map.CurrentPlayer).Cast<Relation.Vassalage>();
-            var topproductions = map.Countries.Select(c => map.getResourceGain(c)).SelectMany(d => d)
-                .Where(k => k.Key ==Resource.Gold)
+            var topproductions = map.Countries
+                .Where(c => c.Id != 0)
+                .Select(c => map.getResourceGain(c))
+                .SelectMany(d => d)
+                .Where(k => k.Key == Resource.Gold)
+                .GroupBy(k => k.Key)
+                .Select(group => new KeyValuePair<Resource, float>(group.Key, group.Sum(k => k.Value)))
                 .OrderByDescending(k => k.Value)
-                .Take(2)//can change to whatever just don't go overboard
+                .Take(2) // adjust this as needed
                 .ToDictionary(k => k.Key, k => k.Value);
             var production = map.getResourceGain(map.CurrentPlayer)[Resource.Gold];
             if(vassals.Count() > 2//has 3 or more vassals
@@ -292,14 +297,14 @@ namespace Assets.Scripts {
                 }
             }
             public static void defaultDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
-                for(int i = 1; i <= map.Countries.Count; i++) {
+                for(int i = 1; i < map.Countries.Count; i++) {
                     if(i == c.Id) continue;
                     //just make them do something, even if it is very retarded and chaotic
                     if(c.Opinions[i] <= -100 && random.chance <= 25) {
                         c.Actions.addAction(new TurnAction.start_war(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                         continue;
                     }
-                    if(c.Opinions[i]>=100 && random.chance <= 25) {
+                    if(c.Opinions[i] >= 100 && random.chance <= 25) {
                         c.Actions.addAction(new TurnAction.alliance_offer(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                         continue;
                     }
@@ -504,27 +509,35 @@ namespace Assets.Scripts {
                 }
                 //mine block
                 List<Province> toImprove = getMineable(c);
-                upgrade = new(toImprove[0], BuildingType.Mine);
-                if (c.isPayable(upgrade.altCosts))
-                    c.Actions.addAction(upgrade);
+                if(toImprove.Count>1){
+                    upgrade = new(toImprove[0], BuildingType.Mine);
+                    if(c.isPayable(upgrade.altCosts))
+                        c.Actions.addAction(upgrade);
+                }
                 //infr block
                 toImprove = getInfrastructurable(c);
+                if(toImprove.Count>2){
                 upgrade = new(toImprove[0], BuildingType.Infrastructure);
                 if (c.isPayable(upgrade.altCosts))
                     c.Actions.addAction(upgrade);
                 upgrade = new(toImprove[1], BuildingType.Infrastructure);
-                if (c.isPayable(upgrade.altCosts))
-                    c.Actions.addAction(upgrade);
+                    if(c.isPayable(upgrade.altCosts))
+                        c.Actions.addAction(upgrade);
+                }
                 //school block
                 toImprove = getSchoolable(c);
+                if(toImprove.Count>1){
                 upgrade = new(toImprove[0], BuildingType.School);
-                if(c.isPayable(upgrade.altCosts))
-                    c.Actions.addAction(upgrade);
+                    if(c.isPayable(upgrade.altCosts))
+                        c.Actions.addAction(upgrade);
+                }
                 //fort block
                 toImprove = getFortable(c);
-                upgrade = new(toImprove[0], BuildingType.Fort);
-                if (c.isPayable(upgrade.altCosts))
-                    c.Actions.addAction(upgrade);
+                if(toImprove.Count>1){
+                    upgrade = new(toImprove[0], BuildingType.Fort);
+                    if(c.isPayable(upgrade.altCosts))
+                        c.Actions.addAction(upgrade);
+                }
             }
             //infr limits for ai adm<2-1; adm<5-2; adm<7-3
             //mainly to make them build other stuff as well

@@ -57,7 +57,19 @@ public class Map : ScriptableObject {
     public void addCountry(Country country, CountryController ptype)
     {
         countries.Add(country);
+        country.Opinions = new Dictionary<int, int>();
         countryControllers.Add(ptype);
+    }
+    public void initCountries() {
+
+        for(int i = 1; i < countries.Count; i++) {
+            for(int j = 1; j < countries.Count; j++) {
+                if(i < j) {
+                    countries[i].Opinions.Add(j, 0);
+                    countries[j].Opinions.Add(i, 0);
+                }
+            }
+        }
     }
     public void removeCountry(Country country) {
         var idx = countries.FindIndex(c => c == country);
@@ -771,7 +783,7 @@ public class Map : ScriptableObject {
         public static Relation.Vassalage getVassalage(Map map, Country c) => map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides.Any(s => s.Equals(c))).Cast<Relation.Vassalage>().First();
         public static HashSet<Country> getWeakCountries(Map map, Country c) {
             HashSet<Country> weaklings = new();
-            for (int i = 0; i < map.Countries.Count; i++) { 
+            for (int i = 1; i < map.Countries.Count; i++) { 
                 if(i==c.Id) continue;
                 if (c.Opinions[i] > 120) continue;
                 if (c.Opinions[i] < -120) {
