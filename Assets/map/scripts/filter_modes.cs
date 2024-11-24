@@ -18,9 +18,9 @@ public class filter_modes : MonoBehaviour
     public static readonly Color AllianceColor = new(0.5f, 0.8f, 1f); // Light Blue
     public static readonly Color VassalageColor = new(0.6f, 0.4f, 0.8f); // Purple
     public static readonly Color RebellionColor = new(0.8f, 0.4f, 0.8f); // Pink
-    public static readonly Color DefaultColor = new(1f, 0.95f, 0.5f); // Light Yellow
+    public static readonly Color DefaultColor = new(0.96f, 0.76f, 0.76f); // Soft Salmon
     public static readonly Color TribalColor = new(0.9f, 0.75f, 0.6f); // Light Beige
-    public static readonly Color CurrentPlayerColor = new(0.6f, 0.7f, 0.4f); // Soft Olive Green
+    public static readonly Color CurrentPlayerColor = new(0.97f, 0.92f, 0.46f); // Yellow
 
     [SerializeField] private Map map;
 
