@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security;
 using UnityEditor;
 using UnityEngine;
 using static Assets.classes.Event_;
@@ -64,11 +65,9 @@ namespace Assets.Scripts {
                 respondToEvent(e);
                 map.CurrentPlayer.Events.Remove(e);
             }
-            //internal block
             manageInternal();
-            //diplomacy block
-
-            //army block
+            diplomacy();
+            moveArmies();
             this.humor = Humor.Null;
         }
 
@@ -265,8 +264,21 @@ namespace Assets.Scripts {
                     }
                 }
             }
-            public static void defensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }
-            public static void offensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }
+            public static void defensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
+                var wars = Map.WarUtilities.getAllWars(map, c);
+                var allies = Map.WarUtilities.getAllies(map, c);
+                foreach(var war in wars) {
+                    foreach(var ally in allies) {
+                        var call = new TurnAction.call_to_war(c, ally, war, toolbox.Item2, toolbox.Item1, toolbox.Item3, toolbox.Item4);
+                        if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.CallToWar))) {
+                            c.Actions.addAction(call);
+                        }
+                    }
+                }
+            }
+            public static void offensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { 
+                
+            }
             public static void subservientDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }
             public static void rebelliousDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }
             public static void defaultDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { }

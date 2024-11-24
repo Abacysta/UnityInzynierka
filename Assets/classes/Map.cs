@@ -667,9 +667,10 @@ public class Map : ScriptableObject {
             return prov;
         }
         public static bool isAtWarWIth(Map map, Country c1, Country c2)=> getEnemyIds(map, c1).Contains(c2.Id);
+        public static HashSet<Country> getAllies(Map map, Country c) => map.getRelationsOfType(c, Relation.RelationType.Alliance).Cast<Relation.Alliance>().Select(a => a.Sides.First(s => s != c)).ToHashSet();
     }
     /// <summary>
-    /// utilites for managing borders and armies [FOR AI]
+    /// utilites for managing borders and armies
     /// </summary>
     internal class LandUtilites {
         public static HashSet<Country> borderingCountries(Map map, Country country) {
@@ -726,12 +727,11 @@ public class Map : ScriptableObject {
             }
             return unpassable;
         }
-        //niech ktos kto robil te hexy mi z tym pomoze bo zakopie w piasku
-        //public static HashSet<Country> getNeededAccess(Map map, Country country) { 
-        //}
         
     }
-
+    /// <summary>
+    /// utilities regarding power projection
+    /// </summary>
     internal class PowerUtilites {
         public static bool isArmyStronger(Map map, Country c1, Country c2) {
             return map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a=>a.Count) * c1.techStats.armyPower > map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.armyPower;

@@ -806,13 +806,13 @@ namespace Assets.classes {
 
         internal class call_to_war : TurnAction, IInstantAction {
             private Country from, to;
-            private Relation.War war;
+            private War war;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_relations_manager diplomacy;
             private diplomatic_actions_manager dipl_actions;
 
-            public call_to_war(Country from, Country to, Relation.War war, dialog_box_manager dialog_box,
+            public call_to_war(Country from, Country to, War war, dialog_box_manager dialog_box,
                 diplomatic_relations_manager diplomacy, camera_controller camera,
                 diplomatic_actions_manager dipl_actions) : base(ActionType.CallToWar,
                     CostsCalculator.TurnActionApCost(ActionType.CallToWar)) {

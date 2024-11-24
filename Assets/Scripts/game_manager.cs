@@ -41,6 +41,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private info_bar info_bar;
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
+    [SerializeField] private AI_manager ai_manager;
 
     public int turnCnt { get { return map.turnCnt; } }
 
@@ -294,7 +295,7 @@ public class game_manager : MonoBehaviour
     }
 
     private void aiTurn() {
-
+        ai_manager.behave();
     }
 
     //private void welcomeScreen() {
@@ -475,7 +476,7 @@ public class game_manager : MonoBehaviour
 
     private void PostTurnInstructions()
     {
-        if (map.Controllers[map.currentPlayer] != Map.CountryController.Local)
+        if (map.Controllers[map.currentPlayer] == Map.CountryController.Ai)
         {
             aiTurn();
             TurnSimulation();
@@ -542,5 +543,14 @@ public class game_manager : MonoBehaviour
         {
             start_screen.unHide();
         }
+    }
+    //to jest wozny
+    private class Janitor {
+        private Map map;
+        public Janitor(Map map) {
+            this.map = map;
+        }
+
+        public void cleanup() { }
     }
 }
