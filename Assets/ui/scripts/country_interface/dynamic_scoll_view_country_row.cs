@@ -38,7 +38,9 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
 
         countryId = country.Id;
 
-        country_name_text.text = country.Name;
+        country_name_text.text = country.Name +
+            (country_relations_table_manager.Map.Controllers[country.Id] == Map.CountryController.Ai ? " (AI)" : "");
+
         country.setCoatandColor(cn_in_country_color_img);
         int theirOpinion = country.Opinions.ContainsKey(currentPlayer.Id) ? country.Opinions[currentPlayer.Id] : 0;
         int ourOpinion = currentPlayer.Opinions.ContainsKey(countryId) ? currentPlayer.Opinions[countryId] : 0;
@@ -55,7 +57,7 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         country_relations_table_manager.Map.Relations
             .Where(r => r.type != Relation.RelationType.War)
             .Where(r => r.Sides.Contains(currentPlayer) && r.Sides.Contains(country))
-            .Select(r => new { relationSprite = GetResourceSpriteForSide(r.type, r.Sides[0] == currentPlayer) })
+            .Select(r => new { relationSprite = GetRelationSpriteForSide(r.type, r.Sides[0] == currentPlayer) })
             .Where(r => r.relationSprite != null)
             .ToList()
             .ForEach(r => {
@@ -83,7 +85,7 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         textElement.text = opinion == 0 ? "0" : (opinion > 0 ? "+" + opinion : opinion.ToString());
     }
 
-    Sprite GetResourceSpriteForSide(RelationType relationType, bool isSide0)
+    Sprite GetRelationSpriteForSide(RelationType relationType, bool isSide0)
     {
         switch (relationType)
         {

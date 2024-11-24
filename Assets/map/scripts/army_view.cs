@@ -8,33 +8,25 @@ using static Assets.classes.Relation;
 
 public class army_view : MonoBehaviour
 {
-    public Army ArmyData { get; private set; }
+    [SerializeField] private Button disbandButton;
+    [SerializeField] private Map map;
+    [SerializeField] private Material armyMaterial;
+    [SerializeField] private Material shipMaterial;
+    [SerializeField] private Sprite landSprite;
+    [SerializeField] private Sprite oceanSprite;
+
     private PolygonCollider2D army_collider;
     private SpriteRenderer spriteRenderer;
     private AudioSource move_army_sound;
     private TMP_Text army_count_text;
     private Vector3 targetPosition;
+    private Country country;
 
     private readonly float moveSpeed = 2f;
     private bool isMoving = false;
 
-    public Button disbandButton;
-    [SerializeField] Map map;
-    private dialog_box_manager dialog_box;
-    public Material armyMaterial;
-    public Material shipMaterial;
-    private Country country;
-
-    public Sprite landSprite;
-    public Sprite oceanSprite;
-
-    public static readonly Color WarColor = new(1f, 0f, 0f); // Red
-    public static readonly Color TruceColor = new(0.8f, 0.9f, 0.8f); // Light Green
-    public static readonly Color AllianceColor = new(0.5f, 0.8f, 1f); // Light Blue
-    public static readonly Color VassalageColor = new(0.6f, 0.4f, 0.8f); // Purple
-    public static readonly Color RebellionColor = new(0.8f, 0.4f, 0.8f); // Pink
-    public static readonly Color DefaultColor = new(1f, 0.95f, 0.5f); // Light Yellow
-    public static readonly Color TribalColor = new(0.9f, 0.75f, 0.6f); // Light Beige
+    public Army ArmyData { get; private set; }
+    public Button DisbandButton { get => disbandButton; set => disbandButton = value; }
 
     void Awake()
     {
@@ -47,8 +39,6 @@ public class army_view : MonoBehaviour
         disbandButton.gameObject.SetActive(false);
 
         disbandButton.onClick.AddListener(DisbandArmy);
-
-        dialog_box = GetComponent<dialog_box_manager>();
     }
 
     void Update()
@@ -236,12 +226,12 @@ public class army_view : MonoBehaviour
         if (y % 2 == 0)
         {
             X = x * 1f;
-            Y = y * 0.862f;
+            Y = y * 0.866f;
         }
         else
         {
             X = x * 1f + 0.5f;
-            Y = y * 0.862f;
+            Y = y * 0.866f;
         }
 
         return new Vector3(X, Y, 0);
@@ -254,15 +244,15 @@ public class army_view : MonoBehaviour
 
         int hexX, hexY;
 
-        if (Mathf.FloorToInt(y / 0.862f) % 2 == 0)
+        if (Mathf.FloorToInt(y / 0.866f) % 2 == 0)
         {
             hexX = Mathf.FloorToInt(x);
-            hexY = Mathf.FloorToInt(y / 0.862f);
+            hexY = Mathf.FloorToInt(y / 0.866f);
         }
         else
         {
             hexX = Mathf.FloorToInt(x - 0.5f);
-            hexY = Mathf.FloorToInt(y / 0.862f);
+            hexY = Mathf.FloorToInt(y / 0.866f);
         }
 
         return new Vector2(hexX, hexY);
@@ -279,22 +269,22 @@ public class army_view : MonoBehaviour
         switch (type)
         {
             case (int)RelationType.War: // war
-                adjusted = WarColor;
+                adjusted = filter_modes.WarColor;
                 break;
             case (int)RelationType.Truce: // truce
-                adjusted = TruceColor;
+                adjusted = filter_modes.TruceColor;
                 break;
             case (int)RelationType.Alliance: // alliance
-                adjusted = AllianceColor;
+                adjusted = filter_modes.AllianceColor;
                 break;
             case (int)RelationType.Vassalage: // vassalage
-                adjusted = VassalageColor;
+                adjusted = filter_modes.VassalageColor;
                 break;
             case (int)RelationType.Rebellion: // rebellion
-                adjusted = RebellionColor;
+                adjusted = filter_modes.RebellionColor;
                 break;
             default:
-                adjusted = DefaultColor;
+                adjusted = filter_modes.DefaultColor;
                 break;
         }
         army_count_text.color = adjusted;

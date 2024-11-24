@@ -14,8 +14,7 @@ public class Map : ScriptableObject {
     [Serializable]
     public enum CountryController {
         Local,
-        Ai,
-        Net
+        Ai
     }
 
     [SerializeField] private string map_name;
@@ -33,6 +32,7 @@ public class Map : ScriptableObject {
     private HashSet<Relation> relations = new HashSet<Relation>();
     public int currentPlayer;
     public int turnCnt = 0;
+
     public Map() {
         map_name = null;
         file_name = null;
@@ -45,10 +45,7 @@ public class Map : ScriptableObject {
     public string Map_name { get => map_name; set => map_name = value; }
     public string File_name { get => file_name; set => file_name = value; }
     public List<Province> Provinces { get => provinces; set => provinces = value; }
-
     public List<Country> Countries { get => countries; set => countries = value; }
-
-    public (int, int) Selected_province { get => selected_province; set => selected_province = value; }
     public (int, int) Pop_extremes { get => pop_extremes; set => pop_extremes = value; }
     public int Turnlimit { get => turnlimit; set => turnlimit = value; }
     public int ResourceRate { get => resourceRate; set => resourceRate = value; }
@@ -120,17 +117,6 @@ public class Map : ScriptableObject {
         else province.Happiness += (int)Math.Floor(value * province.Modifiers.HappMod);
 
         province.Happiness += (int)Math.Floor(province.Modifiers.HappStatic);
-    }
-
-    public void upgradeBuilding((int, int) coordinates, BuildingType buildingType) {
-        int prov = getProvinceIndex(coordinates);
-        Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType).Upgrade();
-        Debug.Log(getProvince(coordinates).Buildings.ToString());
-    }
-    public void downgradeBuilding((int, int) coordinates, BuildingType buildingType) {
-        int prov = getProvinceIndex(coordinates);
-        Provinces[prov].Buildings.Find(b => b.BuildingType == buildingType).Downgrade();
-        Debug.Log(getProvince(coordinates).Buildings.ToString());
     }
 
     public void assignProvince((int, int) coordinates, int id) {
@@ -335,7 +321,6 @@ public class Map : ScriptableObject {
         return army;
     }
 
-    //I LOVE LINQ
     public void mergeArmies(Country country) {
         List<Army> ar = armies.Where(a => a.OwnerId == country.Id).ToList();
         var grouped = ar.GroupBy(a => a.Position)

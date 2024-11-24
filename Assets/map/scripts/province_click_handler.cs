@@ -17,7 +17,8 @@ public class province_click_handler : cursor_helper
     [SerializeField] private army_click_handler armyClickHandler;
     [SerializeField] private camera_controller cameraController;
     [SerializeField] private country_interface_manager country_interface_manager;
-    [SerializeField] private map_loader map_loader;
+    [SerializeField] private filter_modes map_loader;
+    [SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 
     private Vector3Int previousCellPosition = new(-1, -1, -1);
     private Vector3Int cellPosition;
@@ -59,6 +60,7 @@ public class province_click_handler : cursor_helper
         {
             province_tooltip.OnMouseExitProvince();
             country_interface_manager.HideCountryInterface();
+            diplomatic_actions_manager.gameObject.SetActive(false);
             if (IsCursorOverArmy() || armyClickHandler.IsCursorOverHighlightedCell()) return;
             HandleLeftClick();
         }
@@ -110,7 +112,8 @@ public class province_click_handler : cursor_helper
                 SelectProvince(cellPosition.x, cellPosition.y);
                 DisplayProvinceInterface(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
-                Debug.Log("res:" + map.getProvince((cellPosition.x, cellPosition.y)).ResourcesP + "mul:" + map.getProvince((cellPosition.x, cellPosition.y)).Modifiers.ProdMod);
+                Province province = map.getProvince(cellPosition.y, cellPosition.x);
+                if (province.Type == "land") Debug.Log("Resource:" + province.ResourcesP + "mul:" + province.Modifiers.ProdMod);
             }
             else
             {
@@ -126,7 +129,7 @@ public class province_click_handler : cursor_helper
 
         if (province != null)
         {
-            map.Selected_province = (province.X, province.Y);
+            province_interface.GetComponent<province_interface>().SelectedProvince = (province.X, province.Y);
             province_interface.SetActive(true);
         }
     }
@@ -207,8 +210,8 @@ public class province_click_handler : cursor_helper
 
     public Color GetHighlightColor((int x, int y) coordinates)
     {
-        Tilemap tileMap = (map_loader.CurrentMode == map_loader.MapMode.Terrain ||
-                           map_loader.CurrentMode == map_loader.MapMode.Political)
+        Tilemap tileMap = (map_loader.CurrentMode == filter_modes.MapMode.Terrain ||
+                           map_loader.CurrentMode == filter_modes.MapMode.Political)
                            ? base_layer
                            : filter_layer;
 

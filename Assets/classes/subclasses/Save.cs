@@ -50,7 +50,7 @@ namespace Assets.classes.subclasses {
             relations = new();
         }
 
-        public static void loadDataFromSave(Save data, Map toLoad, map_loader mapView, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
+        public static void loadDataFromSave(Save data, Map toLoad, filter_modes mapView, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
             toLoad.name = data.map_name;
             toLoad.turnCnt = data.turnCnt;
             List<Province> loadProvinces = new();

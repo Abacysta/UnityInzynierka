@@ -33,6 +33,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private diplomatic_relations_manager diplomatic_relations_manager;
     [SerializeField] private country_relations_table_manager country_relations_table_manager;
+    [SerializeField] private province_interface province_interface;
 
     // country info
     [SerializeField] private Image country_color_img;
@@ -171,12 +172,15 @@ public class diplomatic_actions_manager : MonoBehaviour
         send_message_button.interactable = false;
         DeactivateAreas();
         gameObject.SetActive(true);
+        province_interface.gameObject.SetActive(false);
     }
 
     private void SetCountryInfo()
     {
         receiverCountry.setCoatandColor(country_color_img);
-        country_name_txt.text = receiverCountry.Name;
+
+        country_name_txt.text = receiverCountry.Name +
+            (map.Controllers[receiverCountry.Id] == Map.CountryController.Ai ? " (AI)" : "");
 
         provinces_count_text.text = receiverCountry.Provinces.Count.ToString();
         population_text.text = receiverCountry.Provinces.Sum(p => p.Population).ToString();

@@ -9,6 +9,8 @@ public class country_interface_manager : MonoBehaviour
     [SerializeField] private GameObject[] tab_buttons;
     [SerializeField] private GameObject[] tab_panels;
     [SerializeField] private GameObject[] subwindows;
+    [SerializeField] private province_interface province_interface;
+    [SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 
     [SerializeField] Color activeColor = new Color32(92, 92, 92, 255);
     [SerializeField] Color inactiveColor = new Color32(77, 77, 77, 255);
@@ -71,5 +73,7 @@ public class country_interface_manager : MonoBehaviour
     public void ShowCountryInterface()
     {
         gameObject.SetActive(true);
+        province_interface.gameObject.SetActive(false);
+        diplomatic_actions_manager.gameObject.SetActive(false);
     }
 }

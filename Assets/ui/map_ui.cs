@@ -10,15 +10,12 @@ public class map_ui : MonoBehaviour
     [SerializeField] private province_interface province_interface;
     [SerializeField] private GameObject dialog_box;
     [SerializeField] private dialog_box_manager box_manager;
-    [SerializeField] private map_loader loader;
+    [SerializeField] private filter_modes loader;
     [SerializeField] private game_manager game_manager;
     [SerializeField] private country_interface_manager country_interface;
     [SerializeField] private start_screen start_screen;
     [SerializeField] private GameObject overlay;
-    void Start()
-    {
-        
-    }
+	[SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 
     void Update()
     {   
@@ -39,32 +36,32 @@ public class map_ui : MonoBehaviour
         }
         if (!overlay.activeSelf) {
 			if (Input.GetKeyDown(KeyCode.I)) {
-				if (loader.CurrentMode != map_loader.MapMode.Terrain) {
+				if (loader.CurrentMode != filter_modes.MapMode.Terrain) {
 					loader.SetTerrain();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.O)) {
-				if (loader.CurrentMode != map_loader.MapMode.Resource) {
+				if (loader.CurrentMode != filter_modes.MapMode.Resource) {
 					loader.SetResources();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.P)) {
-				if (loader.CurrentMode != map_loader.MapMode.Happiness) {
+				if (loader.CurrentMode != filter_modes.MapMode.Happiness) {
 					loader.SetHappiness();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.J)) {
-				if (loader.CurrentMode != map_loader.MapMode.Population) {
+				if (loader.CurrentMode != filter_modes.MapMode.Population) {
 					loader.SetPopulation();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.K)) {
-				if (loader.CurrentMode != map_loader.MapMode.Political) {
+				if (loader.CurrentMode != filter_modes.MapMode.Political) {
 					loader.SetPolitical();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.L)) {
-				if (loader.CurrentMode != map_loader.MapMode.Diplomatic) {
+				if (loader.CurrentMode != filter_modes.MapMode.Diplomatic) {
 					loader.SetDiplomatic();
 				}
 			}
@@ -137,4 +134,11 @@ public class map_ui : MonoBehaviour
     }
 
     public bool isBlocked { get { return !(settings_menu_ui.activeSelf || dialog_box.activeSelf || country_interface.gameObject.activeSelf || start_screen.gameObject.activeSelf); } }
+
+    public void DeactivateInterfaces()
+    {
+        country_interface.gameObject.SetActive(false);
+        province_interface.gameObject.SetActive(false);
+        diplomatic_actions_manager.gameObject.SetActive(false);
+    }
 }

@@ -27,9 +27,9 @@ namespace Assets.classes.subclasses {
     [Serializable]
     internal class TaxBreak : Status {
 
-        public static readonly float TaxMod = 0f;
-        public static readonly float HappMod = 0.2f;
-        public static readonly float HappStatic = 5f;
+        public const float TaxMod = 0f;
+        public const float HappMod = 0.2f;
+        public const float HappStatic = 5f;
 
         public TaxBreak(int duration) : base(duration, StatusType.positive, 
             "The province is exempted from paying tax", 1) {}
@@ -44,9 +44,9 @@ namespace Assets.classes.subclasses {
 	[Serializable]
 	internal class Festivities : Status {
 
-        public static readonly float ProdMod = -0.15f;
-        public static readonly float PopMod = 0.15f;
-        public static readonly float HappStatic = 3f;
+        public const float ProdMod = -0.15f;
+        public const float PopMod = 0.15f;
+        public const float HappStatic = 3f;
 
         public Festivities(int duration) : base(duration, StatusType.positive, 
             "Festivities are taking place in this province", 2) {}
@@ -60,59 +60,77 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class ProdBoom : Status {
+        public const float ProdMod = 0.15f;
+
         public ProdBoom(int duration) : base(duration, StatusType.positive, 
             "This province is experiencing a temporary production boom", 3) {}
 
         public override void applyEffect(Province province) {
-            province.Modifiers.ProdMod += 0.15f;
+            province.Modifiers.ProdMod += ProdMod;
         }
     }
 
 	[Serializable]
 	internal class ProdDown : Status {
+        public const float ProdMod = -0.15f;
+
         public ProdDown(int duration) : base(duration, StatusType.negative, 
             "This province is experiencing a temporary recession", 4) {}
 
         public override void applyEffect(Province province) {
-            province.Modifiers.ProdMod -= 0.15f;
+            province.Modifiers.ProdMod += ProdMod;
         }
     }
 
 	[Serializable]
 	internal class Tribal : Status {
+        public const float PopMod = 0.5f;
+        public const float HappMod = 0f;
+        public const float HappStatic = 0f;
+        public const float ProdMod = 1f;
+        public const float RecPop = 0f;
+        public const float TaxMod = 0f;
+
         public Tribal(int duration) : base (duration, StatusType.neutral, 
             "No civilization has been introduced in this province", 0) {}
 
         public override void applyEffect(Province province) {
-            province.Modifiers.PopMod = 0.5f;
-            province.Modifiers.HappMod = 0;
-            province.Modifiers.HappStatic = 0;
-            province.Modifiers.ProdMod = 1;
-            province.Modifiers.RecPop = 0;
-            province.Modifiers.TaxMod = 0;
+            province.Modifiers.PopMod = PopMod;
+            province.Modifiers.HappMod = HappMod;
+            province.Modifiers.HappStatic = HappStatic;
+            province.Modifiers.ProdMod = ProdMod;
+            province.Modifiers.RecPop = RecPop;
+            province.Modifiers.TaxMod = TaxMod;
         }
     }
 
 	[Serializable]
 	internal class Illness : Status {
+        public const float PopMod = -0.6f;
+        public const float HappStatic = -4f;
+        public const float PopulationDivisor = 10;
+
         public Illness(int duration) : base(duration, StatusType.negative, 
             "This province is going through a plague", 5) {}
 
         public override void applyEffect(Province province) {
-            province.Modifiers.PopMod -= 0.6f;
-            province.Modifiers.PopStatic -= province.Population / 10;
-            province.Modifiers.HappStatic -= 4;
+            province.Modifiers.PopMod += PopMod;
+            province.Modifiers.PopStatic -= province.Population / PopulationDivisor;
+            province.Modifiers.HappStatic += HappStatic;
         }
     }
 
 	[Serializable]
 	internal class Disaster : Status {
+        public const float PopMod = -0.1f;
+        public const float ProdMod = -0.3f;
+
         public Disaster(int duration) : base(duration, StatusType.negative, 
             "A disaster has struck this province", 6) {}
 
         public override void applyEffect(Province province) {
-            province.Modifiers.PopMod -= 0.1f;
-            province.Modifiers.ProdMod -= 0.3f;
+            province.Modifiers.PopMod += PopMod;
+            province.Modifiers.ProdMod += ProdMod;
         }
     }
 
@@ -134,38 +152,47 @@ namespace Assets.classes.subclasses {
 
 	[Serializable]
 	internal class RecBoom : Status {
+        public const float RecPop = 0.02f;
+        public const float ProdMod = -0.03f;
+
         public RecBoom(int duration) : base(duration, StatusType.neutral, 
             "More recruits appear, hindering your economic growth", 8) {}
 
         public override void applyEffect(Province province) {
-            province.Modifiers.RecPop += 0.02f;
-            province.Modifiers.ProdMod -= 0.03f;
+            province.Modifiers.RecPop += RecPop;
+            province.Modifiers.ProdMod += ProdMod;
         }
     }
 
 	[Serializable]
 	internal class FloodStatus : Status
     {
+        public const float RecPop = -0.05f;
+        public const float ProdMod = -0.5f;
+
         public FloodStatus(int duration) : base(duration, StatusType.negative, 
             "This province is flooded.", 9) {}
 
         public override void applyEffect(Province province)
         {
-            province.Modifiers.RecPop -= 0.05f;
-            province.Modifiers.ProdMod -= 0.5f;
+            province.Modifiers.RecPop += RecPop;
+            province.Modifiers.ProdMod += ProdMod;
         }
     }
 
 	[Serializable]
 	internal class FireStatus : Status
     {
+        public const float RecPop = -0.15f;
+        public const float ProdMod = -0.7f;
+
         public FireStatus(int duration) : base(duration, StatusType.negative, 
             "This province is on fire!", 10) {}
 
         public override void applyEffect(Province province)
         {
-            province.Modifiers.RecPop -= 0.15f;
-            province.Modifiers.ProdMod -= .7f;
+            province.Modifiers.RecPop += RecPop;
+            province.Modifiers.ProdMod += ProdMod;
         }
     }
 }

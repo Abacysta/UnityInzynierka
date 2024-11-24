@@ -2,6 +2,7 @@ using Assets.classes.subclasses;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,83 @@ public class province_interface : MonoBehaviour
 {
     private class StatusDisplay
     {
+        private static List<Status> previousStatuses = new();
+        private static int previousTurn = 0;
+
+        private static string FormatPercentChangeText(string label, float value)
+        {
+            string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
+            string formattedValue = value > 0 ? $"+{value * 100}%" : value < 0 ? $"{value * 100}%" : "0";
+            return $"• {label}: <color={color}>{formattedValue}</color>";
+        }
+
+        private static string FormatValueChangeText(string label, float value)
+        {
+            string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
+            string formattedValue = value > 0 ? $"+{value}" : value < 0 ? $"{value}" : "0";
+            return $"• {label}: <color={color}>{formattedValue}</color>";
+        }
+
+        private static string GenerateTooltipText(Status status, Province province, Map map)
+        {
+            string tooltipText = $"{status.Description}\n\n";
+
+            tooltipText += "<align=left>";
+
+            tooltipText += (status.Duration > 0) ? $"Duration: {status.Duration}\n\n" : "";
+
+            switch (status.Id)
+            {
+                case 1: // TaxBreak
+                    tooltipText += FormatPercentChangeText("Happiness growth", TaxBreak.HappMod);
+                    tooltipText += "\n" + FormatValueChangeText("Happiness", TaxBreak.HappStatic);
+                    break;
+                case 2: // Festivities
+                    tooltipText += FormatPercentChangeText("Production", Festivities.ProdMod);
+                    tooltipText += "\n" + FormatPercentChangeText("Population growth", Festivities.PopMod);
+                    tooltipText += "\n" + FormatValueChangeText("Happiness", Festivities.HappStatic);
+                    break;
+                case 3: // ProdBoom
+                    tooltipText += FormatPercentChangeText("Production", ProdBoom.ProdMod);
+                    break;
+                case 4: // ProdDown
+                    tooltipText += FormatPercentChangeText("Production", ProdDown.ProdMod);
+                    break;
+                case 5: // Illness
+                    tooltipText += FormatPercentChangeText("Population growth", Illness.PopMod);
+                    tooltipText += "\n" + FormatValueChangeText("Population", -province.Population / Illness.PopulationDivisor);
+                    tooltipText += "\n" + FormatValueChangeText("Happiness", Illness.HappStatic);
+                    break;
+                case 6: // Disaster
+                    tooltipText += FormatPercentChangeText("Population growth", Disaster.PopMod);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", Disaster.ProdMod);
+                    break;
+                case 7: // Occupation
+                    tooltipText += $"Occupying country: {map.Countries[province.OccupationInfo.OccupyingCountryId].Name}\n";
+                    break;
+                case 8: // RecBoom
+                    tooltipText += FormatPercentChangeText("Recruitable population", RecBoom.RecPop);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", RecBoom.ProdMod);
+                    break;
+                case 9: // FloodStatus
+                    tooltipText += FormatPercentChangeText("Recruitable population", FloodStatus.RecPop);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", FloodStatus.ProdMod);
+                    break;
+                case 10: // FireStatus
+                    tooltipText += FormatPercentChangeText("Recruitable population", FireStatus.RecPop);
+                    tooltipText += "\n" + FormatPercentChangeText("Production", FireStatus.ProdMod);
+                    break;
+                case 0: // Tribal
+                default:
+                    tooltipText += "";
+                    break;
+            }
+
+            tooltipText += "</align>";
+
+            return tooltipText;
+        }
+
         public static void deleteIcons(GameObject obj)
         {
             foreach (Transform child in obj.transform)
@@ -16,14 +94,19 @@ public class province_interface : MonoBehaviour
                 Destroy(child.gameObject);
             }
         }
-        public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites)
+
+        public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites,
+            Province province, Map map)
         {
+            if (statuses.SequenceEqual(previousStatuses) && previousTurn == map.turnCnt) return;
+
             deleteIcons(obj);
 
             if (statuses != null)
             {
                 RectTransform rect = obj.GetComponent<RectTransform>();
                 float height = rect.rect.height, currentX = 0f;
+
                 foreach (Status status in statuses)
                 {
                     GameObject child = new GameObject("icon_" + status.Id);
@@ -38,7 +121,13 @@ public class province_interface : MonoBehaviour
 
                     rectT.anchoredPosition = new Vector2(currentX, 0);
                     currentX += height;
+
+                    help_tooltip_trigger trigger = child.AddComponent<help_tooltip_trigger>();
+                    trigger.TooltipText = GenerateTooltipText(status, province, map);
                 }
+
+                previousStatuses = new List<Status>(statuses);
+                previousTurn = map.turnCnt;
             }
         }
     }
@@ -74,11 +163,13 @@ public class province_interface : MonoBehaviour
     [SerializeField] private GameObject festivities_button;
     [SerializeField] private GameObject tax_break_button;
     [SerializeField] private GameObject rebel_suppress_button;
+    [SerializeField] private GameObject help_tooltip;
 
     private ProvinceInfoField id_, type_, res_, happ_, pop_, rec_pop_;
     private int prov;
 
-    public bool Recruitable { get { return map.getProvince(map.Selected_province).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
+    public (int, int) SelectedProvince { get; set; }
+    public bool Recruitable { get { return map.getProvince(SelectedProvince).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
 
     private void Start()
     {
@@ -118,21 +209,25 @@ public class province_interface : MonoBehaviour
 
         foreach (var (btnTransform, buildingType) in buildingTypes)
         {
-            btnTransform.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeUpgradeBuilding(map, map.Selected_province, buildingType));
-            btnTransform.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeDowngradeBuilding(map, map.Selected_province, buildingType));
+            btnTransform.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeUpgradeBuilding(map, SelectedProvince, buildingType));
+            btnTransform.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeDowngradeBuilding(map, SelectedProvince, buildingType));
         }
 
-        recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRecBox(map, map.Selected_province));
-        festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeFestivitiesOrganizationBox(map, map.Selected_province));
-        tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeTaxBreakIntroductionBox(map, map.Selected_province));
-        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRebelSuppressionBox(map, map.Selected_province));
+        recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRecBox(map, SelectedProvince));
+        festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeFestivitiesOrganizationBox(map, SelectedProvince));
+        tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeTaxBreakIntroductionBox(map, SelectedProvince));
+        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRebelSuppressionBox(map, SelectedProvince));
     }
 
     private void Update() {
-        var coordinates = map.Selected_province;
+        var coordinates = SelectedProvince;
         Province p = map.getProvince(coordinates);
+        int countryId = map.Countries[p.Owner_id].Id;
 
-        id_.Txt.SetText (coordinates.ToString() + (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name : ""));
+        id_.Txt.SetText(coordinates.ToString() +
+            (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name +
+            (map.Controllers[countryId] == Map.CountryController.Ai ? " (AI)" : "") : ""));
+
         type_.Txt.SetText($"{p.Type}");
 
         if (p.Type == "land") 
@@ -145,7 +240,7 @@ public class province_interface : MonoBehaviour
 
             UpdateUIElementStates(p); 
             UpdateEmblem(p.Owner_id);
-            StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites);
+            StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites, p, map);
         }
         else {
             res.SetActive(false);
@@ -257,7 +352,7 @@ public class province_interface : MonoBehaviour
         {
             emblem.GetComponent<Button>().onClick.AddListener(() => diplomatic_interface.ShowDiplomaticActionsInterface(ownerId));
         }
-        emblem.GetComponent<Button>().onClick.AddListener(() => gameObject.SetActive(false));
+        emblem.GetComponent<Button>().onClick.AddListener(() => help_tooltip.transform.GetChild(0).gameObject.SetActive(false));
     }
 
     public void PopulationIncrease(int val) {

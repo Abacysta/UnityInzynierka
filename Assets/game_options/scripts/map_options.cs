@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static Map;
 
-public class GameSettingsPanel : MonoBehaviour
+public class map_options : MonoBehaviour
 {
     [SerializeField] private TMP_Dropdown mapDropdown;
     [SerializeField] private GameObject optionsTable;

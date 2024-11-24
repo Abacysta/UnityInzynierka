@@ -1,11 +1,8 @@
 using Assets.classes;
-using Assets.classes.subclasses;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class map_loader : MonoBehaviour
+public class filter_modes : MonoBehaviour
 {
     public enum MapMode {
         Terrain,
@@ -15,6 +12,15 @@ public class map_loader : MonoBehaviour
         Political,
         Diplomatic
     }
+
+    public static readonly Color WarColor = new(1f, 0f, 0f); // Red
+    public static readonly Color TruceColor = new(0.8f, 0.9f, 0.8f); // Light Green
+    public static readonly Color AllianceColor = new(0.5f, 0.8f, 1f); // Light Blue
+    public static readonly Color VassalageColor = new(0.6f, 0.4f, 0.8f); // Purple
+    public static readonly Color RebellionColor = new(0.8f, 0.4f, 0.8f); // Pink
+    public static readonly Color DefaultColor = new(1f, 0.95f, 0.5f); // Light Yellow
+    public static readonly Color TribalColor = new(0.9f, 0.75f, 0.6f); // Light Beige
+    public static readonly Color CurrentPlayerColor = new(0.6f, 0.7f, 0.4f); // Soft Olive Green
 
     [SerializeField] private Map map;
 
@@ -31,65 +37,16 @@ public class map_loader : MonoBehaviour
 
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
     [SerializeField] private TilemapRenderer province_select_layer_rnd;
-    [SerializeField] private TilemapRenderer filter_hover_layer_rnd;
+    [SerializeField] private TilemapRenderer filter_layer_rnd;
     [SerializeField] private GameObject mapmodes_buttons;
 
     private MapMode mode;
-    public bool loading;
 
     public MapMode CurrentMode { get => mode; set => mode = value; }
 
     void Start()
     {
-
-        loading = true;
-
-        int playerIndex = map.Controllers.FindIndex(controller => controller == Map.CountryController.Local);
-        if (playerIndex >= 0)
-        {
-            map.currentPlayer = playerIndex;
-            Debug.Log($"Gracz ustawiony na kraj: {map.CurrentPlayer.Name}");
-        }
-        else
-        {
-            Debug.LogError("Nie uda³o siê znaleŸæ gracza (CountryController.Local)");
-        }
-        map.calcPopExtremes();
-
-        int i = 0;
-        int mapWidth = map.Provinces.Max(p => p.X);
-        foreach (Country country in map.Countries.Where(c=>c.Id!=0))
-        {
-            country.Priority = i++;
-            foreach(var c in map.Countries.Where(c => c != country && c.Id !=0)) {
-                c.Opinions.Add(country.Id, 0);
-            }
-            Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
-        }
-
-        foreach (var p in map.Provinces)
-        {
-            map.calcRecruitablePop(p.coordinates);
-
-            p.Statuses = new List<Status>();
-            if (p.Owner_id == 0) p.addStatus(new Tribal(-1));
-
-            p.Buildings = new List<Building>
-            {
-                new Building(BuildingType.Infrastructure, 0),
-                new Building(BuildingType.Fort, 0),
-                new Building(BuildingType.School, p.Population > 3000 ? 0 : 4),
-                new Building(BuildingType.Mine, p.Resources == "iron" ? 0 : 4)
-            };
-
-            if (p.Type == "land") {
-                p.OccupationInfo = new OccupationInfo();
-                p.calcStatuses();
-            }
-        }
-        map.turnCnt = 0;
         SetPolitical();
-        loading = false;
     }
 
     public void Reload() {
@@ -154,19 +111,19 @@ public class map_loader : MonoBehaviour
 
     public void SetResources()
     {
-        Color getResourceColor(string resources)
+        Color getResourceColor(Resource resourceType)
         {
-            switch (resources)
+            switch (resourceType)
             {
-                case "gold":
+                case Resource.Gold:
                     return ChooseRGBColor(255, 215, 0); // yellow
-                case "iron":
+                case Resource.Iron:
                     return ChooseRGBColor(169, 169, 169); // gray
-                case "wood":
+                case Resource.Wood:
                     return ChooseRGBColor(139, 69, 19); // brown
-                case "empty":
+                case Resource.AP:
                 default:
-                    return ChooseRGBColor(255, 255, 255); // white
+                    return ChooseRGBColor(0, 255, 115); // green
             }
         }
 
@@ -181,7 +138,7 @@ public class map_loader : MonoBehaviour
 
             if (province.Type == "land")
             {
-                color = getResourceColor(province.Resources);
+                color = getResourceColor(province.ResourcesT);
                 filter_layer.SetTile(position, base_tile);
                 filter_layer.SetColor(position, color);
             }
@@ -274,17 +231,17 @@ public class map_loader : MonoBehaviour
             switch (relationType)
             {
                 case Relation.RelationType.War:
-                    return army_view.WarColor;
+                    return WarColor;
                 case Relation.RelationType.Truce:
-                    return army_view.TruceColor;
+                    return TruceColor;
                 case Relation.RelationType.Alliance:
-                    return army_view.AllianceColor;
+                    return AllianceColor;
                 case Relation.RelationType.Vassalage:
-                    return army_view.VassalageColor;
+                    return VassalageColor;
                 case Relation.RelationType.Rebellion:
-                    return army_view.RebellionColor;
+                    return RebellionColor;
                 default:
-                    return army_view.DefaultColor;
+                    return DefaultColor;
             }
         }
 
@@ -300,11 +257,11 @@ public class map_loader : MonoBehaviour
                 filter_layer.SetTile(position, base_tile);
                 if (province.Owner_id == map.CurrentPlayer.Id)
                 {
-                    filter_layer.SetColor(position, army_view.DefaultColor);
+                    filter_layer.SetColor(position, CurrentPlayerColor);
                 }
                 else if (province.Owner_id == 0)
                 {
-                    filter_layer.SetColor(position, army_view.TribalColor);
+                    filter_layer.SetColor(position, TribalColor);
                 }
                 else
                 {
@@ -372,11 +329,11 @@ public class map_loader : MonoBehaviour
 
     private void SetProvinceHoverAndSelectAboveFilterLayer()
     {
-        province_select_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 1;
-        mouse_hover_layer_rnd.sortingOrder = filter_hover_layer_rnd.sortingOrder + 2;
+        province_select_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 1;
+        mouse_hover_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 2;
     }
 
-    private void greyOutUnused(map_loader.MapMode mapMode) {
+    private void greyOutUnused(filter_modes.MapMode mapMode) {
         string name;
         switch (mapMode) {
             case MapMode.Terrain:

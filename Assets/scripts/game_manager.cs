@@ -20,15 +20,15 @@ public class game_manager : MonoBehaviour
     [SerializeField] private Map map;
     [SerializeField] private TMP_Text turnCntTxt;
     [SerializeField] private AudioSource turn_sound;
-    [SerializeField] private float RecruitablePopulationFactor = 0.2f;
-    [SerializeField] private float PopulationFactor = 0.1f;
-    [SerializeField] private int HappinessFactor = 5;
-    [SerializeField] private float ArmyFactor = 0.1f;
+    //[SerializeField] private float RecruitablePopulationFactor = 0.2f;
+    //[SerializeField] private float PopulationFactor = 0.1f;
+    //[SerializeField] private int HappinessFactor = 5;
+    //[SerializeField] private float ArmyFactor = 0.1f;
     [SerializeField] private fog_of_war fog_Of_War;
     [SerializeField] private GameObject loading_box;
     [SerializeField] private Slider loading_bar;
     [SerializeField] private TMP_Text loading_txt;
-    [SerializeField] private map_loader loader;
+    [SerializeField] private filter_modes loader;
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
     [SerializeField] private dialog_box_manager dialog_box;
@@ -41,6 +41,8 @@ public class game_manager : MonoBehaviour
     [SerializeField] private info_bar info_bar;
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
+    [SerializeField] private map_ui map_ui;
+    
     [SerializeField] private AI_manager ai_manager;
 
     public int turnCnt { get { return map.turnCnt; } }
@@ -54,14 +56,13 @@ public class game_manager : MonoBehaviour
 
     private void Start()
     {
-        while (loader == null) ;
-        while (loader.loading) ;
         while (start_screen == null) ;
         start_screen.welcomeScreen();
 	}
 
     public void UndoAll()
     {
+        map_ui.DeactivateInterfaces();
         while(map.CurrentPlayer.Actions.Count > 0) {
             map.CurrentPlayer.Actions.revert();
         }
@@ -71,6 +72,7 @@ public class game_manager : MonoBehaviour
     }
 
     public void undoLast() {
+        map_ui.DeactivateInterfaces();
         map.CurrentPlayer.Actions.revert();
     }
 
@@ -149,7 +151,8 @@ public class game_manager : MonoBehaviour
         countryCalc();
         loading_txt.text = "Calculating happiness from relations.";
         happinnessFromRelations();
-        
+        map.calcPopExtremes();
+
 
         //yield return new WaitForSeconds(2f);
         //map.moveArmies();
@@ -168,6 +171,7 @@ public class game_manager : MonoBehaviour
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.turnCnt).ToString());
         loading_box.SetActive(false);
+        testRelations();
         Debug.Log("stopped bar");
 
     }
@@ -176,12 +180,11 @@ public class game_manager : MonoBehaviour
         loading_txt.text = "Calculating provinces";
         Debug.Log("started bar");
 
-        foreach(var p in map.Provinces) {
+        foreach(var p in map.Provinces.Where(p => p.Type == "land")) {
             loading_bar.value = (0.2f * 100 / pcnt);
             map.growPop(p.coordinates);
             if (p.Owner_id != 0) map.growHap(p.coordinates, 3);
             map.calcRecruitablePop(p.coordinates);
-            map.calcPopExtremes();
             p.calcStatuses();
 
             // zarzadzanie okupacja
@@ -552,5 +555,106 @@ public class game_manager : MonoBehaviour
         }
 
         public void cleanup() { }
+    }
+
+    private void testRelations()
+    {
+        Country c1 = map.Countries[9];
+        Country c2 = map.Countries[10];
+		map.Relations.Clear();
+        testBuildings();
+        if (turnCnt == 1)
+        {
+            testHapp();
+            testPopulation();
+            testTech();
+            testStatus();
+            testEvent();
+            map.Relations.Add(new Relation.War(c1, c2));
+        }
+		if (turnCnt == 2)
+		{
+			map.Relations.Add(new Relation.Alliance(c1,c2));
+		}
+		if (turnCnt == 3)
+		{
+			map.Relations.Add(new Relation.Truce(c1,c2,1));
+		}
+		if (turnCnt == 4)
+		{
+			map.Relations.Add(new Relation.Vassalage(c1,c2));
+		}
+        if(turnCnt == 5)
+        {
+            map.Relations.Add(new Relation.MilitaryAccess(c1,c2));
+        }
+	}
+    private void testBuildings()
+    {
+		Province p = map.getProvince(6, 6);
+        Country c = map.Countries[9];
+        c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.Fort));
+		c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.Mine));
+		c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.Infrastructure));
+		c.Actions.addAction(new TurnAction.building_upgrade(p, BuildingType.School));
+
+	}
+    private void testHapp()
+    {
+        int x = 4;
+        int happ = 0;
+        while (true)
+        {
+			map.getProvince(x++, 6).Happiness = happ;
+            happ += 20;
+            if (x == 10) return;
+		}
+	}
+	private void testPopulation()
+	{
+		int x = 4;
+		int Pop = 0;
+		while (true)
+		{
+			map.getProvince(x++, 6).Population += Pop;
+			Pop += 500;
+			if (x == 10) return;
+		}
+	}
+    private void testTech()
+    {
+        Country c = map.Countries[9];
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Military));
+
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Economic));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Economic));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Economic));
+
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+		c.Actions.addAction(new TurnAction.technology_upgrade(c, Technology.Administrative));
+	}
+	private void testStatus()
+	{
+		Province p = map.getProvince(7, 7);
+        p.addStatus(new Illness(1));
+        p.addStatus(new Festivities(1));
+	}
+    private void testEvent()
+    {
+        Province p = map.getProvince(7, 7);
+        Country c = map.Countries[9];
+
+        c.Events.Add(new Event_.GlobalEvent.FloodEvent(c,dialog_box,camera_controller));
+        c.Events.Add(new Event_.LocalEvent.GoldRush(p,dialog_box,camera_controller));
     }
 }
