@@ -269,6 +269,7 @@ public class game_manager : MonoBehaviour
         resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
         resources[Resource.Gold] -= Map.PowerUtilites.getArmyUpkeep(map, map.Countries[i]);
+        resources[Resource.AP] += 2.5f;//one simple trick
 
         foreach (var res in resources) {
             map.Countries[i].modifyResource(res.Key, res.Value);

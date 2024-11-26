@@ -54,7 +54,7 @@ namespace Assets.Scripts {
             float attPower = attacker.Count * attCountry.techStats.armyPower;//attacker power
             float defPower = defender.Count * defCountry.techStats.armyPower + 1;//defender power
             float fortModifier = 1;
-            if (map.getProvince(defender.Position).Owner_id == defender.OwnerId)//bonus do obrony na forcie jezeli jest on posiadany przez obroncow
+            if (map.getProvince(defender.Position).Owner_id == defender.OwnerId)//fort defense bonus
                 fortModifier += 0.1f * map.getProvince(defender.Position).Buildings.Find(b => b.BuildingType == BuildingType.Fort).BuildingLevel;
             defPower *= fortModifier;
             float result = attPower - defPower;
@@ -67,7 +67,7 @@ namespace Assets.Scripts {
                 return true;
             }
             else {
-                attacker.Count = 0;
+                map.removeArmy(attacker);
                 defender.Count = (int)(-result/ fortModifier / defCountry.techStats.armyPower);
                 return false;
             }
