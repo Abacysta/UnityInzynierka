@@ -24,4 +24,8 @@ public class Building
     {
         if(buildingLevel>0 && buildingLevel < 4)buildingLevel--;
     }
+    public void Reset()
+    {
+        buildingLevel = 0;
+    }
 }
