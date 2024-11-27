@@ -256,11 +256,13 @@ namespace Assets.classes.subclasses {
             foreach(var s in status) {
                 loaded.Statuses.Add(s.load());
             }
-            var so = loaded.Statuses.Find(s => s is Occupation) as Occupation;
-            if (so != null) {
-                loaded.OccupationInfo = new(true, so.Duration, so.Occupier_id);
+            if (loaded.Type == "land") {
+                var so = loaded.Statuses.Find(s => s is Occupation) as Occupation;
+                if (so != null) {
+                    loaded.OccupationInfo = new(true, so.Duration, so.Occupier_id);
+                }
+                else loaded.OccupationInfo = new(false, 0, 0);
             }
-            else loaded.OccupationInfo = new(false, 0, 0);
             if(buildings!= null) {
                 loaded.Buildings = new();
                 foreach(var b in buildings)
