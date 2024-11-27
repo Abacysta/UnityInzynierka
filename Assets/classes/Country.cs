@@ -4,6 +4,7 @@ using Assets.classes.Tax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Assets.classes.subclasses.Constants;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -314,7 +315,7 @@ public class Country {
     public Country(int id, string name, (int, int) capital, Color color, int coat, Map map) {
         this.id = id;
         this.name = name;
-        this.capital = id == 0 ? (-1, -1) : capital;
+        this.capital = id == 0 ? DEFAULT_CORD : capital;
         this.color = id == 0 ? new Color(0.8392f, 0.7216f, 0.4706f) : color;
         this.coat = coat;
         this.resources = new(technicalDefaultResources.defaultValues);
@@ -343,7 +344,7 @@ public class Country {
             if (provinces.Count != 0) {
                 capital = provinces.ToList().OrderByDescending(p => p.Population).First().coordinates;
             }
-            else capital = (-1, -1);
+            else capital = DEFAULT_CORD;
         }
     }
     public int Id { get { return id; } }

@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 using Unity.Loading;
+using Assets.map.scripts;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 [Serializable]
@@ -27,6 +28,7 @@ public class Map : ScriptableObject {
     [SerializeField] private GameObject army_prefab;
     [SerializeField] private int turnlimit;
     [SerializeField] private int resourceRate;
+    [SerializeField] diplomatic_relations_manager diplomacy;
     private List<CountryController> countryControllers = new List<CountryController>();
     private List<army_view> armyViews = new List<army_view>();
     private HashSet<Relation> relations = new HashSet<Relation>();
@@ -82,6 +84,16 @@ public class Map : ScriptableObject {
         foreach(var a in armiess) {
             removeArmy(a);
         }
+        var rels = relations.Where(r => r.Sides.Contains(country)).ToHashSet();
+        foreach(var r in rels) {
+            diplomacy.endRelation(r);
+        }
+        var warsP = relations.Where(r => r.type == Relation.RelationType.War).Cast<Relation.War>().Where(w => w.participants1.Contains(country) || w.participants2.Contains(country)).ToHashSet();
+        foreach(var w in warsP) {
+            w.participants1.Remove(country);
+            w.participants2.Remove(country);
+        }
+
         countryControllers[country.Id] = CountryController.Ai;
         country = new(0, country.Name, country.Capital, country.Color, country.Coat, this);
 

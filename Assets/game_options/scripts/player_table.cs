@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
+using static Assets.classes.subclasses.Constants;
 using UnityEngine;
 using UnityEngine.UI;
 using static Map;
@@ -130,7 +131,7 @@ public class player_table : MonoBehaviour
             map.Provinces.Add(newProvince);
         }
 
-        map.addCountry(new Country(0, "", (-1, -1), new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+        map.addCountry(new Country(0, "", DEFAULT_CORD, new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
 
         foreach (CountryData state in currentStates)
         {
