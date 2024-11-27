@@ -86,17 +86,7 @@ public class Province {
     public string Type { get => type; set => type = value; }
     public string Resources { get => resources; set => resources = value; }
     public float Resources_amount { get => (float)System.Math.Round(resources_amount, 1); set => resources_amount = value; }
-    public int Population { get => population; set
-        { // nie wiem czy to dzia³a
-            population = value;
-
-            var schoolBuilding = buildings.FirstOrDefault(b => b.Key == BuildingType.School).Value;
-            if (schoolBuilding == 4 && population >= 3000)
-            {
-                buildings[BuildingType.School] = 0;
-            }
-        }
-    }
+    
     public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
     public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, 0, 100); } // nie wiem czy to dzia³a
     public bool Is_coast { get => is_coast; set => is_coast = value; }
@@ -109,6 +99,7 @@ public class Province {
     public List<Status> Statuses { get => statuses; set => statuses = value; }
     internal TerrainType Terrain { get => terrain; set => terrain = value; }
     public ProvinceModifiers Modifiers { get => modifiers; set => modifiers = value; }
+    public int Population { get => population; set => population = value; }
 
     private Resource RealResource() {
         switch(Resources) {

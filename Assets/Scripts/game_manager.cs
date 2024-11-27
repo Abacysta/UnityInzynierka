@@ -3,6 +3,7 @@ using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
+using static Assets.classes.subclasses.Constants;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -477,10 +478,11 @@ public class game_manager : MonoBehaviour
             Debug.Log(map.Countries[i].Name + "--");
             Debug.Log("--" + map.Controllers[i]);
         }
-
+        var cleanup_crew = new Janitor(map);
+        cleanup_crew.cleanup();
         map.currentPlayer = 1;
-
-        AutoSave();
+        if(map.turnCnt%5 == 0)
+            AutoSave();
         loader.Reload();
     }
 
@@ -671,25 +673,27 @@ public class game_manager : MonoBehaviour
                     map.killCountry(c);
                 }
                 //opinions check
-                foreach(var o in c.Opinions.Keys) {
+                foreach(var o in c.Opinions.Keys.ToList()) {
                     c.Opinions[o] = Math.Clamp(c.Opinions[o], -200, 200);
                 }
             }
             //provinces
             foreach(var p in map.Provinces) {
                 //status check
-                if (p.Statuses.Count != 0)
+                if (p.Statuses != null) if (p.Statuses.Count != 0)
                     p.Statuses.RemoveAll(s => s.Duration == 0);
                 //happ check
                 p.Happiness = Math.Clamp(p.Happiness, 0, 100);
                 //population
                 if (p.Population <= 0) p.Population = 1;
                 //buildings
+                if(p.Buildings!= null){
                 foreach(var b in p.Buildings.Keys) {
                     if (p.Buildings[b] > 4 || p.Buildings[b] < 0) p.Buildings[b] = 0;
                 }
                 //unlock school at 3k populace
-                if (p.Population > Constants.SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
+                if (p.Population > SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
+            }
             }
             
         }
