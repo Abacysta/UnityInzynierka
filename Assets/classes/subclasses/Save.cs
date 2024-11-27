@@ -235,12 +235,14 @@ namespace Assets.classes.subclasses {
             }
             //buildings = prov.Buildings;
             //Debug.Log(prov.coordinates.ToString() + " -> " + prov.Buildings.ToString());
-            if (prov.Buildings != null) buildings = new() {
-                {BuildingType.Infrastructure, prov.Buildings[0].BuildingLevel },
-                {BuildingType.Fort, prov.Buildings[1].BuildingLevel },
-                {BuildingType.Mine, prov.Buildings[2].BuildingLevel },
-                {BuildingType.School, prov.Buildings[3].BuildingLevel }
-            };
+            if (prov.Buildings != null)
+            {
+                buildings = new();
+                foreach (var b in prov.Buildings)
+                {
+                    buildings.Add(b.Key, b.Value);
+                }
+            }
             else buildings = null;
         }
 
@@ -260,12 +262,11 @@ namespace Assets.classes.subclasses {
             }
             else loaded.OccupationInfo = new(false, 0, 0);
             if(buildings!= null) {
-                loaded.Buildings = new() {
-                    new(BuildingType.Infrastructure, buildings[BuildingType.Infrastructure]),
-                    new(BuildingType.Fort, buildings[BuildingType.Fort]),
-				    new(BuildingType.School, buildings[BuildingType.School]),
-                    new(BuildingType.Mine, buildings[BuildingType.Mine])
-				};
+                loaded.Buildings = new();
+                foreach(var b in buildings)
+                {
+                    loaded.Buildings.Add(b.Key, b.Value);
+                }
             }
             else {
                 loaded.Buildings = Province.defaultBuildings(loaded);

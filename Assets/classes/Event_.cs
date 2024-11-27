@@ -291,8 +291,7 @@ namespace Assets.classes {
                 {
                     foreach (var p in Country.Provinces)
                     {
-                        var mine = p.Buildings.Find(b => b.BuildingType == BuildingType.Mine);
-                        mine.Downgrade();
+                        p.DowngradeBuilding(BuildingType.Mine);
                         p.addStatus(new Disaster(3));
                     }
                     base.accept();

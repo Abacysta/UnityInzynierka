@@ -49,7 +49,7 @@ public class Province {
     [SerializeField] private bool is_coast;
     [SerializeField] private OccupationInfo occupationInfo;
     [SerializeField] private int owner_id;
-    [SerializeField] private List<Building> buildings;
+    [SerializeField] private Dictionary<BuildingType, int> buildings;
     private ProvinceModifiers modifiers;
     private TerrainType terrain;
     private List<Status> statuses;
@@ -90,9 +90,10 @@ public class Province {
         { // nie wiem czy to dzia³a
             population = value;
 
-            if(Buildings.Find(b => b.BuildingType == BuildingType.School).BuildingLevel == 4 && population >= 3000)
+            var schoolBuilding = buildings.FirstOrDefault(b => b.Key == BuildingType.School).Value;
+            if (schoolBuilding == 4 && population >= 3000)
             {
-                Buildings.Find(b => b.BuildingType == BuildingType.School).Reset();
+                buildings[BuildingType.School] = 0;
             }
         }
     }
@@ -101,7 +102,7 @@ public class Province {
     public bool Is_coast { get => is_coast; set => is_coast = value; }
     public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
     public int Owner_id { get => owner_id; set => owner_id = value; }
-    public List<Building> Buildings { get => buildings; set => buildings = value; }
+    public Dictionary<BuildingType,int> Buildings { get => buildings; set => buildings = value; }
     public (int, int) coordinates { get => (x, y); }
     public Resource ResourcesT { get => RealResource(); }
     public float ResourcesP { get => RealProduction(); }
@@ -118,16 +119,33 @@ public class Province {
         }
     }
 
-    public void UpgradeBuilding(BuildingType buildingType) {
-        var building = getBuilding(buildingType);
-        building?.Upgrade();
+    public void UpgradeBuilding(BuildingType buildingType)
+    {
+        if (buildings.ContainsKey(buildingType) && buildings[buildingType] < 3)
+        {
+            buildings[buildingType]++;
+        }
     }
 
-    public void DowngradeBuilding(BuildingType buildingType) {
-        var building = getBuilding(buildingType);
-        building?.Downgrade();
+    public void DowngradeBuilding(BuildingType buildingType)
+    {
+        if (buildings.ContainsKey(buildingType) && buildings[buildingType] > 0 && buildings[buildingType] < 4)
+        {
+            buildings[buildingType]--;
+        }
     }
 
+    public int GetBuildingLevel(BuildingType type)
+    {
+        return buildings.ContainsKey(type) ? buildings[type] : 0;
+    }
+    public void ResetBuilding(BuildingType buildingType)
+    {
+        if (buildings.ContainsKey(buildingType))
+        {
+            buildings[buildingType] = 0;
+        }
+    }
     public void calcStatuses() {
         modifiers.ResetModifiers();
 
@@ -143,11 +161,6 @@ public class Province {
             statuses = statuses.Except(to_rmv).ToList();
         }
     }
-
-    public Building getBuilding(BuildingType type) {
-        return buildings?.Find(b => b.BuildingType == type);
-    }
-
     public void addStatus(Status status) { 
         statuses.Add(status);
     }
@@ -164,13 +177,13 @@ public class Province {
             * modifiers.ProdMod
             * (0.75f + happiness * 0.01f / 2) 
             * (1 + population / 1000) 
-            * (1 + 0.5f * getBuilding(BuildingType.Infrastructure).BuildingLevel);
+            * (1 + 0.5f * GetBuildingLevel(BuildingType.Infrastructure));
 
             switch(ResourcesT) {
                 case Resource.Gold:
-                    prod *= (1 + 0.25f * getBuilding(BuildingType.Mine).BuildingLevel); break;
+                    prod *= (1 + 0.25f * GetBuildingLevel(BuildingType.Mine)); break;
                 case Resource.Iron:
-                    prod *= (1 + 0.75f * getBuilding(BuildingType.Mine).BuildingLevel); break;
+                    prod *= (1 + 0.75f * GetBuildingLevel(BuildingType.Mine)); break;
                 default: break;
             }
         }
@@ -181,12 +194,14 @@ public class Province {
         return (float)Math.Round(prod, 1);
     }
 
-    public static List<Building> defaultBuildings(Province p) {
-        return new List<Building> {
-            new(BuildingType.Infrastructure, 0),
-            new(BuildingType.Fort, 0),
-            new(BuildingType.School, p.Population > 3000 ? 0 : 4),
-            new(BuildingType.Mine, p.Resources == "iron" ? 0 : p.Resources == "gold" ? 0 : 4)
+    public static Dictionary<BuildingType, int> defaultBuildings(Province p)
+    {
+        return new Dictionary<BuildingType, int>
+        {
+            { BuildingType.Infrastructure, 0 },
+            { BuildingType.Fort, 0 },
+            { BuildingType.School, p.Population > 3000 ? 0 : 4 },
+            { BuildingType.Mine, p.Resources == "iron" ? 0 : p.Resources == "gold" ? 0 : 4 }
         };
-	}
+    }
 }

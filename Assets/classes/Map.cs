@@ -173,7 +173,7 @@ public class Map : ScriptableObject {
         foreach (var prov in country.Provinces) {
             prod[prov.ResourcesT] += prov.ResourcesP;
             prod[Resource.AP] += 0.1f;
-            if (prov.Buildings.Any(b => b.BuildingType == BuildingType.School) && prov.getBuilding(BuildingType.School).BuildingLevel < 4) prod[Resource.SciencePoint] += prov.getBuilding(BuildingType.School).BuildingLevel * 3;
+            if (prov.Buildings.ContainsKey(BuildingType.School) && prov.GetBuildingLevel(BuildingType.School) < 4) prod[Resource.SciencePoint] += prov.GetBuildingLevel(BuildingType.School) * 3;
         }
         foreach (var type in prod.ToList()) {
             if (type.Key != Resource.AP)

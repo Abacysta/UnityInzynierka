@@ -168,7 +168,7 @@ public class dialog_box_manager : MonoBehaviour
                 break;
         }
 
-        int lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel + 1;
+        int lvl = province.Buildings.ContainsKey(type) ? province.Buildings[type] + 1 : 0;
         title += lvl + "?";
         message += lvl + "?";
 
@@ -208,7 +208,7 @@ public class dialog_box_manager : MonoBehaviour
                 break;
         }
 
-        int lvl = province.Buildings.Find(b => b.BuildingType == type).BuildingLevel;
+        int lvl = province.Buildings.ContainsKey(type) ? province.Buildings[type] : 0;
         title += lvl + "?";
         message += lvl + "?";
 

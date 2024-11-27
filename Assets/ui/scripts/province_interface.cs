@@ -280,36 +280,29 @@ public class province_interface : MonoBehaviour
 
     private void UpdateBuildings(Province province)
     {
-        var buildings = new List<Building> {
-            province.Buildings.Find(b => b.BuildingType == BuildingType.Infrastructure),
-            province.Buildings.Find(b => b.BuildingType == BuildingType.Fort),
-            province.Buildings.Find(b => b.BuildingType == BuildingType.School),
-            province.Buildings.Find(b => b.BuildingType == BuildingType.Mine)
-        };
+        b_1.sprite = b_1_spr[province.Buildings[BuildingType.Infrastructure]];
+        b_2.sprite = b_2_spr[province.Buildings[BuildingType.Fort]];
+        b_3.sprite = b_3_spr[province.Buildings[BuildingType.School]];
+        b_4.sprite = b_4_spr[province.Buildings[BuildingType.Mine]];
 
-        b_1.sprite = b_1_spr[buildings[0].BuildingLevel];
-        b_2.sprite = b_2_spr[buildings[1].BuildingLevel];
-        b_3.sprite = b_3_spr[buildings[2].BuildingLevel];
-        b_4.sprite = b_4_spr[buildings[3].BuildingLevel];
-
-        UpdateBuildingButtonsStates(buildings, province.Owner_id);
+        UpdateBuildingButtonsStates(province);
     }
 
-    private void UpdateBuildingButtonsStates(List<Building> buildings, int ownerId)
+    private void UpdateBuildingButtonsStates(Province province)
     {
-        if (map.CurrentPlayer.Id != ownerId) return;
+        if (map.CurrentPlayer.Id != province.Owner_id) return;
 
-        var buttonMappings = new List<(Transform ButtonTransform, BuildingType Type, int BuildingIndex)>
+        var buttonMappings = new List<(Transform ButtonTransform, BuildingType Type)>
         {
-            (b_1_m, BuildingType.Infrastructure, 0),
-            (b_2_m, BuildingType.Fort, 1),
-            (b_3_m, BuildingType.School, 2),
-            (b_4_m, BuildingType.Mine, 3)
+            (b_1_m, BuildingType.Infrastructure),
+            (b_2_m, BuildingType.Fort),
+            (b_3_m, BuildingType.School),
+            (b_4_m, BuildingType.Mine)
         };
 
-        foreach (var (buttonTransform, buildingType, buildingIndex) in buttonMappings)
+        foreach (var (buttonTransform, buildingType) in buttonMappings)
         {
-            int buildingLevel = buildings[buildingIndex].BuildingLevel;
+            int buildingLevel = province.Buildings[buildingType];
             int maxTechLevel = GetMaxTechLevel(buildingType);
 
             buttonTransform.Find("add").GetComponent<Button>().interactable = buildingLevel < maxTechLevel;

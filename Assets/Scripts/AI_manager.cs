@@ -502,7 +502,7 @@ namespace Assets.Scripts {
             //smartest thing is probably mine -> infrastructure -> school -> fort
             public static void handleBuildings(Country c, Humor humor) {
                 TurnAction.building_upgrade upgrade;
-                if (c.getCapital().Buildings[(int)BuildingType.Infrastructure].BuildingLevel == 0) {
+                if (c.getCapital().Buildings[BuildingType.Infrastructure] == 0) {
                     upgrade = new(c.getCapital(), BuildingType.Infrastructure);
                     if (c.isPayable(upgrade.altCosts))
                         c.Actions.addAction(upgrade);
@@ -548,17 +548,17 @@ namespace Assets.Scripts {
                 if (adm < 2) mode = 1;
                 else if (adm < 5) mode = 2;
                 else mode = 3;
-                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.Infrastructure].BuildingLevel < mode).OrderByDescending(p=>p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Infrastructure, out int level) && level < mode).OrderByDescending(p=>p.Population).ToList();
             }
             private static List<Province> getFortable(Country c) {
-                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.Fort].BuildingLevel <( c.techStats.lvlFort+1)).OrderByDescending(p=>p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Fort, out int level) && level < ( c.techStats.lvlFort+1)).OrderByDescending(p=>p.Population).ToList();
             }
             private static List<Province> getMineable(Country c) {
-                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.Mine].BuildingLevel < (c.techStats.lvlMine + 1)).OrderByDescending(p => p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Mine, out int level) && level < (c.techStats.lvlMine + 1)).OrderByDescending(p => p.Population).ToList();
             }
             //ograniczenie do 2 z lenistwa xd
             private static List<Province> getSchoolable(Country c) {
-                return c.Provinces.Where(p => p.Buildings[(int)BuildingType.School].BuildingLevel < (c.techStats.moreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.School, out int level) && level < (c.techStats.moreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
             }
         }
         private class diploEventResponder {

@@ -248,7 +248,7 @@ namespace Assets.classes {
                 CostsCalculator.TurnActionApCost(ActionType.BuildingUpgrade)) {
                 this.province = province;
                 this.buildingType = buildingType;
-                int upgradeLevel = province.Buildings.Find(b => b.BuildingType == buildingType).BuildingLevel + 1;
+                int upgradeLevel = province.Buildings[buildingType] + 1;
                 altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
             }
 
