@@ -58,7 +58,8 @@ namespace Assets.Scripts {
         /// main method responsible for coordinating behavior of AI country's turn
         /// </summary>
         public void behave() {
-            this.humor = asess();
+            if(map.CurrentPlayer.Id!=0){
+                this.humor = asess();
             //events block
             while (map.CurrentPlayer.Events.Count > 0) { 
                 var e = map.CurrentPlayer.Events.Last();
@@ -68,7 +69,8 @@ namespace Assets.Scripts {
             manageInternal();
             diplomacy();
             moveArmies();
-            this.humor = Humor.Null;
+                this.humor = Humor.Null;
+            }
         }
 
         /// <summary>

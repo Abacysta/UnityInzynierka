@@ -76,6 +76,16 @@ public class Map : ScriptableObject {
         countryControllers.RemoveAt(idx);
         countries.RemoveAt(idx);
     }
+
+    public void killCountry(Country country) {
+        var armiess = armies.Where(c => c.OwnerId == country.Id).ToHashSet();
+        foreach(var a in armiess) {
+            removeArmy(a);
+        }
+        countryControllers[country.Id] = CountryController.Ai;
+        country = new(0, country.Name, country.Capital, country.Color, country.Coat, this);
+
+    }
     public Province getProvince(int x, int y) {
         return Provinces.Find(p => p.X == x && p.Y == y);
     }

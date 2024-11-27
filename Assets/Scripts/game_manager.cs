@@ -554,15 +554,7 @@ public class game_manager : MonoBehaviour
             start_screen.unHide();
         }
     }
-    //to jest wozny
-    private class Janitor {
-        private Map map;
-        public Janitor(Map map) {
-            this.map = map;
-        }
 
-        public void cleanup() { }
-    }
 
     private void testRelations()
     {
@@ -663,5 +655,43 @@ public class game_manager : MonoBehaviour
 
         c.Events.Add(new Event_.GlobalEvent.FloodEvent(c,dialog_box,camera_controller));
         c.Events.Add(new Event_.LocalEvent.GoldRush(p,dialog_box,camera_controller));
+    }
+    //to jest wozny
+    private class Janitor {
+        private Map map;
+        public Janitor(Map map) {
+            this.map = map;
+        }
+        public void cleanup() { 
+            //country
+            for(int i = 1; i < map.Countries.Count; i++) {
+                var c = map.Countries[i];
+                //capital check so if no capitals kill it
+                if (!c.Provinces.Contains(map.getProvince(c.Capital))) {
+                    map.killCountry(c);
+                }
+                //opinions check
+                foreach(var o in c.Opinions.Keys) {
+                    c.Opinions[o] = Math.Clamp(c.Opinions[o], -200, 200);
+                }
+            }
+            //provinces
+            foreach(var p in map.Provinces) {
+                //status check
+                if (p.Statuses.Count != 0)
+                    p.Statuses.RemoveAll(s => s.Duration == 0);
+                //happ check
+                p.Happiness = Math.Clamp(p.Happiness, 0, 100);
+                //population
+                if (p.Population <= 0) p.Population = 1;
+                //buildings
+                foreach(var b in p.Buildings.Keys) {
+                    if (p.Buildings[b] > 4 || p.Buildings[b] < 0) p.Buildings[b] = 0;
+                }
+                //unlock school at 3k populace
+                if (p.Population > Constants.SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
+            }
+            
+        }
     }
 }

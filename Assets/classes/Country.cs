@@ -334,17 +334,24 @@ public class Country {
         provinces.Add(province);
     }
     public void removeProvince((int, int) coordinates) {
-        if(coordinates != capital) provinces.RemoveWhere(p => p.coordinates == coordinates);
+        removeProvince(provinces.First(p => p.coordinates == coordinates));
     }
     public void removeProvince(Province province) {
         if(province.coordinates != capital) provinces.Remove(province);
+        else {
+            provinces.Remove(province);
+            if (provinces.Count != 0) {
+                capital = provinces.ToList().OrderByDescending(p => p.Population).First().coordinates;
+            }
+            else capital = (-1, -1);
+        }
     }
     public int Id { get { return id; } }
     public string Name { get { return name; } } 
     public int Priority { get { return prio; } set => prio = value; }
     public Color Color { get { return color; } }
     public Dictionary<Resource, float> Resources { get { return resources; } }
-    public HashSet<Province> Provinces { get { return provinces; } }
+    public HashSet<Province> Provinces { get { return provinces; } set => provinces = value; }
     public (int, int) Capital {  get { return capital; } }
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
