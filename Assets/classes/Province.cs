@@ -113,7 +113,7 @@ public class Province {
     public float ResourceAmount { get => (float)System.Math.Round(resourceAmount, 1); set => resourceAmount = value; }
     public int Population { get => population; set => population = value;}
     public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
-    public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, 0, 100); } // nie wiem czy to dzia�a
+    public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, 0, 100); }
     public bool Is_coast { get => is_coast; set => is_coast = value; }
     public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
     public int Owner_id { get => owner_id; set => owner_id = value; }

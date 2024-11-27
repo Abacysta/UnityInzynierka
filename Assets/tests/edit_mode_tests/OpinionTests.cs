@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-public class OpinionsTests
+public class OpinionTests
 {
     [Test]
     public void OpinionValue_ShouldNotExceedMax()

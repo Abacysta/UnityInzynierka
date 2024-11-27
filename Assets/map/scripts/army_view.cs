@@ -25,8 +25,9 @@ public class army_view : MonoBehaviour
     private readonly float moveSpeed = 2f;
     private bool isMoving = false;
 
-    public Army ArmyData { get; private set; }
+    public Army ArmyData { get; set; }
     public Button DisbandButton { get => disbandButton; set => disbandButton = value; }
+    public TMP_Text Army_count_text { get => army_count_text; set => army_count_text = value; }
 
     void Awake()
     {
@@ -258,7 +259,7 @@ public class army_view : MonoBehaviour
         return new Vector2(hexX, hexY);
     }
 
-    private void UpdateArmyCounter(int newCount)
+    public void UpdateArmyCounter(int newCount)
     {
         army_count_text.text = newCount.ToString();
     }
