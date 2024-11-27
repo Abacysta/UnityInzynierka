@@ -65,8 +65,8 @@ public class Map : ScriptableObject {
         for(int i = 1; i < countries.Count; i++) {
             for(int j = 1; j < countries.Count; j++) {
                 if(i < j) {
-                    countries[i].Opinions.Add(j, 0);
-                    countries[j].Opinions.Add(i, 0);
+                    countries[i].SetOpinion(j, 0);
+                    countries[j].SetOpinion(i, 0);
                 }
             }
         }

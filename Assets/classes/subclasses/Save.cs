@@ -172,7 +172,7 @@ namespace Assets.classes.subclasses {
                 loaded.RevealedTiles.Add(rT);
             }
             foreach(var oP in opinions) {
-                if (oP.Key != 0)loaded.Opinions.Add(oP.Key, oP.Value);
+                if (oP.Key != 0) loaded.SetOpinion(oP.Key, oP.Value);
             }
             switch (tax) {
                 case 0:

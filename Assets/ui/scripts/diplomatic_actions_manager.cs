@@ -326,7 +326,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             !HasCurrentPlayerRelationWithReceiver(RelationType.Vassalage) &&
             !HasCurrentPlayerOrderedRelationWithAnyone(RelationType.Vassalage, curentPlayerIsSide1: true) &&
             buttonStates.AllianceOfferButtonState &&
-            receiverCountry.Opinions[currentPlayer.Id] > 2;
+            receiverCountry.Opinions[currentPlayer.Id] > 100;
 
         // interactable if the currentPlayer has an alliance with the receiver
         alliance_break_button.interactable = 

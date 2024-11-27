@@ -351,18 +351,7 @@ public class Country {
     public actionContainer Actions { get { return actions; } }
 
     public List<Event_> Events { get => events; set => events = value; }
-    public Dictionary<int, int> Opinions { 
-        get
-        {
-            var keys = opinions.Keys.ToList();
-            foreach (var key in keys)
-            {
-                opinions[key] = Mathf.Clamp(opinions[key], -200, 200);
-            }
-            return opinions;
-        }
-        set => opinions = value;
-    }
+    public Dictionary<int, int> Opinions { get => opinions; set => opinions = value; }
     public bool AtWar { get => atWar; set => atWar = value; }
 
     public int Coat { get => coat; }
@@ -493,6 +482,10 @@ public class Country {
     }
     public Province getCapital() {
         return provinces.First(p=>p.coordinates == capital);
+    }
+
+    public void SetOpinion(int countryId, int value) {
+        opinions[countryId] = Mathf.Clamp(value, -200, 200);
     }
 }
 

@@ -28,8 +28,8 @@ namespace Assets.classes {
         public Country[] Sides { get { return countries; } }
 
         public virtual void turnEffect() {
-            countries[0].Opinions[countries[1].Id] += constChange;
-            countries[1].Opinions[countries[0].Id] += constChange;
+            countries[0].SetOpinion(countries[1].Id, countries[0].Opinions[1] + constChange);
+            countries[1].SetOpinion(countries[0].Id, countries[1].Opinions[0] + constChange);
         }
 
         [Serializable]
@@ -48,8 +48,9 @@ namespace Assets.classes {
             this.type = type;
             this.initialChange = initalChange;
             this.constChange = constChange;
-            countries[0].Opinions[c2.Id] += initalChange;
-            countries[1].Opinions[c1.Id] += initalChange;
+
+            countries[0].SetOpinion(c2.Id, countries[0].Opinions[c2.Id] + initalChange);
+            countries[1].SetOpinion(c1.Id, countries[1].Opinions[c1.Id] + initalChange);
         }
 
         internal class War:Relation {
@@ -97,11 +98,11 @@ namespace Assets.classes {
         internal class Vassalage:Relation {
             public Vassalage(Country c1, Country c2) : base(c1, c2, RelationType.Vassalage, VassalageOpinionPenaltyInitC2, VassalageOpinionPenaltyConstC2) {
                 // Senior needs to receive an adjustment of to be back to zero
-                countries[0].Opinions[countries[1].Id] -= initialChange; 
+                countries[0].SetOpinion(countries[1].Id, countries[0].Opinions[1] - initialChange);
             }
 
             public override void turnEffect() {
-                countries[1].Opinions[countries[0].Id] += constChange;
+                countries[1].SetOpinion(countries[0].Id, countries[1].Opinions[0] + constChange);
             }
         }
 

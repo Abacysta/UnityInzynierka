@@ -204,7 +204,7 @@ namespace Assets.map.scripts {
             return true;
         }
         public void declineWar(Country join, Country ally) {
-            ally.Opinions[join.Id] -= DeclineWarOpinionPenaltyInit;
+            ally.SetOpinion(join.Id, ally.Opinions[join.Id] - DeclineWarOpinionPenaltyInit);
             endAlliance((Relation.Alliance)map.Relations.FirstOrDefault(r => r.type == Relation.RelationType.Alliance && r.Sides.Contains(join) && r.Sides.Contains(ally)));
         }
         public void integrateVassal(Relation.Vassalage relation) {
