@@ -205,7 +205,7 @@ namespace Assets.classes.subclasses {
         public string name;
         public string type;
         public (int, int) coordinates;
-        public string resource;
+        public Resource resource;
         public float resourceAmount;
         public int population;
         public int recruitable;
@@ -221,8 +221,8 @@ namespace Assets.classes.subclasses {
             name = prov.Name;
             owner = prov.Owner_id;
             coordinates = (prov.X, prov.Y);
-            resource = prov.Resources;
-            resourceAmount = prov.Resources_amount;
+            resource = prov.ResourceType;
+            resourceAmount = prov.ResourceAmount;
             population = prov.Population;
             recruitable = prov.RecruitablePopulation;
             happinesss = prov.Happiness;

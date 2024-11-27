@@ -13,6 +13,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.Relation;
+using static Assets.classes.subclasses.Constants;
 
 public class game_manager : MonoBehaviour
 {
@@ -254,11 +255,11 @@ public class game_manager : MonoBehaviour
             if (p.OccupationInfo.IsOccupied)
             {
                 var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
-                resources[p.ResourcesT] += p.ResourcesP * (1 - occupierTechStats.occPenalty);
+                resources[p.ResourceType] += p.ResourcesP * (1 - occupierTechStats.occPenalty);
             }
             else
             {
-                resources[p.ResourcesT] += p.ResourcesP;
+                resources[p.ResourceType] += p.ResourcesP;
             }
 
             resources[Resource.AP] += 0.1f;
