@@ -477,7 +477,7 @@ public class game_manager : MonoBehaviour
             Debug.Log(map.Countries[i].Name + "--");
             Debug.Log("--" + map.Controllers[i]);
         }
-        var cleanup_crew = new Janitor(map);
+        var cleanup_crew = new Janitor(map, battle_manager);
         cleanup_crew.cleanup();
         map.currentPlayer = 1;
         if(map.turnCnt%5 == 0)
@@ -561,8 +561,10 @@ public class game_manager : MonoBehaviour
     //to jest wozny
     private class Janitor {
         private Map map;
-        public Janitor(Map map) {
+        private battle_manager battle;
+        public Janitor(Map map, battle_manager battle) {
             this.map = map;
+            this.battle = battle;
         }
         public void cleanup() { 
             //country
@@ -571,10 +573,21 @@ public class game_manager : MonoBehaviour
                 //capital check so if no capitals kill it
                 if (!c.Provinces.Contains(map.getProvince(c.Capital))) {
                     map.killCountry(c);
+                    continue;
                 }
                 //opinions check
                 foreach(var o in c.Opinions.Keys.ToList()) {
                     c.Opinions[o] = Math.Clamp(c.Opinions[o], -200, 200);
+                }
+                //unfought armies check
+                var ownedArmies = map.Armies.Where(a => a.OwnerId == c.Id).ToHashSet();
+                foreach (var a in ownedArmies) {
+                    battle.checkBattle(a);
+                    //its a hack but what can you do
+                    var armiesinprov = map.Armies.Where(ass=>ass.Position == a.Position).ToHashSet();
+                    foreach(var aa in armiesinprov) {
+                        map.updateArmyPosition(aa, aa.Position);
+                    }
                 }
             }
             //provinces
@@ -583,17 +596,17 @@ public class game_manager : MonoBehaviour
                 if (p.Statuses != null) if (p.Statuses.Count != 0)
                     p.Statuses.RemoveAll(s => s.Duration == 0);
                 //happ check
-                p.Happiness = Math.Clamp(p.Happiness, 0, 100);
+                if(p.Happiness>100 || p.Happiness<0) p.Happiness = Math.Clamp(p.Happiness, 0, 100);
                 //population
                 if (p.Population <= 0) p.Population = 1;
                 //buildings
                 if(p.Buildings!= null){
-                foreach(var b in p.Buildings.Keys) {
-                    if (p.Buildings[b] > 4 || p.Buildings[b] < 0) p.Buildings[b] = 0;
+                    foreach(var b in p.Buildings.Keys) {
+                        if (p.Buildings[b] > 4 || p.Buildings[b] < 0) p.Buildings[b] = 0;
+                    }
+                    //unlock school at 3k populace
+                    if (p.Population > SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
                 }
-                //unlock school at 3k populace
-                if (p.Population > SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
-            }
             }
             
         }

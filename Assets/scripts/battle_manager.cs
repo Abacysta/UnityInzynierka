@@ -31,22 +31,9 @@ namespace Assets.Scripts {
         }
 
         private List<Army> enemyArmiesInProvince(Army army) {
-            List<int> enemyCountries = new List<int>();
-            foreach(var relation in map.Relations) {
-                if(relation.type == classes.Relation.RelationType.War) {
-                    Relation.War war = relation as Relation.War;
-                    if(war.participants1.Any(c=>c.Id == army.OwnerId)) {
-                        enemyCountries.AddRange(war.participants2.Select(c => c.Id));
-                    }
-                    else if (war.participants2.Any(c=>c.Id == army.OwnerId)) {
-                        enemyCountries.AddRange(war.participants1.Select(c => c.Id));
-                    }
-                }
-            }
-            var armies = map.Armies.FindAll(a => a.Position == army.Position && a != army);
-            List<Army> enemyarmies = armies.FindAll(a => enemyCountries.Contains(a.OwnerId));
-            enemyarmies.AddRange(armies.FindAll(a => a.OwnerId == 0));
-            return enemyarmies;
+            var ea = Map.WarUtilities.getEnemyArmies(map, map.Countries[army.OwnerId]).Where(a=>a.Position == army.Position).ToList();
+            ea.AddRange(map.Armies.Where(a => a.OwnerId == 0 && a.Position == army.Position).ToList());
+            return ea;
         }
 
         private bool battle(Army attacker, Army defender) {
