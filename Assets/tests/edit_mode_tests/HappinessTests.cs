@@ -7,7 +7,6 @@ public class HappinessTests
     {
         // Arrange
         Province province = new(
-            "province1",
             "New Province",
             10,
             20,
@@ -34,7 +33,6 @@ public class HappinessTests
     {
         // Arrange
         Province province = new(
-            "province1",
             "New Province",
             10,
             20,

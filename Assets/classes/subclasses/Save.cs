@@ -199,7 +199,6 @@ namespace Assets.classes.subclasses {
     }
     [Serializable]
     internal class SaveProvince {
-        public string id;
         public string name;
         public string type;
         public (int, int) coordinates;
@@ -214,7 +213,6 @@ namespace Assets.classes.subclasses {
         public List<SaveStatus> status;
         public Dictionary<BuildingType, int> buildings;
         public SaveProvince(Province prov) {
-            id = prov.Id;
             type = prov.Type;
             name = prov.Name;
             owner = prov.Owner_id;
@@ -250,7 +248,7 @@ namespace Assets.classes.subclasses {
         }
 
         public Province load() {
-            Province loaded = new Province(id, name, coordinates.Item1, coordinates.Item2, type, terrain, resource, resourceAmount, population, recruitable, happinesss, iscoast, owner);
+            Province loaded = new Province(name, coordinates.Item1, coordinates.Item2, type, terrain, resource, resourceAmount, population, recruitable, happinesss, iscoast, owner);
             foreach(var s in status) {
                 loaded.Statuses.Add(s.load());
             }

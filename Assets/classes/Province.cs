@@ -1,4 +1,5 @@
 using Assets.classes.subclasses;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,9 +55,33 @@ public class Province {
     private TerrainType terrain;
     private List<Status> statuses;
 
-    public Province(string id, string name, int x, int y, string type, TerrainType terrain, Resource resourceType, 
+    [JsonConstructor]
+    public Province(string name, int x, int y, string type, TerrainType terrain, Resource resourceType,
+    float resourceAmount, int population,int happiness, bool is_coast)
+    {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.terrain = terrain;
+        this.resourceType = resourceType;
+        this.resourceAmount = resourceAmount;
+        this.population = population;
+        this.happiness = happiness;
+        this.is_coast = is_coast;
+
+        if (type == "land")
+        {
+            occupationInfo = new OccupationInfo();
+            buildings = defaultBuildings(this);
+            modifiers = new ProvinceModifiers();
+            statuses = new List<Status>();
+            recruitable_population = 0;
+            owner_id = 0;
+        }
+    }
+    public Province( string name, int x, int y, string type, TerrainType terrain, Resource resourceType, 
         float resourceAmount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id) {
-        this.id = id;
         this.name = name;
         this.x = x;
         this.y = y;

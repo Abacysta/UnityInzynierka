@@ -35,7 +35,7 @@ public class player_table : MonoBehaviour
 
     public class GameState
     {
-        public List<CountryData> states;
+        public List<CountryData> countries;
         public List<Province> provinces;
     }
 
@@ -44,7 +44,7 @@ public class player_table : MonoBehaviour
         string json = LoadJsonFromFile($"Assets/Resources/{mapName}.json");
         GameState gameState = JsonConvert.DeserializeObject<GameState>(json);
 
-        currentStates = gameState.states;
+        currentStates = gameState.countries;
         provinces = gameState.provinces;
 
         showCountries(currentStates);
@@ -81,7 +81,6 @@ public class player_table : MonoBehaviour
 
         ClearMap();
 
-        int j = 1;
         foreach (var provinceData in provinces)
         {
             Province.TerrainType terrain;
@@ -113,7 +112,6 @@ public class player_table : MonoBehaviour
                 terrain = Province.TerrainType.ocean;
             }
             Province newProvince = new Province(
-                j++.ToString(),
                 provinceData.Name,
                 provinceData.X,
                 provinceData.Y,
@@ -122,10 +120,8 @@ public class player_table : MonoBehaviour
                 ParseResource(provinceData.ResourceType.ToString().ToLower()),
                 (int)provinceData.ResourceAmount,
                 provinceData.Population,
-                1,
-                50,
-                provinceData.Is_coast,
-                provinceData.Owner_id
+                provinceData.Happiness,
+                provinceData.Is_coast
             );
 
             map.Provinces.Add(newProvince);
@@ -149,7 +145,7 @@ public class player_table : MonoBehaviour
             );
 
             map.addCountry(newCountry, CountryController.Ai);
-
+            map.assignProvince(newCountry.Capital, newCountry.Id);
             Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
         }
 
