@@ -763,13 +763,13 @@ namespace Assets.classes {
 
             public override void preview(Map map) {
                 base.preview(map);
-                from.Opinions[to.Id] -= InsultOurOpinionPenaltyInit;
-                to.Opinions[from.Id] -= InsultTheirOpinionPenaltyInit;
+                from.SetOpinion(to.Id, from.Opinions[to.Id] - InsultOurOpinionPenaltyInit);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] - InsultTheirOpinionPenaltyInit);
             }
             public override void revert(Map map) {
                 base.revert(map);
-                from.Opinions[to.Id] += InsultOurOpinionPenaltyInit;
-                to.Opinions[from.Id] += InsultTheirOpinionPenaltyInit;
+                from.SetOpinion(to.Id, from.Opinions[to.Id] + InsultOurOpinionPenaltyInit);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] + InsultTheirOpinionPenaltyInit);
                 dipl_actions.SetInsultRelatedButtonStates(true, to.Id);
             }
         }
@@ -792,14 +792,13 @@ namespace Assets.classes {
             }
             public override void preview(Map map) {
                 base.preview(map);
-                from.Opinions[to.Id] += PraiseOurOpinionBonusInit;
-                to.Opinions[from.Id] += PraiseTheirOpinionBonusInit;
-
+                from.SetOpinion(to.Id, from.Opinions[to.Id] + PraiseOurOpinionBonusInit);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] + PraiseTheirOpinionBonusInit);
             }
             public override void revert(Map map) {
                 base.revert(map);
-                from.Opinions[to.Id] -= PraiseOurOpinionBonusInit;
-                to.Opinions[from.Id] -= PraiseTheirOpinionBonusInit;
+                from.SetOpinion(to.Id, from.Opinions[to.Id] - PraiseOurOpinionBonusInit);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] - PraiseTheirOpinionBonusInit);
                 dipl_actions.SetDiplomaticMissionRelatedButtonStates(true, to.Id);
             }
         }
