@@ -86,17 +86,7 @@ public class Province {
     public string Type { get => type; set => type = value; }
     public Resource ResourceType { get => resourceType; set => resourceType = value; }
     public float ResourceAmount { get => (float)System.Math.Round(resourceAmount, 1); set => resourceAmount = value; }
-    public int Population { get => population; set
-        { // nie wiem czy to dzia�a
-            population = value;
-
-            var schoolBuilding = buildings.FirstOrDefault(b => b.Key == BuildingType.School).Value;
-            if (schoolBuilding == 4 && population >= 3000)
-            {
-                buildings[BuildingType.School] = 0;
-            }
-        }
-    }
+    public int Population { get => population; set => population = value;}
     public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
     public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, 0, 100); } // nie wiem czy to dzia�a
     public bool Is_coast { get => is_coast; set => is_coast = value; }
