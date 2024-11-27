@@ -67,8 +67,8 @@ public class Map : ScriptableObject {
         for(int i = 1; i < countries.Count; i++) {
             for(int j = 1; j < countries.Count; j++) {
                 if(i < j) {
-                    countries[i].SetOpinion(j, 0);
-                    countries[j].SetOpinion(i, 0);
+                    countries[i].Opinions.Add(j, 0);
+                    countries[j].Opinions.Add(i, 0);
                 }
             }
         }
@@ -167,7 +167,7 @@ public class Map : ScriptableObject {
 
     public (Resource, float) calcResources((int, int) coordinates, int id, float factor) {
         var p = getProvince(coordinates);
-        return (p.ResourcesT, p.Resources_amount);
+        return (p.ResourceType, p.ResourceAmount);
     }
 
     public void addArmy(Army army) {
@@ -193,7 +193,7 @@ public class Map : ScriptableObject {
                 { Resource.AP, 0 }
             };
         foreach (var prov in country.Provinces) {
-            prod[prov.ResourcesT] += prov.ResourcesP;
+            prod[prov.ResourceType] += prov.ResourcesP;
             prod[Resource.AP] += 0.1f;
             if (prov.Buildings.ContainsKey(BuildingType.School) && prov.GetBuildingLevel(BuildingType.School) < 4) prod[Resource.SciencePoint] += prov.GetBuildingLevel(BuildingType.School) * 3;
         }
@@ -708,7 +708,7 @@ public class Map : ScriptableObject {
             return country.Provinces.Where(p=>p.Happiness<40 && !p.Statuses.Any(s=>s.Id == 1)).ToList();
         }
         public static List<Province> getGrowable(Country c) {
-            return c.Provinces.Where(p => (p.ResourcesT == Resource.Gold || p.Population < 400) && !p.Statuses.Any(s=>s.Id== 2)).ToList();
+            return c.Provinces.Where(p => (p.ResourceType == Resource.Gold || p.Population < 400) && !p.Statuses.Any(s=>s.Id== 2)).ToList();
         }
         public static List<Province> getOptimalRecruitmentProvinces(Country c) {
             return c.Provinces.Where(p=>p.RecruitablePopulation >= 50).OrderByDescending(p=>p.Population).ToList();

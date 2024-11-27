@@ -60,7 +60,7 @@ namespace Assets.classes {
             public string Name { get => "War Taxation"; }
             public void applyProvinceTax(Province province, Country country, ref float sum) {
                 ((ITax)this).applyProvinceTax(province, country, ref sum);
-                province.Resources_amount -= 0.1f;
+                province.ResourceAmount -= 0.1f;
                 if (!country.AtWar) {
                     province.Happiness -= 15;
                 }
@@ -74,7 +74,7 @@ namespace Assets.classes {
             public string Name { get => "Investments"; }
             public void applyProvinceTax(Province province, Country country, ref float sum) {
                 ((ITax)this).applyProvinceTax(province, country, ref sum);
-                province.Resources_amount += 0.15f;
+                province.ResourceAmount += 0.15f;
                 province.RecruitablePopulation /= 2;
             }
         }

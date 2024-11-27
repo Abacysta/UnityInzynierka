@@ -3,7 +3,6 @@ using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
-using static Assets.classes.subclasses.Constants;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -481,7 +480,7 @@ public class game_manager : MonoBehaviour
         cleanup_crew.cleanup();
         map.currentPlayer = 1;
         if(map.turnCnt%5 == 0)
-            AutoSave();
+        AutoSave();
         loader.Reload();
     }
 

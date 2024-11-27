@@ -74,7 +74,7 @@ namespace Assets.map.scripts
 
             var events = new List<Event_.LocalEvent>
             {
-                randomCountryProvince.ResourcesT == Resource.Gold
+                randomCountryProvince.ResourceType == Resource.Gold
                     ? new Event_.LocalEvent.GoldRush(randomCountryProvince, dialog_box, camera_controller)
                     : new Event_.LocalEvent.ProductionBoom(randomCountryProvince, dialog_box, camera_controller),
 

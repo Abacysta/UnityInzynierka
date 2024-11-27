@@ -33,7 +33,7 @@ public class dynamic_scoll_view_province_row : UIBehaviour, IDynamicScrollViewIt
         happiness_text.text = province_table_manager.SortedProvinces[index].Happiness.ToString() + "%";
         happiness_text.color = GetHappinessColor(province_table_manager.SortedProvinces[index].Happiness);
 
-        resource_img.sprite = GetResourceSprite(province_table_manager.SortedProvinces[index].ResourcesT);
+        resource_img.sprite = GetResourceSprite(province_table_manager.SortedProvinces[index].ResourceType);
     }
 
     public Color32 GetHappinessColor(float happiness)

@@ -82,8 +82,8 @@ public class province_table_manager : MonoBehaviour
                 break;
             case "resources":
                 SortedProvinces = isAscending
-                    ? SortedProvinces.OrderBy(p => p.Resources).ToList()
-                    : SortedProvinces.OrderByDescending(p => p.Resources).ToList();
+                    ? SortedProvinces.OrderBy(p => p.ResourceType).ToList()
+                    : SortedProvinces.OrderByDescending(p => p.ResourceType).ToList();
                 break;
         }
 

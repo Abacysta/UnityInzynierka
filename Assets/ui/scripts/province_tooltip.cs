@@ -86,7 +86,7 @@ public class province_tooltip : MonoBehaviour
                 break;
 
             case filter_modes.MapMode.Resource:
-                resource_img.sprite = province_row_script.GetResourceSprite(province.ResourcesT);
+                resource_img.sprite = province_row_script.GetResourceSprite(province.ResourceType);
                 terrain_row.SetActive(false);
                 resource_row.SetActive(true);
                 happiness_row.SetActive(false);

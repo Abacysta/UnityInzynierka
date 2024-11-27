@@ -138,7 +138,7 @@ public class filter_modes : MonoBehaviour
 
             if (province.Type == "land")
             {
-                color = getResourceColor(province.ResourcesT);
+                color = getResourceColor(province.ResourceType);
                 filter_layer.SetTile(position, base_tile);
                 filter_layer.SetColor(position, color);
             }
