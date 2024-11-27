@@ -247,9 +247,9 @@ public class game_manager : MonoBehaviour
         map.Countries[i].Tax.applyCountryTax(map.Countries[i]);
 
         foreach (var p in map.Countries[i].Provinces) {
-            if (p.Buildings.Any(b => b.BuildingType == BuildingType.School)
-                && p.getBuilding(BuildingType.School).BuildingLevel < 4) {
-                resources[Resource.SciencePoint] += p.getBuilding(BuildingType.School).BuildingLevel * 3;
+            if (p.Buildings.ContainsKey(BuildingType.School)
+                && p.GetBuildingLevel(BuildingType.School) < 4) {
+                resources[Resource.SciencePoint] += p.GetBuildingLevel(BuildingType.School)* 3;
             }
 
             if (p.OccupationInfo.IsOccupied)
