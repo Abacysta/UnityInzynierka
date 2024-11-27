@@ -118,8 +118,8 @@ public class player_table : MonoBehaviour
                 provinceData.Y,
                 provinceData.Type,
                 terrain,
-                provinceData.Resources,
-                (int)provinceData.Resources_amount,
+                ParseResource(provinceData.ResourceType.ToString().ToLower()),
+                (int)provinceData.ResourceAmount,
                 provinceData.Population,
                 1,
                 50,
@@ -375,6 +375,16 @@ public class player_table : MonoBehaviour
             }
         }
         return -1;
+    }
+    public static Resource ParseResource(string resource)
+    {
+        return resource.ToLower() switch
+        {
+            "iron" => Resource.Iron,
+            "wood" => Resource.Wood,
+            "gold" => Resource.Gold,
+            _ => Resource.AP,
+        };
     }
     private void createTestCountrys()
     {

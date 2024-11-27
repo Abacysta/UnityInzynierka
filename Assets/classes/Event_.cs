@@ -266,7 +266,7 @@ namespace Assets.classes {
                 {
                     foreach (var province in Country.Provinces)
                     {
-                        if (province.ResourcesT == Resource.Wood)
+                        if (province.ResourceType == Resource.Wood)
                         {
                             if (UnityEngine.Random.Range(0f, 1f) < 0.5f)
                             {
@@ -370,7 +370,7 @@ namespace Assets.classes {
                 }
 
                 public override void reject() {
-                    Province.Resources_amount += 0.2f;
+                    Province.ResourceAmount += 0.2f;
                 }
             }
 
