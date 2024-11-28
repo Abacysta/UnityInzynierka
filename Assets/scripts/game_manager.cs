@@ -40,12 +40,13 @@ public class game_manager : MonoBehaviour
     [SerializeField] private start_screen start_screen;
     [SerializeField] private diplomatic_relations_manager diplomacy;
     [SerializeField] private info_bar info_bar;
+    [SerializeField] private GameObject end_screen;
     [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
     [SerializeField] private map_ui map_ui;
     
     [SerializeField] private AI_manager ai_manager;
-
+    
     public int turnCnt { get { return map.turnCnt; } }
 
     private Save toSave;
@@ -556,7 +557,7 @@ public class game_manager : MonoBehaviour
 
     
     private void endGame(bool timeout) {
-
+        end_screen.SetActive(true);
     }
     //to jest wozny
     private class Janitor {
