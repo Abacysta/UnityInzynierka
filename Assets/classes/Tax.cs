@@ -18,6 +18,19 @@ namespace Assets.classes {
             public void applyProvinceTax(Province province, Country country, ref float sum) {
                 sum += GoldP * province.Population / 100 * province.Modifiers.TaxMod;
                 province.Happiness += HappP;
+                if(this is HighTaxes) {
+                    province.RecruitablePopulation -= (int)(province.RecruitablePopulation * 0.25);
+                }
+                else if(this is WarTaxes) {
+                    province.ResourceAmount -= 0.1f;
+                    if (!country.AtWar) {
+                        province.Happiness -= 15;
+                    }
+                }
+                else if (this is InvesmentTaxes) {
+                    province.ResourceAmount += 0.15f;
+                    province.RecruitablePopulation /= 2;
+                }//if more taxes are added need to add here. i know it looks bad but it's either/or situation
             }
             public float getProjectedTax(Country country) {
                 float goldsum = 0;
@@ -40,11 +53,6 @@ namespace Assets.classes {
             public int HappP { get => -8; }
 
             public string Name { get => "High Taxation"; }
-
-            public void applyProvinceTax(Province province, Country country, ref float sum) { 
-                ((ITax)this).applyProvinceTax(province, country, ref sum);
-                province.RecruitablePopulation -= (int)(province.RecruitablePopulation * 0.25);
-            }
         }
         internal class MediumTaxes : ITax {
             public float GoldP { get => 0.15f; }
@@ -58,13 +66,6 @@ namespace Assets.classes {
 
             public int HappP { get => 0; }
             public string Name { get => "War Taxation"; }
-            public void applyProvinceTax(Province province, Country country, ref float sum) {
-                ((ITax)this).applyProvinceTax(province, country, ref sum);
-                province.ResourceAmount -= 0.1f;
-                if (!country.AtWar) {
-                    province.Happiness -= 15;
-                }
-            }
         }
         internal class InvesmentTaxes : ITax {
             public float GoldP { get => 0.05f; }
@@ -72,11 +73,6 @@ namespace Assets.classes {
             public int HappP { get => -3; }
 
             public string Name { get => "Investments"; }
-            public void applyProvinceTax(Province province, Country country, ref float sum) {
-                ((ITax)this).applyProvinceTax(province, country, ref sum);
-                province.ResourceAmount += 0.15f;
-                province.RecruitablePopulation /= 2;
-            }
         }
     }
 }

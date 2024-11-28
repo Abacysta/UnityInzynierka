@@ -478,7 +478,7 @@ public class game_manager : MonoBehaviour
             Debug.Log("--" + map.Controllers[i]);
         }
         var cleanup_crew = new Janitor(map, battle_manager);
-        cleanup_crew.cleanup();
+        if(cleanup_crew.cleanup()) endGame();
         map.currentPlayer = 1;
         if(map.turnCnt%5 == 0)
         AutoSave();
@@ -557,7 +557,9 @@ public class game_manager : MonoBehaviour
     }
 
 
-    
+    private void endGame() {
+
+    }
     //to jest wozny
     private class Janitor {
         private Map map;
@@ -566,7 +568,12 @@ public class game_manager : MonoBehaviour
             this.map = map;
             this.battle = battle;
         }
-        public void cleanup() { 
+        public bool cleanup() { 
+            //check if the game should be going at all
+            if(map.Countries.Where(c=>c.Id != 0).Count() == 1 || map.turnCnt == map.Turnlimit) {
+                return true;
+            }
+            
             //country
             for(int i = 1; i < map.Countries.Count; i++) {
                 var c = map.Countries[i];
@@ -577,7 +584,7 @@ public class game_manager : MonoBehaviour
                 }
                 //opinions check
                 foreach(var o in c.Opinions.Keys.ToList()) {
-                    c.Opinions[o] = Math.Clamp(c.Opinions[o], -200, 200);
+                    c.Opinions[o] = Math.Clamp(c.Opinions[o], MIN_OPINION, MAX_OPINION);
                 }
                 //unfought armies check
                 var ownedArmies = map.Armies.Where(a => a.OwnerId == c.Id).ToHashSet();
@@ -596,7 +603,9 @@ public class game_manager : MonoBehaviour
                 if (p.Statuses != null) if (p.Statuses.Count != 0)
                     p.Statuses.RemoveAll(s => s.Duration == 0);
                 //happ check
-                if(p.Happiness>100 || p.Happiness<0) p.Happiness = Math.Clamp(p.Happiness, 0, 100);
+                if(p.Happiness>MAX_HAPP || p.Happiness< MIN_HAPP) p.Happiness = Math.Clamp(p.Happiness, MIN_HAPP, MAX_HAPP);
+                //resource check
+                if(p.ResourceAmount<MIN_RESOURCE_PROVINCE) p.ResourceAmount = MIN_RESOURCE_PROVINCE;
                 //population
                 if (p.Population <= 0) p.Population = 1;
                 //buildings
@@ -608,7 +617,7 @@ public class game_manager : MonoBehaviour
                     if (p.Population > SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
                 }
             }
-            
+            return false;
         }
     }
 }
