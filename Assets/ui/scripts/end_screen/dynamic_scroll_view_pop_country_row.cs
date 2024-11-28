@@ -1,4 +1,5 @@
 using Mosframe;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,6 +10,7 @@ public class dynamic_scroll_view_pop_country_row : UIBehaviour, IDynamicScrollVi
     [SerializeField] private end_screen_manager end_screen_manager;
     [SerializeField] private Image coat_img;
     [SerializeField] private TMP_Text country_name;
+    [SerializeField] private TMP_Text population_value;
 
     public void onUpdateItem(int index)
     {
@@ -16,5 +18,6 @@ public class dynamic_scroll_view_pop_country_row : UIBehaviour, IDynamicScrollVi
 
         country.setCoatandColor(coat_img);
         country_name.text = country.Name;
+        population_value.text = country.Provinces.Sum(p => p.Population).ToString();
     }
 }
