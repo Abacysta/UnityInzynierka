@@ -21,7 +21,6 @@ public class Map : ScriptableObject {
     [SerializeField] private string map_name;
     [SerializeField] private string file_name;
     [SerializeField] private List<Province> provinces;
-    [SerializeField] (int, int) selected_province;
     [SerializeField] (int, int) pop_extremes;
     [SerializeField] private List<Country> countries = new List<Country>();
     [SerializeField] private List<Army> armies = new List<Army>();
