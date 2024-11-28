@@ -17,6 +17,8 @@ namespace Assets.classes.subclasses {
         public List<SaveArmy> armies;
         public List<Map.CountryController> controllers;
         public HashSet<SaveRelation> relations;
+        public int turnlimit;
+        public int resourceRate;
         public Save(Map map) {
             this.turnCnt = map.turnCnt;
             this.map_name = map.name;
@@ -25,6 +27,8 @@ namespace Assets.classes.subclasses {
             this.armies = new List<SaveArmy>();
             this.controllers = new List<Map.CountryController>(map.Controllers);
             this.relations = new HashSet<SaveRelation>();
+            this.turnlimit = map.Turnlimit;
+            this.resourceRate = map.ResourceRate;
             foreach(var c in map.Countries) {
                 countries.Add(new SaveCountry(c));
             }
@@ -51,6 +55,8 @@ namespace Assets.classes.subclasses {
         public static void loadDataFromSave(Save data, Map toLoad, filter_modes mapView, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
             toLoad.name = data.map_name;
             toLoad.turnCnt = data.turnCnt;
+            toLoad.Turnlimit = data.turnlimit;
+            toLoad.ResourceRate = data.resourceRate;
             List<Province> loadProvinces = new();
             List<Country> loadCountries = new();
             List<Army> loadArmies = new();
