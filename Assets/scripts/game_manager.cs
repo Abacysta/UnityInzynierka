@@ -476,7 +476,7 @@ public class game_manager : MonoBehaviour
             Debug.Log("--" + map.Controllers[i]);
         }
         var cleanup_crew = new Janitor(map, battle_manager);
-        if(cleanup_crew.cleanup()) endGame();
+        if(cleanup_crew.cleanup()) endGame(map.Turnlimit <= map.turnCnt);
         map.currentPlayer = 1;
         if(map.turnCnt%5 == 0)
         AutoSave();
@@ -554,8 +554,8 @@ public class game_manager : MonoBehaviour
         }
     }
 
-
-    private void endGame() {
+    
+    private void endGame(bool timeout) {
 
     }
     //to jest wozny
