@@ -367,7 +367,15 @@ public class dialog_box_manager : MonoBehaviour
         bool confirmable = true, bool rejectable = true, string confirmText = "OK", string cancelText = "Cancel", 
         Action onCancel = null, Action onClose = null)
     {
-        map.CurrentPlayer.setCoatandColor(db_country_color_img);
+        if (map.currentPlayer > 0 && map.Countries.Count > 0)
+        {
+            map.CurrentPlayer.setCoatandColor(db_country_color_img);
+            db_country_color_img.transform.parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            db_country_color_img.transform.parent.gameObject.SetActive(false);
+        }
 
         close_button.onClick.RemoveAllListeners();
         confirm_button.onClick.RemoveAllListeners();

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,20 +11,15 @@ public class main_menu : MonoBehaviour
         Screen.fullScreen = false;
     }
 
-    void Update()
-    {
-        
-    }
-
-    public void StartTestGame() {
+    public void StartNewGame() {
         SceneManager.LoadScene(1);
     }
 
-    public void StartOnlineGame() {
+    public void LoadGame() {
         SceneManager.LoadScene(2);
     }
 
-    public void theEnd() {
+    public void ExitGame() {
         Debug.Log("manual_quit");
         Application.Quit();
     }

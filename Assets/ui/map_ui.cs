@@ -16,6 +16,7 @@ public class map_ui : MonoBehaviour
     [SerializeField] private start_screen start_screen;
     [SerializeField] private GameObject overlay;
 	[SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
+	[SerializeField] private save_manager save_manager;
 
     void Update()
     {   
@@ -127,7 +128,7 @@ public class map_ui : MonoBehaviour
 			//ctrl actions
 			if (Input.GetKeyDown(KeyCode.S) && game_manager.turnCnt > 0) {
 				if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) {
-					game_manager.saveGame("quicksave");
+					save_manager.saveGame("quicksave");
 				}
 			}
 		}

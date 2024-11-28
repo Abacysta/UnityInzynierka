@@ -3,12 +3,9 @@ using Assets.classes.subclasses;
 using Assets.map.scripts;
 using Assets.Scripts;
 using Assets.ui.scripts;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,10 +18,6 @@ public class game_manager : MonoBehaviour
     [SerializeField] private Map map;
     [SerializeField] private TMP_Text turnCntTxt;
     [SerializeField] private AudioSource turn_sound;
-    //[SerializeField] private float RecruitablePopulationFactor = 0.2f;
-    //[SerializeField] private float PopulationFactor = 0.1f;
-    //[SerializeField] private int HappinessFactor = 5;
-    //[SerializeField] private float ArmyFactor = 0.1f;
     [SerializeField] private fog_of_war fog_Of_War;
     [SerializeField] private GameObject loading_box;
     [SerializeField] private Slider loading_bar;
@@ -39,25 +32,42 @@ public class game_manager : MonoBehaviour
     [SerializeField] private random_events_manager random_events;
     [SerializeField] private start_screen start_screen;
     [SerializeField] private diplomatic_relations_manager diplomacy;
-    [SerializeField] private info_bar info_bar;
-    [SerializeField] private GameObject end_screen;
-    [SerializeField] private Button save_button;
     [SerializeField] private army_click_handler army_click_handler;
     [SerializeField] private map_ui map_ui;
-    
+    [SerializeField] private save_manager save_manager;
     [SerializeField] private AI_manager ai_manager;
-    
+
     public int turnCnt { get { return map.turnCnt; } }
-
-    private Save toSave;
-
-    
 
     private void Start()
     {
+        Save loadedData = game_data.Instance.LoadedSave;
+
+        if (loadedData != null)
+        {
+            LoadGameFromSave(loadedData);
+            Destroy(game_data.Instance.gameObject);
+        }
+
         while (start_screen == null) ;
         start_screen.welcomeScreen();
 	}
+
+    internal void LoadGameFromSave(Save data)
+    {
+        Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
+
+        fog_Of_War.UpdateFogOfWar();
+        alerts.loadEvents(map.CurrentPlayer);
+        alerts.reloadAlerts();
+        turnCntTxt.SetText((map.turnCnt).ToString());
+        loader.Reload();
+
+        foreach (var a in map.Armies)
+        {
+            map.reloadArmyView(a);
+        }
+    }
 
     public void UndoAll()
     {
@@ -323,103 +333,7 @@ public class game_manager : MonoBehaviour
     //}
 
 
-    public void saveGame(string name) {
-        var path = Application.persistentDataPath + "/" + name + ".save";
-        BinaryFormatter form = new BinaryFormatter();
-        using(FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
-            form.Serialize(stream, new Save(map));
-        }
-		Debug.Log($"Game saved to: {path}");
-	}
-
-	public void saveGameJson() {
-		var path = Application.persistentDataPath + "/save.json";
-		string jsonData = JsonConvert.SerializeObject(toSave, Formatting.Indented); // 'Indented' for pretty-printing
-
-		using (StreamWriter writer = new StreamWriter(path, false)) {
-			writer.Write(jsonData);
-		}
-
-		Debug.Log($"Game saved to: {path}");
-	}
-
-    public void loadGame(string name) {
-        var path = Application.persistentDataPath + "/" + name + ".save";
-        Debug.Log("loading " + path);
-        if (File.Exists(path)) {
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
-                Save data = (Save)binaryFormatter.Deserialize(stream);
-                Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
-				fog_Of_War.UpdateFogOfWar();
-				alerts.loadEvents(map.CurrentPlayer);
-				alerts.reloadAlerts();
-				turnCntTxt.SetText((map.turnCnt).ToString());
-			}
-        }
-        else {
-            Debug.LogError("nie pyklo ladowanie");
-        }
-		loader.Reload();
-		foreach (var a in map.Armies) {
-			map.reloadArmyView(a);
-		}
-	}
-
-	public void loadGameJson(string name) {
-		var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension
-		Debug.Log("loading " + path);
-
-		if (File.Exists(path)) {  // Check if the file exists
-			using (StreamReader reader = new StreamReader(path)) {
-				string jsonData = reader.ReadToEnd();  // Read all text from the file
-
-				// Deserialize the JSON string into a Save object
-				Save data = JsonConvert.DeserializeObject<Save>(jsonData);
-
-				// Convert the Save object into the Map object
-				Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
-                fog_Of_War.UpdateFogOfWar();
-                alerts.loadEvents(map.CurrentPlayer);
-                alerts.reloadAlerts();
-			}
-		}
-		else {
-			Debug.LogError("Save file not found or loading failed.");
-		}
-        
-	}
-
-    public string[] getSaveGames() {
-        var saves = new List<string>();
-        if (Directory.Exists(Application.persistentDataPath)) {
-            return Directory.GetFiles(Application.persistentDataPath, "*.save").Select(s=>s.Substring(Application.persistentDataPath.Length + 1).Replace(".save", "")).ToArray();
-        }
-        else {
-            Debug.Log("Data directory is broken");
-            return null;
-        }
-    }
-
-    public bool existsSaveGame(string name) {
-        var path = Path.Combine(Application.persistentDataPath, name + ".save");
-        return File.Exists(path);
-    }
-
-    public bool deleteSaveGame(string name) {
-        var path = Path.Combine(Application.persistentDataPath, name + ".save");
-        try {
-            if (File.Exists(path)) {
-                File.Delete(path);
-                return true;
-            }
-            else return false;
-        }
-        catch(Exception ex) {
-            Debug.LogError(ex.Message);
-            return false;
-        }
-    }
+ 
 
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
@@ -537,9 +451,9 @@ public class game_manager : MonoBehaviour
     {
         if (map.turnCnt % 5 == 0)
         {
-            toSave = new(map);
-            saveGame("autosave");
-            toSave = null;
+            save_manager.ToSave = new(map);
+            save_manager.saveGame("autosave");
+            save_manager.ToSave = null;
         }
     }
 
@@ -557,7 +471,7 @@ public class game_manager : MonoBehaviour
 
     
     private void endGame(bool timeout) {
-        end_screen.SetActive(true);
+
     }
     //to jest wozny
     private class Janitor {

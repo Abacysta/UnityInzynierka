@@ -416,8 +416,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 980266627}
-        m_TargetAssemblyTypeName: main_menu, Assembly-CSharp
-        m_MethodName: StartOnlineGame
+        m_TargetAssemblyTypeName: main_menu, assets
+        m_MethodName: LoadGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1349,8 +1349,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 980266627}
-        m_TargetAssemblyTypeName: main_menu, Assembly-CSharp
-        m_MethodName: theEnd
+        m_TargetAssemblyTypeName: main_menu, assets
+        m_MethodName: ExitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4037,8 +4037,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 980266627}
-        m_TargetAssemblyTypeName: main_menu, Assembly-CSharp
-        m_MethodName: StartTestGame
+        m_TargetAssemblyTypeName: main_menu, assets
+        m_MethodName: StartNewGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

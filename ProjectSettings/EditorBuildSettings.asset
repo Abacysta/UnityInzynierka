@@ -12,12 +12,9 @@ EditorBuildSettings:
     path: Assets/scenes/local_play.unity
     guid: 0a8af023b172a7540a428613ff2e94a3
   - enabled: 1
-    path: Assets/scenes/game_test.unity
-    guid: 237653cd4ccb3d344b0403b850b8d7b5
+    path: Assets/scenes/load_game.unity
+    guid: cb811f56e87276242a6cbecc209df4a1
   - enabled: 1
     path: Assets/scenes/game_map.unity
     guid: a7990cc44310c8541ba3a09061bc9464
-  - enabled: 0
-    path: Assets/scenes/game_test_2.unity
-    guid: 058fed3de4266d5479147a34064e44ba
   m_configObjects: {}
