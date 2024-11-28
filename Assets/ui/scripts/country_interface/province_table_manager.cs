@@ -13,7 +13,7 @@ public class province_table_manager : MonoBehaviour
     [SerializeField] private Button sort_by_happiness_button;
     [SerializeField] private Button sort_by_resources_button;
 
-    private List<Province> sortedProvinces;
+    private List<Province> sortedProvinces = new();
     private string currentSortCriteria = "name";
     private bool isAscending = true;
 
@@ -36,7 +36,7 @@ public class province_table_manager : MonoBehaviour
 
     private void SetData()
     {
-        SortedProvinces = new List<Province>(map.CurrentPlayer.Provinces);
+        SortedProvinces = map.CurrentPlayer.Provinces.ToList();
         dynamic_vscroll_provinces_view.totalItemCount = SortedProvinces.Count;
         SortData(currentSortCriteria);
     }
