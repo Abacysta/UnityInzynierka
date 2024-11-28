@@ -25607,7 +25607,7 @@ MonoBehaviour:
   end_screen_manager: {fileID: 1077915038}
   coat_img: {fileID: 1200569265}
   country_name: {fileID: 1353786032}
-  gold_value: {fileID: 0}
+  gold_value: {fileID: 1618461352}
 --- !u!1 &943140156
 GameObject:
   m_ObjectHideFlags: 0
@@ -55137,7 +55137,7 @@ MonoBehaviour:
   end_screen_manager: {fileID: 1077915038}
   coat_img: {fileID: 21642891}
   country_name: {fileID: 1657127069}
-  population_value: {fileID: 0}
+  population_value: {fileID: 821475896}
 --- !u!1 &1879913404
 GameObject:
   m_ObjectHideFlags: 0
