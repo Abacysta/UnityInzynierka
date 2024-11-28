@@ -17,12 +17,18 @@ public class player_table : MonoBehaviour
     [SerializeField] private map_options optionsTable;
 
     private GameObject currentPlayerSelection = null;
-    public List<CountryController> controllers = new List<CountryController>();
+    private List<CountryController> controllers = new List<CountryController>();
     private List<CountryData> currentStates = new List<CountryData>();
     private List<Province> provinces = new List<Province>();
 
     private int currentMaxPlayerNumber = 0;
     private Dictionary<int, int> countryPlayerAssignment = new Dictionary<int, int>();
+
+    public Map Map { get => map; set => map = value; }
+    public List<CountryController> Controllers { get => controllers; set => controllers = value; }
+    public GameObject PlayerTable { get => playerTable; set => playerTable = value; }
+    public GameObject Dummy { get => dummy; set => dummy = value; }
+    public map_options OptionsTable { get => optionsTable; set => optionsTable = value; }
 
     public class CountryData
     {

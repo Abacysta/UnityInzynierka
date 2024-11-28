@@ -16,6 +16,8 @@ namespace Assets.map.scripts {
         public const int VassalageHappinessBonusInitC1 = 5;
         public const int DeclineWarOpinionPenaltyInit = 100;
 
+        public Map Map { get => map; set => map = value; }
+
         public void turnCalc() {
             HashSet<Relation> toRemove = new HashSet<Relation>();
             foreach(Relation r in map.Relations) {

@@ -7,7 +7,7 @@ public class OpinionTests
     public void OpinionValue_ShouldNotExceedMax()
     {
         // Arrange
-        Map map = new();
+        Map map = ScriptableObject.CreateInstance<Map>();
         Country country = new(1, "Gauls", (5, 5), new Color(0.8392f, 0.7216f, 0.4706f), 1, map);
 
         // Act

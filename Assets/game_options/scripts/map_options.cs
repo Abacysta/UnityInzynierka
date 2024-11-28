@@ -246,7 +246,7 @@ public class map_options : MonoBehaviour
 
     public void StartGame()
     {
-        if (!playerTable.controllers.Contains(CountryController.Local))
+        if (!playerTable.Controllers.Contains(CountryController.Local))
         {
             Debug.Log("At least one human player!");
             return;
