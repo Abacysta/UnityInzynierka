@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
-using static Assets.classes.subclasses.Constants;
+using static Assets.classes.subclasses.Constants.Province;
 using UnityEngine;
 using UnityEngine.UI;
 using static Map;

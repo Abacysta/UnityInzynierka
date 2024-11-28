@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static Assets.classes.Relation;
+using static Assets.classes.subclasses.Constants.Relation;
 
 namespace Assets.classes {
     public class TurnAction {
 
-        public static readonly int PraiseOurOpinionBonusInit = 20;
-        public static readonly int PraiseTheirOpinionBonusInit = PraiseOurOpinionBonusInit / 2;
-        public static readonly int InsultOurOpinionPenaltyInit = 25;
-        public static readonly int InsultTheirOpinionPenaltyInit = InsultOurOpinionPenaltyInit / 2;
+        
 
         public enum ActionType {
             ArmyMove,
@@ -763,13 +761,13 @@ namespace Assets.classes {
 
             public override void preview(Map map) {
                 base.preview(map);
-                from.SetOpinion(to.Id, from.Opinions[to.Id] - InsultOurOpinionPenaltyInit);
-                to.SetOpinion(from.Id, to.Opinions[from.Id] - InsultTheirOpinionPenaltyInit);
+                from.SetOpinion(to.Id, from.Opinions[to.Id] - INSULT_OUR_OPINION_PENALTY_INIT);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] - INSULT_THEIR_OPINION_PENALTY_INIT);
             }
             public override void revert(Map map) {
                 base.revert(map);
-                from.SetOpinion(to.Id, from.Opinions[to.Id] + InsultOurOpinionPenaltyInit);
-                to.SetOpinion(from.Id, to.Opinions[from.Id] + InsultTheirOpinionPenaltyInit);
+                from.SetOpinion(to.Id, from.Opinions[to.Id] + INSULT_OUR_OPINION_PENALTY_INIT);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] + INSULT_THEIR_OPINION_PENALTY_INIT);
                 dipl_actions.SetInsultRelatedButtonStates(true, to.Id);
             }
         }
@@ -792,13 +790,13 @@ namespace Assets.classes {
             }
             public override void preview(Map map) {
                 base.preview(map);
-                from.SetOpinion(to.Id, from.Opinions[to.Id] + PraiseOurOpinionBonusInit);
-                to.SetOpinion(from.Id, to.Opinions[from.Id] + PraiseTheirOpinionBonusInit);
+                from.SetOpinion(to.Id, from.Opinions[to.Id] + PRAISE_OUR_OPINION_BONUS_INIT);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] + PRAISE_THEIR_OPINION_BONUS_INIT);
             }
             public override void revert(Map map) {
                 base.revert(map);
-                from.SetOpinion(to.Id, from.Opinions[to.Id] - PraiseOurOpinionBonusInit);
-                to.SetOpinion(from.Id, to.Opinions[from.Id] - PraiseTheirOpinionBonusInit);
+                from.SetOpinion(to.Id, from.Opinions[to.Id] - PRAISE_OUR_OPINION_BONUS_INIT);
+                to.SetOpinion(from.Id, to.Opinions[from.Id] - PRAISE_THEIR_OPINION_BONUS_INIT);
                 dipl_actions.SetDiplomaticMissionRelatedButtonStates(true, to.Id);
             }
         }

@@ -4,7 +4,7 @@ using Assets.classes.Tax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Assets.classes.subclasses.Constants;
+using static Assets.classes.subclasses.Constants.Province;
 using UnityEngine;
 using UnityEngine.UI;
 

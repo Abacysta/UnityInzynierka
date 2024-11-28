@@ -13,7 +13,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.Relation;
-using static Assets.classes.subclasses.Constants;
+using static Assets.classes.subclasses.Constants.Province;
+using static Assets.classes.subclasses.Constants.Relation;
 
 public class game_manager : MonoBehaviour
 {
@@ -49,10 +50,7 @@ public class game_manager : MonoBehaviour
 
     private Save toSave;
 
-    public static readonly int WarHappinessPenaltyConst = 2;
-    public static readonly int AllianceHappinessBonusConst = 1;
-    public static readonly int VassalageHappinessBonusConstC1 = 1;
-    public static readonly int VassalageHappinessPenaltyConstC2 = 1;
+    
 
     private void Start()
     {
@@ -203,7 +201,7 @@ public class game_manager : MonoBehaviour
             foreach(var war in wars)
             {
                 foreach( var province in country.Provinces) {
-                    province.Happiness -= WarHappinessPenaltyConst;
+                    province.Happiness -= WAR_HAPP_PENALTY_COST;
                 }
             }
             var alliances = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Alliance);
@@ -211,7 +209,7 @@ public class game_manager : MonoBehaviour
             {
                 foreach(var p in country.Provinces)
                 {
-                    p.Happiness += AllianceHappinessBonusConst;
+                    p.Happiness += ALLIANCE_HAPP_BONUS_COST;
                 }
             }
             var vassalages = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Vassalage);
@@ -222,11 +220,11 @@ public class game_manager : MonoBehaviour
                     Country master = map.getMaster(country);
                     if (master == null)
                     {
-                        p.Happiness += VassalageHappinessBonusConstC1;
+                        p.Happiness += VASSALAGE_HAPP_BONUS_C1;
                     }
                     else
                     {
-                        p.Happiness -= VassalageHappinessPenaltyConstC2;
+                        p.Happiness -= VASSALAGE_HAPP_PENALTY_C2;
                     }
                 }
             }

@@ -22,7 +22,7 @@ public class army_view : MonoBehaviour
     private Vector3 targetPosition;
     private Country country;
 
-    private readonly float moveSpeed = 2f;
+    private const float moveSpeed = 2f;
     private bool isMoving = false;
 
     public Army ArmyData { get; set; }

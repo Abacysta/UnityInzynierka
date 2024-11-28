@@ -25,7 +25,7 @@ public class camera_controller : cursor_helper
     private float resolutionScaleFactor;
     private Camera mainCamera;
 
-    private readonly float mapMinX = 0f, mapMinY = 0f;
+    private const float mapMinX = 0f, mapMinY = 0f;
     private float mapMaxX = 200f, mapMaxY = 200f;
     private float cameraSizeForMap;
     private float mapCenterX, mapCenterY;

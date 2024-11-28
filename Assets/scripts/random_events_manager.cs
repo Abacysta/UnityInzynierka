@@ -2,7 +2,7 @@
 using Assets.classes.subclasses;
 using System.Collections.Generic;
 using System.Linq;
-using static Assets.classes.subclasses.Constants;
+using static Assets.classes.subclasses.Constants.Province;
 using UnityEngine;
 
 namespace Assets.map.scripts
