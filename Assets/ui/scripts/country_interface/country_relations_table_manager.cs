@@ -12,7 +12,7 @@ public class country_relations_table_manager : MonoBehaviour
     [SerializeField] private Button sort_by_their_opinion_button;
     [SerializeField] private Button sort_by_our_opinion_button;
 
-    private List<Country> sortedCountries;
+    private List<Country> sortedCountries = new();
     private string currentSortCriteria = "country_name";
     private bool isAscending = true;
 
@@ -35,7 +35,7 @@ public class country_relations_table_manager : MonoBehaviour
 
     public void SetData()
     {
-        sortedCountries = new List<Country>(map.Countries.Where(c => c.Id != 0 && c.Id != map.currentPlayer));
+        sortedCountries = map.Countries.Where(c => c.Id != 0 && c.Id != map.currentPlayer).ToList();
         dynamic_vscroll_countries_view.totalItemCount = SortedCountries.Count;
         SortData(currentSortCriteria);
     }
