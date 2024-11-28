@@ -1,7 +1,10 @@
 using Mosframe;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class end_screen_manager : MonoBehaviour
 {
@@ -9,6 +12,12 @@ public class end_screen_manager : MonoBehaviour
     [SerializeField] private DynamicVScrollView dynamic_vscroll_pop_countries_view;
     [SerializeField] private DynamicVScrollView dynamic_vscroll_gold_countries_view;
     [SerializeField] private GameObject overlay;
+    [SerializeField] private TMP_Text title_text;
+    [SerializeField] private TMP_Text kill_reason_text;
+    [SerializeField] private TMP_Text pop_text;
+    [SerializeField] private TMP_Text happ_text;
+    [SerializeField] private TMP_Text claim_text;
+    [SerializeField] private Button kill_game_button;
 
     private List<Country> popCountries = new();
     private List<Country> goldCountries = new();
@@ -33,6 +42,27 @@ public class end_screen_manager : MonoBehaviour
     private void OnDisable()
     {
         overlay.SetActive(false);
+        kill_game_button.onClick.RemoveAllListeners();
+    }
+
+    private void setEverythingElse() {
+        kill_reason_text.fontSize = title_text.fontSize;
+        if (map.turnCnt >= map.Turnlimit) setTimeoutKill();
+        else setDominationKill();
+        pop_text.SetText(map.Provinces.Sum(p => p.Population).ToString());
+        happ_text.SetText(((int)(map.Provinces.Sum(p => p.Happiness) / map.Provinces.Count)).ToString());
+        claim_text.SetText((int)(map.Provinces.Where(p => p.Owner_id == 0).Count() / map.Provinces.Count * 100) + "%");
+        kill_game_button.onClick.AddListener(() => SceneManager.LoadScene("main_menu"));
+    }
+
+    private void setTimeoutKill() {
+        kill_reason_text.SetText("Timeout");
+        kill_reason_text.color = new Color(0, 0.6f, 1);
+    }
+
+    private void setDominationKill() {
+        kill_reason_text.SetText("Domination");
+        kill_reason_text.color = new Color(1, 0.6f, 0);
     }
 
     private void SetPopulationRows()

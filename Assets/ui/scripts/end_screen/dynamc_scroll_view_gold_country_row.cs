@@ -14,9 +14,9 @@ public class dynamc_scroll_view_gold_country_row : UIBehaviour, IDynamicScrollVi
     public void onUpdateItem(int index)
     {
         Country country = end_screen_manager.GoldCountries[index];
-
+        if (country == null) Debug.LogError("Kraj wzial i zniknal GOLD");
         country.setCoatandColor(coat_img);
         country_name.text = country.Name;
-        gold_value.text = country.Resources[Resource.Gold].ToString();
+        gold_value.SetText(country.Resources[Resource.Gold].ToString());
     }
 }

@@ -568,13 +568,16 @@ public class game_manager : MonoBehaviour
         }
         public bool cleanup() { 
             //check if the game should be going at all
-            if(map.Countries.Where(c=>c.Id != 0).Count() == 1 || map.turnCnt == map.Turnlimit) {
+            if(map.turnCnt == map.Turnlimit) {
                 return true;
             }
             
             //country
             for(int i = 1; i < map.Countries.Count; i++) {
                 var c = map.Countries[i];
+                //check if the game has any point in going forward
+                var vas = Map.PowerUtilites.getVassals(map, c);
+                if (map.Countries.Where(c => c.Id != 0 || c.Id != i).ToHashSet().Equals(vas)) return true;
                 //capital check so if no capitals kill it
                 if (!c.Provinces.Contains(map.getProvince(c.Capital))) {
                     map.killCountry(c);
