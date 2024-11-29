@@ -189,16 +189,19 @@ public class HexUtils
     public static List<Province> getBestPathProvinces(Map map, Country country, (int, int) start, (int, int) end) {
         var provinces = map.Provinces.Select(p=>(p.X, p.Y)).ToHashSet();
         var unavailable = Map.LandUtilites.getUnpassableProvinces(map, country).Select(p=>(p.X, p.Y)).ToHashSet();
-
+        var best = getBestPath(provinces, unavailable, new(), start, end);
         //for now no misc costs but in future maybe
-        return getBestPath(provinces, unavailable, null, start, end).Select(cord => map.getProvince(cord)).ToList();
+        if (best != null) return best.Select(cord => map.getProvince(cord)).Where(province => province != null).ToList();
+        else return null;
     }
     public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<(int, int)> unpassable, (int, int) start, (int, int) end) {
         var provinces = map.Provinces.Select(p => (p.X, p.Y)).ToHashSet();
-        return getBestPath(provinces, unpassable, null, start, end).Select(cord => map.getProvince(cord)).ToList();
+        var best = getBestPath(provinces, unpassable, new(), start, end);
+        if (best != null) return getBestPath(provinces, unpassable, new(), start, end).Select(cord => map.getProvince(cord)).Where(province => province != null).ToList();
+        else return null;
     }
     public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<Province> unpassable, Province start, Province end) {
-        return getBestPathProvinces(map, country, unpassable.Select(p=>(p.X, p.Y)).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
+        return getBestPathProvinces(map, country, unpassable.Select(p=>p.coordinates).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
     }
     private static List<(int, int)> getBestPath(
         HashSet<(int, int)> provinces,

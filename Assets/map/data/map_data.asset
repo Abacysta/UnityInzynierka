@@ -3541,10 +3541,10 @@ MonoBehaviour:
     y: 20
     type: land
     resourceType: 1
-    resourceAmount: 3.8
-    population: 649851691
-    recruitable_population: 32492586
-    happiness: 100
+    resourceAmount: 3.6000001
+    population: 972
+    recruitable_population: 48
+    happiness: 96
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -3782,9 +3782,9 @@ MonoBehaviour:
     type: land
     resourceType: 2
     resourceAmount: 7.2
-    population: 10533773
-    recruitable_population: 526688
-    happiness: 100
+    population: 504
+    recruitable_population: 25
+    happiness: 0
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -4182,15 +4182,15 @@ MonoBehaviour:
     type: land
     resourceType: 1
     resourceAmount: 6
-    population: 946
-    recruitable_population: 0
-    happiness: 47
+    population: 893
+    recruitable_population: 44
+    happiness: 96
     is_coast: 0
     occupationInfo:
-      isOccupied: 1
-      occupationCount: 2
-      occupyingCountryId: 8
-    owner_id: 0
+      isOccupied: 0
+      occupationCount: 0
+      occupyingCountryId: -1
+    owner_id: 8
   - id: 
     name: Rimeband
     x: 6
@@ -4422,15 +4422,15 @@ MonoBehaviour:
     type: land
     resourceType: 4
     resourceAmount: 5
-    population: 864
-    recruitable_population: 0
-    happiness: 42
+    population: 514
+    recruitable_population: 25
+    happiness: 0
     is_coast: 0
     occupationInfo:
-      isOccupied: 1
-      occupationCount: 2
-      occupyingCountryId: 4
-    owner_id: 0
+      isOccupied: 0
+      occupationCount: 0
+      occupyingCountryId: -1
+    owner_id: 4
   - id: 
     name: Ironveil
     x: 6
@@ -4501,10 +4501,10 @@ MonoBehaviour:
     y: 0
     type: land
     resourceType: 2
-    resourceAmount: 2
-    population: 184781500
+    resourceAmount: 2.8
+    population: 546
     recruitable_population: 0
-    happiness: 100
+    happiness: 42
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -5141,16 +5141,16 @@ MonoBehaviour:
     y: 0
     type: land
     resourceType: 4
-    resourceAmount: 3
-    population: 948
+    resourceAmount: 3.2
+    population: 437
     recruitable_population: 0
-    happiness: 42
+    happiness: 33
     is_coast: 0
     occupationInfo:
-      isOccupied: 1
-      occupationCount: 2
-      occupyingCountryId: 1
-    owner_id: 0
+      isOccupied: 0
+      occupationCount: 0
+      occupyingCountryId: -1
+    owner_id: 1
   - id: 
     name: Stonehollow
     x: 8
@@ -9093,10 +9093,10 @@ MonoBehaviour:
     y: 7
     type: land
     resourceType: 0
-    resourceAmount: 6.2
-    population: 1
-    recruitable_population: -27220555
-    happiness: 98
+    resourceAmount: 6.3999996
+    population: 1477
+    recruitable_population: 73
+    happiness: 96
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -9734,15 +9734,15 @@ MonoBehaviour:
     type: land
     resourceType: 1
     resourceAmount: 8
-    population: 901
-    recruitable_population: 0
-    happiness: 60
+    population: 538
+    recruitable_population: 26
+    happiness: 96
     is_coast: 0
     occupationInfo:
-      isOccupied: 1
-      occupationCount: 2
-      occupyingCountryId: 7
-    owner_id: 0
+      isOccupied: 0
+      occupationCount: 0
+      occupyingCountryId: -1
+    owner_id: 7
   - id: 
     name: Feralridge
     x: 15
@@ -11397,10 +11397,10 @@ MonoBehaviour:
     y: 31
     type: land
     resourceType: 4
-    resourceAmount: 4
-    population: 729930078
-    recruitable_population: 36496502
-    happiness: 100
+    resourceAmount: 5.2
+    population: 17
+    recruitable_population: 0
+    happiness: 0
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -11867,9 +11867,9 @@ MonoBehaviour:
     happiness: 41
     is_coast: 0
     occupationInfo:
-      isOccupied: 1
-      occupationCount: 2
-      occupyingCountryId: 3
+      isOccupied: 0
+      occupationCount: 0
+      occupyingCountryId: -1
     owner_id: 0
   - id: 
     name: Suncrest
@@ -12501,10 +12501,10 @@ MonoBehaviour:
     y: 20
     type: land
     resourceType: 4
-    resourceAmount: 5.7999997
-    population: 1921450802
-    recruitable_population: 96072539
-    happiness: 56
+    resourceAmount: 6.3999996
+    population: 608
+    recruitable_population: 28
+    happiness: 0
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -22501,10 +22501,10 @@ MonoBehaviour:
     y: 5
     type: land
     resourceType: 2
-    resourceAmount: 4.2
-    population: 756556921
-    recruitable_population: 37827846
-    happiness: 94
+    resourceAmount: 4
+    population: 525
+    recruitable_population: 0
+    happiness: 88
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -22981,10 +22981,10 @@ MonoBehaviour:
     y: 35
     type: land
     resourceType: 2
-    resourceAmount: 6.3999996
-    population: 61409530
+    resourceAmount: 6.6
+    population: 452
     recruitable_population: 0
-    happiness: 98
+    happiness: 0
     is_coast: 0
     occupationInfo:
       isOccupied: 0
@@ -23131,9 +23131,9 @@ MonoBehaviour:
     happiness: 56
     is_coast: 0
     occupationInfo:
-      isOccupied: 0
-      occupationCount: 0
-      occupyingCountryId: -1
+      isOccupied: 1
+      occupationCount: 2
+      occupyingCountryId: 5
     owner_id: 0
   - id: 
     name: Wolfcall
@@ -23141,16 +23141,16 @@ MonoBehaviour:
     y: 5
     type: land
     resourceType: 1
-    resourceAmount: 4
-    population: 825
+    resourceAmount: 4.3999996
+    population: 362
     recruitable_population: 0
-    happiness: 60
+    happiness: 73
     is_coast: 0
     occupationInfo:
-      isOccupied: 1
-      occupationCount: 2
-      occupyingCountryId: 5
-    owner_id: 0
+      isOccupied: 0
+      occupationCount: 0
+      occupyingCountryId: -1
+    owner_id: 5
   - id: 
     name: Oceanfield
     x: 36
@@ -23621,16 +23621,16 @@ MonoBehaviour:
     y: 35
     type: land
     resourceType: 2
-    resourceAmount: 5
-    population: 984
+    resourceAmount: 5.2
+    population: 409
     recruitable_population: 0
-    happiness: 52
+    happiness: 0
     is_coast: 0
     occupationInfo:
-      isOccupied: 1
-      occupationCount: 2
-      occupyingCountryId: 2
-    owner_id: 0
+      isOccupied: 0
+      occupationCount: 0
+      occupyingCountryId: -1
+    owner_id: 2
   - id: 
     name: Bellmire
     x: 36
@@ -23787,9 +23787,9 @@ MonoBehaviour:
     happiness: 46
     is_coast: 0
     occupationInfo:
-      isOccupied: 0
-      occupationCount: 0
-      occupyingCountryId: -1
+      isOccupied: 1
+      occupationCount: 2
+      occupyingCountryId: 5
     owner_id: 0
   - id: 
     name: Spiritmeadow
@@ -24267,9 +24267,9 @@ MonoBehaviour:
     happiness: 45
     is_coast: 0
     occupationInfo:
-      isOccupied: 0
-      occupationCount: 0
-      occupyingCountryId: -1
+      isOccupied: 1
+      occupationCount: 2
+      occupyingCountryId: 2
     owner_id: 0
   - id: 
     name: Oceanfield
@@ -25620,5 +25620,5 @@ MonoBehaviour:
   turnlimit: 80
   resourceRate: 100
   diplomacy: {fileID: 0}
-  currentPlayer: 3
-  turnCnt: 20
+  currentPlayer: 6
+  turnCnt: 101

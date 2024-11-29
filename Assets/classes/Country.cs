@@ -159,7 +159,7 @@ public class Country {
             armyUpkeep = 1 + mil * BaseModifiers.ArmyUpkeep; // 1 + mil * 0.03f
             armyCost = 1 + mil * BaseModifiers.ArmyCost; // 1 + mil * 0.05f
 
-            popGrowth += 0.01f;
+            popGrowth += 0.02f;
             recPop = 0.05f;
             occPenalty = 0.5f;
             occTime = 3;

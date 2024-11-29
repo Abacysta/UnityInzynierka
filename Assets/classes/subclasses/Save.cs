@@ -512,7 +512,7 @@ namespace Assets.classes.subclasses {
             else if (ev is Event_.DiploEvent.CallToWar) {
                 this.id = 2;
                 var evv = ev as Event_.DiploEvent.CallToWar;
-                this.country = evv.War.Sides.First(c => c.Id != from).Id;
+                this.country = evv.War.Sides[0].Id == from ? evv.War.Sides[1].Id : evv.War.Sides[0].Id;
             }
             else if (ev is Event_.DiploEvent.TruceEnd) {
                 this.id = 3;

@@ -125,9 +125,9 @@ public class Map : ScriptableObject {
         if (province.OccupationInfo.IsOccupied)
         {
             var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
-            province.Population += (int)Math.Floor(province.Population * ((provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod) - occupierTechStats.occPenalty));
+            province.Population = (int)Math.Floor(province.Population * ((provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod) - occupierTechStats.occPenalty));
         }
-        else province.Population += (int)Math.Floor(province.Population * provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod);
+        else province.Population = (int)Math.Floor(province.Population * provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod);
 
         province.Population += (int)Math.Floor(province.Modifiers.PopStatic);
     }
@@ -212,6 +212,7 @@ public class Map : ScriptableObject {
         foreach (var type in prod.ToList()) {
             prod[type.Key] = (float)Math.Round(prod[type.Key], 1);
         }
+        prod[Resource.AP] += 2.5f;
         return prod;
     }
 
@@ -641,11 +642,11 @@ public class Map : ScriptableObject {
             return getWar(map, map.Countries[c1], map.Countries[c2]);
         }
         public static (int, int) getSidePowers(Map map, Relation.War war) {
-            int atkP = 0, defP = 0;
-            foreach(var a in war.participants1) {
+            int atkP = 1, defP = 1;
+            if(war.participants1!=null) foreach (var a in war.participants1) {
                 atkP += map.getCountryArmies(a).Count;
             }
-            foreach (var d in war.participants2){
+            if(war.participants2!=null) foreach (var d in war.participants2){
                 defP += map.getCountryArmies(d).Count;
             }
             return (atkP, defP);
