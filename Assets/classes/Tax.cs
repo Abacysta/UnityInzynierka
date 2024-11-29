@@ -16,7 +16,7 @@ namespace Assets.classes {
                 country.modifyResource((Resource.Gold), sum);
             }
             public void applyProvinceTax(Province province, Country country, ref float sum) {
-                sum += GoldP * province.Population / 100 * province.Modifiers.TaxMod;
+                sum += GoldP * province.Population / 500 * province.Modifiers.TaxMod;
                 province.Happiness += HappP;
                 if(this is HighTaxes) {
                     province.RecruitablePopulation -= (int)(province.RecruitablePopulation * 0.25);
@@ -41,7 +41,7 @@ namespace Assets.classes {
             }
         }
         internal class LowTaxes : ITax {
-            public float GoldP { get => 0.02f; }
+            public float GoldP { get => 0.01f; }
 
             public int HappP { get => 8; }
 
@@ -55,7 +55,7 @@ namespace Assets.classes {
             public string Name { get => "High Taxation"; }
         }
         internal class MediumTaxes : ITax {
-            public float GoldP { get => 0.15f; }
+            public float GoldP { get => 0.12f; }
 
             public int HappP { get => -3; }
 

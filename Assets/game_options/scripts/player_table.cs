@@ -129,7 +129,8 @@ public class player_table : MonoBehaviour
                 provinceData.Happiness,
                 provinceData.Is_coast
             );
-
+            //resource rate added lol
+            newProvince.ResourceAmount = provinceData.ResourceAmount * map.ResourceRate;
             map.Provinces.Add(newProvince);
         }
 
