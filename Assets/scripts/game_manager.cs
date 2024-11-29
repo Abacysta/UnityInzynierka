@@ -207,12 +207,6 @@ public class game_manager : MonoBehaviour
                 map.calcRecruitablePop(p.coordinates);
             }
             p.calcStatuses();
-
-            // zarzadzanie okupacja
-            if(p.OccupationInfo.OccupyingCountryId != -1)
-            {
-                map.ManageOccupationDuration(p);
-            }
         }
     }
 
@@ -540,8 +534,8 @@ public class game_manager : MonoBehaviour
                     //unlock school at 3k populace
                     if (p.Population > SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
                 }
-                //occupation
-                if (p.OccupationInfo.IsOccupied)
+                // zarzadzanie okupacja
+                if (p.OccupationInfo != null && p.OccupationInfo.OccupyingCountryId != -1)
                 {
                     map.ManageOccupationDuration(p);
                 }

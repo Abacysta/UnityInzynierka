@@ -493,17 +493,13 @@ public class Map : ScriptableObject {
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
         Occupation occupationStatus = null;
         Country master = getMaster(country);
-        if(province.OccupationInfo.IsOccupied && province.OccupationInfo.OccupyingCountryId == army.OwnerId)
+        if(province.OccupationInfo != null && province.OccupationInfo.OccupyingCountryId == army.OwnerId)
         {
             return;
         }
-        if (province.Owner_id == 0) {
-            if (master != null) {
-                occupationStatus = new Occupation(1, master.Id);
-            }
-            else {
-                occupationStatus = new Occupation(1, army.OwnerId);
-            }
+        if (province.Owner_id == 0 && province.OccupationInfo.OccupyingCountryId != army.OwnerId) {
+            CancelOccupation(province);
+            occupationStatus = new Occupation(1, army.OwnerId);
         }
         else {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
