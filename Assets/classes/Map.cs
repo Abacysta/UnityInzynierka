@@ -70,7 +70,9 @@ public class Map : ScriptableObject {
                     countries[j].Opinions.Add(i, 0);
                 }
             }
+            addArmy(new(i, 100, countries[i].Capital, countries[i].Capital));
         }
+        
     }
     public void removeCountry(Country country) {
         var idx = countries.FindIndex(c => c == country);
