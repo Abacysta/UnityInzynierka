@@ -37,6 +37,7 @@ public class end_screen_manager : MonoBehaviour
         overlay.SetActive(true);
         SetPopulationRows();
         SetGoldRows();
+        setEverythingElse();
     }
 
     private void OnDisable()
@@ -45,14 +46,15 @@ public class end_screen_manager : MonoBehaviour
         kill_game_button.onClick.RemoveAllListeners();
     }
 
+
     private void setEverythingElse() {
         kill_reason_text.fontSize = title_text.fontSize;
         if (map.turnCnt >= map.Turnlimit) setTimeoutKill();
         else setDominationKill();
         pop_text.SetText(map.Provinces.Sum(p => p.Population).ToString());
         happ_text.SetText(((int)(map.Provinces.Sum(p => p.Happiness) / map.Provinces.Count)).ToString());
-        claim_text.SetText((int)(map.Provinces.Where(p => p.Owner_id == 0).Count() / map.Provinces.Count * 100) + "%");
-        kill_game_button.onClick.AddListener(() => SceneManager.LoadScene("main_menu"));
+        claim_text.SetText((int)((float)map.Provinces.Where(p => p.Owner_id == 0).Count() / (float)map.Provinces.Count * 100) + "%");
+        kill_game_button.onClick.AddListener(() => SceneManager.LoadScene(0));
     }
 
     private void setTimeoutKill() {

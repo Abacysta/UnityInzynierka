@@ -167,7 +167,7 @@ namespace Assets.Scripts {
                     continue;
                 }
                 //with smaller armies
-                Eprov = (List<(int, int)>)Eprov.Except(withnoarmies);
+                Eprov = Eprov.Except(withnoarmies).ToList();
                 foreach (var pp in Eprov) {
                     if (Map.WarUtilities.getEnemyArmiesInProvince(map, map.CurrentPlayer, map.getProvince(pp)).Sum(a => a.Count) < a.Count) {
                         map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, pp, a.Count, a));
