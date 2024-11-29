@@ -78,6 +78,24 @@ public class save_list_manager : MonoBehaviour
         save_name.text = name;
     }
 
+    private void LoadGame()
+    {
+        if (isGameMap)
+        {
+            save_manager.loadGame(save_name.text);
+        }
+        else
+        {
+            PlayerPrefs.SetString("saveName", save_name.text);
+            SceneManager.LoadScene("game_map");
+        }
+    }
+
+    public void ReturnToMainMenu()
+    {
+        SceneManager.LoadScene("main_menu");
+    }
+
     public void saveNamedGame() {
         dialog_box.invokeConfirmBox("Save Game", "Are you sure you want to save game under " + save_name.text 
             + (save_manager.existsSaveGame(save_name.text) ? "?\nAlready existing data will be overwritten!" : ""), 
@@ -90,6 +108,6 @@ public class save_list_manager : MonoBehaviour
     }
     public void loadNamedGame() {
         dialog_box.invokeConfirmBox("Load Save", "Are you sure you want to load this savefile?\n" + save_name.text, 
-            () => { save_manager.loadGame(save_name.text, isGameMap); if (isGameMap) exit.onClick.Invoke(); }, null, null);
+            () => { LoadGame(); if (isGameMap) exit.onClick.Invoke(); }, null, null);
     }
 }

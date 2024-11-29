@@ -384,7 +384,7 @@ PrefabInstance:
     - target: {fileID: 5193020024563808686, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
       propertyPath: overlay
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1321616172}
     - target: {fileID: 5193020024563808686, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
       propertyPath: dialog_box
       value: 
@@ -420,7 +420,7 @@ PrefabInstance:
     - target: {fileID: 5325341516177820089, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 946792249}
+      objectReference: {fileID: 724404923}
     - target: {fileID: 5325341516177820089, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -435,7 +435,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5325341516177820089, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: game_data, assets
+      value: save_list_manager, assets
       objectReference: {fileID: 0}
     - target: {fileID: 5325341516177820089, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -471,6 +471,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 649574869286646276, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
   m_PrefabInstance: {fileID: 724404921}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &724404923 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5193020024563808686, guid: bb8467d6afef8994abd1fc085a9bb99a, type: 3}
+  m_PrefabInstance: {fileID: 724404921}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0902d0f54959bc34db7b507c2148b256, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &946792247
 GameObject:
   m_ObjectHideFlags: 0
@@ -480,10 +491,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 946792248}
-  - component: {fileID: 946792249}
   - component: {fileID: 946792250}
   m_Layer: 0
-  m_Name: game_data
+  m_Name: save_manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -504,18 +514,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &946792249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 946792247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 755502b0bb7a2354bb23809569c94bfc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &946792250
 MonoBehaviour:
   m_ObjectHideFlags: 0

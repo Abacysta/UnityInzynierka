@@ -6,7 +6,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Linq;
-using UnityEngine.SceneManagement;
 
 public class save_manager : MonoBehaviour
 {
@@ -41,7 +40,7 @@ public class save_manager : MonoBehaviour
         Debug.Log($"Game saved to: {path}");
     }
 
-    public void loadGame(string name, Boolean isGameMap)
+    public void loadGame(string name)
     {
         var path = Application.persistentDataPath + "/" + name + ".save";
         Debug.Log("loading " + path);
@@ -51,16 +50,7 @@ public class save_manager : MonoBehaviour
             using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
                 Save data = (Save)binaryFormatter.Deserialize(stream);
-
-                if (isGameMap)
-                {
-                    game_manager.LoadGameFromSave(data);
-                }
-                else
-                {
-                    game_data.Instance.LoadedSave = data;
-                    SceneManager.LoadScene("game_map");
-                }
+                game_manager.LoadGameFromSave(data);
             }
         }
         else
@@ -69,7 +59,7 @@ public class save_manager : MonoBehaviour
         }
     }
 
-    public void loadGameJson(string name, Boolean isGameMap)
+    public void loadGameJson(string name)
     {
         var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension
         Debug.Log("loading " + path);
@@ -82,16 +72,7 @@ public class save_manager : MonoBehaviour
 
                 // Deserialize the JSON string into a Save object
                 Save data = JsonConvert.DeserializeObject<Save>(jsonData);
-
-                if (isGameMap)
-                {
-                    game_manager.LoadGameFromSave(data);
-                }
-                else
-                {
-                    game_data.Instance.LoadedSave = data;
-                    SceneManager.LoadScene("game_map");
-                }
+                game_manager.LoadGameFromSave(data);
             }
         }
         else

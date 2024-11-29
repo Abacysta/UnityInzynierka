@@ -6,6 +6,7 @@ using Assets.ui.scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,23 +40,27 @@ public class game_manager : MonoBehaviour
 
     public int turnCnt { get { return map.turnCnt; } }
 
-    private void Start()
+    void Awake()
     {
-        Save loadedData = game_data.Instance.LoadedSave;
-
-        if (loadedData != null)
+        if (PlayerPrefs.HasKey("saveName"))
         {
-            LoadGameFromSave(loadedData);
-            Destroy(game_data.Instance.gameObject);
+            string saveName = PlayerPrefs.GetString("saveName");
+            save_manager.loadGame(saveName);
+            PlayerPrefs.DeleteKey("saveName");
         }
+    }
 
+    void Start()
+    {
         while (start_screen == null) ;
         start_screen.welcomeScreen();
 	}
 
-    internal void LoadGameFromSave(Save data)
+    internal async void LoadGameFromSave(Save data)
     {
         Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
+
+        await Task.Delay(1000);
 
         fog_Of_War.UpdateFogOfWar();
         alerts.loadEvents(map.CurrentPlayer);
@@ -63,13 +68,14 @@ public class game_manager : MonoBehaviour
         turnCntTxt.SetText((map.turnCnt).ToString());
         loader.Reload();
         camera_controller.ZoomCameraOnCountry(map.currentPlayer);
-        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
-        map.UpdateAllArmyViewOrders();
 
         foreach (var a in map.Armies)
         {
             map.reloadArmyView(a);
         }
+
+        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
+        map.UpdateAllArmyViewOrders();
     }
 
     public void UndoAll()
