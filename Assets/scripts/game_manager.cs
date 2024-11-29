@@ -32,6 +32,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private battle_manager battle_manager;
     [SerializeField] private random_events_manager random_events;
     [SerializeField] private start_screen start_screen;
+    [SerializeField] private GameObject end_screen;
     [SerializeField] private diplomatic_relations_manager diplomacy;
     [SerializeField] private army_click_handler army_click_handler;
     [SerializeField] private map_ui map_ui;
@@ -478,7 +479,7 @@ public class game_manager : MonoBehaviour
 
     
     private void endGame(bool timeout) {
-
+        end_screen.SetActive(true);
     }
     //to jest wozny
     private class Janitor {

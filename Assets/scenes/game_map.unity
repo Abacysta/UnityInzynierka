@@ -8584,6 +8584,7 @@ MonoBehaviour:
   battle_manager: {fileID: 311749117}
   random_events: {fileID: 311749116}
   start_screen: {fileID: 546502337}
+  end_screen: {fileID: 1077915034}
   diplomacy: {fileID: 311749115}
   army_click_handler: {fileID: 653004899}
   map_ui: {fileID: 2034192575}
