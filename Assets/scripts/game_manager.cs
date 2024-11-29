@@ -540,6 +540,11 @@ public class game_manager : MonoBehaviour
                     //unlock school at 3k populace
                     if (p.Population > SCHOOL_MIN_POP && p.Buildings[BuildingType.School] == 4) p.Buildings[BuildingType.School] = 0;
                 }
+                //occupation
+                if (p.OccupationInfo.IsOccupied)
+                {
+                    map.ManageOccupationDuration(p);
+                }
             }
             return false;
         }
