@@ -62,6 +62,9 @@ public class game_manager : MonoBehaviour
         alerts.reloadAlerts();
         turnCntTxt.SetText((map.turnCnt).ToString());
         loader.Reload();
+        camera_controller.ZoomCameraOnCountry(map.currentPlayer);
+        armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
+        map.UpdateAllArmyViewOrders();
 
         foreach (var a in map.Armies)
         {
@@ -393,8 +396,7 @@ public class game_manager : MonoBehaviour
         var cleanup_crew = new Janitor(map, battle_manager);
         if(cleanup_crew.cleanup()) endGame(map.Turnlimit <= map.turnCnt);
         map.currentPlayer = 1;
-        if(map.turnCnt%5 == 0)
-        AutoSave();
+        if (map.turnCnt % 5 == 0) AutoSave();
         loader.Reload();
     }
 
@@ -449,12 +451,9 @@ public class game_manager : MonoBehaviour
 
     private void AutoSave()
     {
-        if (map.turnCnt % 5 == 0)
-        {
-            save_manager.ToSave = new(map);
-            save_manager.saveGame("autosave");
-            save_manager.ToSave = null;
-        }
+        save_manager.ToSave = new(map);
+        save_manager.saveGame("autosave");
+        save_manager.ToSave = null;
     }
 
     private void HandleWelcomeScreen()

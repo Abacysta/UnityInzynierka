@@ -40,14 +40,16 @@ public class camera_controller : cursor_helper
 
     public bool IsPanning { get => isPanning; private set => isPanning = value; }
 
-    void Start()
+    private void Awake()
     {
         resolutionScaleFactor = ((float)Screen.width / baseResolution.x + (float)Screen.height / baseResolution.y) / 2f;
         mainCamera = Camera.main;
-
         CalculateMapCenterAndBounds();
         CalculateCameraSizeForMap();
+    }
 
+    void Start()
+    {
         ZoomCameraOnCountry(map.currentPlayer);
     }
 

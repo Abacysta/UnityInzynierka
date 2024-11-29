@@ -79,13 +79,17 @@ public class save_list_manager : MonoBehaviour
     }
 
     public void saveNamedGame() {
-        dialog_box.invokeConfirmBox("Save Game", "Are you sure you want to save game under " + save_name.text + (save_manager.existsSaveGame(save_name.text) ? "?\nAlready existing data will be overwritten!" : ""), ()=> { save_manager.saveGame(save_name.text); exit.onClick.Invoke(); }, null, null);
+        dialog_box.invokeConfirmBox("Save Game", "Are you sure you want to save game under " + save_name.text 
+            + (save_manager.existsSaveGame(save_name.text) ? "?\nAlready existing data will be overwritten!" : ""), 
+            ()=> { save_manager.saveGame(save_name.text); exit.onClick.Invoke(); }, null, null);
     }
 
     public void delNamedGame() {
-        dialog_box.invokeConfirmBox("Delete Save", "Are you sure you want to delete this savefile?\n" + save_name.text, () => { save_manager.deleteSaveGame(save_name.text); SetData(); }, null, null); 
+        dialog_box.invokeConfirmBox("Delete Save", "Are you sure you want to delete this savefile?\n" + save_name.text, 
+            () => { save_manager.deleteSaveGame(save_name.text); SetData(); }, null, null); 
     }
     public void loadNamedGame() {
-        dialog_box.invokeConfirmBox("Load Save", "Are you sure you want to load this savefile?\n" + save_name.text, () => { save_manager.loadGame(save_name.text, isGameMap); exit.onClick.Invoke(); }, null, null);
+        dialog_box.invokeConfirmBox("Load Save", "Are you sure you want to load this savefile?\n" + save_name.text, 
+            () => { save_manager.loadGame(save_name.text, isGameMap); if (isGameMap) exit.onClick.Invoke(); }, null, null);
     }
 }
