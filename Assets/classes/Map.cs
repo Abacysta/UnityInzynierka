@@ -8,6 +8,7 @@ using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 using Unity.Loading;
 using Assets.map.scripts;
+using Codice.Client.BaseCommands;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 [Serializable]
@@ -70,7 +71,6 @@ public class Map : ScriptableObject {
                     countries[j].Opinions.Add(i, 0);
                 }
             }
-            addArmy(new(i, 100, countries[i].Capital, countries[i].Capital));
         }
         
     }
