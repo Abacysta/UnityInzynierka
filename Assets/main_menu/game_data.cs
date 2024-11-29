@@ -1,6 +1,7 @@
 using Assets.classes.subclasses;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class game_data : MonoBehaviour
 {
@@ -15,7 +16,6 @@ public class game_data : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     public void ReturnToMainMenu()

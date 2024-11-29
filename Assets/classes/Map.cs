@@ -139,6 +139,11 @@ public class Map : ScriptableObject {
         province.RecruitablePopulation = (int)Math.Floor(province.Population * techStats.recPop * province.Modifiers.RecPop);
     }
 
+    public void calcRecruitablePop(Province p) {
+        var techstats = countries[p.Owner_id].techStats;
+        p.RecruitablePopulation = (int)Math.Floor(p.Population * techstats.recPop * p.Modifiers.RecPop);
+    }
+
     public void growHap((int, int) coordinates, int value) {
         Province province = getProvince(coordinates);
 

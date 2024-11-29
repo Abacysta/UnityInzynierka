@@ -194,9 +194,11 @@ public class game_manager : MonoBehaviour
 
         foreach(var p in map.Provinces.Where(p => p.Type == "land")) {
             loading_bar.value = (0.2f * 100 / pcnt);
-            map.growPop(p.coordinates);
-            if (p.Owner_id != 0) map.growHap(p.coordinates, 3);
-            map.calcRecruitablePop(p.coordinates);
+            if (p.Owner_id != 0) {
+                map.growPop(p.coordinates);
+                map.growHap(p.coordinates, 3);
+                map.calcRecruitablePop(p.coordinates);
+            }
             p.calcStatuses();
 
             // zarzadzanie okupacja
