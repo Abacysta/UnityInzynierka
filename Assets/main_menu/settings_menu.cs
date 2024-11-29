@@ -86,7 +86,7 @@ public class settings_menu : MonoBehaviour
             }
         }
         */
-        overlay.SetActive(!overlay.activeSelf);
+        if(overlay!=null) overlay.SetActive(!overlay.activeSelf);
         menu.SetActive(!menu.activeSelf);
     }
 

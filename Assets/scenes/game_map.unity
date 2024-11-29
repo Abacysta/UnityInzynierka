@@ -5264,8 +5264,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mixer: {fileID: 24100000, guid: 89deee04d72ed384cb9f5e007f466a78, type: 2}
   ResList: {fileID: 822986921}
-  sliderSFX: {fileID: 0}
-  sliderMus: {fileID: 0}
+  sliderSFX: {fileID: 1907069034}
+  sliderMus: {fileID: 1744633382}
   toBlock:
   - {fileID: 1758574782}
   overlay: {fileID: 9181044488203698169}
