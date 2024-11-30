@@ -59,9 +59,12 @@ public class game_manager : MonoBehaviour
 
     internal async void LoadGameFromSave(Save data)
     {
+        // This is called in Awake() before all scripts, the map is being initialized
         Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
 
-        await Task.Delay(1000);
+        // We need to wait for the Start() methods in other scripts to complete
+        // to ensure required data is initialized before proceeding with the next loading steps.
+        await Task.Delay(100);
 
         fog_Of_War.UpdateFogOfWar();
         alerts.loadEvents(map.CurrentPlayer);

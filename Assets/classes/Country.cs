@@ -493,7 +493,7 @@ public class Country {
     }
 
     public void SetOpinion(int countryId, int value) {
-        opinions[countryId] = Mathf.Clamp(value, -200, 200);
+        opinions[countryId] = Mathf.Clamp(value, MIN_OPINION, MAX_OPINION);
     }
 }
 

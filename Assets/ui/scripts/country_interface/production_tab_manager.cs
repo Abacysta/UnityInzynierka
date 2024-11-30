@@ -101,10 +101,9 @@ public class production_tab_manager : MonoBehaviour
         var tax_percent = tax.GoldP;
         var tax_happ = tax.HappP;
         tax_text.text = tax_percent * 100 + "%";
-        happ_text.text = tax_happ + "%";
+        happ_text.text = (tax_happ >= 0 ? "+" : "") + tax_happ + "%";
 
-        if (tax_happ > 0) happ_text.color = Color.green;
-        else happ_text.color = Color.red;
+        happ_text.color = tax_happ > 0 ? Color.green : Color.red;
 
         updateGainInfo();
     }

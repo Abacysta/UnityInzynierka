@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using static Assets.classes.subclasses.Constants.Province;
 
 public class OpinionTests
 {
@@ -14,7 +15,7 @@ public class OpinionTests
         country.SetOpinion(2, 205);
 
         // Assert
-        Assert.AreEqual(200, country.Opinions[2]);
+        Assert.AreEqual(MAX_OPINION, country.Opinions[2]);
     }
 
     [Test]
@@ -28,6 +29,6 @@ public class OpinionTests
         country.SetOpinion(2, -205);
 
         // Assert
-        Assert.AreEqual(-200, country.Opinions[2]);
+        Assert.AreEqual(MIN_OPINION, country.Opinions[2]);
     }
 }
