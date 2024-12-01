@@ -62,7 +62,7 @@ public class game_manager : MonoBehaviour
         // This is called in Awake() before all scripts, the map is being initialized
         Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
 
-        // We need to wait for the Start() methods in other scripts to complete
+        // You need to wait for the Start() methods in other scripts to complete
         // to ensure required data is initialized before proceeding with the next loading steps.
         await Task.Delay(100);
 
@@ -175,12 +175,6 @@ public class game_manager : MonoBehaviour
         happinnessFromRelations();
         map.calcPopExtremes();
 
-
-        //yield return new WaitForSeconds(2f);
-        //map.moveArmies();
-        //yield return new WaitForSeconds(2f);
-
-
         loading_txt.text = "Merging armies";
         foreach(var c in map.Countries) {
             loading_bar.value += 0.1f  * 100 / ccnt;
@@ -251,7 +245,7 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    private void ccc(int i) {
+    private void CalculateCountryResources(int i) {
         Dictionary<Resource, float> resources = new Dictionary<Resource, float> {
                 { Resource.Gold, 0 },
                 { Resource.Wood, 0 },
@@ -298,7 +292,7 @@ public class game_manager : MonoBehaviour
     private void countryCalc() {
 
         for(int i = 1; i < map.Countries.Count; i++) {
-            ccc(i);
+            CalculateCountryResources(i);
         }
     }
 
@@ -325,24 +319,6 @@ public class game_manager : MonoBehaviour
         }
         
     }
-
-    //private void welcomeScreen() {
-    //    if (turnCnt == 0) {
-    //        start_screen.SetActive(true);
-    //        start_screen.transform.Find("window").GetComponentInChildren<TMP_Text>().text = "You're playing as " + "takie jajca bo mapa sie jeszcze nie zaladowala xd";//map.CurrentPlayer.Name;
-    //        var button = start_screen.transform.Find("window").GetComponentInChildren<Button>();
-    //        button.onClick.RemoveAllListeners();
-    //        button.onClick.AddListener(() => alerts.loadEvents(map.CurrentPlayer));
-    //        button.onClick.AddListener(() => alerts.reloadAlerts());
-    //        button.onClick.AddListener(() => start_screen.SetActive(false));
-    //    }
-    //    else {
-    //        start_screen.SetActive(false);
-    //    }
-    //}
-
-
- 
 
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
