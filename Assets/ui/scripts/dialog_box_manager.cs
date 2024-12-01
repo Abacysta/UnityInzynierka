@@ -270,9 +270,9 @@ public class dialog_box_manager : MonoBehaviour
 
         List<Effect> effects = new()
         {
-            new(tax_mod_sprite, "Tax modifier", $"{TaxBreak.TaxMod}", false),
-            new(happiness_sprite, "Happiness modifier", $"+{TaxBreak.HappMod}", true),
-            new(happiness_sprite, "Happiness static", $"+{TaxBreak.HappStatic}", true)
+            new(tax_mod_sprite, "Tax", $"{TaxBreak.TaxMod}%", true),
+            new(happiness_sprite, "Happiness growth", $"{(TaxBreak.HappMod >= 0 ? "+" : "")}{TaxBreak.HappMod * 100}%", true),
+            new(happiness_sprite, "Happiness", $"{(TaxBreak.HappStatic >= 0 ? "+" : "")}{TaxBreak.HappStatic}", true)
         };
 
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
@@ -293,9 +293,9 @@ public class dialog_box_manager : MonoBehaviour
 
         List<Effect> effects = new()
         {
-            new(prod_mod_sprite, "Production modifier", $"{Festivities.ProdMod}", false),
-            new(pop_mod_sprite, "Population modifier", $"+{Festivities.PopMod}", true),
-            new(happiness_sprite, "Happiness static", $"+{Festivities.HappStatic}", true)
+            new(prod_mod_sprite, "Production", $"{(Festivities.ProdMod >= 0 ? "+" : "")}{Festivities.ProdMod * 100}%", false),
+            new(pop_mod_sprite, "Population growth", $"{(Festivities.PopMod >= 0 ? "+" : "")}{Festivities.PopMod * 100}%", true),
+            new(happiness_sprite, "Happiness", $"{(Festivities.HappStatic >= 0 ? "+" : "")}{Festivities.HappStatic}", true)
         };
 
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
