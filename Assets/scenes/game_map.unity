@@ -15008,6 +15008,13 @@ MonoBehaviour:
   occupied_tile: {fileID: 11400000, guid: fe7beea5f6d156847bb0cfecb26643d7, type: 2}
   water_tile: {fileID: 11400000, guid: 1e7c238a62d439f44987884f6091e46a, type: 2}
   capital_tile: {fileID: 11400000, guid: 08477c152c7258a4d98340650eafd4ff, type: 2}
+  desert_1: {fileID: 11400000, guid: 0d1d40951e0f09348a2781c102e81a72, type: 2}
+  desert_2: {fileID: 11400000, guid: d29cd80d9c911544998ae9ed78ea945d, type: 2}
+  desert_3: {fileID: 11400000, guid: 82fca2ac7c5ee2a4bbd2015bebdbc251, type: 2}
+  forest_1: {fileID: 11400000, guid: ef54a5e4c59f4574699884b93968808d, type: 2}
+  lowlands_1: {fileID: 11400000, guid: 762b6767a5381ae40947ecf06a14de01, type: 2}
+  tundra_1: {fileID: 11400000, guid: 15f20ab202a4bfa41b35c4d9ea2afeef, type: 2}
+  tundra_2: {fileID: 11400000, guid: d8eac989839d6f74097e09eb2c8495cd, type: 2}
   mouse_hover_layer_rnd: {fileID: 504392807}
   province_select_layer_rnd: {fileID: 1342113967}
   filter_layer_rnd: {fileID: 1022513886}

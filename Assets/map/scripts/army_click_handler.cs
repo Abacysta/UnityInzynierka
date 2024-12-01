@@ -88,7 +88,7 @@ public class army_click_handler : cursor_helper
                 if (highlightedCells.Contains(cellPosition))
                 {
                     (int x, int y) = (cellPosition.x, cellPosition.y);
-                    dialog_box.invokeArmyBox(map, selectedArmy.ArmyData, (x, y));
+                    dialog_box.invokeArmyBox(selectedArmy.ArmyData, (x, y));
                     province_tooltip.OnMouseExitProvince();
                 }
 
@@ -250,7 +250,7 @@ public class army_click_handler : cursor_helper
     {
         if (army != null)
         {
-            dialog_box.invokeDisbandArmyBox(map, army);
+            dialog_box.invokeDisbandArmyBox(army);
             ResetSelectedArmy();
             province_click_handler.DeselectProvince();
         }

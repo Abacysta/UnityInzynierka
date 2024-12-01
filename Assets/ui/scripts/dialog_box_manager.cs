@@ -93,7 +93,7 @@ public class dialog_box_manager : MonoBehaviour
         }
     }
 
-    public void invokeArmyBox(Map map, Army army, (int, int) destination) {
+    public void invokeArmyBox(Army army, (int, int) destination) {
         (string title, string message) = dialog_box_precons.armyMoveBox.toVars();
 
         int affordableValue = map.CurrentPlayer
@@ -107,7 +107,7 @@ public class dialog_box_manager : MonoBehaviour
         ShowSliderBox(title, message, onConfirm, army.Count, CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), affordableValue: affordableValue);
     }
 
-    public void invokeRecBox(Map map, (int, int) coordinates) {
+    public void invokeRecBox((int, int) coordinates) {
         (string title, string message) = dialog_box_precons.recruitBox.toVars();
         var province = map.getProvince(coordinates);
         Country.TechnologyInterpreter techStats = map.Countries[province.Owner_id].techStats;
@@ -124,7 +124,7 @@ public class dialog_box_manager : MonoBehaviour
             CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats), affordableValue: affordableValue);
     }
 
-    public void invokeDisbandArmyBox(Map map, Army army)
+    public void invokeDisbandArmyBox(Army army)
     {
         (string title, string message) = dialog_box_precons.disbandBox.toVars();
 
@@ -142,7 +142,7 @@ public class dialog_box_manager : MonoBehaviour
             CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), affordableValue: affordableValue);
     }
 
-    public void invokeUpgradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
+    public void invokeUpgradeBuilding((int, int) coordinates, BuildingType type) {
         (string title, string message) = dialog_box_precons.upBuildingBox.toVars();
 
         var province = map.getProvince(coordinates);
@@ -182,7 +182,7 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
     }
 
-    public void invokeDowngradeBuilding(Map map, (int, int) coordinates, BuildingType type) {
+    public void invokeDowngradeBuilding((int, int) coordinates, BuildingType type) {
         (string title, string message) = dialog_box_precons.downBuildingBox.toVars();
 
         var province = map.getProvince(coordinates);
@@ -255,7 +255,7 @@ public class dialog_box_manager : MonoBehaviour
             tech: map.CurrentPlayer.Technologies, techType: type));
     }
 
-    public void invokeTaxBreakIntroductionBox(Map map, (int, int) coordinates)
+    public void invokeTaxBreakIntroductionBox((int, int) coordinates)
     {
         (string title, string message) = dialog_box_precons.taxBreakBox.toVars();
 
@@ -278,7 +278,7 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
     }
 
-    public void invokeFestivitiesOrganizationBox(Map map, (int, int) coordinates)
+    public void invokeFestivitiesOrganizationBox((int, int) coordinates)
     {
         (string title, string message) = dialog_box_precons.festivitiesBox.toVars();
 
@@ -301,7 +301,7 @@ public class dialog_box_manager : MonoBehaviour
         ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
     }
 
-    public void invokeRebelSuppressionBox(Map map, (int, int) coordinates)
+    public void invokeRebelSuppressionBox((int, int) coordinates)
     {
         (string title, string message) = dialog_box_precons.rebelSuppressBox.toVars();
 
