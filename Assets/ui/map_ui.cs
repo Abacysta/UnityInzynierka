@@ -1,7 +1,4 @@
 using Assets.ui.scripts;
-using Newtonsoft.Json.Bson;
-using System;
-using TMPro;
 using UnityEngine;
 
 public class map_ui : MonoBehaviour
@@ -21,7 +18,7 @@ public class map_ui : MonoBehaviour
 
     private void Start()
     {
-		settings_menu_scr.SetInitialAudioSettings();
+		settings_menu_scr.settingsInit();
     }
 
     void Update()
