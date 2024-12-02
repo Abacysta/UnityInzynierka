@@ -129,7 +129,6 @@ public class player_table : MonoBehaviour
                 provinceData.Happiness,
                 provinceData.Is_coast
             );
-            //resource rate added lol
             newProvince.ResourceAmount = provinceData.ResourceAmount * map.ResourceRate/100;
             map.Provinces.Add(newProvince);
         }
@@ -200,10 +199,6 @@ public class player_table : MonoBehaviour
         foreach (Country country in map.Countries.Where(c => c.Id != 0))
         {
             country.Priority = i++;
-            //foreach (var c in map.Countries.Where(c => c != country && c.Id != 0))
-            //{
-            //    c.Opinions.Add(country.Id, 0);
-            //}
             Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
         }
     }

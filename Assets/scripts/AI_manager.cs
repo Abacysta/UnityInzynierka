@@ -565,12 +565,9 @@ namespace Assets.Scripts {
         }
         private class diploEventResponder {
             public static void Respond(Event_ e, Map map, Humor humor) {
-                //tu sie dzieje magia
                 Type t = e.GetType();
-                //tu tez
                 var method = typeof(diploEventResponder).GetMethod("respond", new[] { t, typeof(Map), typeof(Humor) });
                 if (method != null) {
-                    //ale w sumie to konkretnie tu
                     method.Invoke(null, new object[] { e, map, humor });
                 } else {
                     Debug.LogError("Diplo events cause problems once again. This time ai can't respond to one.");

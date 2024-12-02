@@ -108,7 +108,6 @@ public class province_click_handler : cursor_helper
         {
             if(IsProvinceRevealed(cellPosition.x, cellPosition.y))
             {
-                //province_click.Play();
                 SelectProvince(cellPosition.x, cellPosition.y);
                 DisplayProvinceInterface(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");

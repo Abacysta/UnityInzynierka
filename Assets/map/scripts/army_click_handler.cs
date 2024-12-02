@@ -14,7 +14,6 @@ public class army_click_handler : cursor_helper
     [SerializeField] private Tilemap army_movement_layer;
     [SerializeField] private TileBase base_tile;
 
-    //[SerializeField] private AudioSource army_click;
     [SerializeField] private AudioSource army_move_select;
     [SerializeField] private dialog_box_manager dialog_box;
     [SerializeField] private province_tooltip province_tooltip;
@@ -92,7 +91,7 @@ public class army_click_handler : cursor_helper
                     province_tooltip.OnMouseExitProvince();
                 }
 
-                ResetSelectedArmy(); // Zresetuj po zakonczeniu ruchu
+                ResetSelectedArmy();
             }
         }
     }
@@ -203,10 +202,6 @@ public class army_click_handler : cursor_helper
             HasCurrentPlayerRelationWithTileOwner(RelationType.Vassalage, tileOwner) ||
             HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, tileOwner);
     }
-
-
-    // https://www.redblobgames.com/grids/hexagons/#line-drawing do przyszlego pathfindingu? 
-    // https://www.redblobgames.com/grids/hexagons/#pathfinding
 
     private void AnimateHighlitedTiles()
     {

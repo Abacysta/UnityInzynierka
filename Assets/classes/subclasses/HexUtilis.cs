@@ -173,7 +173,6 @@ public class HexUtils
             : $"B³¹d: oczekiwano d³ugoœci {expectedDistance + 1}, otrzymano {path.Count}");
     }
 
-    //to jest super fajne ze sam usze to omplementowac normalnie to skacze z radosci i podskakuje jak pojebany
     public static int getProvinceDistance(Province p1, Province p2) {
         Cube c1 = OffsetToCube(p1.X, p2.Y), c2=OffsetToCube(p2.X, p2.Y);
         return CubeDistance(c1, c2);

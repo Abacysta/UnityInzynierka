@@ -26,7 +26,7 @@ public class save_manager : MonoBehaviour
         }
         Debug.Log($"Game saved to: {path}");
     }
-
+    //deprecated, only for TESTING
     public void saveGameJson()
     {
         var path = Application.persistentDataPath + "/save.json";
@@ -58,7 +58,7 @@ public class save_manager : MonoBehaviour
             Debug.LogError("Save file not found or loading failed.");
         }
     }
-
+    //deprecated, only for TESTING
     public void loadGameJson(string name)
     {
         var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension

@@ -173,11 +173,6 @@ public class game_manager : MonoBehaviour
         map.calcPopExtremes();
 
 
-        //yield return new WaitForSeconds(2f);
-        //map.moveArmies();
-        //yield return new WaitForSeconds(2f);
-
-
         loading_txt.text = "Merging armies";
         foreach(var c in map.Countries) {
             loading_bar.value += 0.1f  * 100 / ccnt;
@@ -190,7 +185,6 @@ public class game_manager : MonoBehaviour
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.turnCnt).ToString());
         loading_box.SetActive(false);
-        //testRelations();
         Debug.Log("stopped bar");
 
     }
@@ -309,7 +303,7 @@ public class game_manager : MonoBehaviour
     private void rebellionCheck() {
         foreach(var p in map.Provinces) {
             random_events.checkRebellion(p);
-            //^ = bool wiec mozna potem dodac event
+            //returns bool, so in future can do more with that
         }
     }
 
@@ -322,22 +316,6 @@ public class game_manager : MonoBehaviour
         }
         
     }
-
-    //private void welcomeScreen() {
-    //    if (turnCnt == 0) {
-    //        start_screen.SetActive(true);
-    //        start_screen.transform.Find("window").GetComponentInChildren<TMP_Text>().text = "You're playing as " + "takie jajca bo mapa sie jeszcze nie zaladowala xd";//map.CurrentPlayer.Name;
-    //        var button = start_screen.transform.Find("window").GetComponentInChildren<Button>();
-    //        button.onClick.RemoveAllListeners();
-    //        button.onClick.AddListener(() => alerts.loadEvents(map.CurrentPlayer));
-    //        button.onClick.AddListener(() => alerts.reloadAlerts());
-    //        button.onClick.AddListener(() => start_screen.SetActive(false));
-    //    }
-    //    else {
-    //        start_screen.SetActive(false);
-    //    }
-    //}
-
 
  
 
@@ -475,7 +453,7 @@ public class game_manager : MonoBehaviour
     private void endGame(bool timeout) {
         end_screen.SetActive(true);
     }
-    //to jest wozny
+
     private class Janitor {
         private Map map;
         private battle_manager battle;

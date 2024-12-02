@@ -130,15 +130,13 @@ namespace Assets.map.scripts {
         }
         public void startAlliance(Country c1, Country c2) {
             map.Relations.Add(new Relation.Alliance(c1, c2));
-            //dodaj wszyskie kratki sojusznika byly odkryte po zawarciu sojuszu, chyba to:
+            //all ally tiles are revealed
             foreach(var tile in c1.Provinces) {
                 c2.SeenTiles.Add(tile.coordinates);
-                //c2.RevealedTiles.Add(tile.coordinates);
                 tile.Happiness += AllianceHappinessBonusInit;
             }
             foreach(var tile in c2.Provinces) {
                 c1.SeenTiles.Add(tile.coordinates);
-                //c1.RevealedTiles.Add(tile.coordinates);
                 tile.Happiness += AllianceHappinessBonusInit;
             }
         }
@@ -166,15 +164,13 @@ namespace Assets.map.scripts {
         public void startVassalage(Country c1, Country c2) {
             map.Relations.Add(new Relation.Vassalage(c1, c2));
 
-            //odkrycie kafelkow itp
+            //seen tiles
             foreach(var tile in c1.Provinces) {
                 c2.SeenTiles.Add(tile.coordinates);
-                //c2.RevealedTiles.Add(tile.coordinates);
                 tile.Happiness -= VassalageHappinessPenaltyInitC2;
             }
             foreach(var tile in c2.Provinces) {
                 c1.SeenTiles.Add(tile.coordinates);
-                //c1.RevealedTiles.Add(tile.coordinates);
                 tile.Happiness += VassalageHappinessBonusInitC1;
             }
         }
