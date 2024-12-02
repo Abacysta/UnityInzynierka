@@ -7,8 +7,8 @@ public class main_menu : MonoBehaviour
 
     void Start()
     {
+        settings.gameObject.SetActive(false);
         settings.settingsInit();
-        Screen.fullScreen = false;
     }
 
     public void StartNewGame() {

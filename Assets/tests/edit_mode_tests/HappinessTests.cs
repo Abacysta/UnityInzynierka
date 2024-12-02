@@ -1,5 +1,5 @@
 using NUnit.Framework;
-
+using static Assets.classes.subclasses.Constants.Province;
 public class HappinessTests
 {
     [Test]
@@ -25,7 +25,7 @@ public class HappinessTests
         province.Happiness = 105;
 
         // Assert
-        Assert.AreEqual(100, province.Happiness);
+        Assert.AreEqual(MAX_HAPP, province.Happiness);
     }
 
     [Test]
@@ -51,6 +51,6 @@ public class HappinessTests
         province.Happiness = -5;
 
         // Assert
-        Assert.AreEqual(0, province.Happiness);
+        Assert.AreEqual(MIN_HAPP, province.Happiness);
     }
 }

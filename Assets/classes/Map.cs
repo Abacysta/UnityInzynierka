@@ -5,10 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
-using Unity.Loading;
 using Assets.map.scripts;
-using Codice.Client.BaseCommands;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 [Serializable]

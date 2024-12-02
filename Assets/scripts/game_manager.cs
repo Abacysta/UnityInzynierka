@@ -59,9 +59,12 @@ public class game_manager : MonoBehaviour
 
     internal async void LoadGameFromSave(Save data)
     {
+        // This is called in Awake() before all scripts, the map is being initialized
         Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
 
-        await Task.Delay(1000);
+        // You need to wait for the Start() methods in other scripts to complete
+        // to ensure required data is initialized before proceeding with the next loading steps.
+        await Task.Delay(100);
 
         fog_Of_War.UpdateFogOfWar();
         alerts.loadEvents(map.CurrentPlayer);
@@ -172,7 +175,6 @@ public class game_manager : MonoBehaviour
         happinnessFromRelations();
         map.calcPopExtremes();
 
-
         loading_txt.text = "Merging armies";
         foreach(var c in map.Countries) {
             loading_bar.value += 0.1f  * 100 / ccnt;
@@ -242,7 +244,7 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    private void ccc(int i) {
+    private void CalculateCountryResources(int i) {
         Dictionary<Resource, float> resources = new Dictionary<Resource, float> {
                 { Resource.Gold, 0 },
                 { Resource.Wood, 0 },
@@ -289,7 +291,7 @@ public class game_manager : MonoBehaviour
     private void countryCalc() {
 
         for(int i = 1; i < map.Countries.Count; i++) {
-            ccc(i);
+            CalculateCountryResources(i);
         }
     }
 
@@ -316,8 +318,6 @@ public class game_manager : MonoBehaviour
         }
         
     }
-
- 
 
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {

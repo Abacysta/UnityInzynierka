@@ -1,4 +1,5 @@
 using Assets.classes;
+using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -35,6 +36,14 @@ public class filter_modes : MonoBehaviour
     [SerializeField] private TileBase water_tile;
     [SerializeField] private TileBase capital_tile;
 
+    [SerializeField] private TileBase desert_1;
+    [SerializeField] private TileBase desert_2;
+    [SerializeField] private TileBase desert_3;
+    [SerializeField] private TileBase forest_1;
+    [SerializeField] private TileBase lowlands_1;
+    [SerializeField] private TileBase tundra_1;
+    [SerializeField] private TileBase tundra_2;
+
     [SerializeField] private TilemapRenderer mouse_hover_layer_rnd;
     [SerializeField] private TilemapRenderer province_select_layer_rnd;
     [SerializeField] private TilemapRenderer filter_layer_rnd;
@@ -47,6 +56,7 @@ public class filter_modes : MonoBehaviour
     void Start()
     {
         SetPolitical();
+        SetTerrainFeatures();
     }
 
     public void Reload() {
@@ -63,6 +73,58 @@ public class filter_modes : MonoBehaviour
                 SetDiplomatic(); break;
             default:
                 SetTerrain(); break;
+        }
+    }
+
+    private void SetTerrainFeatures()
+    {
+        float fillProbability = 0.35f;
+
+        foreach (Province province in map.Provinces)
+        {
+            Country owner = map.Countries[province.Owner_id];
+            Vector3Int position = new(province.X, province.Y, 0);
+
+            int hash = province.X * 73856093 ^ province.Y * 19349663 ^ (int)province.Terrain * 83492791;
+            hash = Math.Abs(hash);
+            float pseudoRandomValue = (hash % 1000) / 1000.0f;
+
+            if (province.coordinates != owner.Capital && pseudoRandomValue < fillProbability)
+            {
+                TileBase selectedTile = null;
+
+                switch (province.Terrain)
+                {
+                    case Province.TerrainType.lowlands:
+                        selectedTile = lowlands_1;
+                        break;
+                    case Province.TerrainType.desert:
+                        selectedTile = (hash % 3) switch
+                        {
+                            0 => desert_1,
+                            1 => desert_2,
+                            2 => desert_3,
+                            _ => null
+                        };
+                        break;
+                    case Province.TerrainType.tundra:
+                        selectedTile = (hash % 2) switch
+                        {
+                            0 => tundra_1,
+                            1 => tundra_2,
+                            _ => null
+                        };
+                        break;
+                    case Province.TerrainType.forest:
+                        selectedTile = forest_1;
+                        break;
+                }
+
+                if (selectedTile != null)
+                {
+                    terrain_feature_layer_1.SetTile(position, selectedTile);
+                }
+            }
         }
     }
 
@@ -107,6 +169,7 @@ public class filter_modes : MonoBehaviour
         }
 
         SetProvinceHoverAndSelectAboveFilterLayer();
+        SetTerrainFeatures();
     }
 
     public void SetResources()
@@ -222,6 +285,7 @@ public class filter_modes : MonoBehaviour
         }
         province_select_layer_rnd.sortingOrder = 4;
         mouse_hover_layer_rnd.sortingOrder = 5;
+        SetTerrainFeatures();
     }
 
     public void SetDiplomatic() {
@@ -371,7 +435,6 @@ public class filter_modes : MonoBehaviour
     private void ClearLayers()
     {
         occupation_layer.ClearAllTiles();
-        terrain_feature_layer_1.ClearAllTiles();
         terrain_feature_layer_2.ClearAllTiles();
         filter_layer.ClearAllTiles();
     }

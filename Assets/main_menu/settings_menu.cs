@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
@@ -10,72 +8,90 @@ using UnityEngine.SceneManagement;
 public class settings_menu : MonoBehaviour
 {
     [SerializeField] private AudioMixer mixer;
-    [SerializeField] private TMP_Dropdown ResList;
+    [SerializeField] private TMP_Dropdown res_dropdown;
     [SerializeField] private Slider sliderSFX, sliderMus;
-    [SerializeField] private GameObject[] toBlock;
     [SerializeField] private GameObject overlay;
+    [SerializeField] private Toggle full_screen_toggle;
 
-    Resolution[] res;
-
-    private float volSfx;
-    private float volMus;
-    private float screenHeight;
-    private float screenWidth;
+    private readonly List<Resolution> validResolutions = new();
 
     public void settingsInit() {
-        if(!PlayerPrefs.HasKey("volSfx")) PlayerPrefs.SetFloat("volSfx", 0);
-        if(!PlayerPrefs.HasKey("volMus")) PlayerPrefs.SetFloat("volMus", 0);
 
-        volSfx = PlayerPrefs.GetFloat("volSfx");
-        volMus = PlayerPrefs.GetFloat("volMus");
+        SetInitialVideoSettings();
+        SetInitialAudioSettings();
+    }
 
-        if(!PlayerPrefs.HasKey("scHeight") || !PlayerPrefs.HasKey("scWidth")) {
-            PlayerPrefs.SetInt("scHeight", Screen.currentResolution.height);
-            PlayerPrefs.SetInt("scWidth", Screen.currentResolution.width);
+    private void SetInitialVideoSettings()
+    {
+        bool isFullScreen = true;
+        FindValidResolutions();
+
+        if (PlayerPrefs.HasKey("scHeight") && PlayerPrefs.HasKey("scWidth")
+            && PlayerPrefs.HasKey("isFullScreen")) {
+            isFullScreen = PlayerPrefs.GetInt("isFullScreen") == 1;
+            Resolution r = new() {
+                width = PlayerPrefs.GetInt("scWidth"),
+                height = PlayerPrefs.GetInt("scHeight")
+            };
+            SetRes(r);
+        }
+        else
+        {
+            SetRes(validResolutions.Count - 1);
         }
 
-        screenHeight = PlayerPrefs.GetInt("scHeight");
-        screenWidth = PlayerPrefs.GetInt("scWidth");
+        SetFullScreenMode(isFullScreen);
+
+        if (full_screen_toggle != null)
+        {
+            full_screen_toggle.isOn = isFullScreen;
+            full_screen_toggle.onValueChanged.AddListener(ToggleFullScreen);
+        }
+
+        PopulateDropdown();
+    }
+
+    private void SetInitialAudioSettings()
+    {
+        if (!PlayerPrefs.HasKey("volSfx")) PlayerPrefs.SetFloat("volSfx", 75f);
+        if (!PlayerPrefs.HasKey("volMus")) PlayerPrefs.SetFloat("volMus", 75f);
+
+        float volSfx = PlayerPrefs.GetFloat("volSfx");
+        float volMus = PlayerPrefs.GetFloat("volMus");
 
         setSFX(volSfx);
         setMus(volMus);
 
         sliderSFX.value = volSfx;
         sliderMus.value = volMus;
+
+        sliderMus.onValueChanged.AddListener(setMus);
+        sliderSFX.onValueChanged.AddListener(setSFX);
     }
 
-    void Start() {
-        if(!PlayerPrefs.HasKey("volSfx")) PlayerPrefs.SetFloat("volSfx", 0);
-        if(!PlayerPrefs.HasKey("volMus")) PlayerPrefs.SetFloat("volMus", 0);
+    private void PopulateDropdown()
+    {
+        res_dropdown.ClearOptions();
+        List<string> options = new();
 
-        volSfx = PlayerPrefs.GetFloat("volSfx");
-        volMus = PlayerPrefs.GetFloat("volMus");
-
-        if(!PlayerPrefs.HasKey("scHeight") || !PlayerPrefs.HasKey("scWidth")){
-            PlayerPrefs.SetInt("scHeight", Screen.currentResolution.height);
-            PlayerPrefs.SetInt("scWidth", Screen.currentResolution.width);
+        foreach (Resolution res in validResolutions) {
+            options.Add($"{res.width} x {res.height}");
         }
 
-        screenHeight = PlayerPrefs.GetInt("scHeight");
-        screenWidth = PlayerPrefs.GetInt("scWidth");
+        int screenHeight = PlayerPrefs.GetInt("scHeight");
+        int screenWidth = PlayerPrefs.GetInt("scWidth");
 
-        res = Screen.resolutions;
-        ResList.ClearOptions();
-        List<string> oList = new List<string>();
-        int idx=0;
+        res_dropdown.AddOptions(options);
+        int currentIndex = validResolutions.FindIndex(res =>
+            res.width == screenWidth && res.height == screenHeight);
+        res_dropdown.value = currentIndex != -1 ? currentIndex : validResolutions.Count - 1;
+        res_dropdown.RefreshShownValue();
 
-        for(int i = 0; i < res.Length; i++) {
-            oList.Add(res[i].width + "x" + res[i].height);
-            if(res[i].width==screenWidth && res[i].height==screenHeight) idx= i;
-        }
-
-        ResList.AddOptions(oList);
-        ResList.value = idx;
-        ResList.RefreshShownValue();
+        res_dropdown.onValueChanged.AddListener(SetRes);
     }
 
     public void toggleMenu(GameObject menu) {
-        if(overlay!=null) overlay.SetActive(!overlay.activeSelf);
+        if (overlay != null) overlay.SetActive(!overlay.activeSelf);
         menu.SetActive(!menu.activeSelf);
     }
 
@@ -83,20 +99,78 @@ public class settings_menu : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    public void SetRes(int idx) {
-        Resolution r = res[idx];
-        Screen.SetResolution(r.width, r.height, Screen.fullScreen);
+    public void SetRes(int idx)
+    {
+        if (idx < 0 || idx >= validResolutions.Count) return;
+
+        Resolution r = validResolutions[idx];
+        SetRes(r);
+    }
+
+    public void SetRes(Resolution r) {
+        Screen.SetResolution(r.width, r.height, Screen.fullScreenMode);
         PlayerPrefs.SetInt("scHeight", r.height);
         PlayerPrefs.SetInt("scWidth", r.width);
+        PlayerPrefs.Save();
     }
 
-    public void setSFX(float vol) {
+    public void setSFX(float percent) {
+        float vol = PercentToDecibels(percent);
         mixer.SetFloat("sfx_vol", vol);
-        PlayerPrefs.SetFloat("volSfx", vol);
+        PlayerPrefs.SetFloat("volSfx", percent);
+        PlayerPrefs.Save();
     }
 
-    public void setMus(float vol) {
+    public void setMus(float percent) {
+        float vol = PercentToDecibels(percent);
         mixer.SetFloat("mus_vol", vol);
-        PlayerPrefs.SetFloat("volMus", vol);
+        PlayerPrefs.SetFloat("volMus", percent);
+        PlayerPrefs.Save();
+    }
+
+    public void ToggleFullScreen(bool isFullScreenMode) {
+        SetFullScreenMode(isFullScreenMode);
+    }
+
+    private void SetFullScreenMode(bool isFullScreenMode)
+    {
+        if (Screen.fullScreenMode == (isFullScreenMode ? FullScreenMode.ExclusiveFullScreen : FullScreenMode.Windowed)) {
+            return;
+        }
+
+        Screen.fullScreenMode = isFullScreenMode
+        ? FullScreenMode.ExclusiveFullScreen
+        : FullScreenMode.Windowed;
+
+        PlayerPrefs.SetInt("isFullScreen", isFullScreenMode ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    private float PercentToDecibels(float percent)
+    {
+        percent = Mathf.Clamp(percent, 0.0001f, 100f);
+        float linearValue = Mathf.Pow(percent / 100f, 0.5f);
+        float minDb = -80f;
+        float maxDb = 0f;
+
+        return Mathf.Lerp(minDb, maxDb, linearValue);
+    }
+
+    private void FindValidResolutions()
+    {
+        validResolutions.Clear();
+        float aspectRatio = 16f / 9f;
+
+        foreach (var res in Screen.resolutions)
+        {
+            float currentAspectRatio = (float)res.width / res.height;
+            if (Mathf.Abs(currentAspectRatio - aspectRatio) < 0.01f &&
+                !validResolutions.Exists(r => r.width == res.width && r.height == res.height))
+            {
+                validResolutions.Add(res);
+            }
+        }
+
+        if (validResolutions.Count == 0) validResolutions.Add(Screen.currentResolution);
     }
 }

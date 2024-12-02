@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Assets.classes.subclasses.Constants.Province;
 
 public class ProvinceModifiers
 {
@@ -113,7 +114,7 @@ public class Province {
     public float ResourceAmount { get => (float)System.Math.Round(resourceAmount, 1); set => resourceAmount = value; }
     public int Population { get => population; set => population = value;}
     public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
-    public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, 0, 100); }
+    public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, MIN_HAPP, MAX_HAPP); }
     public bool Is_coast { get => is_coast; set => is_coast = value; }
     public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
     public int Owner_id { get => owner_id; set => owner_id = value; }
@@ -206,7 +207,7 @@ public class Province {
         {
             { BuildingType.Infrastructure, 0 },
             { BuildingType.Fort, 0 },
-            { BuildingType.School, p.Population > 3000 ? 0 : 4 },
+            { BuildingType.School, p.Population > SCHOOL_MIN_POP ? 0 : 4 },
             { BuildingType.Mine, p.resourceType == Resource.Iron ? 0 : p.resourceType == Resource.Gold ? 0 : 4 }
         };
     }

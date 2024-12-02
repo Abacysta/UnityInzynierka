@@ -1,6 +1,4 @@
 using Assets.ui.scripts;
-using System;
-using TMPro;
 using UnityEngine;
 
 public class map_ui : MonoBehaviour
@@ -17,6 +15,11 @@ public class map_ui : MonoBehaviour
     [SerializeField] private GameObject overlay;
 	[SerializeField] private diplomatic_actions_manager diplomatic_actions_manager;
 	[SerializeField] private save_manager save_manager;
+
+    private void Start()
+    {
+		settings_menu_scr.settingsInit();
+    }
 
     void Update()
     {   
