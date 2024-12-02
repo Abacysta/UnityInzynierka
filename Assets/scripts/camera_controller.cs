@@ -1,7 +1,6 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class camera_controller : cursor_helper
 {
@@ -40,16 +39,12 @@ public class camera_controller : cursor_helper
 
     public bool IsPanning { get => isPanning; private set => isPanning = value; }
 
-    private void Awake()
+    void Start()
     {
         resolutionScaleFactor = ((float)Screen.width / baseResolution.x + (float)Screen.height / baseResolution.y) / 2f;
         mainCamera = Camera.main;
         CalculateMapCenterAndBounds();
         CalculateCameraSizeForMap();
-    }
-
-    void Start()
-    {
         ZoomCameraOnCountry(map.currentPlayer);
     }
 
