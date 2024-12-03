@@ -47,12 +47,11 @@ public class player_table : MonoBehaviour
 
     public void LoadMap(string mapName)
     {
-        // Próba załadowania mapy z pliku JSON
         string json = LoadJsonFromFile(mapName);
         if (string.IsNullOrEmpty(json))
         {
             Debug.LogWarning($"Nie udało się załadować mapy z pliku, próba załadowania z Resources: {mapName}");
-            json = LoadJsonFromResources(mapName); // Próba z Resources
+            json = LoadJsonFromResources(mapName);
         }
 
         if (string.IsNullOrEmpty(json))
@@ -60,8 +59,6 @@ public class player_table : MonoBehaviour
             Debug.LogError($"Nie udało się załadować mapy: {mapName}");
             return;
         }
-
-        // Parsowanie JSON do obiektu GameState
         GameState gameState;
         try
         {
@@ -72,8 +69,6 @@ public class player_table : MonoBehaviour
             Debug.LogError($"Błąd podczas deserializacji mapy: {e.Message}");
             return;
         }
-
-        // Przypisanie danych do odpowiednich zmiennych
         currentStates = gameState.countries;
         provinces = gameState.provinces;
 
@@ -81,7 +76,6 @@ public class player_table : MonoBehaviour
         showButton();
         map_Preview.Provinces = provinces;
         map_Preview.Reload();
-        // Resetowanie kontrolerów
         controllers.Clear();
         controllers = Enumerable.Repeat(CountryController.Ai, currentStates.Count).ToList();
     }
@@ -94,7 +88,7 @@ public class player_table : MonoBehaviour
             return null;
         }
 
-        TextAsset textAsset = Resources.Load<TextAsset>($"Maps/{mapName}"); // Dodano "Maps/" dla struktury folderu
+        TextAsset textAsset = Resources.Load<TextAsset>($"Maps/{mapName}");
         if (textAsset == null)
         {
             Debug.LogError($"Plik mapy nie został znaleziony w Resources: {mapName}");
@@ -216,7 +210,6 @@ public class player_table : MonoBehaviour
         {
             map.Controllers[i] = controllers[i - 1];
         }
-		//createTestCountrys();
         map.initCountries();
 		SetCurrentPlayer();
         SetCountryPrioritiesAndOpinions();

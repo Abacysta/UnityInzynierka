@@ -41,10 +41,7 @@ public class map_options : MonoBehaviour
 
     private void LoadAvailableMaps()
     {
-        // Wyczyszczenie listy map
         availableMaps.Clear();
-
-        // Pobieranie map z folderu Resources/Maps
         string mapsPath;
         if(Application.isEditor)
         {
@@ -67,8 +64,6 @@ public class map_options : MonoBehaviour
         {
             Debug.LogError($"Nie znaleziono folderu z mapami: {mapsPath}");
         }
-
-        // Aktualizacja rozwijanego menu
         mapDropdown.ClearOptions();
         mapDropdown.AddOptions(availableMaps);
 
@@ -76,8 +71,6 @@ public class map_options : MonoBehaviour
         {
             selectedMap = availableMaps[0];
             playerTable.LoadMap(selectedMap);
-
-            // Obs³uga zmiany wyboru mapy
             mapDropdown.onValueChanged.AddListener(delegate { OnMapSelected(mapDropdown); });
         }
         else
@@ -162,18 +155,18 @@ public class map_options : MonoBehaviour
 
     public void AddValueRes()
     {
-        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) // ctrl
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
             selectedResourceRate = maxResourceRate;
         }
-        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) // shift
+        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
             if (selectedResourceRate + resourceValue * shiftInc <= maxResourceRate)
                 selectedResourceRate += resourceValue * shiftInc;
             else
                 selectedResourceRate = maxResourceRate;
         }
-        else // normalne
+        else
         {
             if (selectedResourceRate + resourceValue <= maxResourceRate)
                 selectedResourceRate += resourceValue;
@@ -184,18 +177,18 @@ public class map_options : MonoBehaviour
 
     public void DecValueRes()
     {
-        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) // ctrl
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
             selectedResourceRate = minResourceRate;
         }
-        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) // shift
+        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
             if (selectedResourceRate - resourceValue * shiftInc >= minResourceRate)
                 selectedResourceRate -= resourceValue * shiftInc;
             else
                 selectedResourceRate = minResourceRate;
         }
-        else // normalne
+        else
         {
             if (selectedResourceRate - resourceValue >= minResourceRate)
                 selectedResourceRate -= resourceValue;
@@ -206,18 +199,18 @@ public class map_options : MonoBehaviour
 
     public void AddValueTurn()
     {
-        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) // ctrl
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
             selectedTurnLimit = maxTurnLimit;
         }
-        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) // shift
+        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
             if (selectedTurnLimit + turnValue * shiftInc <= maxTurnLimit)
                 selectedTurnLimit += turnValue * shiftInc;
             else
                 selectedTurnLimit = maxTurnLimit;
         }
-        else // normalne
+        else
         {
             if (selectedTurnLimit + turnValue <= maxTurnLimit)
                 selectedTurnLimit += turnValue;
@@ -228,18 +221,18 @@ public class map_options : MonoBehaviour
 
     public void DecValueTurn()
     {
-        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) // ctrl
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
             selectedTurnLimit = minTurnLimit;
         }
-        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) // shift
+        else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
             if (selectedTurnLimit - turnValue * shiftInc >= minTurnLimit)
                 selectedTurnLimit -= turnValue * shiftInc;
             else
                 selectedTurnLimit = minTurnLimit;
         }
-        else // normalne
+        else
         {
             if (selectedTurnLimit - turnValue >= minTurnLimit)
                 selectedTurnLimit -= turnValue;
