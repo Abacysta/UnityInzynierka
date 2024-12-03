@@ -28,8 +28,10 @@ public class BuildingTests
     [Test]
     public void GivenPopulationGreaterThanSchoolMinPop_WhenCreatingProvince_ThenSchoolBuildingShouldUpgradable()
     {
-        // Act
+        // Arrange
         province.Population = 4000;
+
+        // Act
         province.Buildings = Province.defaultBuildings(province);
 
         // Assert
@@ -39,8 +41,10 @@ public class BuildingTests
     [Test]
     public void GivenPopulationLessThanOrEqualToSchoolMinPop_WhenCreatingProvince_ThenSchoolBuildingShouldBeLocked()
     {
-        // Act
+        // Arrange
         province.Population = 2000;
+
+        // Act
         province.Buildings = Province.defaultBuildings(province);
 
         // Assert
@@ -50,11 +54,12 @@ public class BuildingTests
     [Test]
     public void GivenBuidlingAtLevel0_WhenUpgraded_ThenLevelShouldBe1()
     {
-        // Assert
+        // Arrange
         province.ResourceType = Resource.Iron;
+        province.Buildings = Province.defaultBuildings(province);
+        Assert.AreEqual(0, province.Buildings[BuildingType.Mine]);
 
         // Act
-        province.Buildings = Province.defaultBuildings(province);
         province.UpgradeBuilding(BuildingType.Mine);
 
         // Assert
@@ -66,9 +71,10 @@ public class BuildingTests
     {
         // Assert
         province.ResourceType = Resource.Iron;
+        province.Buildings[BuildingType.Mine] = 1;
+        Assert.AreEqual(1, province.Buildings[BuildingType.Mine]);
 
         // Act
-        province.Buildings[BuildingType.Mine] = 1;
         province.DowngradeBuilding(BuildingType.Mine);
 
         // Assert
@@ -83,7 +89,6 @@ public class BuildingTests
 
         // Act
         province.Buildings = Province.defaultBuildings(province);
-        province.DowngradeBuilding(BuildingType.Mine);
 
         // Assert
         Assert.AreEqual(0, province.Buildings[BuildingType.Mine]);
@@ -97,7 +102,6 @@ public class BuildingTests
 
         // Act
         province.Buildings = Province.defaultBuildings(province);
-        province.DowngradeBuilding(BuildingType.Mine);
 
         // Assert
         Assert.AreEqual(0, province.Buildings[BuildingType.Mine]);
@@ -121,9 +125,10 @@ public class BuildingTests
     {
         // Assert
         province.ResourceType = Resource.Wood;
+        province.Buildings = Province.defaultBuildings(province);
+        Assert.AreEqual(4, province.Buildings[BuildingType.Mine]);
 
         // Act
-        province.Buildings = Province.defaultBuildings(province);
         province.DowngradeBuilding(BuildingType.Mine);
 
         // Assert
@@ -135,9 +140,10 @@ public class BuildingTests
     {
         // Assert
         province.ResourceType = Resource.SciencePoint;
+        province.Buildings = Province.defaultBuildings(province);
+        Assert.AreEqual(4, province.Buildings[BuildingType.Mine]);
 
         // Act
-        province.Buildings = Province.defaultBuildings(province);
         province.UpgradeBuilding(BuildingType.Mine);
 
         // Assert
@@ -149,9 +155,10 @@ public class BuildingTests
     {
         // Assert
         province.ResourceType = Resource.Iron;
+        province.Buildings[BuildingType.Mine] = 3;
+        Assert.AreEqual(3, province.Buildings[BuildingType.Mine]);
 
         // Act
-        province.Buildings[BuildingType.Mine] = 3;
         province.UpgradeBuilding(BuildingType.Mine);
 
         // Assert

@@ -422,7 +422,7 @@ public class Map : ScriptableObject {
 
             int currentMoveRange = startTerrain == "land" ? moveRangeLand : moveRangeWater;
 
-            for (int dir = 0; dir < 6; dir++) // it goes thru all 6 directions ( left, right, top left, top right, bottom left, bottom right ) 
+            for (int dir = 0; dir < 6; dir++) 
             {
                 // calculate negighbor based on direction vector
                 HexUtils.Cube neighbor = HexUtils.CubeNeighbor(current, dir);
@@ -430,7 +430,7 @@ public class Map : ScriptableObject {
 
                 if (!IsValidPosition(neighborX, neighborY)) continue; // we dont want to check outside of map
 
-                // check type couse we want diffrent range "Land" and "water"
+                // check type cause we want diffrent range "Land" and "water"
                 string neighborTerrain = getProvince(neighborX, neighborY).Type;
 
                 if (!visited.Contains((neighborX, neighborY))) {
@@ -503,10 +503,10 @@ public class Map : ScriptableObject {
         else {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
             Relation.RelationType? relation = null;
-            if (master != null) { // jestes wasalem
+            if (master != null) {
                 relation = GetHardRelationType(master, provinceOwner);
             }
-            else // nie jestes wasalem
+            else
             {
                 relation = GetHardRelationType(country, provinceOwner);
             }
@@ -536,7 +536,7 @@ public class Map : ScriptableObject {
             province.OccupationInfo = new OccupationInfo(true, occupationStatus.Duration + 1, army.OwnerId);
         }
     }
-    public void CancelOccupation(Province province) // jak odbija panstwo prowincje 
+    public void CancelOccupation(Province province)
     {
         province.OccupationInfo.IsOccupied = false;
         province.OccupationInfo.OccupationCount = 0;
@@ -621,7 +621,7 @@ public class Map : ScriptableObject {
     public void UpdateAllArmyViewOrders() {
         var allArmyViews = GetAllArmyViews();
         foreach (army_view armyView in allArmyViews) {
-            if (armyView != null) // Sprawdzenie, czy armyView nie jest null
+            if (armyView != null) 
             {
                 armyView.UpdateArmyViewSortingOrder(armyView);
             }

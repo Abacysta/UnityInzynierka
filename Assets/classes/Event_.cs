@@ -44,7 +44,7 @@ namespace Assets.classes {
                 return null;
             }
 
-            //id=0
+
             internal class Discontent : GlobalEvent {
                 public Discontent(Country country, dialog_box_manager dialog, camera_controller camera) : 
                     base(country, dialog, camera) {}
@@ -84,7 +84,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=1
+
 			internal class Happiness : GlobalEvent {
                 public Happiness(Country country, dialog_box_manager dialog, camera_controller camera) : 
                     base(country, dialog, camera) {}
@@ -102,7 +102,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=2
+
 			internal class Plague : GlobalEvent {
                 public Plague(Country country, dialog_box_manager dialog, camera_controller camera) : 
                     base(country, dialog, camera) {
@@ -141,7 +141,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=3
+
 			internal class EconomicRecession : GlobalEvent
             {
                 public EconomicRecession(Country country, dialog_box_manager dialog, camera_controller camera) : 
@@ -190,7 +190,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=4
+
 			internal class TechnologicalBreakthrough : GlobalEvent
             {
                 public TechnologicalBreakthrough(Country country, dialog_box_manager dialog, camera_controller camera) : 
@@ -227,7 +227,6 @@ namespace Assets.classes {
                 }
             }
 
-			//id=5
 			internal class FloodEvent : GlobalEvent
             {
                 public FloodEvent(Country country, dialog_box_manager dialog, camera_controller camera) : 
@@ -254,7 +253,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=6
+
 			internal class FireEvent : GlobalEvent
             {
                 public FireEvent(Country country, dialog_box_manager dialog, camera_controller camera) : 
@@ -279,7 +278,6 @@ namespace Assets.classes {
                 }
             }
 
-			//id=7
 			internal class Earthquake : GlobalEvent
             {
                 public Earthquake(Country country, dialog_box_manager dialog, camera_controller camera) : 
@@ -298,7 +296,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=8
+
 			internal class Misfortune : GlobalEvent
             {
                 public Misfortune(Country country, dialog_box_manager dialog, camera_controller camera) : 
@@ -353,7 +351,7 @@ namespace Assets.classes {
                 return null;
             }
 
-            //id=0
+
             internal class ProductionBoom : LocalEvent {
                 public ProductionBoom(Province province, dialog_box_manager dialog, camera_controller camera) : 
                     base(province, dialog , camera) {}
@@ -374,7 +372,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=1
+
 			internal class GoldRush : LocalEvent {
                 public override string Message { get { return Province.Name + " is experiencing a gold rush!"; } }
 
@@ -386,7 +384,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=2
+
 			internal class BonusRecruits : LocalEvent {
                 public BonusRecruits(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
                     base(province, dialog_box, camera) {}
@@ -399,7 +397,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=3
+
 			internal class WorkersStrike1 : LocalEvent // turmoil mass migration
             {
                 public WorkersStrike1(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
@@ -432,7 +430,7 @@ namespace Assets.classes {
                 }
             }
 
-			//id=4
+
 			internal class WorkersStrike2 : LocalEvent
             {
                 public WorkersStrike2(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
@@ -457,7 +455,7 @@ namespace Assets.classes {
                 }
             }
 
-            //id=5
+
             internal class WorkersStrike3 : LocalEvent
             {
                 private Map map;
@@ -490,7 +488,7 @@ namespace Assets.classes {
                 }
             }
 
-            //id=6
+
             internal class PlagueFound : LocalEvent
             {
                 public PlagueFound(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
@@ -521,7 +519,7 @@ namespace Assets.classes {
                 }
             }
 
-            //id=7
+
             internal class DisasterEvent : LocalEvent
             {
                 public DisasterEvent(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
@@ -541,7 +539,7 @@ namespace Assets.classes {
                 }
             }
 
-            //id=8
+
             internal class StrangeRuins1 : LocalEvent
             {
                 private Map map;
@@ -567,7 +565,7 @@ namespace Assets.classes {
                 }
             }
 
-            //id=9
+
             internal class StrangeRuins2 : LocalEvent 
             {
                 public StrangeRuins2(Province province, dialog_box_manager dialog_box, camera_controller camera) : 

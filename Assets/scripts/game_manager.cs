@@ -187,7 +187,6 @@ public class game_manager : MonoBehaviour
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.turnCnt).ToString());
         loading_box.SetActive(false);
-        //testRelations();
         Debug.Log("stopped bar");
 
     }
@@ -306,7 +305,7 @@ public class game_manager : MonoBehaviour
     private void rebellionCheck() {
         foreach(var p in map.Provinces) {
             random_events.checkRebellion(p);
-            //^ = bool wiec mozna potem dodac event
+            //returns bool, so in future can do more with that
         }
     }
 
@@ -454,7 +453,7 @@ public class game_manager : MonoBehaviour
     private void endGame(bool timeout) {
         end_screen.SetActive(true);
     }
-    //to jest wozny
+
     private class Janitor {
         private Map map;
         private battle_manager battle;

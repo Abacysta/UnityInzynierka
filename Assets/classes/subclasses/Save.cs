@@ -230,12 +230,10 @@ namespace Assets.classes.subclasses {
             happinesss = prov.Happiness;
             iscoast = prov.Is_coast;
             terrain = prov.Terrain;
-            //status = prov.Statuses;
             status = new();
             if(prov.Statuses!=null) foreach(var s in prov.Statuses) {
                 status.Add(new(s));
             }
-            //buildings = prov.Buildings;
             //Debug.Log(prov.coordinates.ToString() + " -> " + prov.Buildings.ToString());
             if (prov.Buildings != null)
             {
@@ -478,7 +476,6 @@ namespace Assets.classes.subclasses {
 
         public SaveEvent() { }
 
-        //nie da sie switchowac po klasie xddddddddd ale jazda
         private void globalId(Event_.GlobalEvent ev) {
             if (ev is Event_.GlobalEvent.Discontent) this.id = 0;
             else if (ev is Event_.GlobalEvent.Happiness) this.id = 1;

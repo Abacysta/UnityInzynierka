@@ -182,12 +182,10 @@ namespace Assets.classes {
 
             public override void preview(Map map) {
                 base.preview(map);
-                //army.count -= this.count;
             }
 
             public override void revert(Map map) {
                 base.revert(map);
-                //army.count += this.count;
             }
         }
         internal class rebel_suppresion : TurnAction, IInstantAction {

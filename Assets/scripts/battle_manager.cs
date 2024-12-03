@@ -38,8 +38,8 @@ namespace Assets.Scripts {
 
         private bool battle(Army attacker, Army defender) {
             Country attCountry = map.Countries[attacker.OwnerId], defCountry = map.Countries[defender.OwnerId];
-            float attPower = attacker.Count * attCountry.techStats.armyPower;//attacker power
-            float defPower = defender.Count * defCountry.techStats.armyPower + 1;//defender power
+            float attPower = attacker.Count * attCountry.techStats.armyPower;
+            float defPower = defender.Count * defCountry.techStats.armyPower + 1;
             float fortModifier = 1;
             if (map.getProvince(defender.Position).Owner_id == defender.OwnerId)//fort defense bonus
                 fortModifier += 0.1f * map.getProvince(defender.Position).Buildings[BuildingType.Fort];

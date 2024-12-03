@@ -511,16 +511,16 @@ public class diplomatic_actions_manager : MonoBehaviour
         country_dropdown.RefreshShownValue();
     }
 
-    private void SetEffects(List<Effect> action_effects = null)
+    private void SetEffects(List<Effect> actionEffects = null)
     {
         foreach (Transform child in effect_content.transform)
         {
             Destroy(child.gameObject);
         }
 
-        if (action_effects != null && action_effects.Count > 0)
+        if (actionEffects != null && actionEffects.Count > 0)
         {
-            foreach (var effect in action_effects)
+            foreach (var effect in actionEffects)
             {
                 GameObject effectRow = Instantiate(effect_row_prefab, effect_content.transform);
                 effect_ui effectUI = effectRow.GetComponent<effect_ui>();
@@ -576,7 +576,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.StartWar);
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
@@ -584,7 +584,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(opinion_sprite, "Their Opinion of You", $"{WAR_OPINION_PENALTY_INIT}", false),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -622,7 +622,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.VassalRebel);
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
@@ -630,7 +630,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(opinion_sprite, "Their Opinion of You", $"{WAR_OPINION_PENALTY_INIT}", false),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -692,13 +692,13 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.WarEnd);
         ap_text.text = $"-{apCost:0.0}"; ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(opinion_sprite, "Your Opinion of Them", $"+{TRUCE_OPINION_BONUS_INIT}", true),
             new(opinion_sprite, "Their Opinion of You", $"+{TRUCE_OPINION_BONUS_INIT}", true),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -727,13 +727,13 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.Praise);
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(opinion_sprite, "Your Opinion of Them", $"+{PRAISE_OUR_OPINION_BONUS_INIT}", true),
             new(opinion_sprite, "Their Opinion of You", $"+{PRAISE_THEIR_OPINION_BONUS_INIT}", true)
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -766,13 +766,13 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.Insult);
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(opinion_sprite, "Your Opinion of Them", $"-{INSULT_OUR_OPINION_PENALTY_INIT}", false),
             new(opinion_sprite, "Their Opinion of You", $"-{INSULT_THEIR_OPINION_PENALTY_INIT}", false)
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -810,7 +810,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.AllianceOffer);
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(happiness_sprite, "Happiness (Both)", $"+{ALLIANCE_HAPP_BONUS_INIT + diplomatic_relations_manager.AllianceHappinessBonusInit}%", true),
             new(happiness_sprite, "Happiness Per Turn (Both)", $"+{ALLIANCE_HAPP_BONUS_COST}%", true),
@@ -820,7 +820,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(opinion_sprite, "Their Opinion of You Per Turn", $"+{ALLIANCE_OPINION_BONUS_CONST}", true),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -853,13 +853,13 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.AllianceEnd);
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(opinion_sprite, "Your Opinion of Them", $"+{TRUCE_OPINION_BONUS_INIT}", true),
             new(opinion_sprite, "Their Opinion of You", $"+{TRUCE_OPINION_BONUS_INIT}", true),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -939,7 +939,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(opinion_sprite, "Your Opinion of Them", $"+{SUBSIDIES_OPINION_BONUS_INIT}", true),
             new(opinion_sprite, "Their Opinion of You", $"+{SUBSIDIES_OPINION_BONUS_INIT}", true),
@@ -947,7 +947,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(opinion_sprite, "Their Opinion of You Per Turn", $"+{SUBSIDIES_OPINION_BONUS_CONST}", true),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -1012,7 +1012,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         ap_text.text = $"-{apCost:0.0}";
         SetSlider();
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(opinion_sprite, "Your Opinion of Them", $"+{SUBSIDIES_OPINION_BONUS_INIT}", true),
             new(opinion_sprite, "Their Opinion of You", $"+{SUBSIDIES_OPINION_BONUS_INIT}", true),
@@ -1020,7 +1020,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(opinion_sprite, "Their Opinion of You Per Turn", $"+{SUBSIDIES_OPINION_BONUS_CONST}", true),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
@@ -1175,7 +1175,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         apCost = CostsCalculator.TurnActionApCost(ActionType.VassalizationOffer);
         ap_text.text = $"-{apCost:0.0}";
 
-        List<Effect> action_effects = new()
+        List<Effect> actionEffects = new()
         {
             new(happiness_sprite, "Happiness", $"+{diplomatic_relations_manager.VassalageHappinessBonusInitC1}%", true),
             new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.VassalageHappinessPenaltyInitC2}%", true),
@@ -1185,7 +1185,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             new(opinion_sprite, "Their Opinion of You (Per Turn)", $"{VASSALAGE_OPINION_PENALTY_CONST_C2}", false),
         };
 
-        SetEffects(action_effects);
+        SetEffects(actionEffects);
 
         void onSend()
         {
