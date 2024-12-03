@@ -15,7 +15,7 @@ public class player_table : MonoBehaviour
     [SerializeField] private GameObject playerTable;
     [SerializeField] private Map map;
     [SerializeField] private map_options optionsTable;
-
+    [SerializeField] private map_preview map_Preview;
     private GameObject currentPlayerSelection = null;
     private List<CountryController> controllers = new List<CountryController>();
     private List<CountryData> currentStates = new List<CountryData>();
@@ -47,30 +47,87 @@ public class player_table : MonoBehaviour
 
     public void LoadMap(string mapName)
     {
-        string json = LoadJsonFromFile($"Assets/Resources/{mapName}.json");
-        GameState gameState = JsonConvert.DeserializeObject<GameState>(json);
+        // Próba załadowania mapy z pliku JSON
+        string json = LoadJsonFromFile(mapName);
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogWarning($"Nie udało się załadować mapy z pliku, próba załadowania z Resources: {mapName}");
+            json = LoadJsonFromResources(mapName); // Próba z Resources
+        }
 
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogError($"Nie udało się załadować mapy: {mapName}");
+            return;
+        }
+
+        // Parsowanie JSON do obiektu GameState
+        GameState gameState;
+        try
+        {
+            gameState = JsonConvert.DeserializeObject<GameState>(json);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Błąd podczas deserializacji mapy: {e.Message}");
+            return;
+        }
+
+        // Przypisanie danych do odpowiednich zmiennych
         currentStates = gameState.countries;
         provinces = gameState.provinces;
 
         showCountries(currentStates);
         showButton();
+        map_Preview.Provinces = provinces;
+        map_Preview.Reload();
+        // Resetowanie kontrolerów
         controllers.Clear();
         controllers = Enumerable.Repeat(CountryController.Ai, currentStates.Count).ToList();
     }
 
-    private string LoadJsonFromFile(string filePath)
+    private string LoadJsonFromResources(string mapName)
     {
-        if (File.Exists(filePath))
+        if (string.IsNullOrEmpty(mapName))
         {
-            return File.ReadAllText(filePath);
+            Debug.LogError("Nazwa mapy jest pusta lub null.");
+            return null;
+        }
+
+        TextAsset textAsset = Resources.Load<TextAsset>($"Maps/{mapName}"); // Dodano "Maps/" dla struktury folderu
+        if (textAsset == null)
+        {
+            Debug.LogError($"Plik mapy nie został znaleziony w Resources: {mapName}");
+            return null;
+        }
+        return textAsset.text;
+    }
+
+
+    private string LoadJsonFromFile(string mapName)
+    {
+        if (string.IsNullOrEmpty(mapName))
+        {
+            Debug.LogError("Nazwa mapy jest pusta lub null.");
+            return null;
+        }
+
+        string path = Application.isEditor
+            ? Path.Combine(Application.dataPath, "Resources/Maps", $"{mapName}.json")
+            : Path.Combine(Application.dataPath, "../Maps", $"{mapName}.json");
+
+        if (File.Exists(path))
+        {
+            return File.ReadAllText(path);
         }
         else
         {
-            Debug.LogError("Plik nie został znaleziony: " + filePath);
+            Debug.LogError($"Plik mapy nie znaleziony: {path}");
             return null;
         }
     }
+
+
 
     private Color toColor(int[] color)
     {
@@ -291,26 +348,20 @@ public class player_table : MonoBehaviour
 
     public void showCountries(List<CountryData> states)
     {
+        if (states == null || states.Count == 0)
+        {
+            Debug.LogError("Lista krajów (states) jest pusta lub null.");
+            return;
+        }
         foreach (Transform child in playerTable.transform)
         {
             Destroy(child.gameObject);
         }
-
-        float yOffset = 0f;
-
         for (int i = 0; i < states.Count; i++)
         {
             CountryData state = states[i];
 
             GameObject countryUI = Instantiate(dummy, playerTable.transform);
-
-            RectTransform rt = countryUI.GetComponent<RectTransform>();
-            if (rt != null)
-            {
-                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, rt.anchoredPosition.y - yOffset);
-                yOffset += 50f;
-            }
-
             Transform nameTransform = countryUI.transform.Find("name");
             if (nameTransform != null)
             {

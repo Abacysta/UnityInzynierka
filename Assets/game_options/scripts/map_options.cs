@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -40,14 +41,49 @@ public class map_options : MonoBehaviour
 
     private void LoadAvailableMaps()
     {
-        availableMaps.Add("Map1");
-        availableMaps.Add("Map2");
+        // Wyczyszczenie listy map
+        availableMaps.Clear();
 
+        // Pobieranie map z folderu Resources/Maps
+        string mapsPath;
+        if(Application.isEditor)
+        {
+            mapsPath = Path.Combine(Application.dataPath, "Resources/Maps");
+        }
+        else
+        {
+            mapsPath = Path.Combine(Application.dataPath, "../Maps");
+        }
+        if (Directory.Exists(mapsPath))
+        {
+            string[] mapFiles = Directory.GetFiles(mapsPath, "*.json");
+            foreach (var file in mapFiles)
+            {
+                string mapName = Path.GetFileNameWithoutExtension(file);
+                availableMaps.Add(mapName);
+            }
+        }
+        else
+        {
+            Debug.LogError($"Nie znaleziono folderu z mapami: {mapsPath}");
+        }
+
+        // Aktualizacja rozwijanego menu
         mapDropdown.ClearOptions();
         mapDropdown.AddOptions(availableMaps);
-        selectedMap = availableMaps[0];
-        playerTable.LoadMap(selectedMap);
-        mapDropdown.onValueChanged.AddListener(delegate { OnMapSelected(mapDropdown); });
+
+        if (availableMaps.Count > 0)
+        {
+            selectedMap = availableMaps[0];
+            playerTable.LoadMap(selectedMap);
+
+            // Obs³uga zmiany wyboru mapy
+            mapDropdown.onValueChanged.AddListener(delegate { OnMapSelected(mapDropdown); });
+        }
+        else
+        {
+            Debug.LogError("Brak dostêpnych map!");
+        }
     }
     public void SelectMap(int mapIndex)
     {
