@@ -28,36 +28,36 @@ namespace Assets.classes {
             }
         }
         internal class LowTaxes : ATax {
-            public float GoldP { get => 0.01f; }
+            public override float GoldP { get => 0.01f; }
 
-            public int HappP { get => 8; }
+            public override int HappP { get => 8; }
 
-            public string Name { get => "Low Taxation"; }
+            public override string Name { get => "Low Taxation"; }
 
         }
         internal class HighTaxes : ATax {
-            public float GoldP { get => 0.35f; }
+            public override float GoldP { get => 0.35f; }
 
-            public int HappP { get => -8; }
+            public override int HappP { get => -8; }
 
-            public string Name { get => "High Taxation"; }
+            public override string Name { get => "High Taxation"; }
             public override void applyProvinceTax(Province province, Country country, ref float sum) {
                 base.applyProvinceTax(province, country, ref sum);
                 province.RecruitablePopulation -= (int)(province.RecruitablePopulation * 0.25);
             }
         }
         internal class MediumTaxes : ATax {
-            public float GoldP { get => 0.12f; }
+            public override float GoldP { get => 0.12f; }
 
-            public int HappP { get => -3; }
+            public override int HappP { get => -3; }
 
-            public string Name { get => "Normal Taxation"; }
+            public override string Name { get => "Normal Taxation"; }
         }
         internal class WarTaxes : ATax {
-            public float GoldP { get => 0.35f; }
+            public override float GoldP { get => 0.35f; }
 
-            public int HappP { get => 0; }
-            public string Name { get => "War Taxation"; }
+            public override int HappP { get => 0; }
+            public override string Name { get => "War Taxation"; }
             public override void applyProvinceTax(Province province, Country country, ref float sum) {
                 base.applyProvinceTax(province, country, ref sum);
                 province.ResourceAmount -= 0.1f;
@@ -67,11 +67,11 @@ namespace Assets.classes {
             }
         }
         internal class InvesmentTaxes : ATax {
-            public float GoldP { get => 0.05f; }
+            public override float GoldP { get => 0.05f; }
 
-            public int HappP { get => -3; }
+            public override int HappP { get => -3; }
 
-            public string Name { get => "Investments"; }
+            public override string Name { get => "Investments"; }
             public override void applyProvinceTax(Province province, Country country, ref float sum) {
                 base.applyProvinceTax(province, country, ref sum);
                 province.ResourceAmount += 0.15f;
