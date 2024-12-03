@@ -311,7 +311,7 @@ public class Country {
     private Dictionary<int, int> opinions;
     private bool atWar;
     private army_visibility_manager armyVisibilityManager;
-    private ITax tax;
+    private ATax tax;
     public Country(int id, string name, (int, int) capital, Color color, int coat, Map map) {
         this.id = id;
         this.name = name;
@@ -364,7 +364,7 @@ public class Country {
 
     public int Coat { get => coat; }
     public Dictionary<Technology, int> Technologies { get => technologies; set => technologies = value; }
-    public ITax Tax { get => tax; set => tax = value; }
+    public ATax Tax { get => tax; set => tax = value; }
 
     public Sprite getCoat() {
         int res;

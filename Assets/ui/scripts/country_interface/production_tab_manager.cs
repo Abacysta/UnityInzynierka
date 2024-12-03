@@ -97,7 +97,7 @@ public class production_tab_manager : MonoBehaviour
 
     private void updateTaxInfo()
     {
-        ITax tax = map.CurrentPlayer.Tax;
+        ATax tax = map.CurrentPlayer.Tax;
         var tax_percent = tax.GoldP;
         var tax_happ = tax.HappP;
         tax_text.text = tax_percent * 100 + "%";
