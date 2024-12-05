@@ -12,9 +12,6 @@ EditorBuildSettings:
     path: Assets/scenes/local_play.unity
     guid: 0a8af023b172a7540a428613ff2e94a3
   - enabled: 1
-    path: Assets/scenes/load_game.unity
-    guid: cb811f56e87276242a6cbecc209df4a1
-  - enabled: 1
     path: Assets/scenes/game_map.unity
     guid: a7990cc44310c8541ba3a09061bc9464
   m_configObjects: {}

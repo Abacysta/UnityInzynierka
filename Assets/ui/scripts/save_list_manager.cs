@@ -39,16 +39,16 @@ public class save_list_manager : MonoBehaviour
 
     void OnEnable()
     {
-        if (isGameMap) overlay.SetActive(true);
+        if (overlay != null) overlay.SetActive(true);
         SetData();
     }
 
 	private void OnDisable() {
-        if (isGameMap) overlay.SetActive(false);
+        if (overlay != null) overlay.SetActive(false);
 	}
 
 	private void Update() {
-        if (isGameMap) overlay.SetActive(true);
+        if (overlay != null) overlay.SetActive(true);
 		if (save_name != null && Saves.Contains(save_name.text)) {
             load_button.gameObject.SetActive(true);
             del_button.gameObject.SetActive(true);
@@ -89,11 +89,6 @@ public class save_list_manager : MonoBehaviour
             PlayerPrefs.SetString("saveName", save_name.text);
             SceneManager.LoadScene("game_map");
         }
-    }
-
-    public void ReturnToMainMenu()
-    {
-        SceneManager.LoadScene("main_menu");
     }
 
     public void saveNamedGame() {
