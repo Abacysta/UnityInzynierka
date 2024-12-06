@@ -178,13 +178,13 @@ public class army_click_handler : cursor_helper
         }
 
         Province tileProvince = map.getProvince(cellPosition.x, cellPosition.y);
-        Country tileOwner = map.Countries[tileProvince.Owner_id];
+        Country tileOwner = map.Countries[tileProvince.OwnerId];
         Country armyOwner = map.Countries[armyOwnerId];
 
         // Do not highlight the tile if:
         // the province is a water tile and
         // the currentPlayer cannot boat
-        if (tileProvince.Type == "ocean" && !armyOwner.techStats.canBoat)
+        if (!tileProvince.IsLand && !armyOwner.techStats.canBoat)
         {
             return false;
         }

@@ -240,7 +240,7 @@ namespace Assets.classes {
                 {
                     foreach(var p in Country.Provinces)
                     {
-                        if (p.Is_coast) p.addStatus(new FloodStatus(3));
+                        if (p.IsCoast) p.addStatus(new FloodStatus(3));
                         else
                         {
                             if (UnityEngine.Random.Range(0f, 1f) < 0.3f)
@@ -560,7 +560,7 @@ namespace Assets.classes {
                     // Resource allocation
                     float gold = UnityEngine.Random.Range(0f, 5f); // From 0 to 5 gold
 
-                    Country country = map.Countries.FirstOrDefault(c => c.Id == Province.Owner_id);
+                    Country country = map.Countries.FirstOrDefault(c => c.Id == Province.OwnerId);
                     country.modifyResource(Resource.Gold, gold);
                 }
             }

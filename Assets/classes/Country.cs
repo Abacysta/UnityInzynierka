@@ -384,14 +384,14 @@ public class Country {
     }
 
     public bool assignProvince(Province province) {
-        if(province.Owner_id != 0 || province.Owner_id == id) return false;
+        if(province.OwnerId != 0 || province.OwnerId == id) return false;
         provinces.Add(province);
-        if (province.Owner_id == 0) province.RemoveStatus(province.Statuses.Find(s => s is Tribal));
-        province.Owner_id = this.id;
+        if (province.OwnerId == 0) province.RemoveStatus(province.Statuses.Find(s => s is Tribal));
+        province.OwnerId = this.id;
         return true;
     }
     public void unassignProvince(Province province) {
-        province.Owner_id = 0;
+        province.OwnerId = 0;
         provinces.Remove(province);
     }
 

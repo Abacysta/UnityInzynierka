@@ -55,19 +55,18 @@ public class army_view : MonoBehaviour
             }
         }
 
-        string terrainType = map.getProvince(ArmyData.Position).Type;
+        bool isLand = map.getProvince(ArmyData.Position).IsLand;
 
-        if (terrainType == "land")
+        if (isLand)
         {
             spriteRenderer.sprite = landSprite;
             spriteRenderer.material = armyMaterial;
 
         }
-        else if(terrainType == "ocean")
+        else if(!isLand)
         {
             spriteRenderer.sprite = oceanSprite;
             spriteRenderer.material = shipMaterial;
-
         }
     }
 
@@ -160,11 +159,11 @@ public class army_view : MonoBehaviour
         Vector2 provinceCoordinates = WorldToHexPosition(basePosition);
         Province province = map.getProvince((int)provinceCoordinates.x, (int)provinceCoordinates.y);
 
-        transform.localScale = (isNotPreparingToMove || (province != null && ArmyData.OwnerId == province.Owner_id))
+        transform.localScale = (isNotPreparingToMove || (province != null && ArmyData.OwnerId == province.OwnerId))
             ? new Vector3(0.45f, 0.45f, 1f)
             : new Vector3(0.4f, 0.4f, 1f);
 
-        if (isNotPreparingToMove && province != null && ArmyData.OwnerId == province.Owner_id)
+        if (isNotPreparingToMove && province != null && ArmyData.OwnerId == province.OwnerId)
         {
             return basePosition;
         }

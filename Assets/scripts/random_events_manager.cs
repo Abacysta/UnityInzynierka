@@ -186,12 +186,12 @@ namespace Assets.map.scripts
                 .Any(province => map.getPossibleMoveCells(province.X, province.Y, 1, 0.5f)
                     .Any(neighborProvincesCell =>
                         map.getProvince(neighborProvincesCell.Item1, neighborProvincesCell.Item2)
-                        .Owner_id != country.Id && map.Countries[map.getProvince(neighborProvincesCell.Item1, neighborProvincesCell.Item2).Owner_id].AtWar));
+                        .OwnerId != country.Id && map.Countries[map.getProvince(neighborProvincesCell.Item1, neighborProvincesCell.Item2).OwnerId].AtWar));
         }
 
         public bool checkRebellion(Province province)
         {
-            if (province.Owner_id != 0 && map.Countries[province.Owner_id].Capital != province.coordinates)
+            if (province.OwnerId != 0 && map.Countries[province.OwnerId].Capital != province.coordinates)
             {
                 int happ = province.Happiness;
                 if (happ < -500)
@@ -214,7 +214,7 @@ namespace Assets.map.scripts
             {
                 Army rebels = new Army(0, count, DEFAULT_CORD, province.coordinates);
                 map.addArmy(rebels);
-                Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
+                Country country = map.Countries.FirstOrDefault(c => c.Id == province.OwnerId);
                 province.addStatus(new Occupation(country.techStats.occTime, 0));
                 province.OccupationInfo = new OccupationInfo(true, country.techStats.occTime, 0);
                 TurnAction rebellion = new TurnAction.army_move(DEFAULT_CORD, province.coordinates, count, rebels);

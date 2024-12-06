@@ -13,7 +13,7 @@ public class BuildingTests
             "New Province",
             10,
             20,
-            "land",
+            true,
             Province.TerrainType.forest,
             Resource.Iron,
             500.0f,

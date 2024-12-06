@@ -38,65 +38,64 @@ public class Province {
         ocean
     }
 
-    [SerializeField] private string id;
     [SerializeField] private string name;
     [SerializeField] private int x;
     [SerializeField] private int y;
-    [SerializeField] private string type;
+    [SerializeField] private bool isLand;
     [SerializeField] private Resource resourceType;
     [SerializeField] private float resourceAmount;
     [SerializeField] private int population;
     [SerializeField] private int recruitable_population;
     [SerializeField] private int happiness;
-    [SerializeField] private bool is_coast;
+    [SerializeField] private bool isCoast;
     [SerializeField] private OccupationInfo occupationInfo;
-    [SerializeField] private int owner_id;
+    [SerializeField] private int ownerId;
     [SerializeField] private Dictionary<BuildingType, int> buildings;
     private ProvinceModifiers modifiers;
     private TerrainType terrain;
     private List<Status> statuses;
 
     [JsonConstructor]
-    public Province(string name, int x, int y, string type, TerrainType terrain, Resource resourceType,
-    float resourceAmount, int population,int happiness, bool is_coast)
+    public Province(string name, int x, int y, bool isLand, TerrainType terrain, Resource resourceType,
+        float resourceAmount, int population, int happiness, bool isCoast)
     {
         this.name = name;
         this.x = x;
         this.y = y;
-        this.type = type;
+        this.isLand = isLand;
         this.terrain = terrain;
         this.resourceType = resourceType;
         this.resourceAmount = resourceAmount;
         this.population = population;
         this.happiness = happiness;
-        this.is_coast = is_coast;
+        this.isCoast = isCoast;
 
-        if (type == "land")
+        if (isLand)
         {
             occupationInfo = new OccupationInfo();
             buildings = defaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
             recruitable_population = 0;
-            owner_id = 0;
+            ownerId = 0;
         }
     }
-    public Province( string name, int x, int y, string type, TerrainType terrain, Resource resourceType, 
-        float resourceAmount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id) {
+    public Province(string name, int x, int y, bool isLand, TerrainType terrain, Resource resourceType, 
+        float resourceAmount, int population, int recruitable_population, int happiness, bool isCoast, int ownerId) {
         this.name = name;
         this.x = x;
         this.y = y;
-        this.type = type;
+        this.isLand = isLand;
         this.terrain = terrain;
         this.resourceType = resourceType;
         this.resourceAmount = resourceAmount;
         this.population = population;
         this.recruitable_population = recruitable_population;
         this.happiness = happiness;
-        this.is_coast = is_coast;
-        this.owner_id = owner_id;
+        this.isCoast = isCoast;
+        this.ownerId = ownerId;
 
-        if (type == "land")
+        if (isLand)
         {
             occupationInfo = new OccupationInfo();
             buildings = defaultBuildings(this);
@@ -105,19 +104,18 @@ public class Province {
         }
     }
 
-    public string Id { get => id; set => id = value; }
     public string Name { get => name; set => name = value; }
     public int X { get => x; set => x = value; }
     public int Y { get => y; set => y = value; }
-    public string Type { get => type; set => type = value; }
+    public bool IsLand { get => isLand; set => isLand = value; }
     public Resource ResourceType { get => resourceType; set => resourceType = value; }
     public float ResourceAmount { get => (float)System.Math.Round(resourceAmount, 1); set => resourceAmount = value; }
     public int Population { get => population; set => population = value;}
     public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
     public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, MIN_HAPP, MAX_HAPP); }
-    public bool Is_coast { get => is_coast; set => is_coast = value; }
+    public bool IsCoast { get => isCoast; set => isCoast = value; }
     public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
-    public int Owner_id { get => owner_id; set => owner_id = value; }
+    public int OwnerId { get => ownerId; set => ownerId = value; }
     public Dictionary<BuildingType,int> Buildings { get => buildings; set => buildings = value; }
     public (int, int) coordinates { get => (x, y); }
     public float ResourcesP { get => RealProduction(); }

@@ -41,7 +41,7 @@ namespace Assets.Scripts {
             float attPower = attacker.Count * attCountry.techStats.armyPower;
             float defPower = defender.Count * defCountry.techStats.armyPower + 1;
             float fortModifier = 1;
-            if (map.getProvince(defender.Position).Owner_id == defender.OwnerId)//fort defense bonus
+            if (map.getProvince(defender.Position).OwnerId == defender.OwnerId)//fort defense bonus
                 fortModifier += 0.1f * map.getProvince(defender.Position).Buildings[BuildingType.Fort];
             defPower *= fortModifier;
             float result = attPower - defPower;

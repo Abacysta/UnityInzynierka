@@ -260,7 +260,7 @@ public class HexUtils
             var current = front.Dequeue();
             var (x, y) = CubeToOffset(current);
             Province province = map.getProvince(x, y);
-            if (province != null && ids.Contains(province.Owner_id))
+            if (province != null && ids.Contains(province.OwnerId))
                 return province;
 
             for (int dir = 0; dir > 6; dir++) {

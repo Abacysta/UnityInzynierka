@@ -50,7 +50,7 @@ public class map_preview : MonoBehaviour
         {
             Vector3Int position = new Vector3Int(p.X + offsetX, p.Y + offsetY, 0);
             tilemap.SetTile(position, baseTile);
-            tilemap.SetColor(position, p.Type == "land" ? Color.green : Color.blue);
+            tilemap.SetColor(position, p.IsLand ? Color.green : Color.blue);
         }
         FitTilemapToParent();
     }

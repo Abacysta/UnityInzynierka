@@ -82,7 +82,7 @@ public class filter_modes : MonoBehaviour
 
         foreach (Province province in map.Provinces)
         {
-            Country owner = map.Countries[province.Owner_id];
+            Country owner = map.Countries[province.OwnerId];
             Vector3Int position = new(province.X, province.Y, 0);
 
             int hash = province.X * 73856093 ^ province.Y * 19349663 ^ (int)province.Terrain * 83492791;
@@ -157,7 +157,7 @@ public class filter_modes : MonoBehaviour
         {
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if (province.Type == "land")
+            if (province.IsLand)
             {
                 base_layer.SetTile(position, base_tile);
                 base_layer.SetColor(position, getTerrainColor(province.Terrain));
@@ -199,7 +199,7 @@ public class filter_modes : MonoBehaviour
             Vector3Int position = new(province.X, province.Y, 0);
             Color color;
 
-            if (province.Type == "land")
+            if (province.IsLand)
             {
                 color = getResourceColor(province.ResourceType);
                 filter_layer.SetTile(position, base_tile);
@@ -222,7 +222,7 @@ public class filter_modes : MonoBehaviour
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
-            if (province.Type == "land")
+            if (province.IsLand)
             {
                 Color happinessColor = GetColorBasedOnValueHappiness(province.Happiness);
                 filter_layer.SetTile(position, base_tile);
@@ -245,7 +245,7 @@ public class filter_modes : MonoBehaviour
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
-            if (province.Type == "land")
+            if (province.IsLand)
             {
                 Color populationColor = GetColorBasedOnValuePop(province.Population);
                 filter_layer.SetTile(position, base_tile);
@@ -264,10 +264,10 @@ public class filter_modes : MonoBehaviour
         ClearLayers();
 
         foreach (Province province in map.Provinces) {
-            Country owner = map.Countries[province.Owner_id];
+            Country owner = map.Countries[province.OwnerId];
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if(province.Type == "land") {
+            if(province.IsLand) {
                 base_layer.SetTile(position, base_tile);
                 base_layer.SetColor(position, owner.Color);
                 if(owner.Capital == province.coordinates) terrain_feature_layer_2.SetTile(position, capital_tile);
@@ -316,20 +316,20 @@ public class filter_modes : MonoBehaviour
         foreach(Province province in map.Provinces) {
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if(province.Type == "land") {
+            if(province.IsLand) {
 
                 filter_layer.SetTile(position, base_tile);
-                if (province.Owner_id == map.CurrentPlayer.Id)
+                if (province.OwnerId == map.CurrentPlayer.Id)
                 {
                     filter_layer.SetColor(position, CurrentPlayerColor);
                 }
-                else if (province.Owner_id == 0)
+                else if (province.OwnerId == 0)
                 {
                     filter_layer.SetColor(position, TribalColor);
                 }
                 else
                 {
-                    var relation = map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.Owner_id]);
+                    var relation = map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.OwnerId]);
                     filter_layer.SetColor(position, GetDiplomaticColor(relation));
                 }
             }

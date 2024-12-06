@@ -119,7 +119,7 @@ public class Map : ScriptableObject {
 
     public void growPop((int, int) coordinates) {
         Province province = getProvince(coordinates);
-        var provinceOwnerTechStats = countries[province.Owner_id].techStats;
+        var provinceOwnerTechStats = countries[province.OwnerId].techStats;
 
         if (province.OccupationInfo.IsOccupied)
         {
@@ -133,13 +133,13 @@ public class Map : ScriptableObject {
 
     public void calcRecruitablePop((int, int) coordinates) {
         Province province = getProvince(coordinates);
-        var techStats = countries[province.Owner_id].techStats;
+        var techStats = countries[province.OwnerId].techStats;
 
         province.RecruitablePopulation = (int)Math.Floor(province.Population * techStats.recPop * province.Modifiers.RecPop);
     }
 
     public void calcRecruitablePop(Province p) {
-        var techstats = countries[p.Owner_id].techStats;
+        var techstats = countries[p.OwnerId].techStats;
         p.RecruitablePopulation = (int)Math.Floor(p.Population * techstats.recPop * p.Modifiers.RecPop);
     }
 
@@ -162,7 +162,7 @@ public class Map : ScriptableObject {
     }
     public void assignProvince(Province province, int id) {
         if (!countries[id].assignProvince(province)) {
-            var c = countries.Find(c => c.Id == province.Owner_id);
+            var c = countries.Find(c => c.Id == province.OwnerId);
             c.unassignProvince(province);
             countries[id].assignProvince(province);
         }
@@ -239,7 +239,7 @@ public class Map : ScriptableObject {
             province.Population -= amount;
             province.RecruitablePopulation -= amount;
             if (exitsing == null) {
-                addArmy(new(province.Owner_id, amount, coordinates, coordinates));
+                addArmy(new(province.OwnerId, amount, coordinates, coordinates));
             }
             else {
                 exitsing.Count += amount;
@@ -403,7 +403,7 @@ public class Map : ScriptableObject {
     public List<(int, int)> getPossibleMoveCells(int startX, int startY, int moveRangeLand, double waterMoveFactor)
     {
         List<(int, int)> possibleCells = new List<(int, int)>();
-        string startTerrain = getProvince(startX, startY).Type;
+        bool isStartTerrainLand = getProvince(startX, startY).IsLand;
         HexUtils.Cube startCube = HexUtils.OffsetToCube(startX, startY);
 
         int moveRangeWater = (int)Math.Floor(moveRangeLand + moveRangeLand * waterMoveFactor);
@@ -420,7 +420,7 @@ public class Map : ScriptableObject {
             (int currentX, int currentY) = HexUtils.CubeToOffset(current); // 3d to 2d
             possibleCells.Add((currentX, currentY)); // adds to list couse it can move there
 
-            int currentMoveRange = startTerrain == "land" ? moveRangeLand : moveRangeWater;
+            int currentMoveRange = isStartTerrainLand ? moveRangeLand : moveRangeWater;
 
             for (int dir = 0; dir < 6; dir++) 
             {
@@ -431,10 +431,10 @@ public class Map : ScriptableObject {
                 if (!IsValidPosition(neighborX, neighborY)) continue; // we dont want to check outside of map
 
                 // check type cause we want diffrent range "Land" and "water"
-                string neighborTerrain = getProvince(neighborX, neighborY).Type;
+                bool isNeighborTerrainLand = getProvince(neighborX, neighborY).IsLand;
 
                 if (!visited.Contains((neighborX, neighborY))) {
-                    if (neighborTerrain == startTerrain) {
+                    if (isNeighborTerrainLand == isStartTerrainLand) {
                         if (currentDistance + 1 <= currentMoveRange) {
                             visited.Add((neighborX, neighborY));
                             frontier.Enqueue((neighbor, currentDistance + 1));
@@ -478,7 +478,7 @@ public class Map : ScriptableObject {
         }
     }
     private void OccupationChangeOwner(Province province) {
-        int previousOwnerId = province.Owner_id;
+        int previousOwnerId = province.OwnerId;
         int newOwnerId = province.OccupationInfo.OccupyingCountryId;
 
         Countries.FirstOrDefault(c => c.Id == previousOwnerId).removeProvince(province);
@@ -496,12 +496,12 @@ public class Map : ScriptableObject {
         {
             return;
         }
-        if (province.Owner_id == 0 && province.OccupationInfo.OccupyingCountryId != army.OwnerId) {
+        if (province.OwnerId == 0 && province.OccupationInfo.OccupyingCountryId != army.OwnerId) {
             CancelOccupation(province);
             occupationStatus = new Occupation(1, army.OwnerId);
         }
         else {
-            Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.Owner_id);
+            Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.OwnerId);
             Relation.RelationType? relation = null;
             if (master != null) {
                 relation = GetHardRelationType(master, provinceOwner);
@@ -531,7 +531,7 @@ public class Map : ScriptableObject {
             }
         }
 
-        if (occupationStatus != null && province.Type == "land") {
+        if (occupationStatus != null && province.IsLand) {
             province.addStatus(occupationStatus);
             province.OccupationInfo = new OccupationInfo(true, occupationStatus.Duration + 1, army.OwnerId);
         }
@@ -727,7 +727,7 @@ public class Map : ScriptableObject {
         public static HashSet<Province> getUnpassableProvinces(Map map, Country c) {
             HashSet<Province> unpassable = new();
             if (!c.techStats.canBoat) {
-                unpassable.UnionWith(map.Provinces.FindAll(p => p.Type != "land").ToHashSet());
+                unpassable.UnionWith(map.Provinces.FindAll(p => p.IsLand).ToHashSet());
             }
             HashSet<int> accessible = new();
             foreach(var r in map.Relations) {
@@ -746,7 +746,7 @@ public class Map : ScriptableObject {
             }
             accessible.Remove(c.Id);
             foreach(var province in map.Provinces) {
-                if (province.Owner_id != c.Id && !accessible.Contains(province.Owner_id))
+                if (province.OwnerId != c.Id && !accessible.Contains(province.OwnerId))
                     unpassable.Add(province);
             }
             return unpassable;

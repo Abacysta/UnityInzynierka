@@ -117,13 +117,13 @@ public class game_manager : MonoBehaviour
                 // - it is the territory of a country with which they have a vassalage relation, or
                 // - it is the territory of a country that grants them military access
                 Vector3Int nearestOwnerProvincePosition = map.Provinces
-                    .Where(p => p.Owner_id == army.OwnerId ||
+                    .Where(p => p.OwnerId == army.OwnerId ||
                                 map.Relations.Any(rel =>
                                     (rel.type == RelationType.Alliance || rel.type == RelationType.Vassalage) &&
-                                    rel.Sides.Contains(armyOwner) && rel.Sides.Contains(map.Countries[p.Owner_id])) ||
+                                    rel.Sides.Contains(armyOwner) && rel.Sides.Contains(map.Countries[p.OwnerId])) ||
                                 map.Relations.Any(rel =>
                                     rel.type == RelationType.MilitaryAccess &&
-                                    rel.Sides[0] == map.Countries[p.Owner_id] && rel.Sides[1] == armyOwner))
+                                    rel.Sides[0] == map.Countries[p.OwnerId] && rel.Sides[1] == armyOwner))
                     .Select(p => new Vector3Int(p.X, p.Y, 0))
                     .OrderBy(point => Vector3Int.Distance(tilePosition, point))
                     .FirstOrDefault();
@@ -195,9 +195,9 @@ public class game_manager : MonoBehaviour
         loading_txt.text = "Calculating provinces";
         Debug.Log("started bar");
 
-        foreach(var p in map.Provinces.Where(p => p.Type == "land")) {
+        foreach(var p in map.Provinces.Where(p => p.IsLand)) {
             loading_bar.value = (0.2f * 100 / pcnt);
-            if (p.Owner_id != 0) {
+            if (p.OwnerId != 0) {
                 map.growPop(p.coordinates);
                 map.growHap(p.coordinates, 3);
                 map.calcRecruitablePop(p.coordinates);

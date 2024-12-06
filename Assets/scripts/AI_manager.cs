@@ -151,15 +151,15 @@ namespace Assets.Scripts {
             foreach(var a in armies) {
                 if (map.CurrentPlayer.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
                 //get all land- no water
-                var possible = map.getPossibleMoveCells(a).Where(c => map.getProvince(c).Type == "land").ToList();
+                var possible = map.getPossibleMoveCells(a).Where(c => map.getProvince(c).IsLand).ToList();
                 //trbal first I guess
-                var target = possible.FirstOrDefault(p => map.getProvince(p).Owner_id == 0);
+                var target = possible.FirstOrDefault(p => map.getProvince(p).OwnerId == 0);
                 if(target != (0,0)) {
                     map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, target, a.Count, a));
                     continue;
                 }
                 //then enemy provinces
-                var Eprov = possible.FindAll(p => Map.WarUtilities.getEnemyIds(map, map.CurrentPlayer).Contains(map.getProvince(p).Owner_id));
+                var Eprov = possible.FindAll(p => Map.WarUtilities.getEnemyIds(map, map.CurrentPlayer).Contains(map.getProvince(p).OwnerId));
                 //no armies first
                 var withnoarmies = Eprov.Where(p => !Map.WarUtilities.getEnemyArmies(map, map.CurrentPlayer).Select(a => a.Position).Contains(p));
                 if (withnoarmies.Any()) {
@@ -240,9 +240,9 @@ namespace Assets.Scripts {
                 foreach(var e in Map.WarUtilities.getEnemyIds(map, c).Select(id => map.Countries[id]).ToList()) {
                     var needed = HexUtils.getBestPathProvinces(map, c, c.Capital, e.Capital);
                     if(needed != null) foreach(var p in needed) {
-                        if(impassable.Contains(p) && p.Owner_id != 0 && p.Type == "land") {
-                            if (map.Countries[p.Owner_id].Opinions[c.Id] >= 0) {
-                                    c.Actions.addAction(new TurnAction.access_request(c, map.Countries[p.Owner_id], diplomacy, dialog_box, camera, diplo_actions));
+                        if(impassable.Contains(p) && p.OwnerId != 0 && p.IsLand) {
+                            if (map.Countries[p.OwnerId].Opinions[c.Id] >= 0) {
+                                    c.Actions.addAction(new TurnAction.access_request(c, map.Countries[p.OwnerId], diplomacy, dialog_box, camera, diplo_actions));
                             }
                         }
                     }

@@ -118,7 +118,7 @@ public class fog_of_war : MonoBehaviour
             return;
         }
 
-        Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
+        Country country = map.Countries.FirstOrDefault(c => c.Id == province.OwnerId);
         HexUtils.Cube centerCube = HexUtils.OffsetToCube(province.X, province.Y);
         List<HexUtils.Cube> visibleCubes = HexUtils.CubeRange(centerCube, visibilityRange);
 

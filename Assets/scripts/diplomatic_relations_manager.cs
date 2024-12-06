@@ -103,9 +103,9 @@ namespace Assets.map.scripts {
 
             foreach (var province in map.Provinces)
             {
-                bool isOwnerFromParticipants1 = participants1.Contains(province.Owner_id);
+                bool isOwnerFromParticipants1 = participants1.Contains(province.OwnerId);
                 bool isOccupyingFromParticipants2 = participants2.Contains(province.OccupationInfo.OccupyingCountryId);
-                bool isOwnerFromParticipants2 = participants2.Contains(province.Owner_id);
+                bool isOwnerFromParticipants2 = participants2.Contains(province.OwnerId);
                 bool isOccupyingFromParticipants1 = participants1.Contains(province.OccupationInfo.OccupyingCountryId);
 
                 if ((isOwnerFromParticipants1 && isOccupyingFromParticipants2) || 
@@ -210,7 +210,7 @@ namespace Assets.map.scripts {
             map.Relations.Remove(relation);
             var toRemove = new HashSet<Province>();
             foreach(Province p in vassal.Provinces) {
-                p.Owner_id = master.Id;
+                p.OwnerId = master.Id;
                 toRemove.Add(p);
             }
             foreach(var p in toRemove) { 

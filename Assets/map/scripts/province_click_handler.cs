@@ -112,7 +112,7 @@ public class province_click_handler : cursor_helper
                 DisplayProvinceInterface(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
                 Province province = map.getProvince(cellPosition.y, cellPosition.x);
-                if (province.Type == "land") Debug.Log("Resource:" + province.ResourcesP + "mul:" + province.Modifiers.ProdMod);
+                if (province.IsLand) Debug.Log("Resource:" + province.ResourcesP + "mul:" + province.Modifiers.ProdMod);
             }
             else
             {
@@ -216,7 +216,7 @@ public class province_click_handler : cursor_helper
 
         Province province = map.getProvince(coordinates.x, coordinates.y);
 
-        if (province == null || province.Type != "land") {
+        if (province == null || province.IsLand) {
             return Color.white;
         }
 

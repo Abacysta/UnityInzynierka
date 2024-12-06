@@ -70,8 +70,8 @@ public class province_tooltip : MonoBehaviour
     }
     public void SetTooltipData(Province province)
     {
-        Country provinceOwner = map.Countries[province.Owner_id];
-        country_province_name.text = (province.Owner_id != 0 ? provinceOwner.Name : "Tribal") + " - " + province.Name;
+        Country provinceOwner = map.Countries[province.OwnerId];
+        country_province_name.text = (province.OwnerId != 0 ? provinceOwner.Name : "Tribal") + " - " + province.Name;
         provinceOwner.setCoatandColor(country_coat);
 
         switch (filter_modes.CurrentMode)

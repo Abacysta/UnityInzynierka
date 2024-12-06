@@ -141,7 +141,7 @@ public class player_table : MonoBehaviour
         foreach (var provinceData in provinces)
         {
             Province.TerrainType terrain;
-            if (provinceData.Type == "land")
+            if (provinceData.IsLand)
             {
                 string terrainStr = provinceData.Terrain.ToString().ToLower();
                 switch (terrainStr)
@@ -172,13 +172,13 @@ public class player_table : MonoBehaviour
                 provinceData.Name,
                 provinceData.X,
                 provinceData.Y,
-                provinceData.Type,
+                provinceData.IsLand,
                 terrain,
                 ParseResource(provinceData.ResourceType.ToString().ToLower()),
                 (int)provinceData.ResourceAmount,
                 provinceData.Population,
                 provinceData.Happiness,
-                provinceData.Is_coast
+                provinceData.IsCoast
             );
             newProvince.ResourceAmount = provinceData.ResourceAmount * map.ResourceRate/100;
             map.Provinces.Add(newProvince);
@@ -257,9 +257,9 @@ public class player_table : MonoBehaviour
     {
         foreach (var p in map.Provinces)
         {
-            if (p.Type == "land")
+            if (p.IsLand)
             {
-                if (p.Owner_id == 0) p.addStatus(new Tribal(-1));
+                if (p.OwnerId == 0) p.addStatus(new Tribal(-1));
                 p.calcStatuses();
                 map.calcRecruitablePop(p.coordinates);
             }

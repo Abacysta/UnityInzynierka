@@ -196,7 +196,7 @@ namespace Assets.classes.subclasses {
                     break;
 
             }
-            foreach(var p in map.Provinces.Where(p=>p.Owner_id == id)) {
+            foreach(var p in map.Provinces.Where(p=>p.OwnerId == id)) {
                 loaded.Provinces.Add(p);
             }
             loaded.Priority = prio;
@@ -206,7 +206,7 @@ namespace Assets.classes.subclasses {
     [Serializable]
     internal class SaveProvince {
         public string name;
-        public string type;
+        public bool isLand;
         public (int, int) coordinates;
         public Resource resource;
         public float resourceAmount;
@@ -219,16 +219,16 @@ namespace Assets.classes.subclasses {
         public List<SaveStatus> status;
         public Dictionary<BuildingType, int> buildings;
         public SaveProvince(Province prov) {
-            type = prov.Type;
+            isLand = prov.IsLand;
             name = prov.Name;
-            owner = prov.Owner_id;
+            owner = prov.OwnerId;
             coordinates = (prov.X, prov.Y);
             resource = prov.ResourceType;
             resourceAmount = prov.ResourceAmount;
             population = prov.Population;
             recruitable = prov.RecruitablePopulation;
             happinesss = prov.Happiness;
-            iscoast = prov.Is_coast;
+            iscoast = prov.IsCoast;
             terrain = prov.Terrain;
             status = new();
             if(prov.Statuses!=null) foreach(var s in prov.Statuses) {
@@ -252,11 +252,11 @@ namespace Assets.classes.subclasses {
         }
 
         public Province load() {
-            Province loaded = new Province(name, coordinates.Item1, coordinates.Item2, type, terrain, resource, resourceAmount, population, recruitable, happinesss, iscoast, owner);
+            Province loaded = new Province(name, coordinates.Item1, coordinates.Item2, isLand, terrain, resource, resourceAmount, population, recruitable, happinesss, iscoast, owner);
             foreach(var s in status) {
                 loaded.Statuses.Add(s.load());
             }
-            if (loaded.Type == "land") {
+            if (loaded.IsLand) {
                 var so = loaded.Statuses.Find(s => s is Occupation) as Occupation;
                 if (so != null) {
                     loaded.OccupationInfo = new(true, so.Duration, so.Occupier_id);

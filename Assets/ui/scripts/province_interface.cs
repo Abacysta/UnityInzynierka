@@ -222,15 +222,15 @@ public class province_interface : MonoBehaviour
     private void Update() {
         var coordinates = SelectedProvince;
         Province p = map.getProvince(coordinates);
-        int countryId = map.Countries[p.Owner_id].Id;
+        int countryId = map.Countries[p.OwnerId].Id;
 
         id_.Txt.SetText(coordinates.ToString() +
-            (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name +
+            (p.OwnerId != 0 ? " " + map.Countries[p.OwnerId].Name +
             (map.Controllers[countryId] == Map.CountryController.Ai ? " (AI)" : "") : ""));
 
-        type_.Txt.SetText($"{p.Type}");
+        type_.Txt.SetText(p.IsLand ? "land" : "ocean");
 
-        if (p.Type == "land") 
+        if (p.IsLand) 
         {
             res_.Txt.SetText("" + p.ResourcesP + "(" + p.ResourceAmount + ")");
             res_.Img.sprite = res_images[((int)p.ResourceType)];
@@ -239,7 +239,7 @@ public class province_interface : MonoBehaviour
             rec_pop_.Txt.SetText("" + p.RecruitablePopulation);
 
             UpdateUIElementStates(p); 
-            UpdateEmblem(p.Owner_id);
+            UpdateEmblem(p.OwnerId);
             StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites, p, map);
         }
         else {
@@ -263,11 +263,11 @@ public class province_interface : MonoBehaviour
         pop.SetActive(true);
         rec_pop.SetActive(true);
 
-        building_interface.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        recruitment_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        festivities_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        tax_break_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        rebel_suppress_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+        building_interface.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        recruitment_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        festivities_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        tax_break_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        rebel_suppress_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
 
         UpdateBuildings(p);
         recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
@@ -290,7 +290,7 @@ public class province_interface : MonoBehaviour
 
     private void UpdateBuildingButtonsStates(Province province)
     {
-        if (map.CurrentPlayer.Id != province.Owner_id) return;
+        if (map.CurrentPlayer.Id != province.OwnerId) return;
 
         var buttonMappings = new List<(Transform ButtonTransform, BuildingType Type)>
         {
