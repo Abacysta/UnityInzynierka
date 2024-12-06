@@ -305,11 +305,19 @@ public class technology_manager : MonoBehaviour
         }
     }
 
-    void SumEffects(IEnumerable<TechLevel> levelNodes, GameObject tooltip)
+    private void SumEffects(IEnumerable<TechLevel> levelNodes, GameObject tooltip)
     {
-        var consolidatedEffects = new List<TechEffect>();
+        var nonBuildingEffects = GroupNonBuildingEffects(levelNodes);
+        var buildingEffects = GroupBuildingEffects(levelNodes);
 
-        var nonBuildingEffects = levelNodes
+        var consolidatedEffects = nonBuildingEffects.Concat(buildingEffects).ToList();
+
+        SetEffectsInTooltip(consolidatedEffects, tooltip);
+    }
+
+    private IEnumerable<TechEffect> GroupNonBuildingEffects(IEnumerable<TechLevel> levelNodes)
+    {
+        return levelNodes
             .SelectMany(level => level.Effects)
             .Where(b => !b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
@@ -325,8 +333,11 @@ public class technology_manager : MonoBehaviour
                     : new TechEffect(g.Key, g.All(b => b.BoolValue == true), g.Last().Icon, g.All(b => b.IsEffectPositive));
             })
             .ToList();
+    }
 
-        var buildingEffects = levelNodes
+    private IEnumerable<TechEffect> GroupBuildingEffects(IEnumerable<TechLevel> levelNodes)
+    {
+        return levelNodes
             .SelectMany(level => level.Effects)
             .Where(b => b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
@@ -356,11 +367,10 @@ public class technology_manager : MonoBehaviour
                 }
             })
             .ToList();
+    }
 
-
-        consolidatedEffects.AddRange(nonBuildingEffects);
-        consolidatedEffects.AddRange(buildingEffects);
-
+    private void SetEffectsInTooltip(IEnumerable<TechEffect> consolidatedEffects, GameObject tooltip)
+    {
         foreach (var effect in consolidatedEffects)
         {
             GameObject effectRow = Instantiate(tech_tooltip_row, tooltip.transform);

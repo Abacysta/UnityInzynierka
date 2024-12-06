@@ -212,7 +212,7 @@ public class player_table : MonoBehaviour
         }
         map.initCountries();
 		SetCurrentPlayer();
-        SetCountryPrioritiesAndOpinions();
+        SetCountryPriorities();
         InitializeProvinces();
         map.calcPopExtremes();
         map.turnCnt = 0;
@@ -242,7 +242,7 @@ public class player_table : MonoBehaviour
         }
     }
 
-    private void SetCountryPrioritiesAndOpinions()
+    private void SetCountryPriorities()
     {
         int i = 0;
 
