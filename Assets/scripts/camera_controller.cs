@@ -24,7 +24,7 @@ public class camera_controller : cursor_helper
     private float resolutionScaleFactor;
     private Camera mainCamera;
 
-    private const float mapMinX = 0f, mapMinY = 0f;
+    private float mapMinX = 0f, mapMinY = 0f;
     private float mapMaxX = 200f, mapMaxY = 200f;
     private float cameraSizeForMap;
     private float mapCenterX, mapCenterY;
@@ -64,29 +64,38 @@ public class camera_controller : cursor_helper
 
     private void CalculateMapCenterAndBounds()
     {
-        int mapHexGridHeight = 80, mapHexGridWidth = 80;
+        int hexMapMinX = 0, hexMapMinY = 0;
+        int hexMapMaxX = 80, hexMapMaxY = 80;
 
         // Max tilemap coordinates
         if (map.Provinces.Any())
         {
-            mapHexGridHeight = map.Provinces.Max(p => p.Y);
-            mapHexGridWidth = map.Provinces.Max(p => p.X);
+            hexMapMinX = map.Provinces.Min(p => p.X);
+            hexMapMinY = map.Provinces.Min(p => p.Y);
+            hexMapMaxX = map.Provinces.Max(p => p.X);
+            hexMapMaxY = map.Provinces.Max(p => p.Y);
         }
 
-        Vector3Int maxCellPosition = new(mapHexGridWidth, mapHexGridHeight, 0);
+        Vector3Int minCellPosition = new(hexMapMinX, hexMapMinY, 0);
+        Vector3Int maxCellPosition = new(hexMapMaxX, hexMapMaxY, 0);
 
         // Max world coordinates
+        mapMinX = tile_map_layer_1.CellToWorld(minCellPosition).x;
+        mapMinY = tile_map_layer_1.CellToWorld(minCellPosition).y;
         mapMaxX = tile_map_layer_1.CellToWorld(maxCellPosition).x;
         mapMaxY = tile_map_layer_1.CellToWorld(maxCellPosition).y;
 
-        mapCenterX = mapMaxX / 2f;
-        mapCenterY = mapMaxY / 2f;
+        mapCenterX = (mapMinX + mapMaxX) / 2f;
+        mapCenterY = (mapMinY + mapMaxY) / 2f;
     }
 
     private void CalculateCameraSizeForMap()
     {
-        float mapHeightWithMargin = mapMaxY * (1f + minScalingMargin * 0.01f);
-        float mapWidthWithMargin = mapMaxX * (1f + minScalingMargin * 0.01f);
+        float mapWidth = mapMaxX - mapMinX;
+        float mapHeight = mapMaxY - mapMinY;
+
+        float mapHeightWithMargin = mapHeight * (1f + minScalingMargin * 0.01f);
+        float mapWidthWithMargin = mapWidth * (1f + minScalingMargin * 0.01f);
 
         float aspectRatio = mainCamera.aspect;
         float orthographicSizeHeight = mapHeightWithMargin / 2f;
@@ -254,11 +263,5 @@ public class camera_controller : cursor_helper
     public void ZoomCameraOnProvince(Province province)
     {
         ZoomCameraOnProvince((province.X, province.Y));
-    }
-
-    public void ZoomOnProvinceTest()
-    {
-        Province province = map.CurrentPlayer.Provinces.FirstOrDefault();
-        ZoomCameraOnProvince(province);
     }
 }
