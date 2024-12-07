@@ -45,7 +45,7 @@ public class Province {
     [SerializeField] private Resource resourceType;
     [SerializeField] private float resourceAmount;
     [SerializeField] private int population;
-    [SerializeField] private int recruitable_population;
+    [SerializeField] private int recruitablePopulation;
     [SerializeField] private int happiness;
     [SerializeField] private bool isCoast;
     [SerializeField] private OccupationInfo occupationInfo;
@@ -76,7 +76,7 @@ public class Province {
             buildings = defaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
-            recruitable_population = 0;
+            recruitablePopulation = 0;
             ownerId = 0;
         }
     }
@@ -90,7 +90,7 @@ public class Province {
         this.resourceType = resourceType;
         this.resourceAmount = resourceAmount;
         this.population = population;
-        this.recruitable_population = recruitable_population;
+        this.recruitablePopulation = recruitable_population;
         this.happiness = happiness;
         this.isCoast = isCoast;
         this.ownerId = ownerId;
@@ -111,7 +111,7 @@ public class Province {
     public Resource ResourceType { get => resourceType; set => resourceType = value; }
     public float ResourceAmount { get => (float)System.Math.Round(resourceAmount, 1); set => resourceAmount = value; }
     public int Population { get => population; set => population = value;}
-    public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
+    public int RecruitablePopulation { get => recruitablePopulation; set => recruitablePopulation = value; }
     public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, MIN_HAPP, MAX_HAPP); }
     public bool IsCoast { get => isCoast; set => isCoast = value; }
     public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
