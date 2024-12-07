@@ -18,6 +18,10 @@ public class main_music_manager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         main_mus = GetComponent<AudioSource>();
+    }
+
+    void Start()
+    {
         main_mus.Play();
     }
 

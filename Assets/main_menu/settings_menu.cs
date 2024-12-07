@@ -149,7 +149,7 @@ public class settings_menu : MonoBehaviour
     private float PercentToDecibels(float percent)
     {
         percent = Mathf.Clamp(percent, 0.0001f, 100f);
-        float linearValue = Mathf.Pow(percent / 100f, 0.5f);
+        float linearValue = Mathf.Pow(percent / 100f, 0.3f);
         float minDb = -80f;
         float maxDb = 0f;
 
