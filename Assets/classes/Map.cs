@@ -271,18 +271,31 @@ public class Map : ScriptableObject
         }
     }
 
-    public void disArmy((int, int) coordinates, int amount) {
-        var province = getProvince(coordinates);
-        var army = armies.Find(a => a.Position == coordinates);
-        if (army != null) {
-            if (army.Count == amount) {
-                removeArmy(army);
-            }
-            else {
-                army.Count -= amount;
-            }
-            province.Population += army.Count / 2;
+    public void DisbandArmy(Army army, int amount)
+    {
+        var province = getProvince(army.Position);
+
+        if (army.Count == amount) {
+            removeArmy(army);
         }
+        else {
+            army.Count -= amount;
+        }
+        province.Population += amount;
+    }
+
+    public void UndoDisbandArmy(Army army, int amount)
+    {
+        var province = getProvince(army.Position);
+
+        if (army.Count == amount) {
+            addArmy(army);
+        }
+        else {
+            army.Count += amount;
+        }
+
+        province.Population -= amount;
     }
 
     public army_view getView(Army army) {

@@ -174,17 +174,19 @@ namespace Assets.classes {
 
             public override void execute(Map map) {
                 base.execute(map);
-                map.disArmy(army.Position, count);
             }
 
             public override void preview(Map map) {
                 base.preview(map);
+                map.DisbandArmy(army, count);
             }
 
             public override void revert(Map map) {
                 base.revert(map);
+                map.UndoDisbandArmy(army, count);
             }
         }
+
         internal class RebelSuppresion : TurnAction, IInstantAction {
             private readonly Province province;
             private int oldH;
