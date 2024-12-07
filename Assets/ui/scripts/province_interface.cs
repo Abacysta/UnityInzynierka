@@ -232,7 +232,7 @@ public class province_interface : MonoBehaviour
 
         if (p.IsLand) 
         {
-            res_.Txt.SetText("" + p.ResourcesP + "(" + p.ResourceAmount + ")");
+            res_.Txt.SetText("" + p.ResourcesP + " (" + p.ResourceAmount + ")");
             res_.Img.sprite = res_images[((int)p.ResourceType)];
             happ_.Txt.SetText("" + p.Happiness);
             pop_.Txt.SetText("" + p.Population);
