@@ -53,6 +53,7 @@ public class dialog_box_manager : MonoBehaviour
         public Action OnConfirm { get; set; }
         public Action OnCancel { get; set; }
         public Action OnClose { get; set; }
+        public Action OnZoom {  get; set; }
         public bool Confirmable { get; set; } = true;
         public bool Rejectable { get; set; } = true;
         public bool Zoomable { get; set; } = false;
@@ -449,19 +450,16 @@ public class dialog_box_manager : MonoBehaviour
                 alerts.sortedevents.Remove(_event);
                 alerts.reloadAlerts();
             },
+            OnZoom = () => {
+                _event.zoom();
+                HideDialog();
+            },
             Confirmable = _event.Cost != null ? map.CurrentPlayer.isPayable(_event.Cost) : true,
             Rejectable = rejectable,
             Zoomable = true,
             ConfirmText = "Confirm",
             CancelText = "Reject"
         };
-
-        cost_element.SetActive(_event.Cost != null);
-
-        zoom_button.onClick.AddListener(() => {
-            _event.zoom();
-            HideDialog();
-        });
 
         var eventBox = new DialogBoxBuilder()
             .SetBasicParams(basicParameters);
@@ -478,7 +476,6 @@ public class dialog_box_manager : MonoBehaviour
 
         SetCoatOfArms();
         SetDialogTexts(parameters);
-        zoom_button.gameObject.SetActive(parameters.Zoomable);
 
         if (parameters is SliderDialogConfig sliderParameters)
         {
@@ -521,6 +518,7 @@ public class dialog_box_manager : MonoBehaviour
         close_button.onClick.RemoveAllListeners();
         confirm_button.onClick.RemoveAllListeners();
         cancel_button.onClick.RemoveAllListeners();
+        zoom_button.onClick.RemoveAllListeners();
 
         close_button.onClick.AddListener(() =>
         {
@@ -540,6 +538,12 @@ public class dialog_box_manager : MonoBehaviour
         {
             parameters.OnCancel?.Invoke();
             click_sound.Play();
+            HideDialog();
+        });
+
+        zoom_button.gameObject.SetActive(parameters.Zoomable);
+        zoom_button.onClick.AddListener(() => {
+            parameters.OnZoom?.Invoke();
             HideDialog();
         });
     }
