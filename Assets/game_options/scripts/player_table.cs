@@ -16,7 +16,6 @@ public class player_table : MonoBehaviour
     [SerializeField] private Map map;
     [SerializeField] private map_options optionsTable;
     [SerializeField] private map_preview map_Preview;
-    private GameObject currentPlayerSelection = null;
     private List<CountryController> controllers = new List<CountryController>();
     private List<CountryData> currentStates = new List<CountryData>();
     private List<Province> provinces = new List<Province>();

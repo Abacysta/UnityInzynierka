@@ -280,8 +280,8 @@ public class map_options : MonoBehaviour
             Debug.Log("At least one human player!");
             return;
         }
-		map.name = selectedMap;
-        map.File_name = selectedMap;
+
+        map.FileName = selectedMap;
         map.ResourceRate = selectedResourceRate;
         map.Turnlimit = selectedTurnLimit;
 

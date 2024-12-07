@@ -373,8 +373,8 @@ public class filter_modes : MonoBehaviour
         Color midColor = Color.yellow;
         Color maxColor = Color.blue;
 
-        int minPopulation = map.Pop_extremes.Item1;
-        int maxPopulation = map.Pop_extremes.Item2;
+        int minPopulation = map.PopExtremes.Item1;
+        int maxPopulation = map.PopExtremes.Item2;
 
         float t = Mathf.InverseLerp(minPopulation, maxPopulation, value);
 
