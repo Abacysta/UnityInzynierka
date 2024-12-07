@@ -45,7 +45,7 @@ public class StartWarActionTests
         currentPlayerVassal = map.Countries[3];
         receiverCountryVassal = map.Countries[4];
 
-        var action = new start_war(currentPlayer, receiverCountry, diplomatic_relations_manager, 
+        var action = new WarDeclaration(currentPlayer, receiverCountry, diplomatic_relations_manager, 
             dialog_box, camera_controller, diplomatic_actions_manager);
         currentPlayer.Actions.addAction(action);
     }

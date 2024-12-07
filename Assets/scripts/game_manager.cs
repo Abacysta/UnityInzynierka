@@ -150,9 +150,9 @@ public class game_manager : MonoBehaviour
             foreach (var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
                 bool bswitch = false;
                 Army att = null;
-                if(c.Actions.Count > 0 && c.Actions.last is TurnAction.army_move) {
+                if(c.Actions.Count > 0 && c.Actions.last is TurnAction.ArmyMove) {
                     bswitch = true;
-                    att = (c.Actions.last as TurnAction.army_move).Army;
+                    att = (c.Actions.last as TurnAction.ArmyMove).Army;
                 }
                 c.Actions.execute();
                 if(bswitch && att != null) {

@@ -8,9 +8,6 @@ using static Assets.classes.subclasses.Constants.Relation;
 
 namespace Assets.classes {
     public class TurnAction {
-
-        
-
         public enum ActionType {
             ArmyMove,
             ArmyRecruitment,
@@ -92,13 +89,13 @@ namespace Assets.classes {
                 }
         }
 
-        internal class army_move : TurnAction {
+        internal class ArmyMove : TurnAction {
             private (int, int) from, to;
             private int count;
             private Army army;
             private Army armyPreview;
 
-            public army_move((int, int) from, (int, int) to, int count, Army army) : base(ActionType.ArmyMove,
+            public ArmyMove((int, int) from, (int, int) to, int count, Army army) : base(ActionType.ArmyMove,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyMove)) {
                 Debug.Log(from + " " + to + " " + count);
                 this.from = from;
@@ -128,11 +125,11 @@ namespace Assets.classes {
             public Army Army { get { return army; } }
         }
 
-        internal class army_recruitment : TurnAction {
+        internal class ArmyRecruitment : TurnAction {
             private (int, int) coordinates;
             private int count;
 
-            public army_recruitment((int, int) coordinates, int count, Country.TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment,
+            public ArmyRecruitment((int, int) coordinates, int count, Country.TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyRecruitment)) {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
@@ -162,11 +159,11 @@ namespace Assets.classes {
             }
         }
 
-        internal class army_disbandment : TurnAction {
+        internal class ArmyDisbandment : TurnAction {
             private Army army;
             private int count;
 
-            public army_disbandment(Army army, int count) : base(ActionType.ArmyDisbandment,
+            public ArmyDisbandment(Army army, int count) : base(ActionType.ArmyDisbandment,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyDisbandment)) {
                 Debug.Log(count);
                 this.army = army;
@@ -188,11 +185,11 @@ namespace Assets.classes {
                 base.revert(map);
             }
         }
-        internal class rebel_suppresion : TurnAction, IInstantAction {
+        internal class RebelSuppresion : TurnAction, IInstantAction {
             private readonly Province province;
             private int oldH;
             private int oldR;
-            public rebel_suppresion(Province province) :
+            public RebelSuppresion(Province province) :
                 base(ActionType.RebelSuppresion, CostsCalculator.TurnActionApCost(ActionType.RebelSuppresion)) {
                 this.province = province;
                 this.oldH = province.Happiness;
@@ -212,11 +209,11 @@ namespace Assets.classes {
             }
 
         }
-        internal class technology_upgrade : TurnAction, IInstantAction {
+        internal class TechnologyUpgrade : TurnAction, IInstantAction {
             private readonly Technology techType;
             private readonly Country country;
 
-            public technology_upgrade(Country country, Technology techType) :
+            public TechnologyUpgrade(Country country, Technology techType) :
                 base(ActionType.TechnologyUpgrade, CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) {
                 this.techType = techType;
                 this.country = country;
@@ -236,11 +233,11 @@ namespace Assets.classes {
             }
         }
 
-        internal class building_upgrade : TurnAction, IInstantAction {
+        internal class BuildingUpgrade : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly BuildingType buildingType;
 
-            public building_upgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingUpgrade,
+            public BuildingUpgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingUpgrade,
                 CostsCalculator.TurnActionApCost(ActionType.BuildingUpgrade)) {
                 this.province = province;
                 this.buildingType = buildingType;
@@ -259,11 +256,11 @@ namespace Assets.classes {
             }
         }
 
-        internal class building_downgrade : TurnAction, IInstantAction {
+        internal class BuildingDowngrade : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly BuildingType buildingType;
 
-            public building_downgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingDowngrade,
+            public BuildingDowngrade(Province province, BuildingType buildingType) : base(ActionType.BuildingDowngrade,
                 CostsCalculator.TurnActionApCost(ActionType.BuildingDowngrade)) {
                 this.province = province;
                 this.buildingType = buildingType;
@@ -280,11 +277,11 @@ namespace Assets.classes {
             }
         }
 
-        internal class festivities_organization : TurnAction, IInstantAction {
+        internal class FestivitiesOrganization : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly Status status;
 
-            public festivities_organization(Province province) : base(ActionType.FestivitiesOrganization,
+            public FestivitiesOrganization(Province province) : base(ActionType.FestivitiesOrganization,
                 CostsCalculator.TurnActionApCost(ActionType.FestivitiesOrganization)) {
                 this.province = province;
                 status = new Festivities(5);
@@ -301,11 +298,11 @@ namespace Assets.classes {
             }
         }
 
-        internal class tax_break_introduction : TurnAction, IInstantAction {
+        internal class TaxBreakIntroduction : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly Status status;
 
-            public tax_break_introduction(Province province) : base(ActionType.TaxBreakIntroduction,
+            public TaxBreakIntroduction(Province province) : base(ActionType.TaxBreakIntroduction,
                 CostsCalculator.TurnActionApCost(ActionType.TaxBreakIntroduction)) {
                 this.province = province;
                 status = new TaxBreak(5);
@@ -322,14 +319,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class start_war : TurnAction, IInstantAction {
+        internal class WarDeclaration : TurnAction, IInstantAction {
             private Country c1, c2;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public start_war(Country c1, Country c2, diplomatic_relations_manager diplomacy,
+            public WarDeclaration(Country c1, Country c2, diplomatic_relations_manager diplomacy,
                 dialog_box_manager dialog_box, camera_controller camera, diplomatic_actions_manager dipl_actions) :
                 base(ActionType.StartWar,
                 CostsCalculator.TurnActionApCost(ActionType.StartWar)) {
@@ -352,12 +349,12 @@ namespace Assets.classes {
             }
         }
 
-        internal class integrate_vassal : TurnAction, IInstantAction {
+        internal class VassalIntegration : TurnAction, IInstantAction {
             private Relation.Vassalage vassalage;
             private diplomatic_relations_manager diplomacy;
             private diplomatic_actions_manager dipl_actions;
 
-            public integrate_vassal(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy,
+            public VassalIntegration(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy,
                 diplomatic_actions_manager dipl_actions) : base(ActionType.IntegrateVassal,
                     CostsCalculator.TurnActionApCost(ActionType.IntegrateVassal, vassalage)) {
                 this.vassalage = vassalage;
@@ -375,7 +372,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class end_war : TurnAction, IInstantAction {
+        internal class PeaceOffer : TurnAction, IInstantAction {
             private Country offer;
             private Relation.War war;
             private diplomatic_relations_manager diplomacy;
@@ -384,7 +381,7 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private Country to;
 
-            public end_war(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public PeaceOffer(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera) : base(ActionType.WarEnd,
                 CostsCalculator.TurnActionApCost(ActionType.WarEnd)) {
                 this.offer = offer;
@@ -405,14 +402,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class alliance_offer : TurnAction, IInstantAction {
+        internal class AllianceOffer : TurnAction, IInstantAction {
             private Country c1, c2;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public alliance_offer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public AllianceOffer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceOffer,
                     CostsCalculator.TurnActionApCost(ActionType.AllianceOffer)) {
                 this.c1 = c1;
@@ -433,7 +430,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class alliance_end : TurnAction, IInstantAction {
+        internal class AllianceBreak : TurnAction, IInstantAction {
             private Country from;
             private Relation.Alliance alliance;
             private diplomatic_relations_manager diplomacy;
@@ -442,7 +439,7 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private Country to;
 
-            public alliance_end(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public AllianceBreak(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceEnd,
                     CostsCalculator.TurnActionApCost(ActionType.AllianceEnd)) {
                 this.from = from;
@@ -466,14 +463,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class access_offer : TurnAction, IInstantAction {
+        internal class MilAccessOffer : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public access_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccOffer,
                     CostsCalculator.TurnActionApCost(ActionType.MilAccOffer)) {
                 this.from = from;
@@ -494,14 +491,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class access_request : TurnAction, IInstantAction {
+        internal class MilAccessRequest : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public access_request(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccRequest,
                     CostsCalculator.TurnActionApCost(ActionType.MilAccRequest)) {
                 this.from = from;
@@ -522,7 +519,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class access_end_master : TurnAction, IInstantAction {
+        internal class MilAccessEndMaster : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -530,7 +527,7 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private MilitaryAccess militaryAccess;
 
-            public access_end_master(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessEndMaster(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndMaster,
                     CostsCalculator.TurnActionApCost(ActionType.MilAccEndMaster)) {
                 this.from = from;
@@ -554,7 +551,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class access_end_slave : TurnAction, IInstantAction {
+        internal class MilAccessEndSlave : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -562,7 +559,7 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private MilitaryAccess militaryAccess;
 
-            public access_end_slave(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessEndSlave(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndSlave,
                     CostsCalculator.TurnActionApCost(ActionType.MilAccEndSlave)) {
                 this.from = from;
@@ -586,7 +583,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class subs_offer : TurnAction, IInstantAction {
+        internal class SubsOffer : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -594,7 +591,7 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private int amount, duration;
 
-            public subs_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsOffer,
                     CostsCalculator.TurnActionApCost(ActionType.SubsOffer)) {
                 this.from = from;
@@ -618,7 +615,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class subs_end : TurnAction, IInstantAction {
+        internal class SubsEnd : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -626,7 +623,7 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private Subsidies subsidies;
 
-            public subs_end(Country from, Country to, Subsidies subsidies, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public SubsEnd(Country from, Country to, Subsidies subsidies, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsEnd,
                     CostsCalculator.TurnActionApCost(ActionType.SubsEnd)) {
                 this.from = from;
@@ -650,7 +647,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class subs_request : TurnAction, IInstantAction {
+        internal class SubsRequest : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -658,7 +655,7 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private int amount, duration;
 
-            public subs_request(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsRequest,
                     CostsCalculator.TurnActionApCost(ActionType.SubsRequest)) {
                 this.from = from;
@@ -682,14 +679,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class vassal_offer : TurnAction, IInstantAction {
+        internal class VassalizationDemand : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public vassal_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public VassalizationDemand(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalizationOffer,
                     CostsCalculator.TurnActionApCost(ActionType.VassalizationOffer)) {
                 this.from = from;
@@ -710,14 +707,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class vassal_rebel : TurnAction, IInstantAction {
+        internal class VassalRebellion : TurnAction, IInstantAction {
             private Relation.Vassalage vassalage;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public vassal_rebel(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public VassalRebellion(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalRebel,
                     CostsCalculator.TurnActionApCost(ActionType.VassalRebel)) {
                 this.vassalage = vassalage;
@@ -740,14 +737,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class insult : TurnAction, IInstantAction {
+        internal class Insult : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public Insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Insult,
                     CostsCalculator.TurnActionApCost(ActionType.Insult)) {
                 this.from = from;
@@ -770,14 +767,14 @@ namespace Assets.classes {
             }
         }
 
-        internal class praise : TurnAction, IInstantAction {
+        internal class Praise : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public Praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Praise,
                     CostsCalculator.TurnActionApCost(ActionType.Praise)) {
                 this.from = from;
@@ -799,7 +796,7 @@ namespace Assets.classes {
             }
         }
 
-        internal class call_to_war : TurnAction, IInstantAction {
+        internal class CallToWar : TurnAction, IInstantAction {
             private Country from, to;
             private War war;
             private dialog_box_manager dialog_box;
@@ -807,7 +804,7 @@ namespace Assets.classes {
             private diplomatic_relations_manager diplomacy;
             private diplomatic_actions_manager dipl_actions;
 
-            public call_to_war(Country from, Country to, War war, dialog_box_manager dialog_box,
+            public CallToWar(Country from, Country to, War war, dialog_box_manager dialog_box,
                 diplomatic_relations_manager diplomacy, camera_controller camera,
                 diplomatic_actions_manager dipl_actions) : base(ActionType.CallToWar,
                     CostsCalculator.TurnActionApCost(ActionType.CallToWar)) {
@@ -833,10 +830,6 @@ namespace Assets.classes {
     internal interface IInstantAction { }
     public class actionContainer {
         private Map map;
-
-        
-
-
         private List<TurnAction> actions;
 
         public actionContainer(Map map) {

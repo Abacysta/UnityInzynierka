@@ -84,6 +84,7 @@ public class dialog_box_manager : MonoBehaviour
             _dialogConfig.OnConfirm = basicParameters.OnConfirm;
             _dialogConfig.OnCancel = basicParameters.OnCancel;
             _dialogConfig.OnClose = basicParameters.OnClose;
+            _dialogConfig.OnZoom = basicParameters.OnZoom;
             _dialogConfig.Confirmable = basicParameters.Confirmable;
             _dialogConfig.Rejectable = basicParameters.Rejectable;
             _dialogConfig.Zoomable = basicParameters.Zoomable;
@@ -174,7 +175,7 @@ public class dialog_box_manager : MonoBehaviour
             Message = "Select how many units you want to move.",
             OnConfirm = () =>
             {
-                var action = new army_move(army.Position, destination, (int)dialog_slider.value, army);
+                var action = new ArmyMove(army.Position, destination, (int)dialog_slider.value, army);
                 map.Countries[army.OwnerId].Actions.addAction(action);
             }
         };
@@ -201,7 +202,7 @@ public class dialog_box_manager : MonoBehaviour
             Message = "Select how many units you want to recruit.",
             OnConfirm = () =>
             {
-                var action = new army_recruitment(coordinates, (int)dialog_slider.value, techStats);
+                var action = new ArmyRecruitment(coordinates, (int)dialog_slider.value, techStats);
                 map.Countries[province.OwnerId].Actions.addAction(action);
             }
         };
@@ -226,7 +227,7 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 int unitsToDisband = (int)dialog_slider.value;
-                var action = new army_disbandment(army, unitsToDisband);
+                var action = new ArmyDisbandment(army, unitsToDisband);
                 map.Countries[army.OwnerId].Actions.addAction(action);
             }
         };
@@ -254,7 +255,7 @@ public class dialog_box_manager : MonoBehaviour
             Message = $"Do you want to build {buildingType} - level {lvl}?",
             OnConfirm = () =>
             {
-                var action = new building_upgrade(province, buildingType);
+                var action = new BuildingUpgrade(province, buildingType);
                 map.CurrentPlayer.Actions.addAction(action);
             },
             Confirmable = map.CurrentPlayer.isPayable(cost)
@@ -279,7 +280,7 @@ public class dialog_box_manager : MonoBehaviour
             Message = $"Do you want to raze {buildingType} - level {lvl}?",
             OnConfirm = () =>
             {
-                var action = new building_downgrade(province, buildingType);
+                var action = new BuildingDowngrade(province, buildingType);
                 map.CurrentPlayer.Actions.addAction(action);
             },
             Confirmable = map.CurrentPlayer.isPayable(cost)
@@ -306,7 +307,7 @@ public class dialog_box_manager : MonoBehaviour
                 $"{technologyType.ToString().ToLower()} technology to level {lvl}?",
             OnConfirm = () =>
             {
-                var action = new technology_upgrade(map.CurrentPlayer, technologyType);
+                var action = new TechnologyUpgrade(map.CurrentPlayer, technologyType);
                 map.CurrentPlayer.Actions.addAction(action);
                 technology_manager.UpdateData();
             },
@@ -339,7 +340,7 @@ public class dialog_box_manager : MonoBehaviour
             Message = $"Do you want to introduce a tax break?",
             OnConfirm = () =>
             {
-                var action = new tax_break_introduction(province);
+                var action = new TaxBreakIntroduction(province);
                 map.CurrentPlayer.Actions.addAction(action);
             },
             Confirmable = map.CurrentPlayer.isPayable(cost)
@@ -371,7 +372,7 @@ public class dialog_box_manager : MonoBehaviour
             Message = $"Do you want to organize festivities?",
             OnConfirm = () =>
             {
-                var action = new festivities_organization(province);
+                var action = new FestivitiesOrganization(province);
                 map.CurrentPlayer.Actions.addAction(action);
             },
             Confirmable = map.CurrentPlayer.isPayable(cost)
@@ -396,7 +397,7 @@ public class dialog_box_manager : MonoBehaviour
             Message = $"Do you want to suppress the rebellion?",
             OnConfirm = () =>
             {
-                var action = new rebel_suppresion(province);
+                var action = new RebelSuppresion(province);
                 map.CurrentPlayer.Actions.addAction(action);
             },
             Confirmable = map.CurrentPlayer.isPayable(cost)
@@ -452,7 +453,6 @@ public class dialog_box_manager : MonoBehaviour
             },
             OnZoom = () => {
                 _event.zoom();
-                HideDialog();
             },
             Confirmable = _event.Cost != null ? map.CurrentPlayer.isPayable(_event.Cost) : true,
             Rejectable = rejectable,

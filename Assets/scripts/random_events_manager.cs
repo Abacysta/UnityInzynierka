@@ -217,7 +217,7 @@ namespace Assets.map.scripts
                 Country country = map.Countries.FirstOrDefault(c => c.Id == province.OwnerId);
                 province.addStatus(new Occupation(country.techStats.occTime, 0));
                 province.OccupationInfo = new OccupationInfo(true, country.techStats.occTime, 0);
-                TurnAction rebellion = new TurnAction.army_move(DEFAULT_CORD, province.coordinates, count, rebels);
+                TurnAction rebellion = new TurnAction.ArmyMove(DEFAULT_CORD, province.coordinates, count, rebels);
                 rebellion.execute(map);
                 province.Happiness = 45;
             }

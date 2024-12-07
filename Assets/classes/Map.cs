@@ -719,7 +719,7 @@ public class Map : ScriptableObject {
         }
         public static bool recruitAllAvailable(Country c, Province p) {
             if (c.Resources[Resource.AP] >= 1) {
-                c.Actions.addAction(new TurnAction.army_recruitment(p.coordinates,
+                c.Actions.addAction(new TurnAction.ArmyRecruitment(p.coordinates,
                     p.RecruitablePopulation*c.techStats.armyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.armyCost), c.techStats));
             }
             return p.RecruitablePopulation == 0;

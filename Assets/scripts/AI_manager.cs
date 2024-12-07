@@ -155,7 +155,7 @@ namespace Assets.Scripts {
                 //trbal first I guess
                 var target = possible.FirstOrDefault(p => map.getProvince(p).OwnerId == 0);
                 if(target != (0,0)) {
-                    map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, target, a.Count, a));
+                    map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, target, a.Count, a));
                     continue;
                 }
                 //then enemy provinces
@@ -163,14 +163,14 @@ namespace Assets.Scripts {
                 //no armies first
                 var withnoarmies = Eprov.Where(p => !Map.WarUtilities.getEnemyArmies(map, map.CurrentPlayer).Select(a => a.Position).Contains(p));
                 if (withnoarmies.Any()) {
-                    map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, target, a.Count, a));
+                    map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, target, a.Count, a));
                     continue;
                 }
                 //with smaller armies
                 Eprov = Eprov.Except(withnoarmies).ToList();
                 foreach (var pp in Eprov) {
                     if (Map.WarUtilities.getEnemyArmiesInProvince(map, map.CurrentPlayer, map.getProvince(pp)).Sum(a => a.Count) < a.Count) {
-                        map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, pp, a.Count, a));
+                        map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, pp, a.Count, a));
                         break;
                     }
                 }
@@ -181,7 +181,7 @@ namespace Assets.Scripts {
                     var bestPath = HexUtils.getBestPathProvinces(map, map.CurrentPlayer, unavailable.Select(p=>(p.X, p.Y)).ToHashSet(), a.Position, (nearestProv.X, nearestProv.Y));
                     if (bestPath != null) {
                         //if exists move
-                        map.CurrentPlayer.Actions.addAction(new TurnAction.army_move(a.Position, bestPath[1].coordinates, a.Count, a));
+                        map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, bestPath[1].coordinates, a.Count, a));
                     }
                 }
             }
@@ -242,7 +242,7 @@ namespace Assets.Scripts {
                     if(needed != null) foreach(var p in needed) {
                         if(impassable.Contains(p) && p.OwnerId != 0 && p.IsLand) {
                             if (map.Countries[p.OwnerId].Opinions[c.Id] >= 0) {
-                                    c.Actions.addAction(new TurnAction.access_request(c, map.Countries[p.OwnerId], diplomacy, dialog_box, camera, diplo_actions));
+                                    c.Actions.addAction(new TurnAction.MilAccessRequest(c, map.Countries[p.OwnerId], diplomacy, dialog_box, camera, diplo_actions));
                             }
                         }
                     }
@@ -252,21 +252,21 @@ namespace Assets.Scripts {
                 
                 var vassalages = Map.PowerUtilites.getVassalRelations(map, c);
                 foreach(var v in vassalages) {
-                    var integration = new TurnAction.integrate_vassal(v, toolbox.Item1, toolbox.Item4);
+                    var integration = new TurnAction.VassalIntegration(v, toolbox.Item1, toolbox.Item4);
                     if(c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.IntegrateVassal, v))) {
                         c.Actions.addAction(integration);
                     }
                 }
                 var vassals = Map.PowerUtilites.getVassals(map, c);
                 foreach(var v in vassals) {
-                    var improvement = new TurnAction.praise(c, v, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
+                    var improvement = new TurnAction.Praise(c, v, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
                     if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.Praise))) {
                         c.Actions.addAction(improvement);
                     }
                 }
                 var weaklings = Map.PowerUtilites.getWeakCountries(map, c);
                 foreach(var w in weaklings) {
-                    var threat = new TurnAction.vassal_offer(c, w, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
+                    var threat = new TurnAction.VassalizationDemand(c, w, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
                     if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.VassalizationOffer))) {
                         c.Actions.addAction(threat);
                     }
@@ -277,7 +277,7 @@ namespace Assets.Scripts {
                 var allies = Map.WarUtilities.getAllies(map, c);
                 foreach(var war in wars) {
                     foreach(var ally in allies) {
-                        var call = new TurnAction.call_to_war(c, ally, war, toolbox.Item2, toolbox.Item1, toolbox.Item3, toolbox.Item4);
+                        var call = new TurnAction.CallToWar(c, ally, war, toolbox.Item2, toolbox.Item1, toolbox.Item3, toolbox.Item4);
                         if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.CallToWar))) {
                             c.Actions.addAction(call);
                         }
@@ -294,7 +294,7 @@ namespace Assets.Scripts {
             public static void rebelliousDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
                 if(Map.PowerUtilites.howArmyStronger(map, c, Map.PowerUtilites.getSenior(map, c)) >= 0.3) {
                     if(random.chance <= 10) {
-                        c.Actions.addAction(new TurnAction.vassal_rebel(Map.PowerUtilites.getVassalage(map, c), toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.addAction(new TurnAction.VassalRebellion(Map.PowerUtilites.getVassalage(map, c), toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                     }
                 }
             }
@@ -303,19 +303,19 @@ namespace Assets.Scripts {
                     if(i == c.Id) continue;
                     //just make them do something, even if it is very retarded and chaotic
                     if(c.Opinions[i] <= -100 && random.chance <= 25) {
-                        c.Actions.addAction(new TurnAction.start_war(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.addAction(new TurnAction.WarDeclaration(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                         continue;
                     }
                     if(c.Opinions[i] >= 100 && random.chance <= 25) {
-                        c.Actions.addAction(new TurnAction.alliance_offer(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.addAction(new TurnAction.AllianceOffer(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                         continue;
                     }
                     var rnd = random.chance;
                     if(rnd <= 25) {
-                        c.Actions.addAction(new TurnAction.praise(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.addAction(new TurnAction.Praise(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                     }
                     else if(rnd >= 75) {
-                        c.Actions.addAction(new TurnAction.insult(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.addAction(new TurnAction.Insult(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                     }
                 }
             }
@@ -328,7 +328,7 @@ namespace Assets.Scripts {
                 //tax break on provinces with low chance of rebellion
                 while (handlable.Count > 0) {
                     if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
-                        c.Actions.addAction(new TurnAction.tax_break_introduction(handlable[0]));
+                        c.Actions.addAction(new TurnAction.TaxBreakIntroduction(handlable[0]));
                         handlable.RemoveAt(0);
                     }
                     else break;
@@ -336,7 +336,7 @@ namespace Assets.Scripts {
                 //if can suppress, will for dire provinces
                 if(c.techStats.canRebelSupp) while(veryBad.Count > 0) {
                     if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
-                        c.Actions.addAction(new TurnAction.rebel_suppresion(veryBad[0]));
+                        c.Actions.addAction(new TurnAction.RebelSuppresion(veryBad[0]));
                         veryBad.RemoveAt(0);
                     }
                     else break;
@@ -347,7 +347,7 @@ namespace Assets.Scripts {
                 int limit = humor == Humor.Leading ? c.Provinces.Count/10 : c.Provinces.Count/20;//10 and 5 % respecitvely
                 foreach(var p in growable) {
                     if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
-                        c.Actions.addAction(new TurnAction.festivities_organization(p));
+                        c.Actions.addAction(new TurnAction.FestivitiesOrganization(p));
                     }
                     else break;
                 }
@@ -404,7 +404,7 @@ namespace Assets.Scripts {
             //AI should rush adm4(taxbreak) so it doesn't collapse immideately(rebel suppresion is too far in administratice tree so good luck AI you're gonna need it)
             public static void handleTechnology(Country c, Humor humor) {
                 if (c.Technologies[Technology.Administrative] < 4) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
                     if(c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
@@ -427,19 +427,19 @@ namespace Assets.Scripts {
             private static void techMEAPrio(Country c) {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Military);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Administrative] > 1) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
@@ -453,19 +453,19 @@ namespace Assets.Scripts {
             private static void techAEMPrio(Country c) {
                 var tech = c.Technologies;
                 if (tech[Technology.Administrative] - tech[Technology.Economic] < 2 && tech[Technology.Administrative] - tech[Technology.Military] < 2) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Administrative);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Military] > 1) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Military);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
@@ -479,19 +479,19 @@ namespace Assets.Scripts {
             private static void techMAEPrio(Country c) {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Military);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else if (tech[Technology.Administrative] - tech[Technology.Economic] > 1) {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else {
-                    var action = new TurnAction.technology_upgrade(c, Technology.Economic);
+                    var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
                     if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
                         c.Actions.addAction(action);
                     }
@@ -503,7 +503,7 @@ namespace Assets.Scripts {
             //if no school yet prioritize school over anything else
             //smartest thing is probably mine -> infrastructure -> school -> fort
             public static void handleBuildings(Country c, Humor humor) {
-                TurnAction.building_upgrade upgrade;
+                TurnAction.BuildingUpgrade upgrade;
                 if (c.getCapital().Buildings[BuildingType.Infrastructure] == 0) {
                     upgrade = new(c.getCapital(), BuildingType.Infrastructure);
                     if (c.isPayable(upgrade.altCosts))
