@@ -779,7 +779,7 @@ public class Map : ScriptableObject
             return provinces;
         }
 
-        //pewnie trzeba bedzie zmienic z numerow na jakis inny szajs
+        // likely need to replace numbers with something else
         public static List<Province> getUnhappyProvinces(Country country) {
             return country.Provinces.Where(p=>p.Happiness<40 && !p.Statuses.Any(s=>s.Id == 1)).ToList();
         }

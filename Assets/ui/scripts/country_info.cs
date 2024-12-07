@@ -5,12 +5,13 @@ using UnityEngine.UI;
 
 public class country_info : MonoBehaviour
 {
-    public GameObject info_cont;
-    public Map map;
-    private TMP_Text gold, wood, iron, tech, ap;
-    private TMP_Text goldG, woodG, ironG, techG, apG;
+    [SerializeField] private GameObject info_cont;
+    [SerializeField] private Map map;
     [SerializeField] private GameObject main_button;
     [SerializeField] private country_interface_manager country_interface;
+
+    private TMP_Text gold, wood, iron, tech, ap;
+    private TMP_Text goldG, woodG, ironG, techG, apG;
 
     void Start()
     {

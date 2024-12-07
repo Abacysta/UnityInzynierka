@@ -75,12 +75,12 @@ public class HexUtils
         return results;
     }
 
-    // interpolacja float
+    // float interpolation
     private static float Lerp(float a, float b, float t)
     {
         return a + (b - a) * t;
     }
-    // interpolacja miêdzy dwoma heksami
+    // Interpolation between two hexes
     private static Cube CubeLerp(Cube a, Cube b, float t)
     {
         return new Cube(
@@ -104,7 +104,7 @@ public class HexUtils
     }
 
 
-    // zaokr¹glanie Cube do najbli¿szego heksa wziete z https://www.redblobgames.com/grids/hexagons/#rounding 06.11.2024
+    // Rounding Cube to the nearest hex, taken from https://www.redblobgames.com/grids/hexagons/#rounding 06.11.2024
     private static Cube CubeRound(Cube cube)
     {
         int rq = Mathf.RoundToInt(cube.q);
@@ -124,19 +124,19 @@ public class HexUtils
 
         return new Cube(rq, rr, rs);
     }
-    // generuje listê heksów na linii miêdzy dwoma heksami - https://www.redblobgames.com/grids/hexagons/#line-drawing 06.11.2024
+    // // Generates a list of hexes on the line between two hexes - https://www.redblobgames.com/grids/hexagons/#line-drawing 06.11.2024
     public static List<(int, int)> CubeLineDraw(Cube start, Cube end)
     {
         int N = CubeDistance(start, end);
 
-        // lista 2D
+        // 2D list
         List<(int, int)> results = new List<(int, int)>();
 
         for (int i = 0; i <= N; i++)
         {
             Cube interpolated = CubeLerp(start, end, 1.0f / N * i);
 
-            // z 3d na 2d
+            // from 3d to 2d
             var (x, y) = CubeToOffset(interpolated);
 
             results.Add((x, y));
@@ -153,18 +153,18 @@ public class HexUtils
     }
 
     public static void hexPathingTest() {
-        var start = new HexUtils.Cube(0, 0, 0); // Punkt startowy
-        var end = new HexUtils.Cube(4, -4, 0);  // Punkt koñcowy 
+        var start = new HexUtils.Cube(0, 0, 0); // Starting point
+        var end = new HexUtils.Cube(4, -4, 0); // End point
 
-        // U¿ycie CubeLineDraw, aby wygenerowaæ œcie¿kê miêdzy start a end
+        // Using CubeLineDraw to generate a path between start and end
         List<(int, int)> path = HexUtils.CubeLineDraw(start, end);
 
-        // Wyœwietlenie wyników na konsoli
+        // Displaying results in the console
         Debug.Log("Linia miêdzy punktami startowym i koñcowym:");
         foreach (var hex in path) {
             Debug.Log($"Hex: x:{hex.Item1}, y:{hex.Item2}");
         }
-        // Dodatkowe sprawdzenie, czy œcie¿ka ma poprawn¹ d³ugoœæ
+        // Additional check to ensure the path has the correct length
         int expectedDistance = HexUtils.CubeDistance(start, end);
         bool correctLength = (path.Count - 1 == expectedDistance);
 

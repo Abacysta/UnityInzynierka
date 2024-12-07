@@ -62,7 +62,7 @@ public class army_click_handler : cursor_helper
             {
                 if (armyView.ArmyData.OwnerId != map.CurrentPlayerId) return;
 
-                ResetSelectedArmy(); // Resetuj wybrana armie przed przypisaniem nowej
+                ResetSelectedArmy(); // Reset the selected army before assigning a new one
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
                 HighlightPossibleMoveCells(selectedArmy.ArmyData);
@@ -127,7 +127,7 @@ public class army_click_handler : cursor_helper
             Vector3Int cellPosition = new Vector3Int(cell.Item1, cell.Item2, 0);
             TileBase tile = base_layer.GetTile(cellPosition);
 
-            // Sprawdzenie czy na danym tile'u nie znajduje sie biezaca armia
+            // Check if the current army is not on the given tile
             if (cellPosition == currentArmyPosition)
             {
                 continue;
