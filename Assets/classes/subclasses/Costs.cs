@@ -140,7 +140,7 @@ namespace Assets.classes.subclasses
         }
 
         /// <summary>
-        /// Generic method for non-building, non-technology and non-recruitment based actions
+        /// A generic method for most actions
         /// </summary>
         /// <param name="actionType"></param>
         /// <returns></returns>
@@ -152,7 +152,7 @@ namespace Assets.classes.subclasses
         }
 
         /// <summary>
-        /// Method for am army recruitment action
+        /// Method for army recruitment action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="tech"></param>
@@ -168,7 +168,7 @@ namespace Assets.classes.subclasses
         }
 
         /// <summary>
-        /// Method for technology based actions
+        /// Method for technology upgrade action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="tech"></param>
@@ -185,7 +185,7 @@ namespace Assets.classes.subclasses
         }
 
         /// <summary>
-        /// Method for building based actions
+        /// Method for building upgrade action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="buildingType"></param>
@@ -201,7 +201,7 @@ namespace Assets.classes.subclasses
         }
 
         /// <summary>
-        /// Method for rebellion
+        /// Method for integrate vassal action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="vassalage"></param>
@@ -220,17 +220,27 @@ namespace Assets.classes.subclasses
             }
         }
 
+        /// <summary>
+        /// A generic method for most actions
+        /// </summary>
         public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType)
         {
             var fullCost = TurnActionFullCost(actionType);
             return RemoveApCost(fullCost);
         }
+
+        /// <summary>
+        /// Method for army recruitment action
+        /// </summary>
         public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, Country.TechnologyInterpreter techStats)
         {
             var fullCost = TurnActionFullCost(actionType, techStats);
             return RemoveApCost(fullCost);
         }
 
+        /// <summary>
+        /// Method for technology upgrade action
+        /// </summary>
         public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType,
             Dictionary<Technology, int> tech, Technology techType)
         {
@@ -238,12 +248,18 @@ namespace Assets.classes.subclasses
             return RemoveApCost(fullCost);
         }
 
+        /// <summary>
+        /// Method for building upgrade action
+        /// </summary>
         public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, BuildingType bType, int lvl)
         {
             var fullCost = TurnActionFullCost(actionType, bType, lvl);
             return RemoveApCost(fullCost);
         }
 
+        /// <summary>
+        /// Method for integrate vassal action
+        /// </summary>
         public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, Relation vassalage)
         {
             var fullCost = TurnActionFullCost(actionType, vassalage);

@@ -178,17 +178,17 @@ public class technology_manager : MonoBehaviour
     {
         mil_tech_button.onClick.AddListener(() =>
         {
-            dialog_box.invokeTechUpgradeBox(Technology.Military);
+            dialog_box.InvokeTechUpgradeBox(Technology.Military);
         });
 
         ec_tech_button.onClick.AddListener(() =>
         {
-            dialog_box.invokeTechUpgradeBox(Technology.Economic);
+            dialog_box.InvokeTechUpgradeBox(Technology.Economic);
         });
 
         adm_tech_button.onClick.AddListener(() =>
         {
-            dialog_box.invokeTechUpgradeBox(Technology.Administrative);
+            dialog_box.InvokeTechUpgradeBox(Technology.Administrative);
         });
     }
 

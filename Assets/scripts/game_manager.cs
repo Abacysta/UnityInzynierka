@@ -325,7 +325,7 @@ public class game_manager : MonoBehaviour
             return;
         }
         Action a = () => TurnSimulation();
-        dialog_box.invokeConfirmBox("Pass the turn", "Do you want to pass the turn?", a, null, null);
+        dialog_box.InvokeConfirmBox("Pass the turn", "Do you want to pass the turn?", a);
     }
 
     public void TurnSimulation()

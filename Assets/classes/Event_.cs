@@ -33,7 +33,7 @@ namespace Assets.classes {
             public override void reject() { accept(); }
 
             public override void call() {
-                dialog_box.invokeEventBox(this);
+                dialog_box.InvokeEventBox(this);
             }
 
             public override void zoom() {
@@ -344,7 +344,7 @@ namespace Assets.classes {
 
             public override void call() {
                 var cost = this.cost();
-                dialog_box.invokeEventBox(this);
+                dialog_box.InvokeEventBox(this);
             }
 
             protected virtual Dictionary<Resource, float> cost() {
@@ -607,7 +607,7 @@ namespace Assets.classes {
             }
 
             public override void call() {
-                dialog_box.invokeEventBox(this);
+                dialog_box.InvokeEventBox(this);
             }
 
             DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, 
