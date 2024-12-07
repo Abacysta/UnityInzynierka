@@ -178,13 +178,13 @@ public class dialog_box_manager : MonoBehaviour
             }
         };
 
-        var sliderWithEffectsBox = new DialogBoxBuilder()
+        var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
             .SetBasicParams(basicParameters)
             .SetSliderParams(affordableValue, army.Count)
             .SetEffectsParams(cost)
             .Build();
 
-        ShowDialogBox(sliderWithEffectsBox);
+        ShowDialogBox(sliderWithEffectsBoxParameters);
     }
 
     public void InvokeRecBox((int, int) coordinates)
@@ -205,13 +205,13 @@ public class dialog_box_manager : MonoBehaviour
             }
         };
 
-        var sliderWithEffectsBox = new DialogBoxBuilder()
+        var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
             .SetBasicParams(basicParameters)
             .SetSliderParams(affordableValue, province.RecruitablePopulation)
             .SetEffectsParams(cost)
             .Build();
 
-        ShowDialogBox(sliderWithEffectsBox);
+        ShowDialogBox(sliderWithEffectsBoxParameters);
     }
 
     public void InvokeDisbandArmyBox(Army army)
@@ -232,13 +232,13 @@ public class dialog_box_manager : MonoBehaviour
 
         int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, army.Count);
 
-        var sliderWithEffectsBox = new DialogBoxBuilder()
+        var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
             .SetBasicParams(basicParameters)
             .SetSliderParams(affordableValue, army.Count)
             .SetEffectsParams(cost)
             .Build();
 
-        ShowDialogBox(sliderWithEffectsBox);
+        ShowDialogBox(sliderWithEffectsBoxParameters);
     }
 
     public void InvokeUpgradeBuilding((int, int) coordinates, BuildingType buildingType) 
