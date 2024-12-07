@@ -98,7 +98,7 @@ public class province_interface : MonoBehaviour
         public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites,
             Province province, Map map)
         {
-            if (statuses.SequenceEqual(previousStatuses) && previousTurn == map.turnCnt) return;
+            if (statuses.SequenceEqual(previousStatuses) && previousTurn == map.TurnCnt) return;
 
             deleteIcons(obj);
 
@@ -127,7 +127,7 @@ public class province_interface : MonoBehaviour
                 }
 
                 previousStatuses = new List<Status>(statuses);
-                previousTurn = map.turnCnt;
+                previousTurn = map.TurnCnt;
             }
         }
     }
@@ -271,10 +271,10 @@ public class province_interface : MonoBehaviour
 
         UpdateBuildings(p);
         recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
-        festivities_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.canFestival && !p.Statuses.Any(status => status is Festivities);
-        tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.canTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
+        festivities_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.CanFestival && !p.Statuses.Any(status => status is Festivities);
+        tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.CanTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
         rebel_suppress_button.GetComponent<Button>().interactable =
-            map.CurrentPlayer.techStats.canRebelSupp &&
+            map.CurrentPlayer.techStats.CanRebelSupp &&
             map.Armies.Any(a => a.Position == p.coordinates && a.OwnerId == 0);
     }
 
@@ -315,13 +315,13 @@ public class province_interface : MonoBehaviour
         switch (buildingType)
         {
             case BuildingType.Infrastructure:
-                return map.CurrentPlayer.techStats.canInfrastructure ? 3 : 0;
+                return map.CurrentPlayer.techStats.CanInfrastructure ? 3 : 0;
             case BuildingType.School:
-                return map.CurrentPlayer.techStats.moreSchool ? 3 : 1;
+                return map.CurrentPlayer.techStats.MoreSchool ? 3 : 1;
             case BuildingType.Fort:
-                return map.CurrentPlayer.techStats.lvlFort;
+                return map.CurrentPlayer.techStats.LvlFort;
             case BuildingType.Mine:
-                return map.CurrentPlayer.techStats.lvlMine;
+                return map.CurrentPlayer.techStats.LvlMine;
             default:
                 return 3;
         }

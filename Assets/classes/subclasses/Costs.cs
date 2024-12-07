@@ -132,7 +132,7 @@ namespace Assets.classes.subclasses
 
         private static Dictionary<Resource, float> ArmyRecruitmentCost(Country.TechnologyInterpreter techStats)
         {
-            var armyCost = techStats.armyCost;
+            var armyCost = techStats.ArmyCost;
             return new Dictionary<Resource, float> {
                 { Resource.Gold, 1f * armyCost},
                 { Resource.AP, TurnActionApCost(ActionType.ArmyRecruitment) },

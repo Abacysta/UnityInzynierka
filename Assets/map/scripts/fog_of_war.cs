@@ -101,7 +101,7 @@ public class fog_of_war : MonoBehaviour
                 if (province != null)
                 {
                     country.RevealedTiles.Add(province.coordinates);
-                    UpdateVisibilityAroundProvince(province, country.techStats.lvlFoW);
+                    UpdateVisibilityAroundProvince(province, country.techStats.LvlFoW);
                 }
             }
         }
@@ -150,7 +150,7 @@ public class fog_of_war : MonoBehaviour
         Country country = map.Countries.FirstOrDefault(c => c.Id == army.OwnerId);
 
         HexUtils.Cube centerCube = HexUtils.OffsetToCube(army.Position.Item1, army.Position.Item2);
-        List<HexUtils.Cube> visibleCubes = HexUtils.CubeRange(centerCube, country.techStats.lvlFoW);
+        List<HexUtils.Cube> visibleCubes = HexUtils.CubeRange(centerCube, country.techStats.LvlFoW);
 
         foreach (HexUtils.Cube cube in visibleCubes)
         {

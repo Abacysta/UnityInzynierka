@@ -39,7 +39,7 @@ public class game_manager : MonoBehaviour
     [SerializeField] private save_manager save_manager;
     [SerializeField] private AI_manager ai_manager;
 
-    public int turnCnt { get { return map.turnCnt; } }
+    public int turnCnt { get { return map.TurnCnt; } }
 
     void Awake()
     {
@@ -69,9 +69,9 @@ public class game_manager : MonoBehaviour
         fog_Of_War.UpdateFogOfWar();
         alerts.loadEvents(map.CurrentPlayer);
         alerts.reloadAlerts();
-        turnCntTxt.SetText((map.turnCnt).ToString());
+        turnCntTxt.SetText((map.TurnCnt).ToString());
         loader.Reload();
-        camera_controller.ZoomCameraOnCountry(map.currentPlayer);
+        camera_controller.ZoomCameraOnCountry(map.CurrentPlayerId);
 
         foreach (var a in map.Armies)
         {
@@ -119,10 +119,10 @@ public class game_manager : MonoBehaviour
                 Vector3Int nearestOwnerProvincePosition = map.Provinces
                     .Where(p => p.OwnerId == army.OwnerId ||
                                 map.Relations.Any(rel =>
-                                    (rel.type == RelationType.Alliance || rel.type == RelationType.Vassalage) &&
+                                    (rel.Type == RelationType.Alliance || rel.Type == RelationType.Vassalage) &&
                                     rel.Sides.Contains(armyOwner) && rel.Sides.Contains(map.Countries[p.OwnerId])) ||
                                 map.Relations.Any(rel =>
-                                    rel.type == RelationType.MilitaryAccess &&
+                                    rel.Type == RelationType.MilitaryAccess &&
                                     rel.Sides[0] == map.Countries[p.OwnerId] && rel.Sides[1] == armyOwner))
                     .Select(p => new Vector3Int(p.X, p.Y, 0))
                     .OrderBy(point => Vector3Int.Distance(tilePosition, point))
@@ -182,10 +182,10 @@ public class game_manager : MonoBehaviour
             c.AtWar = map.getRelationsOfType(c, Relation.RelationType.War) != null;
         }
         foreach(var a in map.Armies.Where(a=>a.OwnerId != 0)) {
-            map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.armyUpkeep);
+            map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.ArmyUpkeep);
         }
         fog_Of_War.StartTurn();
-        turnCntTxt.SetText((++map.turnCnt).ToString());
+        turnCntTxt.SetText((++map.TurnCnt).ToString());
         loading_box.SetActive(false);
         Debug.Log("stopped bar");
 
@@ -266,7 +266,7 @@ public class game_manager : MonoBehaviour
             if (p.OccupationInfo.IsOccupied)
             {
                 var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
-                resources[p.ResourceType] += p.ResourcesP * (1 - occupierTechStats.occPenalty);
+                resources[p.ResourceType] += p.ResourcesP * (1 - occupierTechStats.OccPenalty);
             }
             else
             {
@@ -276,9 +276,9 @@ public class game_manager : MonoBehaviour
             resources[Resource.AP] += 0.1f;
         }
 
-        resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
-        resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
-        resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
+        resources[Resource.Gold] *= map.Countries[i].techStats.ProdFactor;
+        resources[Resource.Wood] *= map.Countries[i].techStats.ProdFactor;
+        resources[Resource.Iron] *= map.Countries[i].techStats.ProdFactor;
         resources[Resource.Gold] -= Map.PowerUtilites.getArmyUpkeep(map, map.Countries[i]);
         resources[Resource.AP] += 2.5f;//one simple trick
 
@@ -332,7 +332,7 @@ public class game_manager : MonoBehaviour
     {
         PreTurnInstructions();
 
-        if (map.currentPlayer < map.Countries.Count - 1)
+        if (map.CurrentPlayerId < map.Countries.Count - 1)
         {
             NextPlayerInstructions();
         }
@@ -352,7 +352,7 @@ public class game_manager : MonoBehaviour
     private void NextPlayerInstructions()
     {
         alertClear();
-        map.currentPlayer++;
+        map.CurrentPlayerId++;
         diplomaticActionsManager.ResetReceiverButtonStates();
 
         Debug.Log($"Sending actions.");
@@ -375,15 +375,15 @@ public class game_manager : MonoBehaviour
             Debug.Log("--" + map.Controllers[i]);
         }
         var cleanup_crew = new Janitor(map, battle_manager);
-        if(cleanup_crew.cleanup()) endGame(map.Turnlimit <= map.turnCnt);
-        map.currentPlayer = 1;
-        if (map.turnCnt % 5 == 0) AutoSave();
+        if(cleanup_crew.cleanup()) endGame(map.Turnlimit <= map.TurnCnt);
+        map.CurrentPlayerId = 1;
+        if (map.TurnCnt % 5 == 0) AutoSave();
         loader.Reload();
     }
 
     private void PostTurnInstructions()
     {
-        if (map.Controllers[map.currentPlayer] == Map.CountryController.Ai)
+        if (map.Controllers[map.CurrentPlayerId] == Map.CountryController.Ai)
         {
             aiTurn();
             TurnSimulation();
@@ -392,7 +392,7 @@ public class game_manager : MonoBehaviour
         {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
             HandleWelcomeScreen();
-            camera_controller.ZoomCameraOnCountry(map.currentPlayer);
+            camera_controller.ZoomCameraOnCountry(map.CurrentPlayerId);
             fog_Of_War.UpdateFogOfWar();
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
             map.UpdateAllArmyViewOrders();
@@ -439,11 +439,11 @@ public class game_manager : MonoBehaviour
 
     private void HandleWelcomeScreen()
     {
-        if (map.turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local)
+        if (map.TurnCnt == 0 && map.Controllers[map.CurrentPlayerId] == Map.CountryController.Local)
         {
             start_screen.welcomeScreen();
         }
-        else if (map.turnCnt == 1)
+        else if (map.TurnCnt == 1)
         {
             start_screen.unHide();
         }
@@ -463,7 +463,7 @@ public class game_manager : MonoBehaviour
         }
         public bool cleanup() { 
             //check if the game should be going at all
-            if(map.turnCnt == map.Turnlimit) {
+            if(map.TurnCnt == map.Turnlimit) {
                 return true;
             }
             

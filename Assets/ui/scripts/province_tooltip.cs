@@ -170,7 +170,7 @@ public class province_tooltip : MonoBehaviour
                 return truce_sprite;
             case RelationType.Vassalage:
                 var isSide0 = map.Relations
-                    .FirstOrDefault(r => r.type == RelationType.Vassalage &&
+                    .FirstOrDefault(r => r.Type == RelationType.Vassalage &&
                                          r.Sides.Contains(map.CurrentPlayer) &&
                                          r.Sides.Contains(country))?.Sides[0] == map.CurrentPlayer;
                 return isSide0 ? vassalage_sprite_1 : vassalage_sprite_2;

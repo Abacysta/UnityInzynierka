@@ -37,29 +37,31 @@ namespace Assets.classes {
             RebelSuppresion
         }
 
-        public ActionType type;
+        public ActionType Type {  get; set; }
         public virtual string desc { get; }
+
         /// <summary>
         /// AP cost
         /// </summary>
-        public float cost;
+        public float Cost { get; set; }
+
         /// <summary>
         /// non-AP cost
         /// </summary>
-        public Dictionary<Resource, float> altCosts;
+        public Dictionary<Resource, float> AltCosts { get; set; }
         public Dictionary<Resource, float> fullCost { get => fullRes(); }
         internal Dictionary<Resource, float> cRes;
 
         private Dictionary<Resource, float> fullRes() {
-            var res = altCosts != null ? new Dictionary<Resource, float>(altCosts) : new Dictionary<Resource, float> { { Resource.AP, 0 } };
-            res[Resource.AP] = cost;
+            var res = AltCosts != null ? new Dictionary<Resource, float>(AltCosts) : new Dictionary<Resource, float> { { Resource.AP, 0 } };
+            res[Resource.AP] = Cost;
             return res;
         }
 
         public TurnAction(ActionType type, float cost, Dictionary<Resource, float> altCosts = null) {
-            this.type = type;
-            this.cost = cost;
-            this.altCosts = altCosts;
+            this.Type = type;
+            this.Cost = cost;
+            this.AltCosts = altCosts;
         }
 
         /// <summary>
@@ -73,9 +75,9 @@ namespace Assets.classes {
         /// preview shows effects of action during turn, able to be reversed
         /// </summary>
         public virtual void preview(Map map) {
-            cRes[Resource.AP] -= cost;
-            if (altCosts != null) foreach (var key in altCosts.Keys) {
-                    cRes[key] -= altCosts[key];
+            cRes[Resource.AP] -= Cost;
+            if (AltCosts != null) foreach (var key in AltCosts.Keys) {
+                    cRes[key] -= AltCosts[key];
                 }
         }
 
@@ -83,9 +85,9 @@ namespace Assets.classes {
         /// reversion is a deletion of action from the queue. done before turn calculation, therefore only during player's turn
         /// </summary>
         public virtual void revert(Map map) {
-            cRes[Resource.AP] += cost;
-            if (altCosts != null) foreach (var key in altCosts.Keys) {
-                    cRes[key] += altCosts[key];
+            cRes[Resource.AP] += Cost;
+            if (AltCosts != null) foreach (var key in AltCosts.Keys) {
+                    cRes[key] += AltCosts[key];
                 }
         }
 
@@ -134,7 +136,7 @@ namespace Assets.classes {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
                 this.count = count;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment);
+                AltCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment);
             }
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }
@@ -219,7 +221,7 @@ namespace Assets.classes {
                 base(ActionType.TechnologyUpgrade, CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) {
                 this.techType = techType;
                 this.country = country;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
+                AltCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
             }
 
             public override void preview(Map map) {
@@ -244,7 +246,7 @@ namespace Assets.classes {
                 this.province = province;
                 this.buildingType = buildingType;
                 int upgradeLevel = province.Buildings[buildingType] + 1;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
+                AltCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
             }
 
             public override void preview(Map map) {
@@ -853,7 +855,7 @@ namespace Assets.classes {
         public int Count { get { return actions.Count; } }
 
         public void addAction(TurnAction action) {
-            action.cRes = map.Countries[map.currentPlayer].Resources;
+            action.cRes = map.Countries[map.CurrentPlayerId].Resources;
             actions.Add(action);
             actions.Last().preview(map);
         }

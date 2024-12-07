@@ -60,7 +60,7 @@ public class army_click_handler : cursor_helper
         {
             if (hit.collider.TryGetComponent<army_view>(out var armyView))
             {
-                if (armyView.ArmyData.OwnerId != map.currentPlayer) return;
+                if (armyView.ArmyData.OwnerId != map.CurrentPlayerId) return;
 
                 ResetSelectedArmy(); // Resetuj wybrana armie przed przypisaniem nowej
                 selectedArmy = armyView;
@@ -157,13 +157,13 @@ public class army_click_handler : cursor_helper
     {
         bool HasCurrentPlayerRelationWithTileOwner(RelationType type, Country tileOwner)
         {
-            return map.Relations.Any(rel => rel.type == type &&
+            return map.Relations.Any(rel => rel.Type == type &&
                 rel.Sides.Contains(map.CurrentPlayer) && rel.Sides.Contains(tileOwner));
         }
 
         bool HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType type, Country tileOwner)
         {
-            return map.Relations.Any(rel => rel.type == type &&
+            return map.Relations.Any(rel => rel.Type == type &&
                 rel.Sides[0] == tileOwner && rel.Sides[1] == map.CurrentPlayer);
         }
 
@@ -172,8 +172,8 @@ public class army_click_handler : cursor_helper
             return map.Relations
                 .OfType<Relation.War>()
                 .Any(warRelation =>
-                    (warRelation.participants1.Contains(map.CurrentPlayer) && warRelation.participants2.Contains(tileOwner)) ||
-                    (warRelation.participants2.Contains(map.CurrentPlayer) && warRelation.participants1.Contains(tileOwner))
+                    (warRelation.Participants1.Contains(map.CurrentPlayer) && warRelation.Participants2.Contains(tileOwner)) ||
+                    (warRelation.Participants2.Contains(map.CurrentPlayer) && warRelation.Participants1.Contains(tileOwner))
                 );
         }
 
@@ -184,7 +184,7 @@ public class army_click_handler : cursor_helper
         // Do not highlight the tile if:
         // the province is a water tile and
         // the currentPlayer cannot boat
-        if (!tileProvince.IsLand && !armyOwner.techStats.canBoat)
+        if (!tileProvince.IsLand && !armyOwner.techStats.CanBoat)
         {
             return false;
         }

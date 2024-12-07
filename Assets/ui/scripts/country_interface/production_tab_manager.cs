@@ -90,7 +90,7 @@ public class production_tab_manager : MonoBehaviour
 
         for (int i = 0; i < toggles.Count; i++)
         {
-            toggles[i].interactable = i < map.CurrentPlayer.techStats.lvlTax + 3;
+            toggles[i].interactable = i < map.CurrentPlayer.techStats.LvlTax + 3;
             if (i == toSet) toggles[i].isOn = true;
         }
     }

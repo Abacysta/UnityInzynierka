@@ -45,7 +45,7 @@ public class camera_controller : cursor_helper
         mainCamera = Camera.main;
         CalculateMapCenterAndBounds();
         CalculateCameraSizeForMap();
-        ZoomCameraOnCountry(map.currentPlayer);
+        ZoomCameraOnCountry(map.CurrentPlayerId);
     }
 
     void Update()

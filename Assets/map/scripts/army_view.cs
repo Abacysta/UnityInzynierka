@@ -110,7 +110,7 @@ public class army_view : MonoBehaviour
             return;
         }
 
-        if (army_View.ArmyData.OwnerId == map.currentPlayer)
+        if (army_View.ArmyData.OwnerId == map.CurrentPlayerId)
         {
             army_View.SetOrdingLayer(1);
         }

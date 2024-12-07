@@ -202,7 +202,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     {
         bool HasCurrentPlayerRelationWithReceiver(RelationType type)
         {
-            return map.Relations.Any(rel => rel.type == type &&
+            return map.Relations.Any(rel => rel.Type == type &&
                 rel.Sides.Contains(currentPlayer) && rel.Sides.Contains(receiverCountry));
         }
 
@@ -211,8 +211,8 @@ public class diplomatic_actions_manager : MonoBehaviour
             return map.Relations
                 .OfType<Relation.War>()
                 .Any(warRelation =>
-                    (warRelation.participants1.Contains(currentPlayer) && warRelation.participants2.Contains(receiverCountry)) ||
-                    (warRelation.participants2.Contains(currentPlayer) && warRelation.participants1.Contains(receiverCountry))
+                    (warRelation.Participants1.Contains(currentPlayer) && warRelation.Participants2.Contains(receiverCountry)) ||
+                    (warRelation.Participants2.Contains(currentPlayer) && warRelation.Participants1.Contains(receiverCountry))
                 );
         }
 
@@ -225,12 +225,12 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             if (curentPlayerIsSide1)
             {
-                return map.Relations.Any(rel => rel.type == type &&
+                return map.Relations.Any(rel => rel.Type == type &&
                     rel.Sides[0] == receiverCountry && rel.Sides[1] == currentPlayer);
             }
             else
             {
-                return map.Relations.Any(rel => rel.type == type &&
+                return map.Relations.Any(rel => rel.Type == type &&
                     rel.Sides[0] == currentPlayer && rel.Sides[1] == receiverCountry);
             }
         }
@@ -239,11 +239,11 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             if (curentPlayerIsSide1)
             {
-                return map.Relations.Any(rel => rel.type == type && rel.Sides[1] == currentPlayer);
+                return map.Relations.Any(rel => rel.Type == type && rel.Sides[1] == currentPlayer);
             }
             else
             {
-                return map.Relations.Any(rel => rel.type == type && rel.Sides[0] == currentPlayer);
+                return map.Relations.Any(rel => rel.Type == type && rel.Sides[0] == currentPlayer);
             }
         }
 
@@ -252,11 +252,11 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             if (receiverCountryIsSide1)
             {
-                return map.Relations.Any(rel => rel.type == type && rel.Sides[1] == receiverCountry);
+                return map.Relations.Any(rel => rel.Type == type && rel.Sides[1] == receiverCountry);
             }
             else
             {
-                return map.Relations.Any(rel => rel.type == type && rel.Sides[0] == receiverCountry);
+                return map.Relations.Any(rel => rel.Type == type && rel.Sides[0] == receiverCountry);
             }
         }
 
@@ -264,7 +264,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         {
             return map.Relations.OfType<War>().Any(war =>
                 war.Sides.Contains(currentPlayer) &&
-                !war.participants1.Contains(receiverCountry) && !war.participants2.Contains(receiverCountry));
+                !war.Participants1.Contains(receiverCountry) && !war.Participants2.Contains(receiverCountry));
         }
 
         ReceiverCountryButtonStates buttonStates = receiverCountryButtonStates[countryId];
@@ -492,7 +492,7 @@ public class diplomatic_actions_manager : MonoBehaviour
             .Where(c => c.Id != currentPlayer.Id &&
                 !receiverCountryButtonStates[countryId].CountriesToSkip.Contains(c.Id) &&
                 map.Relations.Any(relation =>
-                    relation.type == RelationType.War &&
+                    relation.Type == RelationType.War &&
                     relation.Sides.Contains(currentPlayer) &&
                     relation.Sides.Contains(c)))
             .Select((country, index) =>
@@ -565,7 +565,7 @@ public class diplomatic_actions_manager : MonoBehaviour
     Relation GetRelationBetweenCurrentPlayerAndReceiver(RelationType type)
     {
         return map.Relations
-            .FirstOrDefault(relation => relation.type == type &&
+            .FirstOrDefault(relation => relation.Type == type &&
                 relation.Sides.Contains(currentPlayer) &&
                 relation.Sides.Contains(receiverCountry));
     }

@@ -38,24 +38,24 @@ namespace Assets.Scripts {
 
         private bool battle(Army attacker, Army defender) {
             Country attCountry = map.Countries[attacker.OwnerId], defCountry = map.Countries[defender.OwnerId];
-            float attPower = attacker.Count * attCountry.techStats.armyPower;
-            float defPower = defender.Count * defCountry.techStats.armyPower + 1;
+            float attPower = attacker.Count * attCountry.techStats.ArmyPower;
+            float defPower = defender.Count * defCountry.techStats.ArmyPower + 1;
             float fortModifier = 1;
             if (map.getProvince(defender.Position).OwnerId == defender.OwnerId)//fort defense bonus
                 fortModifier += 0.1f * map.getProvince(defender.Position).Buildings[BuildingType.Fort];
             defPower *= fortModifier;
             float result = attPower - defPower;
             Debug.Log(map.Countries[attacker.OwnerId].Name + " has attacked " + map.Countries[defender.OwnerId].Name +
-                " with an army of " + attacker.Count + " vs " + defender.Count + " and power modifier of " + attCountry.techStats.armyPower + " vs " + defCountry.techStats.armyPower
+                " with an army of " + attacker.Count + " vs " + defender.Count + " and power modifier of " + attCountry.techStats.ArmyPower + " vs " + defCountry.techStats.ArmyPower
                 + "\nprojected result is: " + result);
             if (result > 0) {
-                attacker.Count = (int)(result / attCountry.techStats.armyPower);
+                attacker.Count = (int)(result / attCountry.techStats.ArmyPower);
                 map.removeArmy(defender);
                 return true;
             }
             else {
                 map.removeArmy(attacker);
-                defender.Count = (int)(-result/ fortModifier / defCountry.techStats.armyPower);
+                defender.Count = (int)(-result/ fortModifier / defCountry.techStats.ArmyPower);
                 return false;
             }
         }

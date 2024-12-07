@@ -94,9 +94,9 @@ namespace Assets.Scripts {
             int severity = 0;
             if (wars != null) {
                 foreach (var war in wars) {
-                    bool attacker = war.participants1.Contains(map.CurrentPlayer);
-                    var allies = attacker ? war.participants1 : war.participants2;
-                    var enemies = attacker ? war.participants2 : war.participants1;
+                    bool attacker = war.Participants1.Contains(map.CurrentPlayer);
+                    var allies = attacker ? war.Participants1 : war.Participants2;
+                    var enemies = attacker ? war.Participants2 : war.Participants1;
                     int allyCount = allies.Sum(a => getArmySum(a.Id));
                     int enemyCount = enemies.Sum(e => getArmySum(e.Id));
                     severity += allyCount - enemyCount;
@@ -334,7 +334,7 @@ namespace Assets.Scripts {
                     else break;
                 }
                 //if can suppress, will for dire provinces
-                if(c.techStats.canRebelSupp) while(veryBad.Count > 0) {
+                if(c.techStats.CanRebelSupp) while(veryBad.Count > 0) {
                     if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
                         c.Actions.addAction(new TurnAction.RebelSuppresion(veryBad[0]));
                         veryBad.RemoveAt(0);
@@ -369,7 +369,7 @@ namespace Assets.Scripts {
             }
             public static void handleTax(Map map, Country c, Humor humor) {
                 if (humor == Humor.Defensive && humor == Humor.Offensive) {
-                    if (c.techStats.lvlTax >= 1) {
+                    if (c.techStats.LvlTax >= 1) {
                         if (!(c.Tax is WarTaxes))
                             c.Tax = new WarTaxes();
                         else
@@ -377,7 +377,7 @@ namespace Assets.Scripts {
                     }
                 }
                 else if(humor == Humor.Leading) {
-                    if (c.techStats.lvlTax >= 2) {
+                    if (c.techStats.LvlTax >= 2) {
                         c.Tax = new InvesmentTaxes();
                         float tax = Map.PowerUtilites.getTaxGain(c), upkeep = Map.PowerUtilites.getArmyUpkeep(map, c);
                         if(tax < upkeep) {
@@ -405,7 +405,7 @@ namespace Assets.Scripts {
             public static void handleTechnology(Country c, Humor humor) {
                 if (c.Technologies[Technology.Administrative] < 4) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if(c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if(c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
@@ -428,19 +428,19 @@ namespace Assets.Scripts {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Administrative] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
@@ -454,19 +454,19 @@ namespace Assets.Scripts {
                 var tech = c.Technologies;
                 if (tech[Technology.Administrative] - tech[Technology.Economic] < 2 && tech[Technology.Administrative] - tech[Technology.Military] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Military] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
@@ -480,19 +480,19 @@ namespace Assets.Scripts {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else if (tech[Technology.Administrative] - tech[Technology.Economic] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.cost) && c.isPayable(action.altCosts)) {
+                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
                         c.Actions.addAction(action);
                     }
                 }
@@ -506,38 +506,38 @@ namespace Assets.Scripts {
                 TurnAction.BuildingUpgrade upgrade;
                 if (c.getCapital().Buildings[BuildingType.Infrastructure] == 0) {
                     upgrade = new(c.getCapital(), BuildingType.Infrastructure);
-                    if (c.isPayable(upgrade.altCosts))
+                    if (c.isPayable(upgrade.AltCosts))
                         c.Actions.addAction(upgrade);
                 }
                 //mine block
                 List<Province> toImprove = getMineable(c);
                 if(toImprove.Count>1){
                     upgrade = new(toImprove[0], BuildingType.Mine);
-                    if(c.isPayable(upgrade.altCosts))
+                    if(c.isPayable(upgrade.AltCosts))
                         c.Actions.addAction(upgrade);
                 }
                 //infr block
                 toImprove = getInfrastructurable(c);
                 if(toImprove.Count>2){
                 upgrade = new(toImprove[0], BuildingType.Infrastructure);
-                if (c.isPayable(upgrade.altCosts))
+                if (c.isPayable(upgrade.AltCosts))
                     c.Actions.addAction(upgrade);
                 upgrade = new(toImprove[1], BuildingType.Infrastructure);
-                    if(c.isPayable(upgrade.altCosts))
+                    if(c.isPayable(upgrade.AltCosts))
                         c.Actions.addAction(upgrade);
                 }
                 //school block
                 toImprove = getSchoolable(c);
                 if(toImprove.Count>1){
                 upgrade = new(toImprove[0], BuildingType.School);
-                    if(c.isPayable(upgrade.altCosts))
+                    if(c.isPayable(upgrade.AltCosts))
                         c.Actions.addAction(upgrade);
                 }
                 //fort block
                 toImprove = getFortable(c);
                 if(toImprove.Count>1){
                     upgrade = new(toImprove[0], BuildingType.Fort);
-                    if(c.isPayable(upgrade.altCosts))
+                    if(c.isPayable(upgrade.AltCosts))
                         c.Actions.addAction(upgrade);
                 }
             }
@@ -553,14 +553,14 @@ namespace Assets.Scripts {
                 return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Infrastructure, out int level) && level < mode).OrderByDescending(p=>p.Population).ToList();
             }
             private static List<Province> getFortable(Country c) {
-                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Fort, out int level) && level < ( c.techStats.lvlFort+1)).OrderByDescending(p=>p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Fort, out int level) && level < ( c.techStats.LvlFort+1)).OrderByDescending(p=>p.Population).ToList();
             }
             private static List<Province> getMineable(Country c) {
-                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Mine, out int level) && level < (c.techStats.lvlMine + 1)).OrderByDescending(p => p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Mine, out int level) && level < (c.techStats.LvlMine + 1)).OrderByDescending(p => p.Population).ToList();
             }
             //ograniczenie do 2 z lenistwa xd
             private static List<Province> getSchoolable(Country c) {
-                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.School, out int level) && level < (c.techStats.moreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.School, out int level) && level < (c.techStats.MoreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
             }
         }
         private class diploEventResponder {

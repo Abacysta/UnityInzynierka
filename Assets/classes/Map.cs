@@ -20,7 +20,7 @@ public class Map : ScriptableObject
 
     [SerializeField] private string fileName;
     [SerializeField] private List<Province> provinces;
-    [SerializeField] (int, int) popExtremes;
+    [SerializeField] private (int, int) popExtremes;
     [SerializeField] private List<Country> countries = new();
     [SerializeField] private List<Army> armies = new();
     [SerializeField] private GameObject army_prefab;
@@ -30,8 +30,8 @@ public class Map : ScriptableObject
     private List<CountryController> countryControllers = new();
     private List<army_view> armyViews = new();
     private HashSet<Relation> relations = new();
-    public int currentPlayer;
-    public int turnCnt = 0;
+    private int currentPlayerId;
+    private int turnCnt = 0;
 
     public Map() 
     {
@@ -48,10 +48,12 @@ public class Map : ScriptableObject
     public int Turnlimit { get => turnlimit; set => turnlimit = value; }
     public int ResourceRate { get => resourceRate; set => resourceRate = value; }
     public List<Army> Armies { get => armies; set => armies = value; }
-    public Country CurrentPlayer { get => countries[currentPlayer]; }
+    public Country CurrentPlayer { get => countries[currentPlayerId]; }
     internal HashSet<Relation> Relations { get => relations; set => relations = value; }
     public List<CountryController> Controllers { get { return countryControllers; } set => countryControllers = value; }
     public List<army_view> ArmyViews { get => armyViews; set => armyViews = value; }
+    public int CurrentPlayerId { get => currentPlayerId; set => currentPlayerId = value; }
+    public int TurnCnt { get => turnCnt; set => turnCnt = value; }
 
     public void addCountry(Country country, CountryController ptype)
     {
@@ -89,12 +91,12 @@ public class Map : ScriptableObject
             diplomacy.endRelation(r);
         }
 
-        var warsP = relations.Where(r => r.type == Relation.RelationType.War).Cast<Relation.War>()
-            .Where(w => w.participants1.Contains(country) || w.participants2.Contains(country)).ToHashSet();
+        var warsP = relations.Where(r => r.Type == Relation.RelationType.War).Cast<Relation.War>()
+            .Where(w => w.Participants1.Contains(country) || w.Participants2.Contains(country)).ToHashSet();
 
         foreach(var w in warsP) {
-            w.participants1.Remove(country);
-            w.participants2.Remove(country);
+            w.Participants1.Remove(country);
+            w.Participants2.Remove(country);
         }
 
         countryControllers[country.Id] = CountryController.Ai;
@@ -130,12 +132,12 @@ public class Map : ScriptableObject
         {
             var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
             province.Population = (int)Math.Floor(province.Population *
-                ((provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod) - occupierTechStats.occPenalty));
+                ((provinceOwnerTechStats.PopGrowth * province.Modifiers.PopMod) - occupierTechStats.OccPenalty));
         }
         else
         {
             province.Population = (int)Math.Floor(province.Population *
-                provinceOwnerTechStats.popGrowth * province.Modifiers.PopMod);
+                provinceOwnerTechStats.PopGrowth * province.Modifiers.PopMod);
         }
 
         province.Population += (int)Math.Floor(province.Modifiers.PopStatic);
@@ -145,12 +147,12 @@ public class Map : ScriptableObject
         Province province = getProvince(coordinates);
         var techStats = countries[province.OwnerId].techStats;
 
-        province.RecruitablePopulation = (int)Math.Floor(province.Population * techStats.recPop * province.Modifiers.RecPop);
+        province.RecruitablePopulation = (int)Math.Floor(province.Population * techStats.RecPop * province.Modifiers.RecPop);
     }
 
     public void calcRecruitablePop(Province p) {
         var techstats = countries[p.OwnerId].techStats;
-        p.RecruitablePopulation = (int)Math.Floor(p.Population * techstats.recPop * p.Modifiers.RecPop);
+        p.RecruitablePopulation = (int)Math.Floor(p.Population * techstats.RecPop * p.Modifiers.RecPop);
     }
 
     public void growHap((int, int) coordinates, int value) {
@@ -159,7 +161,7 @@ public class Map : ScriptableObject
         if (province.OccupationInfo.IsOccupied)
         {
             var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
-            province.Happiness += (int)Math.Floor(value * (province.Modifiers.HappMod - occupierTechStats.occPenalty));
+            province.Happiness += (int)Math.Floor(value * (province.Modifiers.HappMod - occupierTechStats.OccPenalty));
         }
         else province.Happiness += (int)Math.Floor(value * province.Modifiers.HappMod);
 
@@ -220,11 +222,11 @@ public class Map : ScriptableObject
 
         foreach (var type in prod.ToList()) {
             if (type.Key != Resource.AP)
-                prod[type.Key] *= country.techStats.prodFactor;
+                prod[type.Key] *= country.techStats.ProdFactor;
         }
 
         foreach (var army in getCountryArmies(CurrentPlayer)) {
-            prod[Resource.Gold] -= (army.Count / 10 + 1) * country.techStats.armyUpkeep;
+            prod[Resource.Gold] -= (army.Count / 10 + 1) * country.techStats.ArmyUpkeep;
         }
 
         foreach (var type in prod.ToList()) {
@@ -342,7 +344,7 @@ public class Map : ScriptableObject
 
     public float calcArmyCombatPower(Army army) {
         var stats = countries[army.OwnerId].techStats;
-        return army.Count + (army.Count * stats.armyPower);
+        return army.Count + (army.Count * stats.ArmyPower);
     }
 
     public void moveArmies() {
@@ -432,7 +434,7 @@ public class Map : ScriptableObject
     {
         (int startX, int startY) = army.Position;
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
-        return getPossibleMoveCells(startX, startY, country.techStats.moveRange, country.techStats.waterMoveFactor);
+        return getPossibleMoveCells(startX, startY, country.techStats.MoveRange, country.techStats.WaterMoveFactor);
     }
 
     public List<(int, int)> getPossibleMoveCells(Province province, int range)
@@ -556,10 +558,10 @@ public class Map : ScriptableObject
 
             if (relation == Relation.RelationType.War) {
                 if (master != null) {
-                    occupationStatus = new Occupation(country.techStats.occTime, master.Id);
+                    occupationStatus = new Occupation(country.techStats.OccTime, master.Id);
                 }
                 else {
-                    occupationStatus = new Occupation(country.techStats.occTime, army.OwnerId);
+                    occupationStatus = new Occupation(country.techStats.OccTime, army.OwnerId);
                 }
             }
             else if (relation == Relation.RelationType.Rebellion) {
@@ -593,7 +595,7 @@ public class Map : ScriptableObject
     public HashSet<Relation> getRelationsOfType(Country country, Relation.RelationType type) {
         HashSet<Relation> result = new HashSet<Relation>();
         foreach (var r in relations) {
-            if (r.type == type && r.Sides.Contains(country))
+            if (r.Type == type && r.Sides.Contains(country))
                 result.Add(r);
         }
         return result;
@@ -602,23 +604,23 @@ public class Map : ScriptableObject
     public Relation.RelationType? GetHardRelationType(Country c1, Country c2) { // 0 master 1 slave
         var rr = relations.FirstOrDefault(r =>
             r.Sides.Contains(c1) && r.Sides.Contains(c2) &&
-            (r.type == Relation.RelationType.War ||
-             r.type == Relation.RelationType.Alliance ||
-             r.type == Relation.RelationType.Vassalage ||
-             r.type == Relation.RelationType.Truce)
+            (r.Type == Relation.RelationType.War ||
+             r.Type == Relation.RelationType.Alliance ||
+             r.Type == Relation.RelationType.Vassalage ||
+             r.Type == Relation.RelationType.Truce)
         );
 
         if (rr != null) {
-            if (rr.type == Relation.RelationType.War) {
+            if (rr.Type == Relation.RelationType.War) {
                 var war = rr as Relation.War;
 
-                if ((war.participants1.Contains(c1) && war.participants2.Contains(c2)) ||
-                    (war.participants2.Contains(c1) && war.participants1.Contains(c2))) {
+                if ((war.Participants1.Contains(c1) && war.Participants2.Contains(c2)) ||
+                    (war.Participants2.Contains(c1) && war.Participants1.Contains(c2))) {
                     return Relation.RelationType.War;
                 }
             }
             else {
-                return rr.type;
+                return rr.Type;
             }
         }
 
@@ -634,13 +636,13 @@ public class Map : ScriptableObject
     }
 
     public bool hasRelationOfType(Country c1, Country c2, Relation.RelationType type) {
-        if (relations.Any(r => r.Sides.Contains(c1) && r.Sides.Contains(c2) && r.type == type)) return true;
+        if (relations.Any(r => r.Sides.Contains(c1) && r.Sides.Contains(c2) && r.Type == type)) return true;
         return false;
     }
 
     public Country getMaster(Country country) {
         foreach (var relation in Relations) {
-            if (relation.type == Relation.RelationType.Vassalage && relation.Sides[1] == country) {
+            if (relation.Type == Relation.RelationType.Vassalage && relation.Sides[1] == country) {
                 return relation.Sides[0];
             }
         }
@@ -698,10 +700,10 @@ public class Map : ScriptableObject
 
         public static (int, int) getSidePowers(Map map, Relation.War war) {
             int atkP = 1, defP = 1;
-            if(war.participants1!=null) foreach (var a in war.participants1) {
+            if(war.Participants1!=null) foreach (var a in war.Participants1) {
                 atkP += map.getCountryArmies(a).Count;
             }
-            if(war.participants2!=null) foreach (var d in war.participants2){
+            if(war.Participants2!=null) foreach (var d in war.Participants2){
                 defP += map.getCountryArmies(d).Count;
             }
             return (atkP, defP);
@@ -713,7 +715,7 @@ public class Map : ScriptableObject
         }
 
         public static bool isAttacker(Map map, Country c, Relation.War war) {
-            return war.participants1.Contains(c);
+            return war.Participants1.Contains(c);
         }
 
         public static HashSet<Relation.War> getAllWars(Map map, Country c) => 
@@ -723,7 +725,7 @@ public class Map : ScriptableObject
             HashSet<Army> enemy = new();
 
             foreach (var war in getAllWars(map, c)) {
-                var opposingParticipants = war.participants1.Contains(c) ? war.participants2 : war.participants1;
+                var opposingParticipants = war.Participants1.Contains(c) ? war.Participants2 : war.Participants1;
                 foreach (var country in opposingParticipants) {
                     enemy.UnionWith(map.getCountryArmies(country));
                 }
@@ -735,7 +737,7 @@ public class Map : ScriptableObject
         public static HashSet<int> getEnemyIds(Map map, Country c) {
             HashSet<int> ids = new();
             foreach (var war in getAllWars(map, c)) {
-                var opposingParticipants = war.participants1.Contains(c) ? war.participants2 : war.participants1;
+                var opposingParticipants = war.Participants1.Contains(c) ? war.Participants2 : war.Participants1;
                 foreach (var country in opposingParticipants) {
                     ids.Add(country.Id);
                 }
@@ -794,8 +796,8 @@ public class Map : ScriptableObject
         public static bool recruitAllAvailable(Country c, Province p) {
             if (c.Resources[Resource.AP] >= 1) {
                 c.Actions.addAction(new TurnAction.ArmyRecruitment(p.coordinates,
-                    p.RecruitablePopulation*c.techStats.armyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation 
-                    : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.armyCost), c.techStats));
+                    p.RecruitablePopulation*c.techStats.ArmyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation 
+                    : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.ArmyCost), c.techStats));
             }
             return p.RecruitablePopulation == 0;
         }
@@ -803,28 +805,28 @@ public class Map : ScriptableObject
         public static HashSet<Province> getUnpassableProvinces(Map map, Country c) {
             HashSet<Province> unpassable = new();
 
-            if (!c.techStats.canBoat) {
+            if (!c.techStats.CanBoat) {
                 unpassable.UnionWith(map.Provinces.FindAll(p => p.IsLand).ToHashSet());
             }
 
             HashSet<int> accessible = new();
 
             foreach(var r in map.Relations) {
-                if (r.type == Relation.RelationType.MilitaryAccess && r.Sides[1].Id == c.Id)
+                if (r.Type == Relation.RelationType.MilitaryAccess && r.Sides[1].Id == c.Id)
                     accessible.Add(r.Sides[1].Id);
-                else if (r.type == Relation.RelationType.Alliance || r.type == Relation.RelationType.Vassalage)
+                else if (r.Type == Relation.RelationType.Alliance || r.Type == Relation.RelationType.Vassalage)
                 {
                     if (r.Sides.Any(rs => rs.Id == c.Id))
                     {
                         accessible.Add(r.Sides[0].Id);
                         accessible.Add(r.Sides[1].Id);
                     }
-                    else if (r.type == Relation.RelationType.War)
+                    else if (r.Type == Relation.RelationType.War)
                     {
-                        if ((r as Relation.War).participants1.Contains(c) || (r as Relation.War).participants2.Contains(c))
+                        if ((r as Relation.War).Participants1.Contains(c) || (r as Relation.War).Participants2.Contains(c))
                         {
-                            accessible.UnionWith((r as Relation.War).participants1.Select(part => part.Id).ToHashSet());
-                            accessible.UnionWith((r as Relation.War).participants2.Select(part => part.Id).ToHashSet());
+                            accessible.UnionWith((r as Relation.War).Participants1.Select(part => part.Id).ToHashSet());
+                            accessible.UnionWith((r as Relation.War).Participants2.Select(part => part.Id).ToHashSet());
                         }
                     }
                 }
@@ -848,12 +850,12 @@ public class Map : ScriptableObject
     internal class PowerUtilites {
         public static bool isArmyStronger(Map map, Country c1, Country c2) {
             return map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a=>a.Count) * 
-                c1.techStats.armyPower > map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.armyPower;
+                c1.techStats.ArmyPower > map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.ArmyPower;
         }
 
         public static float howArmyStronger(Map map, Country c1, Country c2) {
-            return (map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a => a.Count) * c1.techStats.armyPower) 
-                / (map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.armyPower);
+            return (map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a => a.Count) * c1.techStats.ArmyPower) 
+                / (map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.ArmyPower);
         }
 
         public static int getOpinion(Country of, Country from) {
@@ -886,7 +888,7 @@ public class Map : ScriptableObject
             foreach (var prov in country.Provinces) {
                 tax += (prov.Population / 10) * country.Tax.GoldP;
             }
-            tax *= country.techStats.taxFactor;
+            tax *= country.techStats.TaxFactor;
 
             return (float)Math.Round(tax, 1);
         }
@@ -898,25 +900,25 @@ public class Map : ScriptableObject
         public static float getArmyUpkeep(Map map, Country c) {
             float res = 0;
             foreach (var army in map.getCountryArmies(map.CurrentPlayer)) {
-                 res -= (army.Count / 10 + 1) * map.Countries[c.Id].techStats.armyUpkeep;
+                 res -= (army.Count / 10 + 1) * map.Countries[c.Id].techStats.ArmyUpkeep;
             }
             return res;
         }
 
         public static HashSet<Country> getVassals(Map map, Country c) => 
-            map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[0] == c)
+            map.Relations.Where(r => r.Type == Relation.RelationType.Vassalage && r.Sides[0] == c)
             .Cast<Relation.Vassalage>().Select(v => v.Sides[0]).ToHashSet();
 
         public static Country getSenior(Map map, Country c) => map.Relations
-            .Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[1] == c)
+            .Where(r => r.Type == Relation.RelationType.Vassalage && r.Sides[1] == c)
             .Cast<Relation.Vassalage>().Select(v => v.Sides[0]).First();
 
         public static HashSet<Relation.Vassalage> getVassalRelations(Map map, Country c) => 
-            map.Relations.Where(r => r.type == Relation.RelationType.Vassalage && r.Sides[0] == c)
+            map.Relations.Where(r => r.Type == Relation.RelationType.Vassalage && r.Sides[0] == c)
                 .Cast<Relation.Vassalage>().ToHashSet();
 
         public static Relation.Vassalage getVassalage(Map map, Country c) => map.Relations
-            .Where(r => r.type == Relation.RelationType.Vassalage && r.Sides.Any(s => s.Equals(c)))
+            .Where(r => r.Type == Relation.RelationType.Vassalage && r.Sides.Any(s => s.Equals(c)))
             .Cast<Relation.Vassalage>().First();
 
         public static HashSet<Country> getWeakCountries(Map map, Country c) {

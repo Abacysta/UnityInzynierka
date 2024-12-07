@@ -49,7 +49,7 @@ public class end_screen_manager : MonoBehaviour
 
     private void setEverythingElse() {
         kill_reason_text.fontSize = title_text.fontSize;
-        if (map.turnCnt >= map.Turnlimit) setTimeoutKill();
+        if (map.TurnCnt >= map.Turnlimit) setTimeoutKill();
         else setDominationKill();
         pop_text.SetText(map.Provinces.Sum(p => p.Population).ToString());
         happ_text.SetText(((int)(map.Provinces.Sum(p => p.Happiness) / map.Provinces.Count)).ToString());

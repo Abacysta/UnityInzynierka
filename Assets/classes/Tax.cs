@@ -12,7 +12,7 @@ namespace Assets.classes {
                 foreach (var prov in country.Provinces) {
                     applyProvinceTax(prov, country, ref sum);
                 }
-                sum = (float)Math.Round(sum, 1) * country.techStats.taxFactor;
+                sum = (float)Math.Round(sum, 1) * country.techStats.TaxFactor;
                 country.modifyResource((Resource.Gold), sum);
             }
             public virtual void applyProvinceTax(Province province, Country country, ref float sum) {
@@ -24,7 +24,7 @@ namespace Assets.classes {
                 foreach (var prov in country.Provinces) {
                     goldsum += GoldP * prov.Population / 100 * prov.Modifiers.TaxMod;
                 }
-                return (float)Math.Round(goldsum, 1) * country.techStats.taxFactor;
+                return (float)Math.Round(goldsum, 1) * country.techStats.TaxFactor;
             }
         }
         internal class LowTaxes : ATax {

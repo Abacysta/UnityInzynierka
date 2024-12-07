@@ -14,87 +14,87 @@ public class Country {
         /// <summary>
         /// Able to build boats
         /// </summary>
-        public bool canBoat;
+        public bool CanBoat { get; set; }
         /// <summary>
         /// Can start a festival effect for provinces
         /// </summary>
-        public bool canFestival;
+        public bool CanFestival { get; set; }
         /// <summary>
         /// Can start a taxbreak effect for provinces
         /// </summary>
-        public bool canTaxBreak;
+        public bool CanTaxBreak { get; set; }
         /// <summary>
         /// Can start a rebel suppression effect for provinces
         /// </summary>
-        public bool canRebelSupp;
+        public bool CanRebelSupp { get; set; }
         /// <summary>
         /// Can build infrastructure in provinces
         /// </summary>
-        public bool canInfrastructure;
+        public bool CanInfrastructure { get; set; }
         /// <summary>
         /// Production Efficiency 
         /// </summary>
-        public float prodFactor;
+        public float ProdFactor { get; set; }
         /// <summary>
         /// Taxation Efficiency
         /// </summary>
-        public float taxFactor;
+        public float TaxFactor { get; set; }
         /// <summary>
         /// Population growth
         /// </summary>
-        public float popGrowth;
+        public float PopGrowth { get; set; }
         /// <summary>
         /// Army strength multiplier
         /// </summary>
-        public float armyPower;
+        public float ArmyPower { get; set; }
         /// <summary>
         /// Army upkeep (cost at the beginning of the turn) multiplier
         /// </summary>
-        public float armyUpkeep;
+        public float ArmyUpkeep { get; set; }
         /// <summary>
         /// Cost of building new military units
         /// </summary>
-        public float armyCost;
+        public float ArmyCost { get; set; }
         /// <summary>
         /// % of recruitable population
         /// </summary>
-        public float recPop;
+        public float RecPop { get; set; }
         /// <summary>
         /// Penalty to population growth, happiness growth and produced resource in occupied provinces
         /// </summary>
-        public float occPenalty;
+        public float OccPenalty { get; set; }
         /// <summary>
         /// Amount of turns needed to change province status from "occupied" to "owned"
         /// </summary>
-        public int occTime;
+        public int OccTime { get; set; }
         /// <summary>
         /// Max level of Mine building
         /// </summary>
-        public int lvlMine;
+        public int LvlMine { get; set; }
         /// <summary>
         /// Max level of Fort building
         /// </summary>
-        public int lvlFort;
+        public int LvlFort { get; set; }
         /// <summary>
         /// If levels above I can be built
         /// </summary>
-        public bool moreSchool;
+        public bool MoreSchool { get; set; }
         /// <summary>
         /// How many taxation policies were unlocked
         /// </summary>
-        public int lvlTax;
+        public int LvlTax { get; set; }
         /// <summary>
         /// Fog of War level in tiles seen beyond controlled ones
         /// </summary>
-        public int lvlFoW;
+        public int LvlFoW { get; set; }
         /// <summary>
         /// Range of movement for land units.
         /// </summary>
-        public int moveRange;
+        public int MoveRange { get; set; }
         /// <summary>
         /// Factor for calculation water movement range based on moveRange and Waterfactor.
         /// </summary>
-        public float waterMoveFactor;
+        public float WaterMoveFactor { get; set; }
 
         public static class BaseModifiers
         {
@@ -152,55 +152,55 @@ public class Country {
                 mil = tech[Technology.Military],
                 adm = tech[Technology.Administrative];
 
-            prodFactor = 1 + eco * BaseModifiers.ProdFactor; // 1 + eco * 0.05f
-            taxFactor = 1 + adm * BaseModifiers.TaxFactor; // 1 + adm * 0.01f
-            popGrowth = 1 + adm * BaseModifiers.PopGrowth; // 1 + adm * 0.03f
-            armyPower = 1 + mil * BaseModifiers.ArmyPower; // 1 + mil * 0.05f
-            armyUpkeep = 1 + mil * BaseModifiers.ArmyUpkeep; // 1 + mil * 0.03f
-            armyCost = 1 + mil * BaseModifiers.ArmyCost; // 1 + mil * 0.05f
+            ProdFactor = 1 + eco * BaseModifiers.ProdFactor; // 1 + eco * 0.05f
+            TaxFactor = 1 + adm * BaseModifiers.TaxFactor; // 1 + adm * 0.01f
+            PopGrowth = 1 + adm * BaseModifiers.PopGrowth; // 1 + adm * 0.03f
+            ArmyPower = 1 + mil * BaseModifiers.ArmyPower; // 1 + mil * 0.05f
+            ArmyUpkeep = 1 + mil * BaseModifiers.ArmyUpkeep; // 1 + mil * 0.03f
+            ArmyCost = 1 + mil * BaseModifiers.ArmyCost; // 1 + mil * 0.05f
 
-            popGrowth += 0.02f;
-            recPop = 0.05f;
-            occPenalty = 0.5f;
-            occTime = 3;
-            moreSchool = false;
-            lvlMine = 0; lvlFort = 0; lvlTax = 0; lvlFoW = 2; moveRange = 1;
-            waterMoveFactor = 0.5f;
+            PopGrowth += 0.02f;
+            RecPop = 0.05f;
+            OccPenalty = 0.5f;
+            OccTime = 3;
+            MoreSchool = false;
+            LvlMine = 0; LvlFort = 0; LvlTax = 0; LvlFoW = 2; MoveRange = 1;
+            WaterMoveFactor = 0.5f;
 
             //economic
             switch (eco)
             {
                 case 1:
-                    prodFactor += EconomicModifiers.ProdFactor1; // 0.05f
+                    ProdFactor += EconomicModifiers.ProdFactor1; // 0.05f
                     break;
                 case 2:
-                    canBoat = true;
-                    lvlMine += 1; // Mine I
+                    CanBoat = true;
+                    LvlMine += 1; // Mine I
                     goto case 1;
                 case 3:
-                    prodFactor += EconomicModifiers.ProdFactor2; // 0.05f
+                    ProdFactor += EconomicModifiers.ProdFactor2; // 0.05f
                     goto case 2;
                 case 4:
-                    lvlTax += 1; // Tax IV
+                    LvlTax += 1; // Tax IV
                     goto case 3;
                 case 5:
-                    taxFactor += EconomicModifiers.TaxFactor1; // 0.15f
+                    TaxFactor += EconomicModifiers.TaxFactor1; // 0.15f
                     goto case 4;
                 case 6:
-                    lvlMine += 1; // Mine II
+                    LvlMine += 1; // Mine II
                     goto case 5;
                 case 7:
-                    prodFactor += EconomicModifiers.ProdFactor3; // 0.1f
+                    ProdFactor += EconomicModifiers.ProdFactor3; // 0.1f
                     goto case 6;
                 case 8:
-                    taxFactor += EconomicModifiers.TaxFactor2; // 0.05f
+                    TaxFactor += EconomicModifiers.TaxFactor2; // 0.05f
                     goto case 7;
                 case 9:
-                    lvlTax += 1; // Tax V
+                    LvlTax += 1; // Tax V
                     goto case 8;
                 case 10:
-                    lvlMine +=1; // Mine III
-                    prodFactor += EconomicModifiers.ProdFactor4; // 0.05f
+                    LvlMine +=1; // Mine III
+                    ProdFactor += EconomicModifiers.ProdFactor4; // 0.05f
                     goto case 9;
                 default:
                     break;
@@ -209,43 +209,43 @@ public class Country {
             //military
             switch (mil) {
                 case 1:
-                    armyPower += MilitaryModifiers.ArmyPower1; // 0.1f
+                    ArmyPower += MilitaryModifiers.ArmyPower1; // 0.1f
                     break;
                 case 2:
-                    lvlFort += 1; // Fort I
-                    armyCost += MilitaryModifiers.ArmyCost1; // 0.05f
+                    LvlFort += 1; // Fort I
+                    ArmyCost += MilitaryModifiers.ArmyCost1; // 0.05f
                     goto case 1;
                 case 3:
-                    armyUpkeep += MilitaryModifiers.ArmyUpkeep1; // -0.03f
-                    occTime += MilitaryModifiers.OccTime; // -1
+                    ArmyUpkeep += MilitaryModifiers.ArmyUpkeep1; // -0.03f
+                    OccTime += MilitaryModifiers.OccTime; // -1
                     goto case 2;
                 case 4:
-                    armyPower += MilitaryModifiers.ArmyPower2; // 0.1f
-                    armyCost += MilitaryModifiers.ArmyCost2; // 0.1f
+                    ArmyPower += MilitaryModifiers.ArmyPower2; // 0.1f
+                    ArmyCost += MilitaryModifiers.ArmyCost2; // 0.1f
                     goto case 3;
                 case 5:
-                    lvlFort += 1; // Fort II
-                    armyUpkeep += MilitaryModifiers.ArmyUpkeep2; // 0.02f
+                    LvlFort += 1; // Fort II
+                    ArmyUpkeep += MilitaryModifiers.ArmyUpkeep2; // 0.02f
                     goto case 4;
                 case 6:
-                    armyCost += MilitaryModifiers.ArmyCost3; // -0.1f
-                    moveRange += MilitaryModifiers.MoveRange; // 1
+                    ArmyCost += MilitaryModifiers.ArmyCost3; // -0.1f
+                    MoveRange += MilitaryModifiers.MoveRange; // 1
                     goto case 5;
                 case 7:
-                    lvlFort += 1; // Fort III
-                    armyUpkeep += MilitaryModifiers.ArmyUpkeep3; // 0.02f
+                    LvlFort += 1; // Fort III
+                    ArmyUpkeep += MilitaryModifiers.ArmyUpkeep3; // 0.02f
                     goto case 6;
                 case 8:
-                    recPop += MilitaryModifiers.RecPop; // 0.05f
-                    armyCost += MilitaryModifiers.ArmyCost4; // -0.1f
-                    armyUpkeep += MilitaryModifiers.ArmyUpkeep4; // -0.15f
+                    RecPop += MilitaryModifiers.RecPop; // 0.05f
+                    ArmyCost += MilitaryModifiers.ArmyCost4; // -0.1f
+                    ArmyUpkeep += MilitaryModifiers.ArmyUpkeep4; // -0.15f
                     goto case 7;
                 case 9:
-                    occPenalty += MilitaryModifiers.OccPenalty; // -0.35f
+                    OccPenalty += MilitaryModifiers.OccPenalty; // -0.35f
                     goto case 8;
                 case 10:
-                    armyPower += MilitaryModifiers.ArmyPower3; // 0.15f
-                    waterMoveFactor += MilitaryModifiers.WaterMoveFactor; // 0.5f
+                    ArmyPower += MilitaryModifiers.ArmyPower3; // 0.15f
+                    WaterMoveFactor += MilitaryModifiers.WaterMoveFactor; // 0.5f
                     goto case 9;
                 default:
                     break;
@@ -254,36 +254,36 @@ public class Country {
             //administrative
             switch (adm) {
                 case 1:
-                    canInfrastructure = true;
-                    lvlFoW += 1; // Fog I
+                    CanInfrastructure = true;
+                    LvlFoW += 1; // Fog I
                     break;
                 case 2:
-                    moreSchool = true; // School II, III
+                    MoreSchool = true; // School II, III
                     goto case 1;
                 case 3:
-                    canFestival = true;
-                    taxFactor += AdministrativeModifiers.TaxFactor1; // 0.03f
+                    CanFestival = true;
+                    TaxFactor += AdministrativeModifiers.TaxFactor1; // 0.03f
                     goto case 2;
                 case 4:
-                    canTaxBreak = true;
+                    CanTaxBreak = true;
                     goto case 3;
                 case 5:
-                    lvlFoW += 1; // Fog II
+                    LvlFoW += 1; // Fog II
                     goto case 4;
                 case 6:
                     goto case 5;
                 case 7:
                     goto case 6;
                 case 8:
-                    taxFactor += AdministrativeModifiers.TaxFactor2; // 0.01f
-                    recPop += AdministrativeModifiers.RecPop; // 0.02f
+                    TaxFactor += AdministrativeModifiers.TaxFactor2; // 0.01f
+                    RecPop += AdministrativeModifiers.RecPop; // 0.02f
                     goto case 7;
                 case 9:
-                    canRebelSupp = true;
-                    occPenalty += AdministrativeModifiers.OccPenalty; // -0.05f
+                    CanRebelSupp = true;
+                    OccPenalty += AdministrativeModifiers.OccPenalty; // -0.05f
                     goto case 8;
                 case 10:
-                    lvlFoW += 2; // Fog III
+                    LvlFoW += 2; // Fog III
                     goto case 9;
                 default:
                     break;

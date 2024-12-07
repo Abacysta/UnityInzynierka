@@ -493,7 +493,7 @@ public class dialog_box_manager : MonoBehaviour
 
     private void SetCoatOfArms()
     {
-        if (map.currentPlayer > 0 && map.Countries.Count > 0)
+        if (map.CurrentPlayerId > 0 && map.Countries.Count > 0)
         {
             map.CurrentPlayer.setCoatandColor(db_country_color_img);
             db_country_color_img.transform.parent.gameObject.SetActive(true);

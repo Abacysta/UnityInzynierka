@@ -87,10 +87,10 @@ public class StartWarActionTests
         Assert.AreEqual(currentPlayer, warRelation.Sides[0], "First side in the war relation should be the current player.");
         Assert.AreEqual(receiverCountry, warRelation.Sides[1], "Second side in the war relation should be the receiver country.");
 
-        Assert.IsTrue(warRelation.participants1.Contains(currentPlayer));
-        Assert.IsTrue(warRelation.participants1.Contains(currentPlayerVassal));
-        Assert.IsTrue(warRelation.participants2.Contains(receiverCountry));
-        Assert.IsTrue(warRelation.participants2.Contains(receiverCountryVassal));
+        Assert.IsTrue(warRelation.Participants1.Contains(currentPlayer));
+        Assert.IsTrue(warRelation.Participants1.Contains(currentPlayerVassal));
+        Assert.IsTrue(warRelation.Participants2.Contains(receiverCountry));
+        Assert.IsTrue(warRelation.Participants2.Contains(receiverCountryVassal));
 
         Assert.IsTrue(currentPlayer.AtWar);
         Assert.IsTrue(receiverCountry.AtWar);

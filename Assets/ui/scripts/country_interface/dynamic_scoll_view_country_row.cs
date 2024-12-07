@@ -55,9 +55,9 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
 
         // Add relation icons, skipping War-type relations
         country_relations_table_manager.Map.Relations
-            .Where(r => r.type != Relation.RelationType.War)
+            .Where(r => r.Type != Relation.RelationType.War)
             .Where(r => r.Sides.Contains(currentPlayer) && r.Sides.Contains(country))
-            .Select(r => new { relationSprite = GetRelationSpriteForSide(r.type, r.Sides[0] == currentPlayer) })
+            .Select(r => new { relationSprite = GetRelationSpriteForSide(r.Type, r.Sides[0] == currentPlayer) })
             .Where(r => r.relationSprite != null)
             .ToList()
             .ForEach(r => {
@@ -69,8 +69,8 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         country_relations_table_manager.Map.Relations
             .OfType<Relation.War>()
             .Where(warRelation =>
-                (warRelation.participants1.Contains(currentPlayer) && warRelation.participants2.Contains(country)) ||
-                (warRelation.participants2.Contains(currentPlayer) && warRelation.participants1.Contains(country))
+                (warRelation.Participants1.Contains(currentPlayer) && warRelation.Participants2.Contains(country)) ||
+                (warRelation.Participants2.Contains(currentPlayer) && warRelation.Participants1.Contains(country))
             )
             .ToList()
             .ForEach(warRelation => {

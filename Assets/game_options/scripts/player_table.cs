@@ -214,7 +214,7 @@ public class player_table : MonoBehaviour
         SetCountryPriorities();
         InitializeProvinces();
         map.calcPopExtremes();
-        map.turnCnt = 0;
+        map.TurnCnt = 0;
         Debug.Log("Game setup complete. Ready to start the game. " + map.Countries.Count + " countries present.");
     }
 
@@ -232,7 +232,7 @@ public class player_table : MonoBehaviour
         int playerIndex = map.Controllers.FindIndex(controller => controller == Map.CountryController.Local);
         if (playerIndex >= 0)
         {
-            map.currentPlayer = playerIndex;
+            map.CurrentPlayerId = playerIndex;
             Debug.Log($"Gracz ustawiony na kraj: {map.CurrentPlayer.Name}");
         }
         else
