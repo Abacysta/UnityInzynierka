@@ -297,7 +297,7 @@ public class Country {
     [SerializeField] private (int, int) capital;
     [SerializeField] private Dictionary<Resource, float> resources;
     [SerializeField] private Dictionary<Technology, int> technologies;
-    private actionContainer actions;
+    private ActionContainer actions;
     /// <summary>
     /// Container for all stats modified by technology
     /// </summary>
@@ -356,7 +356,7 @@ public class Country {
     public (int, int) Capital {  get { return capital; } }
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
-    public actionContainer Actions { get { return actions; } }
+    public ActionContainer Actions { get { return actions; } }
 
     public List<Event_> Events { get => events; set => events = value; }
     public Dictionary<int, int> Opinions { get => opinions; set => opinions = value; }

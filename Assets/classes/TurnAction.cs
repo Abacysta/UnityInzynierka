@@ -828,11 +828,11 @@ namespace Assets.classes {
         }
     }
     internal interface IInstantAction { }
-    public class actionContainer {
+    public class ActionContainer {
         private Map map;
         private List<TurnAction> actions;
 
-        public actionContainer(Map map) {
+        public ActionContainer(Map map) {
             this.map = map;
             actions = new List<TurnAction>();
         }

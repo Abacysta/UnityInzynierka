@@ -264,8 +264,6 @@ public class technology_manager : MonoBehaviour
         sp_value.text = cost.ContainsKey(Resource.SciencePoint)
             ? ($"-{Math.Round(cost[Resource.SciencePoint], 1)}") : "?";
         cost_content.SetActive(level < 10);
-
-        StartCoroutine(RefreshUITemporarily(5f));
     }
 
     private void SetButtonColor(Button techButton, bool isGreen)
@@ -589,29 +587,6 @@ public class technology_manager : MonoBehaviour
                     level.Effects.Add(newEffect);
                 }
             }
-        }
-    }
-
-    void ForceRebuildLayout()
-    {
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_tooltip_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_tooltip_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_tooltip_container.GetComponent<RectTransform>());
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_next_level_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_next_level_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_next_level_container.GetComponent<RectTransform>());
-    }
-
-    private IEnumerator RefreshUITemporarily(float duration)
-    {
-        float elapsedTime = 0f;
-
-        while (elapsedTime < duration)
-        {
-            ForceRebuildLayout();
-            elapsedTime += Time.deltaTime;
-            yield return null;
         }
     }
 }
