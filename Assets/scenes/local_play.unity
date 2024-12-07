@@ -621,7 +621,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ee238a439fdde647bbfbceebdcf558f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonSound: {fileID: 8300000, guid: 963e3aa041c6ec844aa706e7567986fc, type: 3}
+  buttonSound: {fileID: 8300000, guid: 560e4d3ae4260d541a950986d3cba63d, type: 3}
 --- !u!82 &234702666
 AudioSource:
   m_ObjectHideFlags: 0
@@ -632,7 +632,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -8935032488086599579, guid: 89deee04d72ed384cb9f5e007f466a78, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 963e3aa041c6ec844aa706e7567986fc, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 560e4d3ae4260d541a950986d3cba63d, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
