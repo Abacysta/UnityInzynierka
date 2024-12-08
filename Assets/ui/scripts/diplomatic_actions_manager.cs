@@ -1222,6 +1222,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         amount_area.SetActive(false);
         country_choice_area.SetActive(false);
         effect_area.SetActive(false);
+        effect_content.SetActive(false);
     }
 
     private void ShowPanelWithBasicArea()
@@ -1230,6 +1231,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         amount_area.SetActive(false);
         country_choice_area.SetActive(false);
         effect_area.SetActive(true);
+        effect_content.SetActive(true);
     }
 
     private void ShowPanelWithCountryChoiceArea()
@@ -1238,6 +1240,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         amount_area.SetActive(false);
         country_choice_area.SetActive(true);
         effect_area.SetActive(true);
+        effect_content.SetActive(true);
     }
 
     private void ShowPanelWithSubsidyArea()
@@ -1246,6 +1249,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         amount_area.SetActive(true);
         country_choice_area.SetActive(false);
         effect_area.SetActive(true);
+        effect_content.SetActive(true);
     }
 
     public void ResetReceiverButtonStates()

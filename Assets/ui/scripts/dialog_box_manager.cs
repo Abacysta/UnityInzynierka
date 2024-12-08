@@ -32,7 +32,6 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Button cancel_button;
     [SerializeField] private Button confirm_button;
 
-    [SerializeField] private AudioSource click_sound;
     [SerializeField] private alerts_manager alerts;
     [SerializeField] private technology_manager technology_manager;
 
@@ -45,6 +44,8 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Sprite tax_mod_sprite;
     [SerializeField] private Sprite pop_mod_sprite;
     [SerializeField] private Sprite prod_mod_sprite;
+
+    [SerializeField] private GameObject title_bar;
 
     public class DialogConfig
     {
@@ -161,6 +162,7 @@ public class dialog_box_manager : MonoBehaviour
                 overlay.SetActive(false);
             }
         }
+        title_bar.SetActive(true);
     }
 
     public void InvokeArmyBox(Army army, (int, int) destination) 
@@ -537,7 +539,6 @@ public class dialog_box_manager : MonoBehaviour
         cancel_button.onClick.AddListener(() =>
         {
             parameters.OnCancel?.Invoke();
-            click_sound.Play();
             HideDialog();
         });
 

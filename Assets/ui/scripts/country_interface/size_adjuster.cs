@@ -4,12 +4,12 @@ using UnityEngine.UI;
 
 public class size_adjuster : MonoBehaviour
 {
-    private int minFontSize = 11;
-    private int maxFontSize = 17;
-    private int minResolutionHeight = 664;
-    private int maxResolutionHeight = 1080;
-    private float minScale = 0.8f;
-    private float maxScale = 1f;
+    [SerializeField] private int minFontSize = 11;
+    [SerializeField] private int maxFontSize = 17;
+    [SerializeField] private int minResolutionHeight = 664;
+    [SerializeField] private int maxResolutionHeight = 1080;
+    [SerializeField] private float minScale = 0.8f;
+    [SerializeField] private float maxScale = 1f;
 
     private TMP_Text[] textComponents;
     private Image[] imageComponents;
@@ -37,9 +37,13 @@ public class size_adjuster : MonoBehaviour
         {
             if (textComponent.text.Contains("effects")) {
                 textComponent.fontSize = newFontSize + 1;
+                textComponent.fontSizeMax = newFontSize + 1;
+                textComponent.fontSizeMin = minFontSize;
             }
             else {
                 textComponent.fontSize = newFontSize;
+                textComponent.fontSizeMax = newFontSize;
+                textComponent.fontSizeMin = minFontSize;
             }
         }
     }

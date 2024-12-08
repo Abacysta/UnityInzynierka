@@ -156,8 +156,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4902736507373608444}
   m_HandleRect: {fileID: 5320555751446128120}
   m_Direction: 2
-  m_Value: 0.9999992
-  m_Size: 0.73558754
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -688,7 +688,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
+  m_fontSize: 20
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1114,6 +1114,7 @@ GameObject:
   - component: {fileID: 649574869286646276}
   - component: {fileID: 3357842389879997253}
   - component: {fileID: 8869886480402923127}
+  - component: {fileID: 4790575453666584778}
   m_Layer: 5
   m_Name: save_screen
   m_TagString: Untagged
@@ -1184,6 +1185,24 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4790575453666584778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4792041775646186799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7dc84bc388f2704a985902133b6a20b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minFontSize: 15
+  maxFontSize: 20
+  minResolutionHeight: 664
+  maxResolutionHeight: 1080
+  minScale: 0.8
+  maxScale: 1
 --- !u!1 &6310596170614286807
 GameObject:
   m_ObjectHideFlags: 0
@@ -1451,7 +1470,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14.15
+  m_fontSize: 20
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1585,12 +1604,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
+  m_fontSize: 20
   m_fontSizeBase: 26
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 12
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -1660,7 +1679,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0.000015258789}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &8277270127283292567
