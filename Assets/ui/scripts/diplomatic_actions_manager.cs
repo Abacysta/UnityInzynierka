@@ -64,7 +64,6 @@ public class diplomatic_actions_manager : MonoBehaviour
     [SerializeField] private Button more_button;
 
     // dropdown
-    [SerializeField] private Sprite coat_of_arms_background;
     [SerializeField] private TMP_Dropdown country_dropdown;
 
     // effects
