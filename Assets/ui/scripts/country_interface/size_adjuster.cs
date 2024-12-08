@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class size_adjuster : MonoBehaviour
 {
     private int minFontSize = 11;
-    private int maxFontSize = 18;
+    private int maxFontSize = 17;
     private int minResolutionHeight = 664;
     private int maxResolutionHeight = 1080;
     private float minScale = 0.8f;
@@ -36,7 +36,7 @@ public class size_adjuster : MonoBehaviour
         foreach (var textComponent in textComponents)
         {
             if (textComponent.text.Contains("effects")) {
-                textComponent.fontSize = newFontSize + 3;
+                textComponent.fontSize = newFontSize + 1;
             }
             else {
                 textComponent.fontSize = newFontSize;
