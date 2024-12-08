@@ -156,9 +156,9 @@ public class production_tab_manager : MonoBehaviour
         var iron = panel.transform.Find("iron_text").GetComponent<TMP_Text>();
         var sp = panel.transform.Find("science_points_text").GetComponent<TMP_Text>();
 
-        gold.SetText((gains[Resource.Gold] > 0 ? "+" : "") + gains[Resource.Gold]);
-        wood.SetText((gains[Resource.Wood] > 0 ? "+" : "") + gains[Resource.Wood]);
-        iron.SetText((gains[Resource.Iron] > 0 ? "+" : "") + gains[Resource.Iron]);
-        sp.SetText((gains[Resource.SciencePoint] > 0 ? "+" : "") + gains[Resource.SciencePoint]);
+        gold.SetText((gains[Resource.Gold] >= 0 ? "+" : "") + gains[Resource.Gold]);
+        wood.SetText((gains[Resource.Wood] >= 0 ? "+" : "") + gains[Resource.Wood]);
+        iron.SetText((gains[Resource.Iron] >= 0 ? "+" : "") + gains[Resource.Iron]);
+        sp.SetText((gains[Resource.SciencePoint] >= 0 ? "+" : "") + gains[Resource.SciencePoint]);
     }
 }
