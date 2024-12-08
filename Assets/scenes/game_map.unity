@@ -2109,6 +2109,7 @@ GameObject:
   - component: {fileID: 103416676}
   - component: {fileID: 103416679}
   - component: {fileID: 103416681}
+  - component: {fileID: 103416682}
   m_Layer: 5
   m_Name: help_tooltip
   m_TagString: IgnoreRaycast
@@ -2134,7 +2135,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -100, y: 50}
-  m_SizeDelta: {x: 157.2338, y: 59.912}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &103416679
 CanvasRenderer:
@@ -2157,6 +2158,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   help_desc: {fileID: 1719101256}
+--- !u!114 &103416682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103416675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
 --- !u!1 &110636756
 GameObject:
   m_ObjectHideFlags: 0
@@ -17419,7 +17434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5a72020a0d9d8b46a49cc7f32ad96c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipText: Actual amount of produced resource (base amount of resource)
+  tooltipText: "Actual amount of produced resource \n(base amount of resource)"
 --- !u!1 &774871031
 GameObject:
   m_ObjectHideFlags: 0
@@ -41584,7 +41599,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 78.61695, y: -19.999996}
+  m_AnchoredPosition: {x: 47.714996, y: -19.999996}
   m_SizeDelta: {x: 75.43, y: 17.88}
   m_Pivot: {x: 0.49999997, y: 1.0000002}
 --- !u!114 &1719101256
@@ -45524,7 +45539,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -0.000003075143, y: -57.87982}
-  m_SizeDelta: {x: 0.0001, y: 57.879997}
+  m_SizeDelta: {x: 95.43, y: 57.88}
   m_Pivot: {x: 0.000000019557774, y: -0.00000019185245}
 --- !u!114 &1867611486
 MonoBehaviour:
@@ -45576,7 +45591,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HorizontalFit: 0
+  m_HorizontalFit: 2
   m_VerticalFit: 2
 --- !u!114 &1867611489
 MonoBehaviour:

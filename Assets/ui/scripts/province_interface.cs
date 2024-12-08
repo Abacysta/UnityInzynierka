@@ -17,14 +17,14 @@ public class province_interface : MonoBehaviour
         {
             string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
             string formattedValue = value > 0 ? $"+{value * 100}%" : value < 0 ? $"{value * 100}%" : "0";
-            return $"� {label}: <color={color}>{formattedValue}</color>";
+            return $"• { label}: <color={color}>{formattedValue}</color>";
         }
 
         private static string FormatValueChangeText(string label, float value)
         {
             string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
             string formattedValue = value > 0 ? $"+{value}" : value < 0 ? $"{value}" : "0";
-            return $"� {label}: <color={color}>{formattedValue}</color>";
+            return $"• {label}: <color={color}>{formattedValue}</color>";
         }
 
         private static string GenerateTooltipText(Status status, Province province, Map map)
