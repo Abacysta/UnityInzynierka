@@ -137,26 +137,30 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    private void executeActions() {
-        foreach(var c in map.Countries) {
-            List<Assets.classes.TurnAction> instants = c.Actions.extractInstants();
+    private void ExecuteActions() {
+        foreach (var c in map.Countries) {
+            List<TurnAction> instants = c.Actions.extractInstants();
             foreach (var inst in instants) {
                 inst.execute(map);
             }
         }
 
-        int acmax = map.Countries.Max(a => a.Actions.Count);
-        for(int i = 0; i < acmax; i++) {
+        int actionMax = map.Countries.Max(a => a.Actions.Count);
+
+        for (int i = 0; i < actionMax; i++) {
             foreach (var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
-                bool bswitch = false;
-                Army att = null;
-                if(c.Actions.Count > 0 && c.Actions.last is TurnAction.ArmyMove) {
-                    bswitch = true;
-                    att = (c.Actions.last as TurnAction.ArmyMove).Army;
+                bool isArmyMoveAction = false;
+                Army attackerArmy = null;
+
+                if (c.Actions.Count > 0 && c.Actions.last is TurnAction.ArmyMove) {
+                    isArmyMoveAction = true;
+                    attackerArmy = (c.Actions.last as TurnAction.ArmyMove).Army;
                 }
+
                 c.Actions.execute();
-                if(bswitch && att != null) {
-                    battle_manager.checkBattle(att);
+
+                if (isArmyMoveAction && attackerArmy != null) {
+                    battle_manager.CheckBattle(attackerArmy);
                 }
             }
         }
@@ -365,7 +369,7 @@ public class game_manager : MonoBehaviour
         turn_sound.Play();
 
         rebellionCheck();
-        executeActions();
+        ExecuteActions();
         turnCalculations();
         GenerateEventsForCountries();
 
@@ -485,7 +489,7 @@ public class game_manager : MonoBehaviour
                 //unfought armies check
                 var ownedArmies = map.Armies.Where(a => a.OwnerId == c.Id).ToHashSet();
                 foreach (var a in ownedArmies) {
-                    battle.checkBattle(a);
+                    battle.CheckBattle(a);
                     //its a hack but what can you do
                     var armiesinprov = map.Armies.Where(ass=>ass.Position == a.Position).ToHashSet();
                     foreach(var aa in armiesinprov) {
