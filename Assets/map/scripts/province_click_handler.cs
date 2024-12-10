@@ -217,7 +217,7 @@ public class province_click_handler : cursor_helper
 
         Province province = map.getProvince(coordinates.x, coordinates.y);
 
-        if (province == null || province.IsLand) {
+        if (province == null || !province.IsLand) {
             return Color.white;
         }
 
