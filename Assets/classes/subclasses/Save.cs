@@ -34,7 +34,6 @@ namespace Assets.classes.subclasses {
             }
 
             foreach(var p in map.Provinces) {
-                //Debug.Log("saving province: " + p.coordinates.ToString());
                 Provinces.Add(new SaveProvince(p));
             }
 
@@ -105,14 +104,10 @@ namespace Assets.classes.subclasses {
                 }
             }
 
-            //
             foreach(var c in toLoad.Countries.Where(c=>c.Id != 0)) {
-                //Debug.Log(c.Events.Count + "->>");
                 foreach(var ev in c.Events) {
-                    //Debug.Log(ev.msg + "<->");
                 }
             }
-            //
 
             for (int i = 0; i < toLoad.Controllers.Count; i++) {
                 if (toLoad.Controllers[i] == Map.CountryController.Local) {
@@ -120,10 +115,6 @@ namespace Assets.classes.subclasses {
                     break;
                 }
             }
-
-			//foreach (var r in toLoad.Relations) {
-			//	Debug.Log(r.type.ToString() + "->" + r.Sides[0].Id + " " + r.Sides[1].Id);
-			//}
 
 			data = null;
             mapView.Reload();
@@ -177,7 +168,6 @@ namespace Assets.classes.subclasses {
             Opinions = new();
         }
         public Country load(Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
-            //Debug.Log("loading country " + id);
             Country loaded = new(Id, Name, Capital, Color.toColor(), Coat, map);
 
             if(Resources != null) foreach (var rT in Resources) {
@@ -263,8 +253,6 @@ namespace Assets.classes.subclasses {
                 }
             }
 
-            //Debug.Log(prov.coordinates.ToString() + " -> " + prov.Buildings.ToString());
-
             if (prov.Buildings != null)
             {
                 Buildings = new();
@@ -308,8 +296,6 @@ namespace Assets.classes.subclasses {
             else {
                 loaded.Buildings = Province.defaultBuildings(loaded);
 			}
-
-            //if(owner!=0)Debug.Log("loaded " + coordinates.ToString() + " to " + owner);
 
             return loaded;
         }
@@ -427,8 +413,7 @@ namespace Assets.classes.subclasses {
                         map.Countries[Countries.Item2]);
                     break;
             }
-            //Debug.Log("loaded " + loaded.type.ToString() + " between " + loaded.Sides[0] +
-            //" and " + loaded.Sides[1]);
+
             return loaded;
         }
     }

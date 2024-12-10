@@ -215,11 +215,6 @@ public class diplomatic_actions_manager : MonoBehaviour
                 );
         }
 
-        //bool HasCurrentPlayerRelationWithAnyone(RelationType type)
-        //{
-        //    return map.Relations.Any(rel => rel.type == type && rel.Sides.Contains(currentPlayer));
-        //}
-
         bool HasCurrentPlayerOrderedRelationWithReceiver(RelationType type, bool curentPlayerIsSide1)
         {
             if (curentPlayerIsSide1)

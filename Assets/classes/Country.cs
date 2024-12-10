@@ -312,13 +312,14 @@ public class Country {
     private bool atWar;
     private army_visibility_manager armyVisibilityManager;
     private ATax tax;
+
     public Country(int id, string name, (int, int) capital, Color color, int coat, Map map) {
         this.id = id;
         this.name = name;
         this.capital = id == 0 ? DEFAULT_CORD : capital;
         this.color = id == 0 ? new Color(0.8392f, 0.7216f, 0.4706f) : color;
         this.coat = coat;
-        this.resources = new(technicalDefaultResources.defaultValues);
+        this.resources = new(TechnicalDefaultResources.defaultValues);
         this.technologies = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
         this.techStats = new TechnologyInterpreter(this.technologies);
         this.provinces = new HashSet<Province> { map.getProvince(capital) };
@@ -485,9 +486,11 @@ public class Country {
         }
         return payFlag;
     }
+
     public bool isPayable(Resource type, float amount) {
         return resources[type] >= amount;
     }
+
     public Province getCapital() {
         return provinces.First(p=>p.coordinates == capital);
     }

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Assets.classes.subclasses {
-    class technicalDefaultResources {
-        public static Dictionary<Resource, float> defaultValues = new Dictionary<Resource, float> {
+    class TechnicalDefaultResources {
+        public static Dictionary<Resource, float> defaultValues = new() {
             { Resource.Gold, 100f },
             { Resource.AP, 2.5f },
             { Resource.Wood, 50f },

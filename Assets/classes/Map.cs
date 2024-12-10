@@ -58,15 +58,14 @@ public class Map : ScriptableObject
     public void addCountry(Country country, CountryController ptype)
     {
         countries.Add(country);
-        country.Opinions = new Dictionary<int, int>();
         countryControllers.Add(ptype);
     }
 
     public void initCountries() {
 
-        for(int i = 1; i < countries.Count; i++) {
-            for(int j = 1; j < countries.Count; j++) {
-                if(i < j) {
+        for (int i = 1; i < countries.Count; i++) {
+            for (int j = 1; j < countries.Count; j++) {
+                if (i < j) {
                     countries[i].Opinions.Add(j, 0);
                     countries[j].Opinions.Add(i, 0);
                 }
