@@ -243,12 +243,17 @@ public class player_table : MonoBehaviour
 
     private void SetCountryPriorities()
     {
-        int i = 0;
+        var countries = map.Countries.Where(c => c.Id != 0).ToList();
 
-        foreach (Country country in map.Countries.Where(c => c.Id != 0))
+        System.Random random = new();
+
+        var priorities = Enumerable.Range(0, countries.Count).ToList();
+        priorities = priorities.OrderBy(p => random.Next()).ToList();
+
+        for (int i = 0; i < countries.Count; i++)
         {
-            country.Priority = i++;
-            Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
+            countries[i].Priority = priorities[i];
+            Debug.Log($"Country: {countries[i].Name}, Priority: {countries[i].Priority}");
         }
     }
 

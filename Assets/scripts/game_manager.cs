@@ -152,12 +152,14 @@ public class game_manager : MonoBehaviour
                 bool isArmyMoveAction = false;
                 Army attackerArmy = null;
 
-                if (c.Actions.Count > 0 && c.Actions.last is TurnAction.ArmyMove) {
-                    isArmyMoveAction = true;
-                    attackerArmy = (c.Actions.last as TurnAction.ArmyMove).Army;
-                }
+                if (c.Actions.Count > 0) {
+                    if (c.Actions.last is TurnAction.ArmyMove) {
+                        isArmyMoveAction = true;
+                        attackerArmy = (c.Actions.last as TurnAction.ArmyMove).Army;
+                    }
 
-                c.Actions.execute();
+                    c.Actions.execute();
+                }
 
                 if (isArmyMoveAction && attackerArmy != null) {
                     battle_manager.CheckBattle(attackerArmy);
