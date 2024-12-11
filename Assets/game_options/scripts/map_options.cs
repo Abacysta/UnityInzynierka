@@ -36,7 +36,6 @@ public class map_options : MonoBehaviour
         LoadAvailableMaps();
         SetupResourceOptions();
         SetupTurnOptions();
-
 	}
 
     private void LoadAvailableMaps()
@@ -289,7 +288,7 @@ public class map_options : MonoBehaviour
 
         SceneManager.LoadScene("game_map");
     }
-    public void exitButton()
+    public void ExitButton()
     {
         SceneManager.LoadScene("main_menu");
     }

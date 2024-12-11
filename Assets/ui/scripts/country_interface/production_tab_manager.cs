@@ -30,21 +30,21 @@ public class production_tab_manager : MonoBehaviour
         {
             var idx = i;
             toggles[idx].onValueChanged.AddListener(delegate {
-                setTaxType(idx);
+                SetTaxType(idx);
             });
-            toggles[idx].onValueChanged.AddListener(delegate { updateTaxInfo(); });
+            toggles[idx].onValueChanged.AddListener(delegate { UpdateTaxInfo(); });
         }
     }
 
     void OnEnable()
     {
-        Debug.Log(getTaxType() + "-tax");
+        Debug.Log(GetTaxType() + "-tax");
 
         SetCountryPopulationText();
         SetCountryHappinessText();
-        setTaxButtons();
-        updateTaxInfo();
-        updateGainInfo();
+        SetTaxButtons();
+        UpdateTaxInfo();
+        UpdateGainInfo();
     }
 
     public void SetCountryPopulationText()
@@ -84,9 +84,9 @@ public class production_tab_manager : MonoBehaviour
         }
     }
 
-    private void setTaxButtons()
+    private void SetTaxButtons()
     {
-        var toSet = getTaxType();
+        var toSet = GetTaxType();
 
         for (int i = 0; i < toggles.Count; i++)
         {
@@ -95,7 +95,7 @@ public class production_tab_manager : MonoBehaviour
         }
     }
 
-    private void updateTaxInfo()
+    private void UpdateTaxInfo()
     {
         ATax tax = map.CurrentPlayer.Tax;
         var tax_percent = tax.GoldP;
@@ -105,10 +105,10 @@ public class production_tab_manager : MonoBehaviour
 
         happ_text.color = tax_happ > 0 ? Color.green : Color.red;
 
-        updateGainInfo();
+        UpdateGainInfo();
     }
 
-    private void setTaxType(int it)
+    private void SetTaxType(int it)
     {
         switch (it)
         {
@@ -130,7 +130,7 @@ public class production_tab_manager : MonoBehaviour
         }
     }
 
-    public int getTaxType()
+    public int GetTaxType()
     {
         switch (map.CurrentPlayer.Tax)
         {
@@ -147,9 +147,9 @@ public class production_tab_manager : MonoBehaviour
         }
     }
 
-    private void updateGainInfo()
+    private void UpdateGainInfo()
     {
-        var gains = Map.PowerUtilites.getGain(map, map.CurrentPlayer);
+        var gains = Map.PowerUtilites.GetGain(map, map.CurrentPlayer);
 
         var gold = panel.transform.Find("gold_text").GetComponent<TMP_Text>();
         var wood = panel.transform.Find("wood_text").GetComponent<TMP_Text>();

@@ -55,7 +55,7 @@ public class army_view : MonoBehaviour
             }
         }
 
-        bool isLand = map.getProvince(ArmyData.Position).IsLand;
+        bool isLand = map.GetProvince(ArmyData.Position).IsLand;
 
         if (isLand)
         {
@@ -157,7 +157,7 @@ public class army_view : MonoBehaviour
     private Vector3 AdjustPosition(Vector3 basePosition, bool isNotPreparingToMove = true)
     {
         Vector2 provinceCoordinates = WorldToHexPosition(basePosition);
-        Province province = map.getProvince((int)provinceCoordinates.x, (int)provinceCoordinates.y);
+        Province province = map.GetProvince((int)provinceCoordinates.x, (int)provinceCoordinates.y);
 
         transform.localScale = (isNotPreparingToMove || (province != null && ArmyData.OwnerId == province.OwnerId))
             ? new Vector3(0.45f, 0.45f, 1f)

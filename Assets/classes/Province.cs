@@ -31,11 +31,11 @@ public class ProvinceModifiers
 [System.Serializable]
 public class Province {
     public enum TerrainType {
-        tundra,
-        forest,
-        lowlands,
-        desert,
-        ocean
+        Tundra,
+        Forest,
+        Lowlands,
+        Desert,
+        Ocean
     }
 
     [SerializeField] private string name;
@@ -73,7 +73,7 @@ public class Province {
         if (isLand)
         {
             occupationInfo = new OccupationInfo();
-            buildings = defaultBuildings(this);
+            buildings = DefaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
             recruitablePopulation = 0;
@@ -98,7 +98,7 @@ public class Province {
         if (isLand)
         {
             occupationInfo = new OccupationInfo();
-            buildings = defaultBuildings(this);
+            buildings = DefaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
         }
@@ -151,7 +151,7 @@ public class Province {
             buildings[buildingType] = 0;
         }
     }
-    public void calcStatuses() {
+    public void CalcStatuses() {
         modifiers.ResetModifiers();
 
         if (statuses != null) {
@@ -160,13 +160,13 @@ public class Province {
 
             foreach (var status in statuses) {
                 if (0 != status.Duration--)
-                    status.applyEffect(this);
+                    status.ApplyEffect(this);
                 else to_rmv.Add(status);
             }
             statuses = statuses.Except(to_rmv).ToList();
         }
     }
-    public void addStatus(Status status) {
+    public void AddStatus(Status status) {
         statuses?.Add(status);
     }
 
@@ -199,7 +199,7 @@ public class Province {
         return (float)Math.Round(prod, 1);
     }
 
-    public static Dictionary<BuildingType, int> defaultBuildings(Province p)
+    public static Dictionary<BuildingType, int> DefaultBuildings(Province p)
     {
         return new Dictionary<BuildingType, int>
         {

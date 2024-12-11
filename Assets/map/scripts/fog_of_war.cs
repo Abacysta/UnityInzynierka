@@ -128,7 +128,7 @@ public class fog_of_war : MonoBehaviour
 
             if (map.IsValidPosition(offsetX, offsetY))
             {
-                Province visibleProvince = map.getProvince(offsetX, offsetY);
+                Province visibleProvince = map.GetProvince(offsetX, offsetY);
                 if (visibleProvince != null)
                 {
                     country.RevealedTiles.Add((offsetX, offsetY));
@@ -140,7 +140,7 @@ public class fog_of_war : MonoBehaviour
 
     private void UpdateVisibilityAroundArmy(Army army)
     {
-        Province province = map.getProvince(army.Position.Item1, army.Position.Item2);
+        Province province = map.GetProvince(army.Position.Item1, army.Position.Item2);
 
         if (province == null)
         {
@@ -158,7 +158,7 @@ public class fog_of_war : MonoBehaviour
 
             if (map.IsValidPosition(offsetX, offsetY))
             {
-                Province visibleProvince = map.getProvince(offsetX, offsetY);
+                Province visibleProvince = map.GetProvince(offsetX, offsetY);
                 if (visibleProvince != null)
                 {
                     country.RevealedTiles.Add((offsetX, offsetY));

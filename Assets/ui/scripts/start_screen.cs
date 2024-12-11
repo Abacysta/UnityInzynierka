@@ -9,7 +9,7 @@ namespace Assets.ui.scripts {
         [SerializeField] private GameObject[] toToggle;
         [SerializeField] private Map map;
 
-        public void welcomeScreen() {
+        public void WelcomeScreen() {
             GameObject window = transform.GetChild(0).gameObject;
 
             foreach(var obj in toToggle) {
@@ -23,13 +23,13 @@ namespace Assets.ui.scripts {
             var button = window.transform.Find("window").GetComponentInChildren<Button>();
 
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => alerts.loadEvents(map.CurrentPlayer));
-            button.onClick.AddListener(() => alerts.reloadAlerts());
+            button.onClick.AddListener(() => alerts.LoadEvents(map.CurrentPlayer));
+            button.onClick.AddListener(() => alerts.ReloadAlerts());
             button.onClick.AddListener(() => window.SetActive(false));
-            button.onClick.AddListener(() => unHide());
+            button.onClick.AddListener(() => UnHide());
         }
 
-        public void unHide() {
+        public void UnHide() {
             foreach(var obj in toToggle) {
                 obj.SetActive(true);
             }

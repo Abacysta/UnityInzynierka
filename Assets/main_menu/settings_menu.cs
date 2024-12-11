@@ -15,7 +15,7 @@ public class settings_menu : MonoBehaviour
 
     private readonly List<Resolution> validResolutions = new();
 
-    public void settingsInit() {
+    public void SettingsInit() {
 
         SetInitialVideoSettings();
         SetInitialAudioSettings();
@@ -59,14 +59,14 @@ public class settings_menu : MonoBehaviour
         float volSfx = PlayerPrefs.GetFloat("volSfx");
         float volMus = PlayerPrefs.GetFloat("volMus");
 
-        setSFX(volSfx);
-        setMus(volMus);
+        SetSfx(volSfx);
+        SetMus(volMus);
 
         sliderSFX.value = volSfx;
         sliderMus.value = volMus;
 
-        sliderMus.onValueChanged.AddListener(setMus);
-        sliderSFX.onValueChanged.AddListener(setSFX);
+        sliderMus.onValueChanged.AddListener(SetMus);
+        sliderSFX.onValueChanged.AddListener(SetSfx);
     }
 
     private void PopulateDropdown()
@@ -90,12 +90,12 @@ public class settings_menu : MonoBehaviour
         res_dropdown.onValueChanged.AddListener(SetRes);
     }
 
-    public void toggleMenu(GameObject menu) {
+    public void ToggleMenu(GameObject menu) {
         if (overlay != null) overlay.SetActive(!overlay.activeSelf);
         menu.SetActive(!menu.activeSelf);
     }
 
-    public void toTitle() {
+    public void ToTitle() {
         SceneManager.LoadScene(0);
     }
 
@@ -114,14 +114,14 @@ public class settings_menu : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public void setSFX(float percent) {
+    public void SetSfx(float percent) {
         float vol = PercentToDecibels(percent);
         mixer.SetFloat("sfx_vol", vol);
         PlayerPrefs.SetFloat("volSfx", percent);
         PlayerPrefs.Save();
     }
 
-    public void setMus(float percent) {
+    public void SetMus(float percent) {
         float vol = PercentToDecibels(percent);
         mixer.SetFloat("mus_vol", vol);
         PlayerPrefs.SetFloat("volMus", percent);

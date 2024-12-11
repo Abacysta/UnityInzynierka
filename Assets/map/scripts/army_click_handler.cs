@@ -116,7 +116,7 @@ public class army_click_handler : cursor_helper
     private void HighlightPossibleMoveCells(Army army)
     {
         isHighlighted = true;
-        List<(int, int)> possibleCells = map.getPossibleMoveCells(army);
+        List<(int, int)> possibleCells = map.GetPossibleMoveCells(army);
 
         highlightedCells.Clear();
 
@@ -177,7 +177,7 @@ public class army_click_handler : cursor_helper
                 );
         }
 
-        Province tileProvince = map.getProvince(cellPosition.x, cellPosition.y);
+        Province tileProvince = map.GetProvince(cellPosition.x, cellPosition.y);
         Country tileOwner = map.Countries[tileProvince.OwnerId];
         Country armyOwner = map.Countries[armyOwnerId];
 

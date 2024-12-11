@@ -10,7 +10,7 @@ namespace Assets.classes {
         private int initialChange, constChange;
         public Country[] Sides { get { return countries; } }
 
-        public virtual void turnEffect() {
+        public virtual void TurnEffect() {
             countries[0].SetOpinion(countries[1].Id, countries[0].Opinions[countries[1].Id] + constChange);
             countries[1].SetOpinion(countries[0].Id, countries[1].Opinions[countries[0].Id] + constChange);
         }
@@ -48,8 +48,8 @@ namespace Assets.classes {
                 Participants2 = new HashSet<Country>{c2};
             }
             
-            public override void turnEffect() {
-                base.turnEffect();
+            public override void TurnEffect() {
+                base.TurnEffect();
             }
         }
 
@@ -64,8 +64,8 @@ namespace Assets.classes {
                 }
             }
 
-            public override void turnEffect() {
-                base.turnEffect();
+            public override void TurnEffect() {
+                base.TurnEffect();
             }
         }
 
@@ -78,8 +78,8 @@ namespace Assets.classes {
                 this.d = duration;
             }
 
-            public override void turnEffect() {
-                base.turnEffect();
+            public override void TurnEffect() {
+                base.TurnEffect();
                 if(d > 0) d--;
             }
         }
@@ -91,7 +91,7 @@ namespace Assets.classes {
                 countries[0].SetOpinion(countries[1].Id, countries[0].Opinions[countries[1].Id] - initialChange);
             }
 
-            public override void turnEffect() {
+            public override void TurnEffect() {
                 countries[1].SetOpinion(countries[0].Id, countries[1].Opinions[countries[0].Id] + constChange);
             }
         }
@@ -115,8 +115,8 @@ namespace Assets.classes {
                 this.duration = duration;
             }
 
-            public override void turnEffect() {
-                base.turnEffect();
+            public override void TurnEffect() {
+                base.TurnEffect();
                 if(duration>0) {
                     duration--;
                     if(countries[0].Resources[Resource.Gold] >= amount) {
@@ -133,8 +133,8 @@ namespace Assets.classes {
         internal class MilitaryAccess : Relation {
             public MilitaryAccess(Country c1, Country c2) : base(c1, c2, RelationType.MilitaryAccess, 0, 0) {}
 
-            public override void turnEffect() {
-                base.turnEffect();
+            public override void TurnEffect() {
+                base.TurnEffect();
             }
         }
     }

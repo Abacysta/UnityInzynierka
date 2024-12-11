@@ -963,7 +963,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 933952494}
         m_TargetAssemblyTypeName: settings_menu, assets
-        m_MethodName: toggleMenu
+        m_MethodName: ToggleMenu
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 933952495}
@@ -2147,7 +2147,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6366846146742611007, guid: 54195129b6cc93f4687b13c55e4b2cc9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: toggleMenu
+      value: ToggleMenu
       objectReference: {fileID: 0}
     - target: {fileID: 6366846146742611007, guid: 54195129b6cc93f4687b13c55e4b2cc9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName

@@ -87,7 +87,7 @@ public class province_interface : MonoBehaviour
             return tooltipText;
         }
 
-        public static void deleteIcons(GameObject obj)
+        public static void DeleteIcons(GameObject obj)
         {
             foreach (Transform child in obj.transform)
             {
@@ -95,12 +95,12 @@ public class province_interface : MonoBehaviour
             }
         }
 
-        public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites,
+        public static void ShowIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites,
             Province province, Map map)
         {
             if (statuses.SequenceEqual(previousStatuses) && previousTurn == map.TurnCnt) return;
 
-            deleteIcons(obj);
+            DeleteIcons(obj);
 
             if (statuses != null)
             {
@@ -169,7 +169,7 @@ public class province_interface : MonoBehaviour
     private int prov;
 
     public (int, int) SelectedProvince { get; set; }
-    public bool Recruitable { get { return map.getProvince(SelectedProvince).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
+    public bool Recruitable { get { return map.GetProvince(SelectedProvince).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
 
     private void Start()
     {
@@ -221,7 +221,7 @@ public class province_interface : MonoBehaviour
 
     private void Update() {
         var coordinates = SelectedProvince;
-        Province p = map.getProvince(coordinates);
+        Province p = map.GetProvince(coordinates);
         int countryId = map.Countries[p.OwnerId].Id;
 
         id_.Txt.SetText(coordinates.ToString() +
@@ -240,7 +240,7 @@ public class province_interface : MonoBehaviour
 
             UpdateUIElementStates(p); 
             UpdateEmblem(p.OwnerId);
-            StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites, p, map);
+            StatusDisplay.ShowIcons(statuses_list, p.Statuses, status_sprites, p, map);
         }
         else {
             res.SetActive(false);
@@ -332,7 +332,7 @@ public class province_interface : MonoBehaviour
         if (ownerId == 0) emblem.SetActive(false);
         else
         {
-            map.Countries[ownerId].setCoatandColor(emblem);
+            map.Countries[ownerId].SetCoatandColor(emblem);
             emblem.SetActive(true);
         }
 
@@ -352,11 +352,11 @@ public class province_interface : MonoBehaviour
         map.Provinces[prov].Population += val;
     }
 
-    public void hide() {
+    public void Hide() {
         gameObject.SetActive(false);
     }
 
-    public void recruit() {
+    public void Recruit() {
         recruitment_button.GetComponent<Button>().onClick.Invoke();
     }
 }

@@ -57,18 +57,18 @@ namespace Assets.Scripts {
         /// <summary>
         /// main method responsible for coordinating behavior of AI country's turn
         /// </summary>
-        public void behave() {
+        public void Behave() {
             if(map.CurrentPlayer.Id!=0){
-                this.humor = asess();
+                this.humor = Asess();
             //events block
             while (map.CurrentPlayer.Events.Count > 0) { 
                 var e = map.CurrentPlayer.Events.Last();
-                respondToEvent(e);
+                RespondToEvent(e);
                 map.CurrentPlayer.Events.Remove(e);
             }
-            manageInternal();
-            diplomacy();
-            moveArmies();
+            ManageInternal();
+            Diplomacy();
+            MoveArmies();
                 this.humor = Humor.Null;
             }
         }
@@ -76,13 +76,13 @@ namespace Assets.Scripts {
         /// <summary>
         /// decides on value of humor of AI this turn
         /// </summary>
-        private Humor asess() {
+        private Humor Asess() {
             //first block; vassal comparison with senior
-            var vassalage = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).FirstOrDefault(rel => rel.Sides[1] == map.CurrentPlayer);
+            var vassalage = map.GetRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).FirstOrDefault(rel => rel.Sides[1] == map.CurrentPlayer);
             if (vassalage != null) {
                 var senior = vassalage.Sides[0];
                 var vassal = vassalage.Sides[1];
-                if (getArmySum(senior.Id) <= getArmySum(vassal.Id) //army bigger than seniors
+                if (GetArmySum(senior.Id) <= GetArmySum(vassal.Id) //army bigger than seniors
                     || senior.Provinces.Count <= (int)(0.5*vassal.Provinces.Count)//provinces count bigger than half of seniors
                     || vassal.Opinions[senior.Id] < 0) //negative opinion of senior
                     return Humor.Rebellious;
@@ -90,15 +90,15 @@ namespace Assets.Scripts {
             }
             vassalage = null;
             //second block; war related extremes
-            var wars = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.War).Cast<Relation.War>();
+            var wars = map.GetRelationsOfType(map.CurrentPlayer, Relation.RelationType.War).Cast<Relation.War>();
             int severity = 0;
             if (wars != null) {
                 foreach (var war in wars) {
                     bool attacker = war.Participants1.Contains(map.CurrentPlayer);
                     var allies = attacker ? war.Participants1 : war.Participants2;
                     var enemies = attacker ? war.Participants2 : war.Participants1;
-                    int allyCount = allies.Sum(a => getArmySum(a.Id));
-                    int enemyCount = enemies.Sum(e => getArmySum(e.Id));
+                    int allyCount = allies.Sum(a => GetArmySum(a.Id));
+                    int enemyCount = enemies.Sum(e => GetArmySum(e.Id));
                     severity += allyCount - enemyCount;
                 }
                 if(severity > 300) {
@@ -110,10 +110,10 @@ namespace Assets.Scripts {
             }
             wars = null;
             //third block; overall competetiveness (vassal count and gold production)
-            var vassals = map.getRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).Where(r => r.Sides[0] == map.CurrentPlayer).Cast<Relation.Vassalage>();
+            var vassals = map.GetRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).Where(r => r.Sides[0] == map.CurrentPlayer).Cast<Relation.Vassalage>();
             var topproductions = map.Countries
                 .Where(c => c.Id != 0)
-                .Select(c => map.getResourceGain(c))
+                .Select(c => map.GetResourceGain(c))
                 .SelectMany(d => d)
                 .Where(k => k.Key == Resource.Gold)
                 .GroupBy(k => k.Key)
@@ -121,7 +121,7 @@ namespace Assets.Scripts {
                 .OrderByDescending(k => k.Value)
                 .Take(2) // adjust this as needed
                 .ToDictionary(k => k.Key, k => k.Value);
-            var production = map.getResourceGain(map.CurrentPlayer)[Resource.Gold];
+            var production = map.GetResourceGain(map.CurrentPlayer)[Resource.Gold];
             if(vassals.Count() > 2//has 3 or more vassals
                 || topproductions.ContainsValue(production)//is in the 2 top gold producing countries
                 ) {
@@ -133,55 +133,55 @@ namespace Assets.Scripts {
 
         
         
-        private void respondToEvent(Event_ e) {
+        private void RespondToEvent(Event_ e) {
             if (!(e is Event_.DiploEvent)) {
                 var r = random.chance;
-                if (r > 50) e.accept();
-                else e.reject();
+                if (r > 50) e.Accept();
+                else e.Reject();
             }
             else {
                 AI_manager.diploEventResponder.Respond(e, map, humor);
             }
         }
         //no moving over water unless enemy land cuz i dont care at this point(splitting is too complicated as well)
-        private void moveArmies() {
-            var armies = map.getCountryArmies(map.CurrentPlayer).OrderByDescending(a=>a.Count).ToList();
-            var unavailable = Map.LandUtilites.getUnpassableProvinces(map, map.CurrentPlayer);
-            var enemyIds = Map.WarUtilities.getEnemyIds(map, map.CurrentPlayer);
+        private void MoveArmies() {
+            var armies = map.GetCountryArmies(map.CurrentPlayer).OrderByDescending(a=>a.Count).ToList();
+            var unavailable = Map.LandUtilites.GetUnpassableProvinces(map, map.CurrentPlayer);
+            var enemyIds = Map.WarUtilities.GetEnemyIds(map, map.CurrentPlayer);
             foreach(var a in armies) {
-                if (map.CurrentPlayer.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
+                if (map.CurrentPlayer.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
                 //get all land- no water
-                var possible = map.getPossibleMoveCells(a).Where(c => map.getProvince(c).IsLand).ToList();
+                var possible = map.GetPossibleMoveCells(a).Where(c => map.GetProvince(c).IsLand).ToList();
                 //trbal first I guess
-                var target = possible.FirstOrDefault(p => map.getProvince(p).OwnerId == 0);
+                var target = possible.FirstOrDefault(p => map.GetProvince(p).OwnerId == 0);
                 if(target != (0,0)) {
-                    map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, target, a.Count, a));
+                    map.CurrentPlayer.Actions.AddAction(new TurnAction.ArmyMove(a.Position, target, a.Count, a));
                     continue;
                 }
                 //then enemy provinces
-                var Eprov = possible.FindAll(p => Map.WarUtilities.getEnemyIds(map, map.CurrentPlayer).Contains(map.getProvince(p).OwnerId));
+                var Eprov = possible.FindAll(p => Map.WarUtilities.GetEnemyIds(map, map.CurrentPlayer).Contains(map.GetProvince(p).OwnerId));
                 //no armies first
-                var withnoarmies = Eprov.Where(p => !Map.WarUtilities.getEnemyArmies(map, map.CurrentPlayer).Select(a => a.Position).Contains(p));
+                var withnoarmies = Eprov.Where(p => !Map.WarUtilities.GetEnemyArmies(map, map.CurrentPlayer).Select(a => a.Position).Contains(p));
                 if (withnoarmies.Any()) {
-                    map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, target, a.Count, a));
+                    map.CurrentPlayer.Actions.AddAction(new TurnAction.ArmyMove(a.Position, target, a.Count, a));
                     continue;
                 }
                 //with smaller armies
                 Eprov = Eprov.Except(withnoarmies).ToList();
                 foreach (var pp in Eprov) {
-                    if (Map.WarUtilities.getEnemyArmiesInProvince(map, map.CurrentPlayer, map.getProvince(pp)).Sum(a => a.Count) < a.Count) {
-                        map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, pp, a.Count, a));
+                    if (Map.WarUtilities.GetEnemyArmiesInProvince(map, map.CurrentPlayer, map.GetProvince(pp)).Sum(a => a.Count) < a.Count) {
+                        map.CurrentPlayer.Actions.AddAction(new TurnAction.ArmyMove(a.Position, pp, a.Count, a));
                         break;
                     }
                 }
                 //get nearest enemy pos
-                var nearestProv = HexUtils.getNearestProvince(map, a.Position, enemyIds);
+                var nearestProv = HexUtils.GetNearestProvince(map, a.Position, enemyIds);
                 if (nearestProv != null) {
                     //if exists get best path
-                    var bestPath = HexUtils.getBestPathProvinces(map, map.CurrentPlayer, unavailable.Select(p=>(p.X, p.Y)).ToHashSet(), a.Position, (nearestProv.X, nearestProv.Y));
+                    var bestPath = HexUtils.GetBestPathProvinces(map, map.CurrentPlayer, unavailable.Select(p=>(p.X, p.Y)).ToHashSet(), a.Position, (nearestProv.X, nearestProv.Y));
                     if (bestPath != null) {
                         //if exists move
-                        map.CurrentPlayer.Actions.addAction(new TurnAction.ArmyMove(a.Position, bestPath[1].coordinates, a.Count, a));
+                        map.CurrentPlayer.Actions.AddAction(new TurnAction.ArmyMove(a.Position, bestPath[1].coordinates, a.Count, a));
                     }
                 }
             }
@@ -190,27 +190,27 @@ namespace Assets.Scripts {
         /// <summary>
         /// the way AI acts diplomaticly this turn
         /// </summary>
-        private void diplomacy() {
+        private void Diplomacy() {
             var toolbox = (diplo, dialog_box, camera, diplo_actions);
-            diplomacyManager.manageAccess(map, map.CurrentPlayer, diplo, dialog_box, camera, diplo_actions);
+            diplomacyManager.ManageAccess(map, map.CurrentPlayer, diplo, dialog_box, camera, diplo_actions);
             switch (humor) {
                 case Humor.Leading:
-                    diplomacyManager.leadingDiplo(map, map.CurrentPlayer, toolbox);
+                    diplomacyManager.LeadingDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 case Humor.Defensive:
-                    diplomacyManager.defensiveDiplo(map, map.CurrentPlayer, toolbox);
+                    diplomacyManager.DefensiveDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 case Humor.Subservient:
-                    diplomacyManager.subservientDiplo(map, map.CurrentPlayer, toolbox);
+                    diplomacyManager.SubservientDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 case Humor.Rebellious:
-                    diplomacyManager.rebelliousDiplo(map, map.CurrentPlayer, toolbox, random);
+                    diplomacyManager.RebelliousDiplo(map, map.CurrentPlayer, toolbox, random);
                     break;
                 case Humor.Offensive:
-                    diplomacyManager.offensiveDiplo(map, map.CurrentPlayer, toolbox);
+                    diplomacyManager.OffensiveDiplo(map, map.CurrentPlayer, toolbox);
                     break;
                 default:
-                    diplomacyManager.defaultDiplo(map, map.CurrentPlayer, toolbox, random);
+                    diplomacyManager.DefaultDiplo(map, map.CurrentPlayer, toolbox, random);
                     break;
             }
         }
@@ -218,205 +218,205 @@ namespace Assets.Scripts {
         /// responsible for taking care of internal affairs
         /// different humors might have different squences they will take
         /// </summary>
-        private void manageInternal() {
-            internalAffairsManager.setProperTax(map, map.CurrentPlayer);
-            if (humor == Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.handleArmyRecruitment(map.CurrentPlayer, humor);
-            internalAffairsManager.handleUnhappy(map.CurrentPlayer, humor);
-            if (humor == Humor.Leading) internalAffairsManager.handleGrowable(map.CurrentPlayer, humor);
-            internalAffairsManager.handleTechnology(map.CurrentPlayer, humor);
-            internalAffairsManager.handleBuildings(map.CurrentPlayer, humor);
-            if (humor != Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.handleArmyRecruitment(map.CurrentPlayer, humor);
-            if(humor != Humor.Leading) internalAffairsManager.handleGrowable(map.CurrentPlayer, humor);
+        private void ManageInternal() {
+            internalAffairsManager.SetProperTax(map, map.CurrentPlayer);
+            if (humor == Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.HandleArmyRecruitment(map.CurrentPlayer, humor);
+            internalAffairsManager.HandleUnhappy(map.CurrentPlayer, humor);
+            if (humor == Humor.Leading) internalAffairsManager.HandleGrowable(map.CurrentPlayer, humor);
+            internalAffairsManager.HandleTechnology(map.CurrentPlayer, humor);
+            internalAffairsManager.HandleBuildings(map.CurrentPlayer, humor);
+            if (humor != Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.HandleArmyRecruitment(map.CurrentPlayer, humor);
+            if(humor != Humor.Leading) internalAffairsManager.HandleGrowable(map.CurrentPlayer, humor);
         }
 
 
-        private int getArmySum(int id) {
+        private int GetArmySum(int id) {
             return map.Armies.FindAll(a=>a.OwnerId == id).Sum(a=> a.Count);
         }
         private class diplomacyManager {
             //1.get needed access; 2. ask for it; 3....; 4.profit
-            public static void manageAccess(Map map, Country c, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera, diplomatic_actions_manager diplo_actions) {
-                var impassable = Map.LandUtilites.getUnpassableProvinces(map, c);
-                foreach(var e in Map.WarUtilities.getEnemyIds(map, c).Select(id => map.Countries[id]).ToList()) {
-                    var needed = HexUtils.getBestPathProvinces(map, c, c.Capital, e.Capital);
+            public static void ManageAccess(Map map, Country c, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera, diplomatic_actions_manager diplo_actions) {
+                var impassable = Map.LandUtilites.GetUnpassableProvinces(map, c);
+                foreach(var e in Map.WarUtilities.GetEnemyIds(map, c).Select(id => map.Countries[id]).ToList()) {
+                    var needed = HexUtils.GetBestPathProvinces(map, c, c.Capital, e.Capital);
                     if(needed != null) foreach(var p in needed) {
                         if(impassable.Contains(p) && p.OwnerId != 0 && p.IsLand) {
                             if (map.Countries[p.OwnerId].Opinions[c.Id] >= 0) {
-                                    c.Actions.addAction(new TurnAction.MilAccessRequest(c, map.Countries[p.OwnerId], diplomacy, dialog_box, camera, diplo_actions));
+                                    c.Actions.AddAction(new TurnAction.MilAccessRequest(c, map.Countries[p.OwnerId], diplomacy, dialog_box, camera, diplo_actions));
                             }
                         }
                     }
                 }
             }
-            public static void leadingDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
+            public static void LeadingDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
                 
-                var vassalages = Map.PowerUtilites.getVassalRelations(map, c);
+                var vassalages = Map.PowerUtilites.GetVassalRelations(map, c);
                 foreach(var v in vassalages) {
                     var integration = new TurnAction.VassalIntegration(v, toolbox.Item1, toolbox.Item4);
-                    if(c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.IntegrateVassal, v))) {
-                        c.Actions.addAction(integration);
+                    if(c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.IntegrateVassal, v))) {
+                        c.Actions.AddAction(integration);
                     }
                 }
-                var vassals = Map.PowerUtilites.getVassals(map, c);
+                var vassals = Map.PowerUtilites.GetVassals(map, c);
                 foreach(var v in vassals) {
                     var improvement = new TurnAction.Praise(c, v, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
-                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.Praise))) {
-                        c.Actions.addAction(improvement);
+                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.Praise))) {
+                        c.Actions.AddAction(improvement);
                     }
                 }
-                var weaklings = Map.PowerUtilites.getWeakCountries(map, c);
+                var weaklings = Map.PowerUtilites.GetWeakCountries(map, c);
                 foreach(var w in weaklings) {
                     var threat = new TurnAction.VassalizationDemand(c, w, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
-                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.VassalizationOffer))) {
-                        c.Actions.addAction(threat);
+                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.VassalizationOffer))) {
+                        c.Actions.AddAction(threat);
                     }
                 }
             }
-            public static void defensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
-                var wars = Map.WarUtilities.getAllWars(map, c);
-                var allies = Map.WarUtilities.getAllies(map, c);
+            public static void DefensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
+                var wars = Map.WarUtilities.GetAllWars(map, c);
+                var allies = Map.WarUtilities.GetAllies(map, c);
                 foreach(var war in wars) {
                     foreach(var ally in allies) {
                         var call = new TurnAction.CallToWar(c, ally, war, toolbox.Item2, toolbox.Item1, toolbox.Item3, toolbox.Item4);
-                        if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.CallToWar))) {
-                            c.Actions.addAction(call);
+                        if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.CallToWar))) {
+                            c.Actions.AddAction(call);
                         }
                     }
                 }
             }
-            public static void offensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
+            public static void OffensiveDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) {
                 //cant think of anything so just call all allies like defensive
-                defensiveDiplo(map, c, toolbox);
+                DefensiveDiplo(map, c, toolbox);
             }
-            public static void subservientDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { 
+            public static void SubservientDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox) { 
                 //cant think of anything
             }
-            public static void rebelliousDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
-                if(Map.PowerUtilites.howArmyStronger(map, c, Map.PowerUtilites.getSenior(map, c)) >= 0.3) {
+            public static void RebelliousDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
+                if(Map.PowerUtilites.HowArmyStronger(map, c, Map.PowerUtilites.GetSenior(map, c)) >= 0.3) {
                     if(random.chance <= 10) {
-                        c.Actions.addAction(new TurnAction.VassalRebellion(Map.PowerUtilites.getVassalage(map, c), toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.AddAction(new TurnAction.VassalRebellion(Map.PowerUtilites.GetVassalage(map, c), toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                     }
                 }
             }
-            public static void defaultDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
+            public static void DefaultDiplo(Map map, Country c, (diplomatic_relations_manager, dialog_box_manager, camera_controller, diplomatic_actions_manager) toolbox, random_events_manager random) { 
                 for(int i = 1; i < map.Countries.Count; i++) {
                     if(i == c.Id) continue;
                     //just make them do something, even if it is very retarded and chaotic
                     if(c.Opinions[i] <= -100 && random.chance <= 25) {
-                        c.Actions.addAction(new TurnAction.WarDeclaration(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.AddAction(new TurnAction.WarDeclaration(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                         continue;
                     }
                     if(c.Opinions[i] >= 100 && random.chance <= 25) {
-                        c.Actions.addAction(new TurnAction.AllianceOffer(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.AddAction(new TurnAction.AllianceOffer(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                         continue;
                     }
                     var rnd = random.chance;
                     if(rnd <= 25) {
-                        c.Actions.addAction(new TurnAction.Praise(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.AddAction(new TurnAction.Praise(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                     }
                     else if(rnd >= 75) {
-                        c.Actions.addAction(new TurnAction.Insult(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
+                        c.Actions.AddAction(new TurnAction.Insult(c, map.Countries[i], toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4));
                     }
                 }
             }
         }
         private class internalAffairsManager {
-            public static void handleUnhappy(Country c, Humor humor) {
-                var unhappy = Map.LandUtilites.getUnhappyProvinces(c);
+            public static void HandleUnhappy(Country c, Humor humor) {
+                var unhappy = Map.LandUtilites.GetUnhappyProvinces(c);
                 var veryBad = unhappy.FindAll(p => p.Happiness <= 30).OrderBy(p=>p.Happiness).ToList();
                 var handlable = unhappy.FindAll(p=>p.Happiness >30).OrderBy(p=>p.Happiness).ToList();
                 //tax break on provinces with low chance of rebellion
                 while (handlable.Count > 0) {
-                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
-                        c.Actions.addAction(new TurnAction.TaxBreakIntroduction(handlable[0]));
+                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
+                        c.Actions.AddAction(new TurnAction.TaxBreakIntroduction(handlable[0]));
                         handlable.RemoveAt(0);
                     }
                     else break;
                 }
                 //if can suppress, will for dire provinces
                 if(c.techStats.CanRebelSupp) while(veryBad.Count > 0) {
-                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
-                        c.Actions.addAction(new TurnAction.RebelSuppresion(veryBad[0]));
+                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
+                        c.Actions.AddAction(new TurnAction.RebelSuppresion(veryBad[0]));
                         veryBad.RemoveAt(0);
                     }
                     else break;
                 }
             }
-            public static void handleGrowable(Country c, Humor humor) {
-                var growable = Map.LandUtilites.getGrowable(c);
+            public static void HandleGrowable(Country c, Humor humor) {
+                var growable = Map.LandUtilites.GetGrowable(c);
                 int limit = humor == Humor.Leading ? c.Provinces.Count/10 : c.Provinces.Count/20;//10 and 5 % respecitvely
                 foreach(var p in growable) {
-                    if (c.isPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
-                        c.Actions.addAction(new TurnAction.FestivitiesOrganization(p));
+                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
+                        c.Actions.AddAction(new TurnAction.FestivitiesOrganization(p));
                     }
                     else break;
                 }
             }
-            public static void handleArmyRecruitment(Country c, Humor humor) {
+            public static void HandleArmyRecruitment(Country c, Humor humor) {
                 var toRecruit = new List<Province>();
                 if(humor == Humor.Defensive) {
                     toRecruit = c.Provinces.ToList().OrderByDescending(p=>p.RecruitablePopulation).ToList();
                 }
                 else {
-                    toRecruit= Map.LandUtilites.getOptimalRecruitmentProvinces(c);
+                    toRecruit= Map.LandUtilites.GetOptimalRecruitmentProvinces(c);
                 }
                 bool exitF = false;
                 foreach(var p in toRecruit) {
                     if (exitF || c.Resources[Resource.AP] < 1)
                         break;
-                    exitF = !Map.LandUtilites.recruitAllAvailable(c, p);
+                    exitF = !Map.LandUtilites.RecruitAllAvailable(c, p);
                 }
             }
-            public static void handleTax(Map map, Country c, Humor humor) {
+            public static void HandleTax(Map map, Country c, Humor humor) {
                 if (humor == Humor.Defensive && humor == Humor.Offensive) {
                     if (c.techStats.LvlTax >= 1) {
                         if (!(c.Tax is WarTaxes))
                             c.Tax = new WarTaxes();
                         else
-                            setProperTax(map, c);
+                            SetProperTax(map, c);
                     }
                 }
                 else if(humor == Humor.Leading) {
                     if (c.techStats.LvlTax >= 2) {
                         c.Tax = new InvesmentTaxes();
-                        float tax = Map.PowerUtilites.getTaxGain(c), upkeep = Map.PowerUtilites.getArmyUpkeep(map, c);
+                        float tax = Map.PowerUtilites.GetTaxGain(c), upkeep = Map.PowerUtilites.GetArmyUpkeep(map, c);
                         if(tax < upkeep) {
-                            setProperTax(map, c);
+                            SetProperTax(map, c);
                         }
 
                     }
                 }
                 else {
-                    setProperTax(map, c);
+                    SetProperTax(map, c);
                 }
             }
-            public static void setProperTax(Map map, Country c) {
+            public static void SetProperTax(Map map, Country c) {
                 c.Tax = new LowTaxes();
-                float tax = Map.PowerUtilites.getTaxGain(c), upkeep = Map.PowerUtilites.getArmyUpkeep(map, c);
+                float tax = Map.PowerUtilites.GetTaxGain(c), upkeep = Map.PowerUtilites.GetArmyUpkeep(map, c);
                 if(tax < upkeep) {
                     c.Tax = new MediumTaxes();
-                    tax = Map.PowerUtilites.getTaxGain(c); upkeep = Map.PowerUtilites.getArmyUpkeep(map, c);
+                    tax = Map.PowerUtilites.GetTaxGain(c); upkeep = Map.PowerUtilites.GetArmyUpkeep(map, c);
                     if(tax < upkeep) {
                         c.Tax = new HighTaxes();
                     }
                 }
             }
             //AI should rush adm4(taxbreak) so it doesn't collapse immideately(rebel suppresion is too far in administratice tree so good luck AI you're gonna need it)
-            public static void handleTechnology(Country c, Humor humor) {
+            public static void HandleTechnology(Country c, Humor humor) {
                 if (c.Technologies[Technology.Administrative] < 4) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if(c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if(c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
                 else if(humor == Humor.Defensive || humor == Humor.Offensive || humor == Humor.Rebellious) {
-                    techMEAPrio(c);
+                    TechMeaPrio(c);
                 }
                 else if(humor == Humor.Leading || humor == Humor.Subservient) {
-                    techAEMPrio(c);
+                    TechAemPrio(c);
                 }
                 else {
-                    techMAEPrio(c);
+                    TechMaePrio(c);
                 }
             }
             /// <summary>
@@ -424,24 +424,24 @@ namespace Assets.Scripts {
             /// Defensive, Offensive, Rebellious
             /// </summary>
             /// <param name="c"></param>
-            private static void techMEAPrio(Country c) {
+            private static void TechMeaPrio(Country c) {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Administrative] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
             }
@@ -450,24 +450,24 @@ namespace Assets.Scripts {
             /// Leading, Subservient
             /// </summary>
             /// <param name="c"></param>
-            private static void techAEMPrio(Country c) {
+            private static void TechAemPrio(Country c) {
                 var tech = c.Technologies;
                 if (tech[Technology.Administrative] - tech[Technology.Economic] < 2 && tech[Technology.Administrative] - tech[Technology.Military] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Military] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
             }
@@ -476,24 +476,24 @@ namespace Assets.Scripts {
             /// _default
             /// </summary>
             /// <param name="c"></param>
-            private static void techMAEPrio(Country c) {
+            private static void TechMaePrio(Country c) {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
                 else if (tech[Technology.Administrative] - tech[Technology.Economic] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.isPayable(Resource.AP, action.Cost) && c.isPayable(action.AltCosts)) {
-                        c.Actions.addAction(action);
+                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                        c.Actions.AddAction(action);
                     }
                 }
             }
@@ -502,49 +502,49 @@ namespace Assets.Scripts {
             //up to 1 anything else
             //if no school yet prioritize school over anything else
             //smartest thing is probably mine -> infrastructure -> school -> fort
-            public static void handleBuildings(Country c, Humor humor) {
+            public static void HandleBuildings(Country c, Humor humor) {
                 TurnAction.BuildingUpgrade upgrade;
-                if (c.getCapital().Buildings[BuildingType.Infrastructure] == 0) {
-                    upgrade = new(c.getCapital(), BuildingType.Infrastructure);
-                    if (c.isPayable(upgrade.AltCosts))
-                        c.Actions.addAction(upgrade);
+                if (c.GetCapital().Buildings[BuildingType.Infrastructure] == 0) {
+                    upgrade = new(c.GetCapital(), BuildingType.Infrastructure);
+                    if (c.IsPayable(upgrade.AltCosts))
+                        c.Actions.AddAction(upgrade);
                 }
                 //mine block
-                List<Province> toImprove = getMineable(c);
+                List<Province> toImprove = GetMineable(c);
                 if(toImprove.Count>1){
                     upgrade = new(toImprove[0], BuildingType.Mine);
-                    if(c.isPayable(upgrade.AltCosts))
-                        c.Actions.addAction(upgrade);
+                    if(c.IsPayable(upgrade.AltCosts))
+                        c.Actions.AddAction(upgrade);
                 }
                 //infr block
-                toImprove = getInfrastructurable(c);
+                toImprove = GetInfrastructurable(c);
                 if(toImprove.Count>2){
                 upgrade = new(toImprove[0], BuildingType.Infrastructure);
-                if (c.isPayable(upgrade.AltCosts))
-                    c.Actions.addAction(upgrade);
+                if (c.IsPayable(upgrade.AltCosts))
+                    c.Actions.AddAction(upgrade);
                 upgrade = new(toImprove[1], BuildingType.Infrastructure);
-                    if(c.isPayable(upgrade.AltCosts))
-                        c.Actions.addAction(upgrade);
+                    if(c.IsPayable(upgrade.AltCosts))
+                        c.Actions.AddAction(upgrade);
                 }
                 //school block
-                toImprove = getSchoolable(c);
+                toImprove = GetSchoolable(c);
                 if(toImprove.Count>1){
                 upgrade = new(toImprove[0], BuildingType.School);
-                    if(c.isPayable(upgrade.AltCosts))
-                        c.Actions.addAction(upgrade);
+                    if(c.IsPayable(upgrade.AltCosts))
+                        c.Actions.AddAction(upgrade);
                 }
                 //fort block
-                toImprove = getFortable(c);
+                toImprove = GetFortable(c);
                 if(toImprove.Count>1){
                     upgrade = new(toImprove[0], BuildingType.Fort);
-                    if(c.isPayable(upgrade.AltCosts))
-                        c.Actions.addAction(upgrade);
+                    if(c.IsPayable(upgrade.AltCosts))
+                        c.Actions.AddAction(upgrade);
                 }
             }
             //infr limits for ai adm<2-1; adm<5-2; adm<7-3
             //mainly to make them build other stuff as well
             //getting lists cause I might increase limits(who knows)
-            private static List<Province> getInfrastructurable(Country c) {
+            private static List<Province> GetInfrastructurable(Country c) {
                 int mode;
                 var adm = c.Technologies[Technology.Administrative];
                 if (adm < 2) mode = 1;
@@ -552,14 +552,14 @@ namespace Assets.Scripts {
                 else mode = 3;
                 return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Infrastructure, out int level) && level < mode).OrderByDescending(p=>p.Population).ToList();
             }
-            private static List<Province> getFortable(Country c) {
+            private static List<Province> GetFortable(Country c) {
                 return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Fort, out int level) && level < ( c.techStats.LvlFort+1)).OrderByDescending(p=>p.Population).ToList();
             }
-            private static List<Province> getMineable(Country c) {
+            private static List<Province> GetMineable(Country c) {
                 return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Mine, out int level) && level < (c.techStats.LvlMine + 1)).OrderByDescending(p => p.Population).ToList();
             }
             //ograniczenie do 2 z lenistwa xd
-            private static List<Province> getSchoolable(Country c) {
+            private static List<Province> GetSchoolable(Country c) {
                 return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.School, out int level) && level < (c.techStats.MoreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
             }
         }
@@ -574,224 +574,224 @@ namespace Assets.Scripts {
                 }
             }
 
-            public static void respond(DiploEvent.WarDeclared e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.WarDeclared e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.PeaceOffer e, Map map, Humor humor) {
+            public static void Respond(DiploEvent.PeaceOffer e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Defensive:
-                        e.accept(); break;
+                        e.Accept(); break;
                     case Humor.Offensive: 
-                        e.reject(); break;
+                        e.Reject(); break;
                     case Humor.Leading:
                         //check if armies of the main opponent are overwhelmingly big
-                        if (map.getCountryArmies(e.From).Count >= 1.2 * (double)map.getCountryArmies(e.To).Count)
-                            e.accept();
+                        if (map.GetCountryArmies(e.From).Count >= 1.2 * (double)map.GetCountryArmies(e.To).Count)
+                            e.Accept();
                         else 
-                            e.reject();
+                            e.Reject();
                         break;
                     default:
-                        if (map.getCountryArmies(e.From).Count >= 0.8 * (double)map.getCountryArmies(e.To).Count)
-                            e.accept();
+                        if (map.GetCountryArmies(e.From).Count >= 0.8 * (double)map.GetCountryArmies(e.To).Count)
+                            e.Accept();
                         else
-                            e.reject();
+                            e.Reject();
                         break;
                 }
             }
 
-            public static void respond(DiploEvent.CallToWar e, Map map, Humor humor) {
+            public static void Respond(DiploEvent.CallToWar e, Map map, Humor humor) {
                 var war = e.War;
                 switch (humor) {
                     case Humor.Leading:
-                        e.accept(); break;
+                        e.Accept(); break;
                     case Humor.Defensive:
-                        e.reject(); break;
+                        e.Reject(); break;
                     case Humor.Offensive:
-                        if (Map.WarUtilities.isAttacker(map, e.From, war)) {
-                            if (Map.WarUtilities.isAttackersStronger(map, war))
-                                e.accept();
-                            else e.reject();
+                        if (Map.WarUtilities.IsAttacker(map, e.From, war)) {
+                            if (Map.WarUtilities.IsAttackersStronger(map, war))
+                                e.Accept();
+                            else e.Reject();
                         }
                         else {
-                            if (Map.WarUtilities.isAttackersStronger(map, war))
-                                e.reject();
-                            else e.accept();
+                            if (Map.WarUtilities.IsAttackersStronger(map, war))
+                                e.Reject();
+                            else e.Accept();
                         }
                         break;
-                    case Humor.Subservient: e.accept(); break;
-                    case Humor.Rebellious: e.accept(); break;
+                    case Humor.Subservient: e.Accept(); break;
+                    case Humor.Rebellious: e.Accept(); break;
                     default:
-                        var powers = Map.WarUtilities.getSidePowers(map, war);
-                        if ((Map.WarUtilities.isAttacker(map, e.From, war) && powers.Item1 > 0.6 * powers.Item2) || !Map.WarUtilities.isAttacker(map, e.From, war))
-                            e.accept();
-                        else e.reject();
+                        var powers = Map.WarUtilities.GetSidePowers(map, war);
+                        if ((Map.WarUtilities.IsAttacker(map, e.From, war) && powers.Item1 > 0.6 * powers.Item2) || !Map.WarUtilities.IsAttacker(map, e.From, war))
+                            e.Accept();
+                        else e.Reject();
                         break;
                 }
             }
 
-            public static void respond(DiploEvent.TruceEnd e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.TruceEnd e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.AllianceOffer e, Map map, Humor humor) {
+            public static void Respond(DiploEvent.AllianceOffer e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        e.reject();
+                        e.Reject();
                         break;
                     case Humor.Defensive:
-                        e.accept();
+                        e.Accept();
                         break;
                     case Humor.Subservient:
-                        e.reject();
+                        e.Reject();
                         break;
                     case Humor.Rebellious:
-                        e.reject(); break;
+                        e.Reject(); break;
                     case Humor.Offensive:
                         
                     default:
-                        if (e.To.Opinions[e.From.Id] > 150 || (e.To.Opinions[e.From.Id] > 75 && map.getCountryArmies(e.From).Count > map.getCountryArmies(e.To).Count)) {
-                            e.accept();
+                        if (e.To.Opinions[e.From.Id] > 150 || (e.To.Opinions[e.From.Id] > 75 && map.GetCountryArmies(e.From).Count > map.GetCountryArmies(e.To).Count)) {
+                            e.Accept();
                         }
-                        else e.reject();
+                        else e.Reject();
                         break;
                 }
             }
 
-            public static void respond(DiploEvent.AllianceAccepted e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.AllianceAccepted e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.AllianceDenied e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.AllianceDenied e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.AllianceBroken e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.AllianceBroken e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.SubsOffer e, Map map, Humor humor) {
+            public static void Respond(DiploEvent.SubsOffer e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        e.reject(); break;
+                        e.Reject(); break;
                     case Humor.Subservient:
-                        e.reject(); break;
+                        e.Reject(); break;
                     case Humor.Rebellious:
-                        e.accept(); break;
+                        e.Accept(); break;
                     case Humor.Defensive:
-                        e.accept(); break;
+                        e.Accept(); break;
                     case Humor.Offensive:
                         if (map.Countries[e.To.Id].Opinions[e.From.Id] > 100) {
-                            e.accept();
+                            e.Accept();
                         }
-                        else e.reject();
+                        else e.Reject();
                         break;
                     default:
-                        if (Map.PowerUtilites.getOpinion(e.From, e.To) > 0)
-                            e.accept();
-                        else e.reject();
+                        if (Map.PowerUtilites.GetOpinion(e.From, e.To) > 0)
+                            e.Accept();
+                        else e.Reject();
                         break;
                 }
             }
 
-            public static void respond(DiploEvent.SubsRequest e, Map map, Humor humor) {
+            public static void Respond(DiploEvent.SubsRequest e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        if(Map.PowerUtilites.getOpinion(e.From, e.To) > 100 && e.Amount > 0.05f*Map.PowerUtilites.getGoldGain(map, e.To)) {
-                            e.accept();
+                        if(Map.PowerUtilites.GetOpinion(e.From, e.To) > 100 && e.Amount > 0.05f*Map.PowerUtilites.GetGoldGain(map, e.To)) {
+                            e.Accept();
                         }
-                        e.reject();
+                        e.Reject();
                         break;
                     case Humor.Offensive:
-                        e.reject();
+                        e.Reject();
                         break;
                     case Humor.Defensive:
-                        e.reject();
+                        e.Reject();
                         break;
                     default:
-                        if (Map.PowerUtilites.getGoldGain(map, e.To) > 0.2f * e.Amount && Map.PowerUtilites.getOpinion(e.From, e.To) > 150) {
-                            e.accept();
+                        if (Map.PowerUtilites.GetGoldGain(map, e.To) > 0.2f * e.Amount && Map.PowerUtilites.GetOpinion(e.From, e.To) > 150) {
+                            e.Accept();
                         }
-                        else e.reject();
+                        else e.Reject();
                         break;
                 }
             }
 
-            public static void respond(DiploEvent.SubsEndMaster e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.SubsEndMaster e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.SubsEndSlave e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.SubsEndSlave e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.AccessOffer e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.AccessOffer e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.AccessRequest e, Map map, Humor humor) {
+            public static void Respond(DiploEvent.AccessRequest e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        if (Map.PowerUtilites.howArmyStronger(map, e.To, e.From) <= 1.1f) {
-                            e.reject();
+                        if (Map.PowerUtilites.HowArmyStronger(map, e.To, e.From) <= 1.1f) {
+                            e.Reject();
                         }
-                        else e.accept();
+                        else e.Accept();
                         break;
                     case Humor.Offensive:
-                        e.reject();
+                        e.Reject();
                         break;
                     case Humor.Subservient:
-                        if(map.hasRelationOfType(map.getSeniorIfExists(e.To), e.From, Relation.RelationType.MilitaryAccess)) {
-                            e.accept();
-                        } else e.reject();
+                        if(map.HasRelationOfType(map.GetSeniorIfExists(e.To), e.From, Relation.RelationType.MilitaryAccess)) {
+                            e.Accept();
+                        } else e.Reject();
                         break;
                     case Humor.Rebellious:
-                        if (map.hasRelationOfType(map.getSeniorIfExists(e.To), e.From, Relation.RelationType.MilitaryAccess)) {
-                            e.accept();
+                        if (map.HasRelationOfType(map.GetSeniorIfExists(e.To), e.From, Relation.RelationType.MilitaryAccess)) {
+                            e.Accept();
                         }
-                        else e.reject();
+                        else e.Reject();
                         break;
                     case Humor.Defensive:
-                        e.accept();
+                        e.Accept();
                         break;
                     default:
-                        e.accept(); break;
+                        e.Accept(); break;
                 }
             }
 
-            public static void respond(DiploEvent.AccessEndMaster e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.AccessEndMaster e, Map map, Humor humor) {
+                e.Accept();
             }
 
-            public static void respond(DiploEvent.AccessEndSlave e, Map map, Humor humor) {
-                e.accept(); 
+            public static void Respond(DiploEvent.AccessEndSlave e, Map map, Humor humor) {
+                e.Accept(); 
             }
 
-            public static void respond(DiploEvent.VassalOffer e, Map map, Humor humor) {
+            public static void Respond(DiploEvent.VassalOffer e, Map map, Humor humor) {
                 switch (humor) {
                     case Humor.Leading:
-                        e.reject();
+                        e.Reject();
                         break;
                     case Humor.Offensive:
-                        e.reject(); break;
+                        e.Reject(); break;
                     case Humor.Defensive:
-                        e.accept(); break;
+                        e.Accept(); break;
                     default:
-                        if(Map.PowerUtilites.getOpinion(e.From, e.To)> 175) {
-                            e.accept();
+                        if(Map.PowerUtilites.GetOpinion(e.From, e.To)> 175) {
+                            e.Accept();
                         }
-                        else if(Map.PowerUtilites.howArmyStronger(map, e.From, e.To) > 2) {
-                            e.accept();
+                        else if(Map.PowerUtilites.HowArmyStronger(map, e.From, e.To) > 2) {
+                            e.Accept();
                         }
                         else {
-                            e.reject();
+                            e.Reject();
                         }
                         break;
                 }
             }
 
-            public static void respond(DiploEvent.VassalRebel e, Map map, Humor humor) {
-                e.accept();
+            public static void Respond(DiploEvent.VassalRebel e, Map map, Humor humor) {
+                e.Accept();
             }
 
         }

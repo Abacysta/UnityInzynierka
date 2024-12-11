@@ -89,7 +89,7 @@ public class TaxButtonsTests
             // Assert
             var (TaxHapp, TaxPercent, HappColor) = GetExpectedTaxInfo();
 
-            Assert.AreEqual(i, productionTabManagerScript.getTaxType());
+            Assert.AreEqual(i, productionTabManagerScript.GetTaxType());
             Assert.AreEqual(TaxPercent, productionTabManagerScript.Tax_text.text);
             Assert.AreEqual(TaxHapp, productionTabManagerScript.Happ_text.text);
             Assert.AreEqual(HappColor, productionTabManagerScript.Happ_text.color);

@@ -49,10 +49,10 @@ namespace Assets.classes {
         /// non-AP cost
         /// </summary>
         public Dictionary<Resource, float> AltCosts { get; set; }
-        public Dictionary<Resource, float> fullCost { get => fullRes(); }
+        public Dictionary<Resource, float> fullCost { get => FullRes(); }
         internal Dictionary<Resource, float> cRes;
 
-        private Dictionary<Resource, float> fullRes() {
+        private Dictionary<Resource, float> FullRes() {
             var res = AltCosts != null ? new Dictionary<Resource, float>(AltCosts) : new Dictionary<Resource, float> { { Resource.AP, 0 } };
             res[Resource.AP] = Cost;
             return res;
@@ -67,14 +67,14 @@ namespace Assets.classes {
         /// <summary>
         /// execution is locked-in action done during turn calculation
         /// </summary>
-        public virtual void execute(Map map) {
+        public virtual void Execute(Map map) {
 
         }
 
         /// <summary>
         /// preview shows effects of action during turn, able to be reversed
         /// </summary>
-        public virtual void preview(Map map) {
+        public virtual void Preview(Map map) {
             cRes[Resource.AP] -= Cost;
             if (AltCosts != null) foreach (var key in AltCosts.Keys) {
                     cRes[key] -= AltCosts[key];
@@ -84,7 +84,7 @@ namespace Assets.classes {
         /// <summary>
         /// reversion is a deletion of action from the queue. done before turn calculation, therefore only during player's turn
         /// </summary>
-        public virtual void revert(Map map) {
+        public virtual void Revert(Map map) {
             cRes[Resource.AP] += Cost;
             if (AltCosts != null) foreach (var key in AltCosts.Keys) {
                     cRes[key] += AltCosts[key];
@@ -108,20 +108,20 @@ namespace Assets.classes {
 
             public override string desc { get => count + "units moved from " + from.ToString() + " to " + to.ToString(); }
 
-            public override void execute(Map map) {
-                base.execute(map);
-                army = map.setMoveArmy(army, count, to);
+            public override void Execute(Map map) {
+                base.Execute(map);
+                army = map.SetMoveArmy(army, count, to);
                 map.MoveArmy(army);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                armyPreview = map.setMoveArmy(army, count, to);
+            public override void Preview(Map map) {
+                base.Preview(map);
+                armyPreview = map.SetMoveArmy(army, count, to);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
-                map.undoSetMoveArmy(armyPreview);
+            public override void Revert(Map map) {
+                base.Revert(map);
+                map.UndoSetMoveArmy(armyPreview);
             }
 
             public Army Army { get { return army; } }
@@ -141,23 +141,23 @@ namespace Assets.classes {
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }
 
-            public override void execute(Map map) {
-                base.execute(map);
-                map.getProvince(coordinates).Population += count;
-                map.getProvince(coordinates).RecruitablePopulation += count;
-                map.recArmy(coordinates, count);
+            public override void Execute(Map map) {
+                base.Execute(map);
+                map.GetProvince(coordinates).Population += count;
+                map.GetProvince(coordinates).RecruitablePopulation += count;
+                map.RecArmy(coordinates, count);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                map.getProvince(coordinates).Population -= count;
-                map.getProvince(coordinates).RecruitablePopulation -= count;
+            public override void Preview(Map map) {
+                base.Preview(map);
+                map.GetProvince(coordinates).Population -= count;
+                map.GetProvince(coordinates).RecruitablePopulation -= count;
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
-                map.getProvince(coordinates).Population += count;
-                map.getProvince(coordinates).RecruitablePopulation += count;
+            public override void Revert(Map map) {
+                base.Revert(map);
+                map.GetProvince(coordinates).Population += count;
+                map.GetProvince(coordinates).RecruitablePopulation += count;
             }
         }
 
@@ -174,17 +174,17 @@ namespace Assets.classes {
 
             public override string desc { get => count + " units disbanded in " + army.Position; }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 map.DisbandArmy(army, count);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 map.UndoDisbandArmy(army, count);
             }
         }
@@ -199,14 +199,14 @@ namespace Assets.classes {
                 this.oldH = province.Happiness;
                 this.oldR = province.RecruitablePopulation;
             }
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 province.Happiness = 40;
                 province.Population -= oldR;
                 province.RecruitablePopulation -= oldR;
             }
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.Happiness = oldH;
                 province.Population += oldR;
                 province.RecruitablePopulation += oldR;
@@ -224,14 +224,14 @@ namespace Assets.classes {
                 AltCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 country.Technologies[techType]++;
                 country.techStats.Calculate(country.Technologies);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 country.Technologies[techType]--;
                 country.techStats.Calculate(country.Technologies);
             }
@@ -249,13 +249,13 @@ namespace Assets.classes {
                 AltCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 province.UpgradeBuilding(buildingType);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.DowngradeBuilding(buildingType);
             }
         }
@@ -270,13 +270,13 @@ namespace Assets.classes {
                 this.buildingType = buildingType;
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 province.DowngradeBuilding(buildingType);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.UpgradeBuilding(buildingType);
             }
         }
@@ -291,13 +291,13 @@ namespace Assets.classes {
                 status = new Festivities(5);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                province.addStatus(status);
+            public override void Preview(Map map) {
+                base.Preview(map);
+                province.AddStatus(status);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.RemoveStatus(status);
             }
         }
@@ -312,13 +312,13 @@ namespace Assets.classes {
                 status = new TaxBreak(5);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                province.addStatus(status);
+            public override void Preview(Map map) {
+                base.Preview(map);
+                province.AddStatus(status);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.RemoveStatus(status);
             }
         }
@@ -342,13 +342,13 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                diplomacy.startWar(c1, c2);
+            public override void Execute(Map map) {
+                diplomacy.StartWar(c1, c2);
                 c2.Events.Add(new Event_.DiploEvent.WarDeclared(c1, c2, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetDeclareWarRelatedButtonStates(true, c2.Id);
             }
         }
@@ -366,12 +366,12 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                diplomacy.integrateVassal(vassalage);
+            public override void Execute(Map map) {
+                diplomacy.IntegrateVassal(vassalage);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetIntegrateVassalRelatedButtonStates(true, vassalage.Sides[1].Id);
             }
         }
@@ -396,12 +396,12 @@ namespace Assets.classes {
                 to = war.Sides[0] == offer ? war.Sides[1] : war.Sides[0];
             }
 
-            public override void execute(Map map) {
+            public override void Execute(Map map) {
                 to.Events.Add(new Event_.DiploEvent.PeaceOffer(war, offer, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferPeaceRelatedButtonStates(true, to.Id);
             }
         }
@@ -423,13 +423,13 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
                 this.camera = camera;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 c2.Events.Add(new Event_.DiploEvent.AllianceOffer(c1, c2, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferAllianceRelatedButtonStates(true, c2.Id);
             }
         }
@@ -455,14 +455,14 @@ namespace Assets.classes {
                 to = alliance.Sides.FirstOrDefault(c => c != from);
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AllianceBroken(from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(alliance);
+                diplomacy.EndRelation(alliance);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetBreakAllianceRelatedButtonStates(true, to.Id);
             }
         }
@@ -484,13 +484,13 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
                 this.camera = camera;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessOffer(from, to, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferMilitaryAccessRelatedButtonStates(true, to.Id);
             }
         }
@@ -512,13 +512,13 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
                 this.camera = camera;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessRequest(from, to, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetRequestMilitaryAccessRelatedButtonStates(true, to.Id);
             }
         }
@@ -543,14 +543,14 @@ namespace Assets.classes {
                 this.militaryAccess = militaryAccess;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessEndMaster(militaryAccess, from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(militaryAccess);
+                diplomacy.EndRelation(militaryAccess);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetEndMilitaryAccessMasterRelatedButtonStates(true, to.Id);
             }
         }
@@ -575,14 +575,14 @@ namespace Assets.classes {
                 this.militaryAccess = militaryAccess;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessEndSlave(militaryAccess, from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(militaryAccess);
+                diplomacy.EndRelation(militaryAccess);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetEndMilitaryAccessSlaveRelatedButtonStates(true, to.Id);
             }
         }
@@ -608,13 +608,13 @@ namespace Assets.classes {
                 this.duration = duration;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.SubsOffer(from, to, diplomacy, dialog_box, amount, duration, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetSubsidizeRelatedButtonStates(true, to.Id);
             }
         }
@@ -639,14 +639,14 @@ namespace Assets.classes {
                 this.subsidies = subsidies;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.SubsEndMaster(from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(subsidies);
+                diplomacy.EndRelation(subsidies);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetEndSubsidiesRelatedButtonStates(true, to.Id);
             }
         }
@@ -672,13 +672,13 @@ namespace Assets.classes {
                 this.duration = duration;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.SubsRequest(from, to, diplomacy, dialog_box, amount, duration, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetRequestSubsidiesRelatedButtonStates(true, to.Id);
             }
         }
@@ -700,13 +700,13 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.VassalOffer(from, to, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferVassalizationRelatedButtonStates(true, to.Id);
             }
         }
@@ -728,15 +728,15 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 vassalage.Sides[0].Events.Add(new Event_.DiploEvent.VassalRebel(vassalage.Sides[1], vassalage.Sides[0], diplomacy, dialog_box, camera));
-                diplomacy.endRelation(vassalage);
-                diplomacy.startWar(vassalage.Sides[1], vassalage.Sides[0]);
+                diplomacy.EndRelation(vassalage);
+                diplomacy.StartWar(vassalage.Sides[1], vassalage.Sides[0]);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetVassalRebelRelatedButtonStates(true, vassalage.Sides[0].Id);
             }
         }
@@ -758,13 +758,13 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] - INSULT_OUR_OPINION_PENALTY_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] - INSULT_THEIR_OPINION_PENALTY_INIT);
             }
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] + INSULT_OUR_OPINION_PENALTY_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] + INSULT_THEIR_OPINION_PENALTY_INIT);
                 dipl_actions.SetInsultRelatedButtonStates(true, to.Id);
@@ -787,13 +787,13 @@ namespace Assets.classes {
                 this.dialog_box = dialog_box;
                 this.dipl_actions = dipl_actions;
             }
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] + PRAISE_OUR_OPINION_BONUS_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] + PRAISE_THEIR_OPINION_BONUS_INIT);
             }
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] - PRAISE_OUR_OPINION_BONUS_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] - PRAISE_THEIR_OPINION_BONUS_INIT);
                 dipl_actions.SetDiplomaticMissionRelatedButtonStates(true, to.Id);
@@ -820,13 +820,13 @@ namespace Assets.classes {
                 this.diplomacy = diplomacy;
                 this.dipl_actions = dipl_actions;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.CallToWar(from, to, diplomacy, dialog_box, war, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.RevertCallToWarRelatedButtonStates(to.Id);
             }
         }
@@ -841,7 +841,7 @@ namespace Assets.classes {
             actions = new List<TurnAction>();
         }
 
-        public List<TurnAction> extractInstants() {
+        public List<TurnAction> ExtractInstants() {
             List<TurnAction> instants = new List<TurnAction>();
             if (actions != null) {
                 instants = actions.FindAll(a => a is IInstantAction);
@@ -854,21 +854,21 @@ namespace Assets.classes {
 
         public int Count { get { return actions.Count; } }
 
-        public void addAction(TurnAction action) {
+        public void AddAction(TurnAction action) {
             action.cRes = map.Countries[map.CurrentPlayerId].Resources;
             actions.Add(action);
-            actions.Last().preview(map);
+            actions.Last().Preview(map);
         }
 
-        public void execute() {
+        public void Execute() {
             if(actions.Count == 0) return;
-            actions[0].execute(map);
+            actions[0].Execute(map);
             actions.RemoveAt(0);
         }
 
-        public void revert() {
+        public void Revert() {
             if(actions.Count>0){
-                last.revert(map);
+                last.Revert(map);
                 actions.Remove(last);
             }
         }

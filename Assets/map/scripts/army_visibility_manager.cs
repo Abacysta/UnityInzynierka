@@ -14,7 +14,7 @@ public class army_visibility_manager : MonoBehaviour
     {
         foreach (var army in map.Armies)
         {
-            var armyView = map.getView(army);
+            var armyView = map.GetView(army);
             if (armyView != null)
             {
                 if (revealedTiles.Contains((army.Position.Item1, army.Position.Item2)))

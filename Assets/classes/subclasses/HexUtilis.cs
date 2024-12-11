@@ -152,7 +152,7 @@ public class HexUtils
         return CubeLineDraw(start.coordinates, end.coordinates);
     }
 
-    public static void hexPathingTest() {
+    public static void HexPathingTest() {
         var start = new HexUtils.Cube(0, 0, 0); // Starting point
         var end = new HexUtils.Cube(4, -4, 0); // End point
 
@@ -173,36 +173,36 @@ public class HexUtils
             : $"B³¹d: oczekiwano d³ugoœci {expectedDistance + 1}, otrzymano {path.Count}");
     }
 
-    public static int getProvinceDistance(Province p1, Province p2) {
+    public static int GetProvinceDistance(Province p1, Province p2) {
         Cube c1 = OffsetToCube(p1.X, p2.Y), c2=OffsetToCube(p2.X, p2.Y);
         return CubeDistance(c1, c2);
     }
     //A* algo - like Djikstra but better
     //also using imported from normal .net PriorityQueue cuz pretty good for this
-    public static List<Province> getBestPathProvinces(Map map, Country country, Province start, Province end) {
-        return getBestPathProvinces(map, country, (start.X, start.Y), (end.X, end.Y));
+    public static List<Province> GetBestPathProvinces(Map map, Country country, Province start, Province end) {
+        return GetBestPathProvinces(map, country, (start.X, start.Y), (end.X, end.Y));
     }
-    public static bool isPathPossible(Map map, Country country, Province start, Province end) {
-        return getBestPathProvinces(map, country, start, end) != null;
+    public static bool IsPathPossible(Map map, Country country, Province start, Province end) {
+        return GetBestPathProvinces(map, country, start, end) != null;
     }
-    public static List<Province> getBestPathProvinces(Map map, Country country, (int, int) start, (int, int) end) {
+    public static List<Province> GetBestPathProvinces(Map map, Country country, (int, int) start, (int, int) end) {
         var provinces = map.Provinces.Select(p=>(p.X, p.Y)).ToHashSet();
-        var unavailable = Map.LandUtilites.getUnpassableProvinces(map, country).Select(p=>(p.X, p.Y)).ToHashSet();
-        var best = getBestPath(provinces, unavailable, new(), start, end);
+        var unavailable = Map.LandUtilites.GetUnpassableProvinces(map, country).Select(p=>(p.X, p.Y)).ToHashSet();
+        var best = GetBestPath(provinces, unavailable, new(), start, end);
         //for now no misc costs but in future maybe
-        if (best != null) return best.Select(cord => map.getProvince(cord)).Where(province => province != null).ToList();
+        if (best != null) return best.Select(cord => map.GetProvince(cord)).Where(province => province != null).ToList();
         else return null;
     }
-    public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<(int, int)> unpassable, (int, int) start, (int, int) end) {
+    public static List<Province> GetBestPathProvinces(Map map, Country country, HashSet<(int, int)> unpassable, (int, int) start, (int, int) end) {
         var provinces = map.Provinces.Select(p => (p.X, p.Y)).ToHashSet();
-        var best = getBestPath(provinces, unpassable, new(), start, end);
-        if (best != null) return getBestPath(provinces, unpassable, new(), start, end).Select(cord => map.getProvince(cord)).Where(province => province != null).ToList();
+        var best = GetBestPath(provinces, unpassable, new(), start, end);
+        if (best != null) return GetBestPath(provinces, unpassable, new(), start, end).Select(cord => map.GetProvince(cord)).Where(province => province != null).ToList();
         else return null;
     }
-    public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<Province> unpassable, Province start, Province end) {
-        return getBestPathProvinces(map, country, unpassable.Select(p=>p.coordinates).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
+    public static List<Province> GetBestPathProvinces(Map map, Country country, HashSet<Province> unpassable, Province start, Province end) {
+        return GetBestPathProvinces(map, country, unpassable.Select(p=>p.coordinates).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
     }
-    private static List<(int, int)> getBestPath(
+    private static List<(int, int)> GetBestPath(
         HashSet<(int, int)> provinces,
         HashSet<(int, int)> unavailable,
         Dictionary<(int, int), int> miscCosts,
@@ -250,7 +250,7 @@ public class HexUtils
         path.Reverse();
         return path;
     }
-    public static Province getNearestProvince(Map map, (int,int) start, HashSet<int> ids) {
+    public static Province GetNearestProvince(Map map, (int,int) start, HashSet<int> ids) {
         var startCube = OffsetToCube(start.Item1, start.Item2);
         Queue<Cube> front = new Queue<Cube>();
         front.Enqueue(startCube);
@@ -259,7 +259,7 @@ public class HexUtils
         while (front.Count > 0) {
             var current = front.Dequeue();
             var (x, y) = CubeToOffset(current);
-            Province province = map.getProvince(x, y);
+            Province province = map.GetProvince(x, y);
             if (province != null && ids.Contains(province.OwnerId))
                 return province;
 

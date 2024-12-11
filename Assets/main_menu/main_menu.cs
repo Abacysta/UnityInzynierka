@@ -8,7 +8,7 @@ public class main_menu : MonoBehaviour
     void Start()
     {
         settings.gameObject.SetActive(false);
-        settings.settingsInit();
+        settings.SettingsInit();
     }
 
     public void StartNewGame() {

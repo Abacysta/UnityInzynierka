@@ -16,11 +16,11 @@ namespace Assets.Scripts {
         public List<Event_> sortedevents = new List<Event_>();
         internal class eventComparer:IComparer<Event_> {
             public int Compare(Event_ a, Event_ b) {
-                int aprio = prio(a);
-                int bprio = prio(b);
+                int aprio = Prio(a);
+                int bprio = Prio(b);
                 return aprio.CompareTo(bprio);
             }
-            private int prio(Event_ e) {
+            private int Prio(Event_ e) {
                 if (e is Event_.DiploEvent)
                     return 1;
                 if(e is Event_.GlobalEvent)
@@ -31,14 +31,14 @@ namespace Assets.Scripts {
             }
         }
 
-        public void loadEvents(Country country) {
+        public void LoadEvents(Country country) {
             curr = country;
             sortedevents = new List<Event_>(country.Events);
             sortedevents.Sort(new eventComparer());
-            reloadAlerts();
+            ReloadAlerts();
         }
 
-        public void reloadAlerts() {
+        public void ReloadAlerts() {
             foreach(Transform child in transform) {
                 if (child.name != "dummy" && child.name != "counter")
                 {
@@ -57,9 +57,9 @@ namespace Assets.Scripts {
                     GameObject alert = Instantiate(dummy, newPos, Quaternion.identity);
                     alert.transform.SetParent(dummy.transform.parent);
                     alert.name = "alert" + i;
-                    alert.GetComponentInChildren<Button>().onClick.AddListener(() => e.call());
-                    setAlertView(alert, e);
-                    setSprite(alert, e);
+                    alert.GetComponentInChildren<Button>().onClick.AddListener(() => e.Call());
+                    SetAlertView(alert, e);
+                    SetSprite(alert, e);
 
                     help_tooltip_trigger trigger = alert.AddComponent<help_tooltip_trigger>();
                     trigger.TooltipText = "Event";
@@ -67,7 +67,7 @@ namespace Assets.Scripts {
                     alert.SetActive(true);
                 }
                 if (sortedevents.Count > 10) {
-                    displayCounter(sortedevents.Count - 11, dummy.GetComponent<RectTransform>().sizeDelta.x * (i + 1));
+                    DisplayCounter(sortedevents.Count - 11, dummy.GetComponent<RectTransform>().sizeDelta.x * (i + 1));
                 }
                 else {
                     counter.SetActive(false);
@@ -76,14 +76,14 @@ namespace Assets.Scripts {
             }
         }
 
-        private void displayCounter(int additional, float coordinate) {
+        private void DisplayCounter(int additional, float coordinate) {
             TMP_Text txt = counter.GetComponentInChildren<TMP_Text>();
             txt.text = "+" + additional;
             counter.transform.position = new Vector3(coordinate, 0, 0) + dummy.transform.position;
             counter.SetActive(true);
         }
 
-        private void setAlertView(GameObject alert, Event_ event_) {
+        private void SetAlertView(GameObject alert, Event_ event_) {
             var img = alert.transform.Find("Button").GetComponent<Image>();
             Debug.Log(img != null ? "foundalert" : "notfoundalert");
             if (img != null) {
@@ -101,7 +101,7 @@ namespace Assets.Scripts {
             }
         }
 
-        private void setSprite(GameObject alert, Event_ event_) {
+        private void SetSprite(GameObject alert, Event_ event_) {
             var sprite = alert.transform.Find("Button").Find("img").GetComponent<Image>();
             if (sprite != null) {
                 Sprite set;

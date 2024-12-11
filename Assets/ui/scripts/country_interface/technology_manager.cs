@@ -242,7 +242,7 @@ public class technology_manager : MonoBehaviour
 
         if (level < 10)
         {
-            SetButtonColor(techButton, map.CurrentPlayer.isPayable(cost));
+            SetButtonColor(techButton, map.CurrentPlayer.IsPayable(cost));
 
             nextLevelText.text = $"Level {level + 1} effects:";
 

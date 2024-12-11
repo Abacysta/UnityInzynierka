@@ -2075,7 +2075,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4217947516697439247}
         m_TargetAssemblyTypeName: settings_menu, assets
-        m_MethodName: toTitle
+        m_MethodName: ToTitle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2706,7 +2706,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4217947516697439247}
         m_TargetAssemblyTypeName: settings_menu, assets
-        m_MethodName: toggleMenu
+        m_MethodName: ToggleMenu
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 1340593759988927333}

@@ -3360,8 +3360,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 198795766}
-        m_TargetAssemblyTypeName: settings_menu, Assembly-CSharp
-        m_MethodName: toggleMenu
+        m_TargetAssemblyTypeName: settings_menu, assets
+        m_MethodName: ToggleMenu
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 198795764}
@@ -12862,19 +12862,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 536671435}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11400000, guid: 06e0895e328c5be45a90377ada572789, type: 2}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &536671435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37393,13 +37381,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 311749113}
-        m_TargetAssemblyTypeName: game_manager, Assembly-CSharp
-        m_MethodName: undoLast
+        m_TargetAssemblyTypeName: game_manager, assets
+        m_MethodName: UndoLast
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0

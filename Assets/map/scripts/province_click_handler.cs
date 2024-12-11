@@ -85,7 +85,7 @@ public class province_click_handler : cursor_helper
 
                 if(IsProvinceRevealed(cellPosition.x,cellPosition.y))
                 {
-                    var prov = map.getProvince(cellPosition.x, cellPosition.y);
+                    var prov = map.GetProvince(cellPosition.x, cellPosition.y);
                     province_tooltip.OnMouseEnterProvince(prov);
                 }
                 isHovering = true;
@@ -112,7 +112,7 @@ public class province_click_handler : cursor_helper
                 province_click.Play();
                 DisplayProvinceInterface(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
-                Province province = map.getProvince(cellPosition.y, cellPosition.x);
+                Province province = map.GetProvince(cellPosition.y, cellPosition.x);
                 if (province.IsLand) Debug.Log("Resource:" + province.ResourcesP + "mul:" + province.Modifiers.ProdMod);
             }
             else
@@ -125,7 +125,7 @@ public class province_click_handler : cursor_helper
 
     public void DisplayProvinceInterface(int x, int y)
     {
-        Province province = map.getProvince(x, y); 
+        Province province = map.GetProvince(x, y); 
 
         if (province != null)
         {
@@ -134,7 +134,7 @@ public class province_click_handler : cursor_helper
         }
     }
     private void DisplayProvinceTooltip(int x, int y) {
-        Province province = map.getProvince(x, y);
+        Province province = map.GetProvince(x, y);
 
         if(province != null) {
             province_tooltip.OnMouseExitProvince();
@@ -143,7 +143,7 @@ public class province_click_handler : cursor_helper
 
     private bool IsProvinceRevealed(int x, int y)
     {
-        Province province = map.getProvince(x, y);
+        Province province = map.GetProvince(x, y);
         if (province != null)
         {
             if (map.CurrentPlayer.RevealedTiles.Contains((x, y))) return true;
@@ -215,7 +215,7 @@ public class province_click_handler : cursor_helper
                            ? base_layer
                            : filter_layer;
 
-        Province province = map.getProvince(coordinates.x, coordinates.y);
+        Province province = map.GetProvince(coordinates.x, coordinates.y);
 
         if (province == null || !province.IsLand) {
             return Color.white;

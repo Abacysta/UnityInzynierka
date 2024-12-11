@@ -27,12 +27,12 @@ public class country_info : MonoBehaviour
         techG = info_cont.transform.Find("tech").Find("gain").GetComponent<TMP_Text>();
         apG = info_cont.transform.Find("ap").Find("gain").GetComponent<TMP_Text>();
 
-        displayInfo();
-        InvokeRepeating("displayInfo", 0.5f, 0.5f);
+        DisplayInfo();
+        InvokeRepeating("DisplayInfo", 0.5f, 0.5f);
     }
 
-    public void displayInfo() {
-        var gains = Map.PowerUtilites.getGain(map, map.CurrentPlayer);
+    public void DisplayInfo() {
+        var gains = Map.PowerUtilites.GetGain(map, map.CurrentPlayer);
 
         main_button.GetComponent<Image>().color = map.CurrentPlayer.Color;
         main_button.GetComponent<Button>().onClick.AddListener(() => country_interface.ShowCountryInterface());
@@ -49,6 +49,6 @@ public class country_info : MonoBehaviour
         techG.SetText((gains[Resource.SciencePoint] >= 0 ? "+" : "") + Math.Round(gains[Resource.SciencePoint], 1));
         apG.SetText((gains[Resource.AP] >= 0 ? "+" : "") + Math.Round(gains[Resource.AP], 1));
 
-        map.CurrentPlayer.setCoatandColor(transform.Find("country_button").GetComponent<Image>());
+        map.CurrentPlayer.SetCoatandColor(transform.Find("country_button").GetComponent<Image>());
     }
 }

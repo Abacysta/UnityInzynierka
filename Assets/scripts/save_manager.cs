@@ -16,7 +16,7 @@ public class save_manager : MonoBehaviour
 
     internal Save ToSave { get => toSave; set => toSave = value; }
 
-    public void saveGame(string name)
+    public void SaveGame(string name)
     {
         var path = Application.persistentDataPath + "/" + name + ".save";
         BinaryFormatter form = new BinaryFormatter();
@@ -27,7 +27,7 @@ public class save_manager : MonoBehaviour
         Debug.Log($"Game saved to: {path}");
     }
     //deprecated, only for TESTING
-    public void saveGameJson()
+    public void SaveGameJson()
     {
         var path = Application.persistentDataPath + "/save.json";
         string jsonData = JsonConvert.SerializeObject(toSave, Formatting.Indented); // 'Indented' for pretty-printing
@@ -40,7 +40,7 @@ public class save_manager : MonoBehaviour
         Debug.Log($"Game saved to: {path}");
     }
 
-    public void loadGame(string name)
+    public void LoadGame(string name)
     {
         var path = Application.persistentDataPath + "/" + name + ".save";
         Debug.Log("loading " + path);
@@ -59,7 +59,7 @@ public class save_manager : MonoBehaviour
         }
     }
     //deprecated, only for TESTING
-    public void loadGameJson(string name)
+    public void LoadGameJson(string name)
     {
         var path = Application.persistentDataPath + "/" + name + ".json"; // Save file with .json extension
         Debug.Log("loading " + path);
@@ -81,7 +81,7 @@ public class save_manager : MonoBehaviour
         }
     }
 
-    public string[] getSaveGames()
+    public string[] GetSaveGames()
     {
         var saves = new List<string>();
         if (Directory.Exists(Application.persistentDataPath))
@@ -95,13 +95,13 @@ public class save_manager : MonoBehaviour
         }
     }
 
-    public bool existsSaveGame(string name)
+    public bool ExistsSaveGame(string name)
     {
         var path = Path.Combine(Application.persistentDataPath, name + ".save");
         return File.Exists(path);
     }
 
-    public bool deleteSaveGame(string name)
+    public bool DeleteSaveGame(string name)
     {
         var path = Path.Combine(Application.persistentDataPath, name + ".save");
         try

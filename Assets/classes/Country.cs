@@ -322,7 +322,7 @@ public class Country {
         this.resources = new(TechnicalDefaultResources.defaultValues);
         this.technologies = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
         this.techStats = new TechnologyInterpreter(this.technologies);
-        this.provinces = new HashSet<Province> { map.getProvince(capital) };
+        this.provinces = new HashSet<Province> { map.GetProvince(capital) };
         revealedTiles = new HashSet<(int, int)>();
         this.actions = new(map);
         seenTiles = new HashSet<(int, int)>();
@@ -332,13 +332,13 @@ public class Country {
         this.tax = new MediumTaxes();
     }
 
-    public void addProvince(Province province) {
+    public void AddProvince(Province province) {
         provinces.Add(province);
     }
-    public void removeProvince((int, int) coordinates) {
-        removeProvince(provinces.First(p => p.coordinates == coordinates));
+    public void RemoveProvince((int, int) coordinates) {
+        RemoveProvince(provinces.First(p => p.coordinates == coordinates));
     }
-    public void removeProvince(Province province) {
+    public void RemoveProvince(Province province) {
         if(province.coordinates != capital) provinces.Remove(province);
         else {
             provinces.Remove(province);
@@ -367,7 +367,7 @@ public class Country {
     public Dictionary<Technology, int> Technologies { get => technologies; set => technologies = value; }
     public ATax Tax { get => tax; set => tax = value; }
 
-    public Sprite getCoat() {
+    public Sprite GetCoat() {
         int res;
         if (coat == 1 || coat == 2 || coat == 3)
             res = coat;
@@ -375,16 +375,16 @@ public class Country {
         return UnityEngine.Resources.Load<Sprite>("sprites/coat_" + res);
     }
 
-    public void setCoatandColor(Image image) {
-        image.sprite = getCoat();
+    public void SetCoatandColor(Image image) {
+        image.sprite = GetCoat();
         image.color = this.color;
     }
 
-    public void setCoatandColor(GameObject obj) {
-        setCoatandColor(obj.GetComponent<Image>());
+    public void SetCoatandColor(GameObject obj) {
+        SetCoatandColor(obj.GetComponent<Image>());
     }
 
-    public bool assignProvince(Province province) {
+    public bool AssignProvince(Province province) {
         if (!province.IsLand || province.OwnerId != 0 || province.OwnerId == id) return false;
         provinces.Add(province);
         if (province.OwnerId == 0) province.RemoveStatus(province.Statuses.Find(s => s is Tribal));
@@ -392,47 +392,47 @@ public class Country {
 
         return true;
     }
-    public void unassignProvince(Province province) {
+    public void UnassignProvince(Province province) {
         province.OwnerId = 0;
         provinces.Remove(province);
     }
 
-    public void modifyResource((Resource, float) values) {
+    public void ModifyResource((Resource, float) values) {
         //Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] += values.Item2;
     }
 
-    public void modifyResource(Resource resource, float value) {
-        modifyResource((resource, value));
+    public void ModifyResource(Resource resource, float value) {
+        ModifyResource((resource, value));
     }
 
-    public void modifyResources(Dictionary<Resource, float> values) {
-        modifyResources(values, true);
+    public void ModifyResources(Dictionary<Resource, float> values) {
+        ModifyResources(values, true);
     }
 
-    public void modifyResources(Dictionary<Resource, float> values, bool mode) {
+    public void ModifyResources(Dictionary<Resource, float> values, bool mode) {
         if(values != null) foreach(var kvp in values) {
                 Resources[kvp.Key] += mode ? kvp.Value : -kvp.Value;
             }
     }
 
-    public void setResource((Resource, float) values) {
+    public void SetResource((Resource, float) values) {
         //Debug.Log("set " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] = values.Item2;
     }
 
-    public void setResource(Resource resource, float value) { 
-        setResource((resource, value));    
+    public void SetResource(Resource resource, float value) { 
+        SetResource((resource, value));    
     }
 
-    public void nullifyResources() {
+    public void NullifyResources() {
         resources = null;
     }
 
-    public void nullifyActions() {
+    public void NullifyActions() {
         actions = null;
     }
-    public void changeCapital(Province province) {
+    public void ChangeCapital(Province province) {
         if(provinces.Contains(province)) {
             capital = province.coordinates;
         }
@@ -477,7 +477,7 @@ public class Country {
     {
         this.armyVisibilityManager = manager;
     }
-    public bool isPayable(Dictionary<Resource, float> cost) {
+    public bool IsPayable(Dictionary<Resource, float> cost) {
         bool payFlag = true;
         foreach (var c in cost) { 
             if(c.Value > resources[c.Key])
@@ -488,11 +488,11 @@ public class Country {
         return payFlag;
     }
 
-    public bool isPayable(Resource type, float amount) {
+    public bool IsPayable(Resource type, float amount) {
         return resources[type] >= amount;
     }
 
-    public Province getCapital() {
+    public Province GetCapital() {
         return provinces.First(p=>p.coordinates == capital);
     }
 

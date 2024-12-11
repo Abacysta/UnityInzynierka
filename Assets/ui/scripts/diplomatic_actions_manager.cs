@@ -176,7 +176,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
     private void SetCountryInfo()
     {
-        receiverCountry.setCoatandColor(country_color_img);
+        receiverCountry.SetCoatandColor(country_color_img);
 
         country_name_txt.text = receiverCountry.Name +
             (map.Controllers[receiverCountry.Id] == Map.CountryController.Ai ? " (AI)" : "");
@@ -495,7 +495,7 @@ public class diplomatic_actions_manager : MonoBehaviour
                 return new TMP_Dropdown.OptionData
                 {
                     text = country.Name,
-                    image = country.getCoat(),
+                    image = country.GetCoat(),
 
                 };
             })
@@ -580,11 +580,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.WarDeclaration(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // declare war, diplomatic mission, send an insult, offer alliance, subsidize
@@ -593,7 +593,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -626,11 +626,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             Vassalage vassalage = (Vassalage)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Vassalage);
             var action = new TurnAction.VassalRebellion(vassalage, diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // rebel
@@ -638,7 +638,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -657,10 +657,10 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(null);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.VassalIntegration(vassalage, diplomatic_relations_manager, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // integrate vassal, subsidize, end subsidies, request subsidy
@@ -668,7 +668,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -694,11 +694,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             War war = (War)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.War);
             var action = new TurnAction.PeaceOffer(currentPlayer, war, diplomatic_relations_manager, dialog_box, camera_controller);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // offer peace
@@ -706,7 +706,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -729,11 +729,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.Praise(currentPlayer, receiverCountry, diplomatic_relations_manager, 
                 dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // diplomatic mission, declare war, send an insult, offer alliance, demand vassalization
@@ -741,7 +741,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -768,11 +768,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.Insult(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // send an insult, declare war, diplomatic mission, offer alliance, subsidize
@@ -781,7 +781,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -816,11 +816,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.AllianceOffer(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // offer alliance, declare war, diplomatic mission, send an insult, demand vassalization
@@ -828,7 +828,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -855,12 +855,12 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             Alliance alliance = (Alliance)GetRelationBetweenCurrentPlayerAndReceiver(RelationType.Alliance);
             var action = new TurnAction.AllianceBreak(currentPlayer, alliance, diplomatic_relations_manager, 
                 dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // break alliance, call to war, subsidize, request subsidy
@@ -868,7 +868,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -890,7 +890,7 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(null);
 
-        void onSend() 
+        void OnSend() 
         { 
             // after this action, the following actions will not be selectable:
             // call to war (jesli to ostatni wybrany kraj w dropdown), break alliance
@@ -904,13 +904,13 @@ public class diplomatic_actions_manager : MonoBehaviour
                 .FirstOrDefault(entry => entry.Value == selectedIndex);
 
             receiverCountryButtonStates[countryId].CountriesToSkip.Add(selectedEntry.Key);
-            Relation.War war = map.getRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;
+            Relation.War war = map.GetRelationsOfType(map.Countries[selectedEntry.Key], RelationType.War).First(w => w.Sides.Contains(currentPlayer)) as War;
             var action = new TurnAction.CallToWar(currentPlayer, receiverCountry, war, dialog_box, diplomatic_relations_manager, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
         }
 
         UpdateSendButtonInteractionForDropdownAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithCountryChoiceArea();
     }
 
@@ -943,11 +943,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.SubsOffer(currentPlayer, receiverCountry, diplomatic_relations_manager, 
                 dialog_box, goldValue, durationValue, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // subsidize, declare war, integrate vassal, send an insult, end subsidies
@@ -955,7 +955,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForSliderAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithSubsidyArea();
     }
 
@@ -976,12 +976,12 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(null);
 
-        void onSend()
+        void OnSend()
         {
-            Subsidies subsidies = map.getRelationsOfType(currentPlayer, RelationType.Subsidies).First(r => r.Sides[1] == receiverCountry) as Subsidies;
+            Subsidies subsidies = map.GetRelationsOfType(currentPlayer, RelationType.Subsidies).First(r => r.Sides[1] == receiverCountry) as Subsidies;
             var action = new TurnAction.SubsEnd(currentPlayer, receiverCountry, subsidies,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // end subsidies, subsidize
@@ -989,7 +989,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -1016,11 +1016,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.SubsRequest(currentPlayer, receiverCountry, diplomatic_relations_manager,
                 dialog_box, goldValue, durationValue, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // request subsidy
@@ -1028,7 +1028,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForSliderAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithSubsidyArea();
     }
 
@@ -1045,11 +1045,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(null);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.MilAccessOffer(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // offer military access, send an insult, offer alliance, demand vassalization
@@ -1057,7 +1057,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -1077,11 +1077,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(null);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.MilAccessRequest(currentPlayer, receiverCountry,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // request military access, send an insult, offer alliance, demand vassalization
@@ -1089,7 +1089,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -1109,13 +1109,13 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(null);
 
-        void onSend()
+        void OnSend()
         {
-            MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry, 
+            MilitaryAccess militaryAccess = map.GetRelationsOfType(receiverCountry, 
                 RelationType.MilitaryAccess).First(a => a.Sides[0] == currentPlayer) as MilitaryAccess;
             var action = new TurnAction.MilAccessEndMaster(currentPlayer, receiverCountry, militaryAccess,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // end military access master
@@ -1123,7 +1123,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -1140,13 +1140,13 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(null);
 
-        void onSend()
+        void OnSend()
         {
-            MilitaryAccess militaryAccess = map.getRelationsOfType(receiverCountry,
+            MilitaryAccess militaryAccess = map.GetRelationsOfType(receiverCountry,
                 RelationType.MilitaryAccess).First(a => a.Sides[1] == currentPlayer) as MilitaryAccess;
             var action = new TurnAction.MilAccessEndSlave(currentPlayer, receiverCountry, militaryAccess,
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // end military access slave
@@ -1154,7 +1154,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 
@@ -1181,11 +1181,11 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         SetEffects(actionEffects);
 
-        void onSend()
+        void OnSend()
         {
             var action = new TurnAction.VassalizationDemand(currentPlayer, receiverCountry, 
                 diplomatic_relations_manager, dialog_box, camera_controller, this);
-            currentPlayer.Actions.addAction(action);
+            currentPlayer.Actions.AddAction(action);
 
             // after this action, the following actions will not be selectable:
             // demand vassalization, declare war, diplomatic mission, send an insult,
@@ -1194,7 +1194,7 @@ public class diplomatic_actions_manager : MonoBehaviour
         }
 
         UpdateSendButtonInteractionForBasicAction();
-        SetSendButtonAction(onSend);
+        SetSendButtonAction(OnSend);
         ShowPanelWithBasicArea();
     }
 

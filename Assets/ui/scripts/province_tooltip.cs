@@ -72,7 +72,7 @@ public class province_tooltip : MonoBehaviour
     {
         Country provinceOwner = map.Countries[province.OwnerId];
         country_province_name.text = !province.IsLand ? "Ocean" : (province.OwnerId != 0 ? provinceOwner.Name : "Tribal") + " - " + province.Name;
-        provinceOwner.setCoatandColor(country_coat);
+        provinceOwner.SetCoatandColor(country_coat);
 
         switch (filter_modes.CurrentMode)
         {
@@ -143,15 +143,15 @@ public class province_tooltip : MonoBehaviour
     {
         switch (terrainType)
         {
-            case TerrainType.tundra:
+            case TerrainType.Tundra:
                 return "Tundra";
-            case TerrainType.forest:
+            case TerrainType.Forest:
                 return "Forest";
-            case TerrainType.lowlands:
+            case TerrainType.Lowlands:
                 return "Lowlands";
-            case TerrainType.desert:
+            case TerrainType.Desert:
                 return "Desert";
-            case TerrainType.ocean:
+            case TerrainType.Ocean:
                 return "Ocean";
             default:
                 return "Unknown";

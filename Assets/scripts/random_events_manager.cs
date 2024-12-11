@@ -22,52 +22,52 @@ namespace Assets.map.scripts
             random = new System.Random();
         }
 
-        public void getRandomEvent(Country country)
+        public void GetRandomEvent(Country country)
         {
             int countryPopulation = country.Provinces.Sum(p => p.Population);
             int c = chance;
 
             if (countryPopulation < 500 && c < 25)
             {   //0-500
-                getRandomLocalEvent(country);
+                GetRandomLocalEvent(country);
             }
             else if (countryPopulation < 2000)
             {   //500-2000
                 if (c < 1)
                 {
-                    getRandomGlobalEvent(country);
+                    GetRandomGlobalEvent(country);
                 }
                 else if (c < 35)
                 {
-                    getRandomLocalEvent(country);
+                    GetRandomLocalEvent(country);
                 }
             }
             else if (countryPopulation < 10000)
             {   //2000-10000
                 if (c < 5)
                 {
-                    getRandomGlobalEvent(country);
+                    GetRandomGlobalEvent(country);
                 }
                 else if (c < 45)
                 {
-                    getRandomLocalEvent(country);
+                    GetRandomLocalEvent(country);
                     if (c < 15)
                     {
-                        getRandomLocalEvent(country);
+                        GetRandomLocalEvent(country);
                     }
                 }
             }
             else
             {   //10000+
-                getRandomLocalEvent(country);
+                GetRandomLocalEvent(country);
                 if (c < 5)
                 {
-                    getRandomGlobalEvent(country);
+                    GetRandomGlobalEvent(country);
                 }
             }
         }
 
-        private void getRandomLocalEvent(Country country)
+        private void GetRandomLocalEvent(Country country)
         {
             var usedProvinces = new HashSet<Province>();
             var randomCountryProvince = country.Provinces.ElementAt(random.Next(country.Provinces.Count));
@@ -116,7 +116,7 @@ namespace Assets.map.scripts
             }
         }
 
-        private void getRandomGlobalEvent(Country country)
+        private void GetRandomGlobalEvent(Country country)
         {
             int c = chance;
             int countryPopulation = country.Provinces.Sum(p => p.Population);
@@ -183,13 +183,13 @@ namespace Assets.map.scripts
         private bool IsWarNearbyCountry(Country country)
         {
             return country.AtWar || country.Provinces
-                .Any(province => map.getPossibleMoveCells(province.X, province.Y, 1, 0.5f)
+                .Any(province => map.GetPossibleMoveCells(province.X, province.Y, 1, 0.5f)
                     .Any(neighborProvincesCell =>
-                        map.getProvince(neighborProvincesCell.Item1, neighborProvincesCell.Item2)
-                        .OwnerId != country.Id && map.Countries[map.getProvince(neighborProvincesCell.Item1, neighborProvincesCell.Item2).OwnerId].AtWar));
+                        map.GetProvince(neighborProvincesCell.Item1, neighborProvincesCell.Item2)
+                        .OwnerId != country.Id && map.Countries[map.GetProvince(neighborProvincesCell.Item1, neighborProvincesCell.Item2).OwnerId].AtWar));
         }
 
-        public bool checkRebellion(Province province)
+        public bool CheckRebellion(Province province)
         {
             if (province.OwnerId != 0 && map.Countries[province.OwnerId].Capital != province.coordinates)
             {
@@ -198,7 +198,7 @@ namespace Assets.map.scripts
                 {//40
                     if (chance > 2 * happ)
                     {
-                        startRebellion(province);
+                        StartRebellion(province);
                         return true;
                     }
                 }
@@ -206,19 +206,19 @@ namespace Assets.map.scripts
             return false;
         }
         
-        private void startRebellion(Province province)
+        private void StartRebellion(Province province)
         {
             int count = province.RecruitablePopulation + (int)((province.Population - province.RecruitablePopulation) * 0.05);
 
             if (count > 0 && !map.Armies.Any(a => a.Position == province.coordinates && a.OwnerId == 0))
             {
                 Army rebels = new Army(0, count, DEFAULT_CORD, province.coordinates);
-                map.addArmy(rebels);
+                map.AddArmy(rebels);
                 Country country = map.Countries.FirstOrDefault(c => c.Id == province.OwnerId);
-                province.addStatus(new Occupation(country.techStats.OccTime, 0));
+                province.AddStatus(new Occupation(country.techStats.OccTime, 0));
                 province.OccupationInfo = new OccupationInfo(true, country.techStats.OccTime, 0);
                 TurnAction rebellion = new TurnAction.ArmyMove(DEFAULT_CORD, province.coordinates, count, rebels);
-                rebellion.execute(map);
+                rebellion.Execute(map);
                 province.Happiness = 45;
             }
         }

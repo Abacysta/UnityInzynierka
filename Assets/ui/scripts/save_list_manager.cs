@@ -22,12 +22,12 @@ public class save_list_manager : MonoBehaviour
 
     void Start()
     {
-        del_button.onClick.AddListener(() => { delNamedGame(); });
-        load_button.onClick.AddListener(() => { loadNamedGame(); });
+        del_button.onClick.AddListener(() => { DelNamedGame(); });
+        load_button.onClick.AddListener(() => { LoadNamedGame(); });
 
         if (SceneManager.GetActiveScene().name == "game_map")
         {
-            save_button.onClick.AddListener(() => { saveNamedGame(); });
+            save_button.onClick.AddListener(() => { SaveNamedGame(); });
             isGameMap = true;
         }
         else
@@ -64,7 +64,7 @@ public class save_list_manager : MonoBehaviour
 
 	public void SetData()
     {
-        Saves = save_manager.getSaveGames();
+        Saves = save_manager.GetSaveGames();
         dynamic_vscroll_saves_view.totalItemCount = Saves.Length;
         DisplayList();
     }
@@ -74,7 +74,7 @@ public class save_list_manager : MonoBehaviour
         dynamic_vscroll_saves_view.refresh();
     }
 
-    public void setSaveName(string name) {
+    public void SetSaveName(string name) {
         save_name.text = name;
     }
 
@@ -82,7 +82,7 @@ public class save_list_manager : MonoBehaviour
     {
         if (isGameMap)
         {
-            save_manager.loadGame(save_name.text);
+            save_manager.LoadGame(save_name.text);
         }
         else
         {
@@ -91,17 +91,17 @@ public class save_list_manager : MonoBehaviour
         }
     }
 
-    public void saveNamedGame() {
+    public void SaveNamedGame() {
         dialog_box.InvokeConfirmBox("Save Game", "Are you sure you want to save game under " + save_name.text 
-            + (save_manager.existsSaveGame(save_name.text) ? "?\nAlready existing data will be overwritten!" : ""), 
-            ()=> { save_manager.saveGame(save_name.text); exit.onClick.Invoke(); });
+            + (save_manager.ExistsSaveGame(save_name.text) ? "?\nAlready existing data will be overwritten!" : ""), 
+            ()=> { save_manager.SaveGame(save_name.text); exit.onClick.Invoke(); });
     }
 
-    public void delNamedGame() {
+    public void DelNamedGame() {
         dialog_box.InvokeConfirmBox("Delete Save", "Are you sure you want to delete this savefile?\n" + save_name.text, 
-            () => { save_manager.deleteSaveGame(save_name.text); SetData(); }); 
+            () => { save_manager.DeleteSaveGame(save_name.text); SetData(); }); 
     }
-    public void loadNamedGame() {
+    public void LoadNamedGame() {
         dialog_box.InvokeConfirmBox("Load Save", "Are you sure you want to load this savefile?\n" + save_name.text, 
             () => { LoadGame(); if (isGameMap) exit.onClick.Invoke(); });
     }

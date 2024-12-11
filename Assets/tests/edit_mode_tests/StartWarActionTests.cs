@@ -47,7 +47,7 @@ public class StartWarActionTests
 
         var action = new WarDeclaration(currentPlayer, receiverCountry, diplomatic_relations_manager, 
             dialog_box, camera_controller, diplomatic_actions_manager);
-        currentPlayer.Actions.addAction(action);
+        currentPlayer.Actions.AddAction(action);
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class StartWarActionTests
         receiverCountry.Events.Clear();
 
         // Act
-        currentPlayer.Actions.execute();
+        currentPlayer.Actions.Execute();
 
         // Assert
         WarDeclared warDeclaredEvent = (WarDeclared)receiverCountry.Events.Find(e => e is WarDeclared);
@@ -78,7 +78,7 @@ public class StartWarActionTests
         map.Relations.Add(new Relation.Vassalage(receiverCountry, receiverCountryVassal));
 
         // Act
-        currentPlayer.Actions.execute();
+        currentPlayer.Actions.Execute();
 
         // Assert
         Relation.War warRelation = (Relation.War)map.Relations.ToList().Find(r => r is Relation.War);

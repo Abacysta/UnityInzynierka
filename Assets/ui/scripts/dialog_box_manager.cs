@@ -178,7 +178,7 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new ArmyMove(army.Position, destination, (int)dialog_slider.value, army);
-                map.Countries[army.OwnerId].Actions.addAction(action);
+                map.Countries[army.OwnerId].Actions.AddAction(action);
             }
         };
 
@@ -193,7 +193,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeRecBox((int, int) coordinates)
     {
-        var province = map.getProvince(coordinates);
+        var province = map.GetProvince(coordinates);
         var techStats = map.Countries[province.OwnerId].techStats;
         var cost = CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats);
         int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, province.RecruitablePopulation);
@@ -205,7 +205,7 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new ArmyRecruitment(coordinates, (int)dialog_slider.value, techStats);
-                map.Countries[province.OwnerId].Actions.addAction(action);
+                map.Countries[province.OwnerId].Actions.AddAction(action);
             }
         };
 
@@ -230,7 +230,7 @@ public class dialog_box_manager : MonoBehaviour
             {
                 int unitsToDisband = (int)dialog_slider.value;
                 var action = new ArmyDisbandment(army, unitsToDisband);
-                map.Countries[army.OwnerId].Actions.addAction(action);
+                map.Countries[army.OwnerId].Actions.AddAction(action);
             }
         };
 
@@ -247,7 +247,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeUpgradeBuilding((int, int) coordinates, BuildingType buildingType) 
     {
-        var province = map.getProvince(coordinates);
+        var province = map.GetProvince(coordinates);
         int lvl = province.Buildings.ContainsKey(buildingType) ? province.Buildings[buildingType] + 1 : 0;
         var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingUpgrade, buildingType, lvl);
 
@@ -258,9 +258,9 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new BuildingUpgrade(province, buildingType);
-                map.CurrentPlayer.Actions.addAction(action);
+                map.CurrentPlayer.Actions.AddAction(action);
             },
-            Confirmable = map.CurrentPlayer.isPayable(cost)
+            Confirmable = map.CurrentPlayer.IsPayable(cost)
         };
 
         var effectsBoxParameters = new DialogBoxBuilder()
@@ -272,7 +272,7 @@ public class dialog_box_manager : MonoBehaviour
     }
 
     public void InvokeDowngradeBuilding((int, int) coordinates, BuildingType buildingType) {
-        var province = map.getProvince(coordinates);
+        var province = map.GetProvince(coordinates);
         int lvl = province.Buildings.ContainsKey(buildingType) ? province.Buildings[buildingType] : 0;
         var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingDowngrade);
 
@@ -283,9 +283,9 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new BuildingDowngrade(province, buildingType);
-                map.CurrentPlayer.Actions.addAction(action);
+                map.CurrentPlayer.Actions.AddAction(action);
             },
-            Confirmable = map.CurrentPlayer.isPayable(cost)
+            Confirmable = map.CurrentPlayer.IsPayable(cost)
         };
 
         var effectsBoxParameters = new DialogBoxBuilder()
@@ -310,10 +310,10 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new TechnologyUpgrade(map.CurrentPlayer, technologyType);
-                map.CurrentPlayer.Actions.addAction(action);
+                map.CurrentPlayer.Actions.AddAction(action);
                 technology_manager.UpdateData();
             },
-            Confirmable = map.CurrentPlayer.isPayable(cost)
+            Confirmable = map.CurrentPlayer.IsPayable(cost)
         };
 
         var effectsBoxParameters = new DialogBoxBuilder()
@@ -326,7 +326,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeTaxBreakIntroductionBox((int, int) coordinates)
     {
-        var province = map.getProvince(coordinates);
+        var province = map.GetProvince(coordinates);
         var cost = CostsCalculator.TurnActionFullCost(ActionType.TaxBreakIntroduction);
 
         List<Effect> effects = new()
@@ -343,9 +343,9 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new TaxBreakIntroduction(province);
-                map.CurrentPlayer.Actions.addAction(action);
+                map.CurrentPlayer.Actions.AddAction(action);
             },
-            Confirmable = map.CurrentPlayer.isPayable(cost)
+            Confirmable = map.CurrentPlayer.IsPayable(cost)
         };
 
         var effectsBoxParameters = new DialogBoxBuilder()
@@ -358,7 +358,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeFestivitiesOrganizationBox((int, int) coordinates)
     {
-        var province = map.getProvince(coordinates);
+        var province = map.GetProvince(coordinates);
         var cost = CostsCalculator.TurnActionFullCost(ActionType.FestivitiesOrganization);
 
         List<Effect> effects = new()
@@ -375,9 +375,9 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new FestivitiesOrganization(province);
-                map.CurrentPlayer.Actions.addAction(action);
+                map.CurrentPlayer.Actions.AddAction(action);
             },
-            Confirmable = map.CurrentPlayer.isPayable(cost)
+            Confirmable = map.CurrentPlayer.IsPayable(cost)
         };
 
         var effectsBoxParameters = new DialogBoxBuilder()
@@ -390,7 +390,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeRebelSuppressionBox((int, int) coordinates)
     {
-        var province = map.getProvince(coordinates);
+        var province = map.GetProvince(coordinates);
         var cost = CostsCalculator.TurnActionFullCost(ActionType.RebelSuppresion);
 
         var basicParameters = new DialogConfig
@@ -400,9 +400,9 @@ public class dialog_box_manager : MonoBehaviour
             OnConfirm = () =>
             {
                 var action = new RebelSuppresion(province);
-                map.CurrentPlayer.Actions.addAction(action);
+                map.CurrentPlayer.Actions.AddAction(action);
             },
-            Confirmable = map.CurrentPlayer.isPayable(cost)
+            Confirmable = map.CurrentPlayer.IsPayable(cost)
         };
 
         var effectsBoxParameters = new DialogBoxBuilder()
@@ -442,21 +442,21 @@ public class dialog_box_manager : MonoBehaviour
             Title = "",
             Message = _event.Message,
             OnConfirm = () => {
-                _event.accept();
+                _event.Accept();
                 map.CurrentPlayer.Events.Remove(_event);
                 alerts.sortedevents.Remove(_event);
-                alerts.reloadAlerts();
+                alerts.ReloadAlerts();
             },
             OnCancel = () => {
-                _event.reject();
+                _event.Reject();
                 map.CurrentPlayer.Events.Remove(_event);
                 alerts.sortedevents.Remove(_event);
-                alerts.reloadAlerts();
+                alerts.ReloadAlerts();
             },
             OnZoom = () => {
-                _event.zoom();
+                _event.Zoom();
             },
-            Confirmable = _event.Cost != null ? map.CurrentPlayer.isPayable(_event.Cost) : true,
+            Confirmable = _event.Cost != null ? map.CurrentPlayer.IsPayable(_event.Cost) : true,
             Rejectable = rejectable,
             Zoomable = true,
             ConfirmText = "Confirm",
@@ -497,7 +497,7 @@ public class dialog_box_manager : MonoBehaviour
     {
         if (map.CurrentPlayerId > 0 && map.Countries.Count > 0)
         {
-            map.CurrentPlayer.setCoatandColor(db_country_color_img);
+            map.CurrentPlayer.SetCoatandColor(db_country_color_img);
             db_country_color_img.transform.parent.gameObject.SetActive(true);
         }
         else
@@ -627,15 +627,15 @@ public class dialog_box_manager : MonoBehaviour
         }
     }
 
-    public void addValue(int value) {
+    public void AddValue(int value) {
         dialog_slider.value += value;
     }
 
-    public void subValue(int value) { 
+    public void SubValue(int value) { 
         dialog_slider.value -= value;
     }
 
-    public void percentValue(float percent) { 
+    public void PercentValue(float percent) { 
         dialog_slider.value = dialog_slider.maxValue * percent;
     }
 

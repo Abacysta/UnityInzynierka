@@ -16,7 +16,7 @@ public class dynamic_scroll_view_pop_country_row : UIBehaviour, IDynamicScrollVi
     {
         Country country = end_screen_manager.PopCountries[index];
         if (country == null) Debug.LogError("Kraj wzial i zniknal POP");
-        country.setCoatandColor(coat_img);
+        country.SetCoatandColor(coat_img);
         country_name.text = country.Name;
         population_value.SetText(country.Provinces.Sum(p => p.Population).ToString());
     }

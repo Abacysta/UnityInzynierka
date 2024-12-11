@@ -18,7 +18,7 @@ public class map_ui : MonoBehaviour
 
     private void Start()
     {
-		settings_menu_scr.settingsInit();
+		settings_menu_scr.SettingsInit();
     }
 
     void Update()
@@ -74,7 +74,7 @@ public class map_ui : MonoBehaviour
 					game_manager.UndoAll();
 				}
 				else {
-					game_manager.undoLast();
+					game_manager.UndoLast();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.Space)) {
@@ -125,13 +125,13 @@ public class map_ui : MonoBehaviour
 			}
 			if (Input.GetKeyDown(KeyCode.F)) {
 				if (province_interface.gameObject.activeSelf && province_interface.Recruitable) {
-					province_interface.recruit();
+					province_interface.Recruit();
 				}
 			}
 			//ctrl actions
 			if (Input.GetKeyDown(KeyCode.S) && game_manager.turnCnt > 0) {
 				if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) {
-					save_manager.saveGame("quicksave");
+					save_manager.SaveGame("quicksave");
 				}
 			}
 		}

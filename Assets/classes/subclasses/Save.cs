@@ -54,7 +54,7 @@ namespace Assets.classes.subclasses {
             Relations = new();
         }
 
-        public static void loadDataFromSave(Save data, Map toLoad, filter_modes mapView, 
+        public static void LoadDataFromSave(Save data, Map toLoad, filter_modes mapView, 
             (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
             toLoad.name = data.MapName;
             toLoad.TurnCnt = data.TurnCnt;
@@ -68,11 +68,11 @@ namespace Assets.classes.subclasses {
 			//needs to go provinces->countries->relations->armies->events otherwise funny stuff happens
 
 			foreach(var a in toLoad.Armies) {
-                toLoad.destroyArmyView(a);
+                toLoad.DestroyArmyView(a);
             }
 			
 			foreach (var p in data.Provinces) {
-                loadProvinces.Add(p.load());
+                loadProvinces.Add(p.Load());
             }
 
 			toLoad.Provinces = null;
@@ -81,26 +81,26 @@ namespace Assets.classes.subclasses {
             toLoad.Countries = new();
 
 			for(int i = 0; i < data.Countries.Count; i++) {
-                toLoad.addCountry(data.Countries[i].load(toLoad, managers), data.Controllers[i]);
+                toLoad.AddCountry(data.Countries[i].Load(toLoad, managers), data.Controllers[i]);
             }
 
 			foreach (var r in data.Relations) {
-				loadRelations.Add(r.load(toLoad));
+				loadRelations.Add(r.Load(toLoad));
 			}
 
 			toLoad.Relations = null;
 			toLoad.Relations = loadRelations;
-            toLoad.destroyAllArmyViews();
+            toLoad.DestroyAllArmyViews();
             toLoad.Armies = new();
 
 			foreach (var a in data.Armies) {
-                toLoad.addArmy(a.load());
+                toLoad.AddArmy(a.Load());
             }
 
             //events on their own otherwise funni stuff
             foreach(var c in data.Countries) {
                 foreach(var eV in c.Events) {
-                    toLoad.Countries[c.Id].Events.Add(SaveEvent.load(eV, toLoad, managers));
+                    toLoad.Countries[c.Id].Events.Add(SaveEvent.Load(eV, toLoad, managers));
                 }
             }
 
@@ -167,11 +167,11 @@ namespace Assets.classes.subclasses {
             SeenTiles = new();
             Opinions = new();
         }
-        public Country load(Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
-            Country loaded = new(Id, Name, Capital, Color.toColor(), Coat, map);
+        public Country Load(Map map, (dialog_box_manager, camera_controller, diplomatic_relations_manager) managers) {
+            Country loaded = new(Id, Name, Capital, Color.ToColor(), Coat, map);
 
             if(Resources != null) foreach (var rT in Resources) {
-                loaded.setResource(rT.Key, rT.Value);
+                loaded.SetResource(rT.Key, rT.Value);
             }
 
             foreach (var tT in Technology) {
@@ -269,13 +269,13 @@ namespace Assets.classes.subclasses {
             Buildings = new();
         }
 
-        public Province load() {
+        public Province Load() {
             Province loaded = new Province(Name, Coordinates.Item1, Coordinates.Item2, 
                 IsLand, Terrain, ResourceType, ResourceAmount, Population, Recruitable, 
                 Happinesss, IsCoast, OwnerId);
 
             foreach(var s in Statuses) {
-                loaded.Statuses.Add(s.load());
+                loaded.Statuses.Add(s.Load());
             }
 
             if (loaded.IsLand) {
@@ -294,7 +294,7 @@ namespace Assets.classes.subclasses {
                 }
             }
             else {
-                loaded.Buildings = Province.defaultBuildings(loaded);
+                loaded.Buildings = Province.DefaultBuildings(loaded);
 			}
 
             return loaded;
@@ -316,7 +316,7 @@ namespace Assets.classes.subclasses {
 
         public SaveColor() {}
 
-        public Color toColor() {
+        public Color ToColor() {
             return new Color(R, G, B, A);
         }
     }
@@ -339,7 +339,7 @@ namespace Assets.classes.subclasses {
 
         }
 
-        public Army load() {
+        public Army Load() {
             Army loaded = new Army(OwnerId, Count, Position, Destination);
             return loaded;
         }
@@ -379,7 +379,7 @@ namespace Assets.classes.subclasses {
             SideD = new();
         }
 
-        public Relation load(Map map) {
+        public Relation Load(Map map) {
             Relation loaded = null;
             switch (Type) {
                 case Relation.RelationType.War:
@@ -437,7 +437,7 @@ namespace Assets.classes.subclasses {
 
         }
 
-        public Status load() {
+        public Status Load() {
             Status loaded;
             switch (Id) {
                 case 1:
@@ -504,23 +504,23 @@ namespace Assets.classes.subclasses {
             switch (Type) {
                 case true:
                     Country = (ev as Event_.GlobalEvent).Country.Id;
-                    globalId(ev as Event_.GlobalEvent);
+                    GlobalId(ev as Event_.GlobalEvent);
                     break;
                 case false:
                     Province = ((int, int)?)(ev as Event_.LocalEvent).Province.coordinates;
-                    localId(ev as Event_.LocalEvent);
+                    LocalId(ev as Event_.LocalEvent);
                     break;
                 default:
                     From = (int?)(ev as Event_.DiploEvent).From.Id;
                     To = (int?)(ev as Event_.DiploEvent).To.Id;
-                    diploId(ev as Event_.DiploEvent);
+                    DiploId(ev as Event_.DiploEvent);
                     break;
             }
         }
 
         public SaveEvent() { }
 
-        private void globalId(Event_.GlobalEvent ev) {
+        private void GlobalId(Event_.GlobalEvent ev) {
             if (ev is Event_.GlobalEvent.Discontent) this.Id = 0;
             else if (ev is Event_.GlobalEvent.Happiness) this.Id = 1;
             else if (ev is Event_.GlobalEvent.Plague) this.Id = 2;
@@ -533,7 +533,7 @@ namespace Assets.classes.subclasses {
             else this.Id = 0;
         }
 
-        private void localId(Event_.LocalEvent ev) {
+        private void LocalId(Event_.LocalEvent ev) {
             if (ev is Event_.LocalEvent.ProductionBoom) this.Id = 0;
             else if (ev is Event_.LocalEvent.GoldRush) this.Id = 1;
             else if (ev is Event_.LocalEvent.BonusRecruits) this.Id = 2;
@@ -547,7 +547,7 @@ namespace Assets.classes.subclasses {
             else this.Id = 0;
         }
 
-        private void diploId(Event_.DiploEvent ev) {
+        private void DiploId(Event_.DiploEvent ev) {
             if (ev is Event_.DiploEvent.WarDeclared) this.Id = 0;
             else if (ev is Event_.DiploEvent.PeaceOffer) {
                 this.Id = 1;
@@ -610,21 +610,21 @@ namespace Assets.classes.subclasses {
             }
             else this.Id = 0;
         }
-        public static Event_ load(SaveEvent ev, Map map, (dialog_box_manager, 
+        public static Event_ Load(SaveEvent ev, Map map, (dialog_box_manager, 
             camera_controller, diplomatic_relations_manager) managers) {
             switch (ev.Type) {
                 //global
                 case true:
-                    return loadGlobal(ev, map, managers);
+                    return LoadGlobal(ev, map, managers);
                 //local
                 case false:
-                    return loadLocal(ev, map, managers);
+                    return LoadLocal(ev, map, managers);
                 //diplo
                 default:
-                    return loadDiplo(ev, map, managers);
+                    return LoadDiplo(ev, map, managers);
             }
         }
-        private static Event_.GlobalEvent loadGlobal(SaveEvent ev, Map map, (dialog_box_manager, 
+        private static Event_.GlobalEvent LoadGlobal(SaveEvent ev, Map map, (dialog_box_manager, 
             camera_controller, diplomatic_relations_manager) managers) {
             switch (ev.Id) {
                 case 0:
@@ -658,44 +658,44 @@ namespace Assets.classes.subclasses {
                     goto case 1;
 			}
         }
-        private static Event_.LocalEvent loadLocal(SaveEvent ev, Map map, (dialog_box_manager, 
+        private static Event_.LocalEvent LoadLocal(SaveEvent ev, Map map, (dialog_box_manager, 
             camera_controller, diplomatic_relations_manager) managers) {
             switch (ev.Id) {
                 case 0:
-                    return new Event_.LocalEvent.ProductionBoom(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.ProductionBoom(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2);
                 case 1:
-                    return new Event_.LocalEvent.GoldRush(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.GoldRush(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2);
                 case 2:
-                    return new Event_.LocalEvent.BonusRecruits(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.BonusRecruits(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2);
                 case 3:
-                    return new Event_.LocalEvent.WorkersStrike1(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.WorkersStrike1(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2);
                 case 4:
-                    return new Event_.LocalEvent.WorkersStrike2(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.WorkersStrike2(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2);
                 case 5:
-                    return new Event_.LocalEvent.WorkersStrike3(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.WorkersStrike3(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2, map);
                 case 6:
-                    return new Event_.LocalEvent.PlagueFound(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.PlagueFound(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2);
                 case 7:
-                    return new Event_.LocalEvent.DisasterEvent(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.DisasterEvent(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2);
                 case 8:
-                    return new Event_.LocalEvent.StrangeRuins1(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.StrangeRuins1(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2, map);
                 case 9:
-                    return new Event_.LocalEvent.StrangeRuins1(map.getProvince(((int, int))ev.Province), 
+                    return new Event_.LocalEvent.StrangeRuins1(map.GetProvince(((int, int))ev.Province), 
                         managers.Item1, managers.Item2, map);
                 default:
                     goto case 0;
 			}
         }
-        private static Event_.DiploEvent loadDiplo(SaveEvent ev, Map map, (dialog_box_manager, 
+        private static Event_.DiploEvent LoadDiplo(SaveEvent ev, Map map, (dialog_box_manager, 
             camera_controller, diplomatic_relations_manager) managers) {
             switch (ev.Id) {
                 case 0:

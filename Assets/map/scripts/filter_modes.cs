@@ -95,10 +95,10 @@ public class filter_modes : MonoBehaviour
 
                 switch (province.Terrain)
                 {
-                    case Province.TerrainType.lowlands:
+                    case Province.TerrainType.Lowlands:
                         selectedTile = lowlands_1;
                         break;
-                    case Province.TerrainType.desert:
+                    case Province.TerrainType.Desert:
                         selectedTile = (hash % 3) switch
                         {
                             0 => desert_1,
@@ -107,7 +107,7 @@ public class filter_modes : MonoBehaviour
                             _ => null
                         };
                         break;
-                    case Province.TerrainType.tundra:
+                    case Province.TerrainType.Tundra:
                         selectedTile = (hash % 2) switch
                         {
                             0 => tundra_1,
@@ -115,7 +115,7 @@ public class filter_modes : MonoBehaviour
                             _ => null
                         };
                         break;
-                    case Province.TerrainType.forest:
+                    case Province.TerrainType.Forest:
                         selectedTile = forest_1;
                         break;
                 }
@@ -130,19 +130,19 @@ public class filter_modes : MonoBehaviour
 
     public void SetTerrain()
     {
-        Color getTerrainColor(Province.TerrainType type)
+        Color GetTerrainColor(Province.TerrainType type)
         {
             switch (type)
             {
-                case Province.TerrainType.tundra:
+                case Province.TerrainType.Tundra:
                     return ChooseRGBColor(0, 102, 0); // dark green
-                case Province.TerrainType.lowlands:
+                case Province.TerrainType.Lowlands:
                     return ChooseRGBColor(0,255,0); // lime
-                case Province.TerrainType.forest:
+                case Province.TerrainType.Forest:
                     return ChooseRGBColor(0,204,102); // green/blue?
-                case Province.TerrainType.desert:
+                case Province.TerrainType.Desert:
                     return ChooseRGBColor(255,204,0); // yellow/orange
-                case Province.TerrainType.ocean:
+                case Province.TerrainType.Ocean:
                     return ChooseRGBColor(60, 106, 130); // blue
                 default:
                     return ChooseRGBColor(91, 106, 65); // dark green
@@ -150,7 +150,7 @@ public class filter_modes : MonoBehaviour
         }
 
         mode = MapMode.Terrain;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -160,7 +160,7 @@ public class filter_modes : MonoBehaviour
             if (province.IsLand)
             {
                 base_layer.SetTile(position, base_tile);
-                base_layer.SetColor(position, getTerrainColor(province.Terrain));
+                base_layer.SetColor(position, GetTerrainColor(province.Terrain));
             }
             else
             {
@@ -174,7 +174,7 @@ public class filter_modes : MonoBehaviour
 
     public void SetResources()
     {
-        Color getResourceColor(Resource resourceType)
+        Color GetResourceColor(Resource resourceType)
         {
             switch (resourceType)
             {
@@ -191,7 +191,7 @@ public class filter_modes : MonoBehaviour
         }
 
         mode = MapMode.Resource;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -201,7 +201,7 @@ public class filter_modes : MonoBehaviour
 
             if (province.IsLand)
             {
-                color = getResourceColor(province.ResourceType);
+                color = GetResourceColor(province.ResourceType);
                 filter_layer.SetTile(position, base_tile);
                 filter_layer.SetColor(position, color);
             }
@@ -216,7 +216,7 @@ public class filter_modes : MonoBehaviour
     public void SetHappiness()
     {
         mode = MapMode.Happiness;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -239,7 +239,7 @@ public class filter_modes : MonoBehaviour
     public void SetPopulation()
     {
         mode = MapMode.Population;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -260,7 +260,7 @@ public class filter_modes : MonoBehaviour
 
      public void SetPolitical() {
         mode = MapMode.Political;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces) {
@@ -310,7 +310,7 @@ public class filter_modes : MonoBehaviour
         }
 
         mode = MapMode.Diplomatic;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach(Province province in map.Provinces) {
@@ -397,7 +397,7 @@ public class filter_modes : MonoBehaviour
         mouse_hover_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 2;
     }
 
-    private void greyOutUnused(filter_modes.MapMode mapMode) {
+    private void GreyOutUnused(filter_modes.MapMode mapMode) {
         string name;
         switch (mapMode) {
             case MapMode.Terrain:

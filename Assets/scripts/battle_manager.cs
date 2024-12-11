@@ -7,7 +7,7 @@ namespace Assets.Scripts {
         [SerializeField] private Map map;
 
         public void CheckBattle(Army attackerArmy) {
-            Province province = map.getProvince(attackerArmy.Position);
+            Province province = map.GetProvince(attackerArmy.Position);
             List<Army> otherArmies = map.Armies.FindAll(a => 
                 a.Position == attackerArmy.Position && a != attackerArmy);
 
@@ -24,13 +24,13 @@ namespace Assets.Scripts {
 
                     enemyArmies.RemoveAll(a => a.Count == 0);
 
-                    if (attackerArmy.Count == 0) map.removeArmy(attackerArmy);
+                    if (attackerArmy.Count == 0) map.RemoveArmy(attackerArmy);
                 }
             }
         }
 
         private List<Army> GetEnemyArmiesInProvince(Army army) {
-            var enemyArmies = Map.WarUtilities.getEnemyArmies(map, map.Countries[army.OwnerId])
+            var enemyArmies = Map.WarUtilities.GetEnemyArmies(map, map.Countries[army.OwnerId])
                 .Where(a => a.Position == army.Position).ToList();
             enemyArmies.AddRange(map.Armies.Where(a => a.OwnerId == 0 
                 && a.Position == army.Position).ToList());
@@ -46,8 +46,8 @@ namespace Assets.Scripts {
             float defPower = defender.Count * defCountry.techStats.ArmyPower + 1;
             float fortModifier = 1;
 
-            if (map.getProvince(defender.Position).OwnerId == defender.OwnerId) { //fort defense bonus
-                fortModifier += 0.1f * map.getProvince(defender.Position).Buildings[BuildingType.Fort];
+            if (map.GetProvince(defender.Position).OwnerId == defender.OwnerId) { //fort defense bonus
+                fortModifier += 0.1f * map.GetProvince(defender.Position).Buildings[BuildingType.Fort];
             }
 
             defPower *= fortModifier;
@@ -62,11 +62,11 @@ namespace Assets.Scripts {
 
             if (result > 0) {
                 attacker.Count = (int)(result / attCountry.techStats.ArmyPower);
-                map.removeArmy(defender);
+                map.RemoveArmy(defender);
                 return true;
             }
             else {
-                map.removeArmy(attacker);
+                map.RemoveArmy(attacker);
                 defender.Count = (int)(-result/ fortModifier / defCountry.techStats.ArmyPower);
                 return false;
             }

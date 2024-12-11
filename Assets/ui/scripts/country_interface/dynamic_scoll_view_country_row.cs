@@ -41,7 +41,7 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         country_name_text.text = country.Name +
             (country_relations_table_manager.Map.Controllers[country.Id] == Map.CountryController.Ai ? " (AI)" : "");
 
-        country.setCoatandColor(cn_in_country_color_img);
+        country.SetCoatandColor(cn_in_country_color_img);
         int theirOpinion = country.Opinions.ContainsKey(currentPlayer.Id) ? country.Opinions[currentPlayer.Id] : 0;
         int ourOpinion = currentPlayer.Opinions.ContainsKey(countryId) ? currentPlayer.Opinions[countryId] : 0;
 

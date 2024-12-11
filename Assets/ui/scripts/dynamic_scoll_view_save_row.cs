@@ -17,6 +17,6 @@ public class dynamic_scoll_view_save_row : UIBehaviour, IDynamicScrollViewItem
     public void OnSaveRowClick()
     {
         Debug.Log(save_row_text.text);
-        save_list_manager.setSaveName(save_row_text.text);
+        save_list_manager.SetSaveName(save_row_text.text);
     }
 }
