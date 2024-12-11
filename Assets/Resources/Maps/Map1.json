@@ -2477,7 +2477,7 @@
       "resourceAmount": 3,
       "population": 2106,
       "happiness": 45,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 5,
@@ -2636,7 +2636,7 @@
       "resourceAmount": 7,
       "population": 1765,
       "happiness": 50,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 5,
@@ -3134,7 +3134,7 @@
       "resourceAmount": 2,
       "population": 1850,
       "happiness": 59,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 7,
@@ -6277,7 +6277,7 @@
       "resourceAmount": 6,
       "population": 1987,
       "happiness": 44,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 14,
@@ -7858,7 +7858,7 @@
       "resourceAmount": 4,
       "population": 1709,
       "happiness": 46,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 17,
@@ -8616,7 +8616,7 @@
       "resourceAmount": 5,
       "population": 2052,
       "happiness": 54,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 19,
@@ -14177,7 +14177,7 @@
       "resourceAmount": 4,
       "population": 1889,
       "happiness": 49,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 35,
@@ -14439,7 +14439,7 @@
       "resourceAmount": 6,
       "population": 2264,
       "happiness": 42,
-      "isCoast": false,
+      "isCoast": false
     },
     {
       "x": 35,

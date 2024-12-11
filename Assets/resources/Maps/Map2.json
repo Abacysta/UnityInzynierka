@@ -9,7 +9,10 @@
         0
       ],
       "coat": 2,
-      "capitol": null
+      "capitol": [
+        17,
+        4
+      ]
     },
     {
       "owner_id": 2,
@@ -20,7 +23,10 @@
         0
       ],
       "coat": 2,
-      "capitol": null
+      "capitol": [
+        26,
+        6
+      ]
     },
     {
       "owner_id": 3,
@@ -31,7 +37,10 @@
         0
       ],
       "coat": 2,
-      "capitol": null
+      "capitol": [
+        5,
+        7
+      ]
     },
     {
       "owner_id": 4,
@@ -42,7 +51,10 @@
         0
       ],
       "coat": 2,
-      "capitol": null
+      "capitol": [
+        5,
+        20
+      ]
     },
     {
       "owner_id": 5,
@@ -53,7 +65,10 @@
         128
       ],
       "coat": 1,
-      "capitol": null
+      "capitol": [
+        7,
+        28
+      ]
     },
     {
       "owner_id": 6,
@@ -79,8 +94,8 @@
       ],
       "coat": 3,
       "capitol": [
-        14,
-        7
+        13,
+        15
       ]
     },
     {
@@ -93,8 +108,8 @@
       ],
       "coat": 2,
       "capitol": [
-        5,
-        20
+        31,
+        28
       ]
     }
   ],
