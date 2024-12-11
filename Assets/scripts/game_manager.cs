@@ -309,7 +309,7 @@ public class game_manager : MonoBehaviour
     }
 
     private void rebellionCheck() {
-        foreach(var p in map.Provinces) {
+        foreach(var p in map.Provinces.Where(p => p.IsLand)) {
             random_events.checkRebellion(p);
             //returns bool, so in future can do more with that
         }

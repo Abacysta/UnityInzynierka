@@ -126,7 +126,7 @@ public class Province {
 
     public void UpgradeBuilding(BuildingType buildingType)
     {
-        if (buildings.ContainsKey(buildingType) && buildings[buildingType] < 3)
+        if (buildings != null && buildings.ContainsKey(buildingType) && buildings[buildingType] < 3)
         {
             buildings[buildingType]++;
         }
@@ -134,7 +134,7 @@ public class Province {
 
     public void DowngradeBuilding(BuildingType buildingType)
     {
-        if (buildings.ContainsKey(buildingType) && buildings[buildingType] > 0 && buildings[buildingType] < 4)
+        if (buildings != null && buildings.ContainsKey(buildingType) && buildings[buildingType] > 0 && buildings[buildingType] < 4)
         {
             buildings[buildingType]--;
         }
@@ -142,11 +142,11 @@ public class Province {
 
     public int GetBuildingLevel(BuildingType type)
     {
-        return buildings.ContainsKey(type) ? buildings[type] : 0;
+        return buildings != null && buildings.ContainsKey(type) ? buildings[type] : 0;
     }
     public void ResetBuilding(BuildingType buildingType)
     {
-        if (buildings.ContainsKey(buildingType))
+        if (buildings != null && buildings.ContainsKey(buildingType))
         {
             buildings[buildingType] = 0;
         }
@@ -154,7 +154,7 @@ public class Province {
     public void calcStatuses() {
         modifiers.ResetModifiers();
 
-        if (statuses!= null) {
+        if (statuses != null) {
             List<Status> to_rmv = new();
             statuses.OrderByDescending(s => s.Type).ToList();
 
@@ -166,12 +166,12 @@ public class Province {
             statuses = statuses.Except(to_rmv).ToList();
         }
     }
-    public void addStatus(Status status) { 
-        statuses.Add(status);
+    public void addStatus(Status status) {
+        statuses?.Add(status);
     }
 
     public void RemoveStatus(Status status) {
-        statuses.Remove(status);
+        statuses?.Remove(status);
     }
 
     private float RealProduction() {

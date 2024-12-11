@@ -125,9 +125,10 @@ public class Map : ScriptableObject
 
     public void growPop((int, int) coordinates) {
         Province province = getProvince(coordinates);
+        if (!province.IsLand) return;
         var provinceOwnerTechStats = countries[province.OwnerId].techStats;
 
-        if (province.OccupationInfo.IsOccupied)
+        if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied)
         {
             var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
             province.Population = (int)Math.Floor(province.Population *
@@ -144,6 +145,7 @@ public class Map : ScriptableObject
 
     public void calcRecruitablePop((int, int) coordinates) {
         Province province = getProvince(coordinates);
+        if (!province.IsLand) return;
         var techStats = countries[province.OwnerId].techStats;
 
         province.RecruitablePopulation = (int)Math.Floor(province.Population * techStats.RecPop * province.Modifiers.RecPop);
@@ -151,11 +153,13 @@ public class Map : ScriptableObject
 
     public void calcRecruitablePop(Province p) {
         var techstats = countries[p.OwnerId].techStats;
+        if (!p.IsLand) return;
         p.RecruitablePopulation = (int)Math.Floor(p.Population * techstats.RecPop * p.Modifiers.RecPop);
     }
 
     public void growHap((int, int) coordinates, int value) {
         Province province = getProvince(coordinates);
+        if (!province.IsLand) return;
 
         if (province.OccupationInfo.IsOccupied)
         {
@@ -508,7 +512,7 @@ public class Map : ScriptableObject
 
     public void ManageOccupationDuration(Province province)
     {
-        if (province.OccupationInfo.IsOccupied)
+        if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied)
         {
             province.OccupationInfo.OccupationCount--;
 
@@ -519,6 +523,7 @@ public class Map : ScriptableObject
     }
 
     private void OccupationChangeOwner(Province province) {
+        if (!province.IsLand) return;
         int previousOwnerId = province.OwnerId;
         int newOwnerId = province.OccupationInfo.OccupyingCountryId;
 
@@ -530,6 +535,7 @@ public class Map : ScriptableObject
 
     private void AddOccupation(Army army) {
         Province province = getProvince(army.Position.Item1, army.Position.Item2);
+        if (!province.IsLand) return;
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
         Occupation occupationStatus = null;
         Country master = getMaster(country);
@@ -585,6 +591,7 @@ public class Map : ScriptableObject
 
     public void CancelOccupation(Province province)
     {
+        if (!province.IsLand) return;
         province.OccupationInfo.IsOccupied = false;
         province.OccupationInfo.OccupationCount = 0;
         province.OccupationInfo.OccupyingCountryId = -1;

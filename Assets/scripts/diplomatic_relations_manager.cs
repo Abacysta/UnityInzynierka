@@ -101,7 +101,7 @@ namespace Assets.map.scripts {
 
             map.Relations.Remove(relation);
 
-            foreach (var province in map.Provinces)
+            foreach (var province in map.Provinces.Where(p => p.IsLand))
             {
                 bool isOwnerFromParticipants1 = participants1.Contains(province.OwnerId);
                 bool isOccupyingFromParticipants2 = participants2.Contains(province.OccupationInfo.OccupyingCountryId);

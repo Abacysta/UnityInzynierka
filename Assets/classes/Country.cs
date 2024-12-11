@@ -385,10 +385,11 @@ public class Country {
     }
 
     public bool assignProvince(Province province) {
-        if(province.OwnerId != 0 || province.OwnerId == id) return false;
+        if (!province.IsLand || province.OwnerId != 0 || province.OwnerId == id) return false;
         provinces.Add(province);
         if (province.OwnerId == 0) province.RemoveStatus(province.Statuses.Find(s => s is Tribal));
         province.OwnerId = this.id;
+
         return true;
     }
     public void unassignProvince(Province province) {
