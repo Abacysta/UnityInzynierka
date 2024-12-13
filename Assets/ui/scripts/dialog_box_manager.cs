@@ -179,7 +179,8 @@ public class dialog_box_manager : MonoBehaviour
             {
                 var action = new ArmyMove(army.Position, destination, (int)dialog_slider.value, army);
                 map.Countries[army.OwnerId].Actions.AddAction(action);
-            }
+            },
+            Confirmable = false
         };
 
         var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
@@ -206,7 +207,8 @@ public class dialog_box_manager : MonoBehaviour
             {
                 var action = new ArmyRecruitment(coordinates, (int)dialog_slider.value, techStats);
                 map.Countries[province.OwnerId].Actions.AddAction(action);
-            }
+            },
+            Confirmable = false
         };
 
         var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
@@ -221,6 +223,7 @@ public class dialog_box_manager : MonoBehaviour
     public void InvokeDisbandArmyBox(Army army)
     {
         var cost = CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment);
+        int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, army.Count);
 
         var basicParameters = new DialogConfig
         {
@@ -231,10 +234,9 @@ public class dialog_box_manager : MonoBehaviour
                 int unitsToDisband = (int)dialog_slider.value;
                 var action = new ArmyDisbandment(army, unitsToDisband);
                 map.Countries[army.OwnerId].Actions.AddAction(action);
-            }
+            },
+            Confirmable = false
         };
-
-        int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, army.Count);
 
         var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
             .SetBasicParams(basicParameters)

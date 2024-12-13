@@ -288,27 +288,26 @@ public class filter_modes : MonoBehaviour
         SetTerrainFeatures();
     }
 
-    public void SetDiplomatic() {
-
-        Color GetDiplomaticColor(Relation.RelationType? relationType)
+    public static Color GetDiplomaticColor(Relation.RelationType? relationType)
+    {
+        switch (relationType)
         {
-            switch (relationType)
-            {
-                case Relation.RelationType.War:
-                    return WarColor;
-                case Relation.RelationType.Truce:
-                    return TruceColor;
-                case Relation.RelationType.Alliance:
-                    return AllianceColor;
-                case Relation.RelationType.Vassalage:
-                    return VassalageColor;
-                case Relation.RelationType.Rebellion:
-                    return RebellionColor;
-                default:
-                    return DefaultColor;
-            }
+            case Relation.RelationType.War:
+                return WarColor;
+            case Relation.RelationType.Truce:
+                return TruceColor;
+            case Relation.RelationType.Alliance:
+                return AllianceColor;
+            case Relation.RelationType.Vassalage:
+                return VassalageColor;
+            case Relation.RelationType.Rebellion:
+                return RebellionColor;
+            default:
+                return DefaultColor;
         }
+    }
 
+    public void SetDiplomatic() {
         mode = MapMode.Diplomatic;
         GreyOutUnused(mode);
         ClearLayers();

@@ -116,7 +116,9 @@ namespace Assets.classes.subclasses {
                 }
             }
 
-			data = null;
+            toLoad.CalcPopExtremes();
+
+            data = null;
             mapView.Reload();
         }
     }

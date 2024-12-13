@@ -4,7 +4,6 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static Assets.classes.Relation;
 
 public class army_view : MonoBehaviour
 {
@@ -55,7 +54,11 @@ public class army_view : MonoBehaviour
             }
         }
 
-        bool isLand = map.GetProvince(ArmyData.Position).IsLand;
+        var relationType = map.GetHardRelationType(map.CurrentPlayer, map.Countries[ArmyData.OwnerId]);
+        UpdateArmyCounterColor(relationType);
+
+        bool isLand = map.GetProvince(ArmyData.Position).IsLand || 
+            map.GetProvince(ArmyData.Destination).IsLand;
 
         if (isLand)
         {
@@ -70,12 +73,11 @@ public class army_view : MonoBehaviour
         }
     }
 
-    public void Initialize(Army armyData, Relation.RelationType? type)
+    public void Initialize(Army armyData, Relation.RelationType? relationType)
     {
         ArmyData = armyData;
         UpdateArmyCounter(ArmyData.Count);
-        int typeValue = type != null ? (int)type.Value : 50;
-        UpdateArmyCounterColor(typeValue);
+        UpdateArmyCounterColor(relationType);
         ArmyData.OnArmyCountChanged += UpdateArmyCounter;
         UpdatePosition();
 
@@ -148,7 +150,7 @@ public class army_view : MonoBehaviour
     public void PrepareToMoveTo((int, int) newPosition)
     {
         Vector3 position = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
-        targetPosition = AdjustPosition(position, isNotPreparingToMove: false);
+        targetPosition = AdjustPosition(position, isNotPreparingToMoveMethod: false);
         if (map.Controllers[ArmyData.OwnerId] == Map.CountryController.Local)
         {
             isMoving = true;
@@ -157,36 +159,33 @@ public class army_view : MonoBehaviour
         army_collider.enabled = false;
     }
 
-    private Vector3 AdjustPosition(Vector3 basePosition, bool isNotPreparingToMove = true)
+    private Vector3 AdjustPosition(Vector3 basePosition, bool isNotPreparingToMoveMethod = true)
     {
         Vector2 provinceCoordinates = WorldToHexPosition(basePosition);
         Province province = map.GetProvince((int)provinceCoordinates.x, (int)provinceCoordinates.y);
 
-        transform.localScale = (isNotPreparingToMove || (province != null && ArmyData.OwnerId == province.OwnerId))
-            ? new Vector3(0.45f, 0.45f, 1f)
-            : new Vector3(0.4f, 0.4f, 1f);
+        AdjustArmyScale(isNotPreparingToMoveMethod, province);
 
-        if (isNotPreparingToMove && province != null && ArmyData.OwnerId == province.OwnerId)
+        // If the army's owner is the owner of the province and it is not the PrepareToMove method,
+        // then the position is not adjusted and the army is placed at the center.
+        if (isNotPreparingToMoveMethod && province != null && ArmyData.OwnerId == province.OwnerId)
         {
             return basePosition;
         }
 
+        return GetAdjustedPosition(basePosition, provinceCoordinates);
+    }
+
+    private Vector3 GetAdjustedPosition(Vector3 basePosition, Vector2 provinceCoordinates) 
+    {
         Vector3 baseDirection = (basePosition - transform.position).normalized;
-        float offsetDistance = 0.35f;
         Vector3 adjustedPosition;
+        float offsetDistance = 0.35f; // distance from the center of the province
+        float initialOffset = 0f; // starting angle, to which angleReduction(+30, +15, +7.5...) is added
+        float angleReduction = 30f;
         bool collides;
 
-        List<army_view> provinceArmyViews = map.ArmyViews
-            .Where(a =>
-                a != null && a.ArmyData != null &&
-                (a.ArmyData.Position == ((int)provinceCoordinates.x, (int)provinceCoordinates.y) 
-                || a.ArmyData.Destination == ((int)provinceCoordinates.x, (int)provinceCoordinates.y)) &&
-                a.gameObject.activeInHierarchy &&
-                !a.ArmyData.Equals(ArmyData)
-            ).ToList();
-
-        float initialOffset = 0f;
-        float angleReduction = 30f;
+        List<army_view> provinceArmyViews = GetProvinceOtherArmyViews(provinceCoordinates);
 
         while (angleReduction > 0.1f)
         {
@@ -195,16 +194,7 @@ public class army_view : MonoBehaviour
             for (int i = 0; i < 6; i++)
             {
                 adjustedPosition = basePosition - direction * offsetDistance;
-                collides = false;
-
-                foreach (army_view army in provinceArmyViews)
-                {
-                    if (Vector3.Distance(army.transform.position, adjustedPosition) < 0.1f)
-                    {
-                        collides = true;
-                        break;
-                    }
-                }
+                collides = provinceArmyViews.Any(army => Vector3.Distance(army.transform.position, adjustedPosition) < 0.1f);
 
                 if (!collides)
                 {
@@ -219,6 +209,29 @@ public class army_view : MonoBehaviour
         }
 
         return basePosition;
+    }
+
+    private void AdjustArmyScale(bool isNotPreparingToMoveMethod, Province province)
+    {
+        // If the army's owner is the owner of the province or it is not the PrepareToMove method, 
+        // the army should be larger in size.
+        transform.localScale = (isNotPreparingToMoveMethod || (province != null && ArmyData.OwnerId == province.OwnerId))
+            ? new Vector3(0.45f, 0.45f, 1f)
+            : new Vector3(0.4f, 0.4f, 1f);
+    }
+
+    private List<army_view> GetProvinceOtherArmyViews(Vector2 provinceCoordinates)
+    {
+        // Return the armyViews related to the province that do not belong to the army's owner 
+        // and are active in the hierarchy.
+        return map.ArmyViews
+            .Where(a =>
+                a != null && a.ArmyData != null &&
+                (a.ArmyData.Position == ((int)provinceCoordinates.x, (int)provinceCoordinates.y)
+                || a.ArmyData.Destination == ((int)provinceCoordinates.x, (int)provinceCoordinates.y)) &&
+                a.gameObject.activeInHierarchy &&
+                !a.ArmyData.Equals(ArmyData)
+            ).ToList();
     }
 
     private Vector3 HexToWorldPosition(int x, int y)
@@ -266,31 +279,10 @@ public class army_view : MonoBehaviour
         army_count_text.text = newCount.ToString();
     }
 
-    private void UpdateArmyCounterColor(int type)
+    private void UpdateArmyCounterColor(Relation.RelationType? relationType)
     {
-        Color adjusted;
-        switch (type)
-        {
-            case (int)RelationType.War: // war
-                adjusted = filter_modes.WarColor;
-                break;
-            case (int)RelationType.Truce: // truce
-                adjusted = filter_modes.TruceColor;
-                break;
-            case (int)RelationType.Alliance: // alliance
-                adjusted = filter_modes.AllianceColor;
-                break;
-            case (int)RelationType.Vassalage: // vassalage
-                adjusted = filter_modes.VassalageColor;
-                break;
-            case (int)RelationType.Rebellion: // rebellion
-                adjusted = filter_modes.RebellionColor;
-                break;
-            default:
-                adjusted = filter_modes.DefaultColor;
-                break;
-        }
-        army_count_text.color = adjusted;
+        Color relationColor = filter_modes.GetDiplomaticColor(relationType);
+        army_count_text.color = relationColor;
     }
 
     public void DisbandArmy()
