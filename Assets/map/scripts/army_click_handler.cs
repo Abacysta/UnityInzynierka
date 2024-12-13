@@ -155,25 +155,25 @@ public class army_click_handler : cursor_helper
 
     public bool IsTileAccessibleForArmyMovement(Vector3Int cellPosition, int armyOwnerId)
     {
-        bool HasCurrentPlayerRelationWithTileOwner(RelationType type, Country tileOwner)
+        bool HasArmyOwnerRelationWithTileOwner(RelationType type, Country armyOwner, Country tileOwner)
         {
             return map.Relations.Any(rel => rel.Type == type &&
-                rel.Sides.Contains(map.CurrentPlayer) && rel.Sides.Contains(tileOwner));
+                rel.Sides.Contains(armyOwner) && rel.Sides.Contains(tileOwner));
         }
 
-        bool HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType type, Country tileOwner)
+        bool HasArmyOwnerRelationWithTileOwnerAsSide0(RelationType type, Country armyOwner, Country tileOwner)
         {
             return map.Relations.Any(rel => rel.Type == type &&
-                rel.Sides[0] == tileOwner && rel.Sides[1] == map.CurrentPlayer);
+                rel.Sides[0] == tileOwner && rel.Sides[1] == armyOwner);
         }
 
-        bool HasCurrentPlayerWarRelationWithTileOwner(Country tileOwner)
+        bool HasArmyOwnerWarRelationWithTileOwner(Country armyOwner, Country tileOwner)
         {
             return map.Relations
                 .OfType<Relation.War>()
                 .Any(warRelation =>
-                    (warRelation.Participants1.Contains(map.CurrentPlayer) && warRelation.Participants2.Contains(tileOwner)) ||
-                    (warRelation.Participants2.Contains(map.CurrentPlayer) && warRelation.Participants1.Contains(tileOwner))
+                    (warRelation.Participants1.Contains(armyOwner) && warRelation.Participants2.Contains(tileOwner)) ||
+                    (warRelation.Participants2.Contains(armyOwner) && warRelation.Participants1.Contains(tileOwner))
                 );
         }
 
@@ -183,24 +183,24 @@ public class army_click_handler : cursor_helper
 
         // Do not highlight the tile if:
         // the province is a water tile and
-        // the currentPlayer cannot boat
+        // the armyOwner cannot boat
         if (!tileProvince.IsLand && !armyOwner.techStats.CanBoat)
         {
             return false;
         }
 
         // Highlight the tile if the tile's owner is:
-        // - currentPlayer or
         // - tribal or
-        // - at war with currentPlayer or
-        // - in a alliance relation with currentPlayer or
-        // - in a vassalage relation with currentPlayer or
-        // - granting military access to currentPlayer or
+        // - armyOwner or
+        // - at war with armyOwner or
+        // - in a alliance relation with armyOwner or
+        // - in a vassalage relation with armyOwner or
+        // - granting military access to armyOwner or
         return tileOwner.Id == 0 || tileOwner.Id == armyOwnerId ||
-            HasCurrentPlayerWarRelationWithTileOwner(tileOwner) ||
-            HasCurrentPlayerRelationWithTileOwner(RelationType.Alliance, tileOwner) ||
-            HasCurrentPlayerRelationWithTileOwner(RelationType.Vassalage, tileOwner) ||
-            HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, tileOwner);
+            HasArmyOwnerWarRelationWithTileOwner(armyOwner, tileOwner) ||
+            HasArmyOwnerRelationWithTileOwner(RelationType.Alliance, armyOwner, tileOwner) ||
+            HasArmyOwnerRelationWithTileOwner(RelationType.Vassalage, armyOwner, tileOwner) ||
+            HasArmyOwnerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, armyOwner, tileOwner);
     }
 
     private void AnimateHighlitedTiles()

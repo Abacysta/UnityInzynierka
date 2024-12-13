@@ -149,8 +149,11 @@ public class army_view : MonoBehaviour
     {
         Vector3 position = HexToWorldPosition(newPosition.Item1, newPosition.Item2);
         targetPosition = AdjustPosition(position, isNotPreparingToMove: false);
-        isMoving = true;
-        move_army_sound.Play();
+        if (map.Controllers[ArmyData.OwnerId] == Map.CountryController.Local)
+        {
+            isMoving = true;
+            move_army_sound.Play();
+        }
         army_collider.enabled = false;
     }
 

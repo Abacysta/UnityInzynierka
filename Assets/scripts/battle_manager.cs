@@ -17,9 +17,13 @@ namespace Assets.Scripts {
                 if (enemyArmies != null) {
                     var it = 0;
 
-                    while (attackerArmy.Count > 0 && enemyArmies.Sum(a => a.Count) > 0) { 
-                        if (IsAttackerVictorious(attackerArmy, enemyArmies[it]))
+                    while (enemyArmies.Sum(a => a.Count) > 0) {
+                        if (IsAttackerVictorious(attackerArmy, enemyArmies[it])) {
                             enemyArmies[it++].Count = 0;
+                        }
+                        else {
+                            break;
+                        }
                     }
 
                     enemyArmies.RemoveAll(a => a.Count == 0);

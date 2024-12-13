@@ -26,12 +26,12 @@ public class Map : ScriptableObject
     [SerializeField] private GameObject army_prefab;
     [SerializeField] private int turnlimit;
     [SerializeField] private int resourceRate;
+    [SerializeField] private List<CountryController> countryControllers = new();
+    [SerializeField] private List<army_view> armyViews = new();
+    [SerializeField] private HashSet<Relation> relations = new();
+    [SerializeField] private int currentPlayerId;
+    [SerializeField] private int turnCnt = 0;
     [SerializeField] diplomatic_relations_manager diplomacy;
-    private List<CountryController> countryControllers = new();
-    private List<army_view> armyViews = new();
-    private HashSet<Relation> relations = new();
-    private int currentPlayerId;
-    private int turnCnt = 0;
 
     public Map() 
     {
@@ -54,6 +54,7 @@ public class Map : ScriptableObject
     public List<army_view> ArmyViews { get => armyViews; set => armyViews = value; }
     public int CurrentPlayerId { get => currentPlayerId; set => currentPlayerId = value; }
     public int TurnCnt { get => turnCnt; set => turnCnt = value; }
+    internal diplomatic_relations_manager Diplomacy { get => diplomacy; set => diplomacy = value; }
 
     public void AddCountry(Country country, CountryController ptype)
     {

@@ -153,12 +153,16 @@ public class game_manager : MonoBehaviour
                 Army attackerArmy = null;
 
                 if (c.Actions.Count > 0) {
-                    if (c.Actions.last is TurnAction.ArmyMove) {
+                    if (c.Actions.Last is TurnAction.ArmyMove) {
+                        var armyMoveAction = c.Actions.Last as TurnAction.ArmyMove;
+                        armyMoveAction.Execute(map);
+                        c.Actions.Actions.RemoveAt(0);
                         isArmyMoveAction = true;
-                        attackerArmy = (c.Actions.last as TurnAction.ArmyMove).Army;
+                        attackerArmy = armyMoveAction.MovedArmy;
                     }
-
-                    c.Actions.Execute();
+                    else {
+                        c.Actions.Execute();
+                    }
                 }
 
                 if (isArmyMoveAction && attackerArmy != null) {
@@ -380,7 +384,7 @@ public class game_manager : MonoBehaviour
             Debug.Log(map.Countries[i].Name + "--");
             Debug.Log("--" + map.Controllers[i]);
         }
-        var cleanup_crew = new Janitor(map, battle_manager);
+        var cleanup_crew = new Janitor(map, battle_manager, diplomacy);
         if(cleanup_crew.Cleanup()) EndGame(map.Turnlimit <= map.TurnCnt);
         map.CurrentPlayerId = 1;
         if (map.TurnCnt % 5 == 0) AutoSave();
@@ -463,9 +467,12 @@ public class game_manager : MonoBehaviour
     private class Janitor {
         private Map map;
         private battle_manager battle;
-        public Janitor(Map map, battle_manager battle) {
+        private diplomatic_relations_manager diplomacy;
+
+        public Janitor(Map map, battle_manager battle, diplomatic_relations_manager diplomacy) {
             this.map = map;
             this.battle = battle;
+            this.diplomacy = diplomacy;
         }
         public bool Cleanup() { 
             //check if the game should be going at all
@@ -481,6 +488,7 @@ public class game_manager : MonoBehaviour
                 if (map.Countries.Where(c => c.Id != 0 || c.Id != i).ToHashSet().Equals(vas)) return true;
                 //capital check so if no capitals kill it
                 if (!c.Provinces.Contains(map.GetProvince(c.Capital))) {
+                    map.Diplomacy = diplomacy;
                     map.KillCountry(c);
                     continue;
                 }
@@ -493,8 +501,8 @@ public class game_manager : MonoBehaviour
                 foreach (var a in ownedArmies) {
                     battle.CheckBattle(a);
                     //its a hack but what can you do
-                    var armiesinprov = map.Armies.Where(ass=>ass.Position == a.Position).ToHashSet();
-                    foreach(var aa in armiesinprov) {
+                    var armiesInProv = map.Armies.Where(ass => ass.Position == a.Position).ToHashSet();
+                    foreach (var aa in armiesInProv) {
                         map.UpdateArmyPosition(aa, aa.Position);
                     }
                 }

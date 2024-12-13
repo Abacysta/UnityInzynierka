@@ -659,7 +659,9 @@ namespace Assets.classes {
 
                 public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, Relation.War war, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera) {
+                    War = war;
+                }
 
                 public override string Message { get { 
                         return From.Name + " has called you to war against " 

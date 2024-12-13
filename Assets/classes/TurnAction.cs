@@ -94,29 +94,30 @@ namespace Assets.classes {
         internal class ArmyMove : TurnAction {
             private (int, int) from, to;
             private int count;
-            private Army army;
+            private Army armyToMove;
             private Army armyPreview;
+            private Army movedArmy;
 
-            public ArmyMove((int, int) from, (int, int) to, int count, Army army) : base(ActionType.ArmyMove,
+            public ArmyMove((int, int) from, (int, int) to, int count, Army armyToMove) : base(ActionType.ArmyMove,
                 CostsCalculator.TurnActionApCost(ActionType.ArmyMove)) {
                 Debug.Log(from + " " + to + " " + count);
                 this.from = from;
                 this.to = to;
                 this.count = count;
-                this.army = army;
+                this.armyToMove = armyToMove;
             }
 
             public override string desc { get => count + "units moved from " + from.ToString() + " to " + to.ToString(); }
 
             public override void Execute(Map map) {
                 base.Execute(map);
-                army = map.SetMoveArmy(army, count, to);
-                map.MoveArmy(army);
+                movedArmy = map.SetMoveArmy(armyToMove, count, to);
+                map.MoveArmy(movedArmy);
             }
 
             public override void Preview(Map map) {
                 base.Preview(map);
-                armyPreview = map.SetMoveArmy(army, count, to);
+                armyPreview = map.SetMoveArmy(armyToMove, count, to);
             }
 
             public override void Revert(Map map) {
@@ -124,7 +125,7 @@ namespace Assets.classes {
                 map.UndoSetMoveArmy(armyPreview);
             }
 
-            public Army Army { get { return army; } }
+            public Army MovedArmy { get { return movedArmy; } }
         }
 
         internal class ArmyRecruitment : TurnAction {
@@ -836,6 +837,10 @@ namespace Assets.classes {
         private Map map;
         private List<TurnAction> actions;
 
+        public TurnAction Last { get => actions[actions.Count - 1]; }
+        public int Count { get { return actions.Count; } }
+        public List<TurnAction> Actions { get => actions; set => actions = value; }
+
         public ActionContainer(Map map) {
             this.map = map;
             actions = new List<TurnAction>();
@@ -850,9 +855,7 @@ namespace Assets.classes {
             return instants;
         }
 
-        public TurnAction last { get => actions[actions.Count - 1]; }
 
-        public int Count { get { return actions.Count; } }
 
         public void AddAction(TurnAction action) {
             action.cRes = map.Countries[map.CurrentPlayerId].Resources;
@@ -868,8 +871,8 @@ namespace Assets.classes {
 
         public void Revert() {
             if(actions.Count>0){
-                last.Revert(map);
-                actions.Remove(last);
+                Last.Revert(map);
+                actions.Remove(Last);
             }
         }
     }

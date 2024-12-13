@@ -63,7 +63,6 @@ namespace Assets.classes.subclasses {
             List<Province> loadProvinces = new();
             List<Country> loadCountries = new();
             List<Army> loadArmies = new();
-            List<Map.CountryController> loadControllers = new();
             HashSet<Relation> loadRelations = new();
 			//needs to go provinces->countries->relations->armies->events otherwise funny stuff happens
 
@@ -79,6 +78,7 @@ namespace Assets.classes.subclasses {
 			toLoad.Provinces = loadProvinces;
             data.Countries = data.Countries.OrderBy(c => c.Id).ToList();
             toLoad.Countries = new();
+            toLoad.Controllers = new();
 
 			for(int i = 0; i < data.Countries.Count; i++) {
                 toLoad.AddCountry(data.Countries[i].Load(toLoad, managers), data.Controllers[i]);

@@ -225,6 +225,8 @@ public class player_table : MonoBehaviour
         map.Countries.Clear();
         map.Controllers.Clear();
         map.Provinces.Clear();
+        map.Controllers.Clear();
+        map.Relations.Clear();
     }
 
     private void SetCurrentPlayer()
