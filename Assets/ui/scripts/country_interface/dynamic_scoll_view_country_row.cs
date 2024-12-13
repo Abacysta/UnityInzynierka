@@ -57,26 +57,42 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         country_relations_table_manager.Map.Relations
             .Where(r => r.Type != Relation.RelationType.War)
             .Where(r => r.Sides.Contains(currentPlayer) && r.Sides.Contains(country))
-            .Select(r => new { relationSprite = GetRelationSpriteForSide(r.Type, r.Sides[0] == currentPlayer) })
-            .Where(r => r.relationSprite != null)
+            .Select(r => {
+                var spriteInfo = GetRelationSpriteForSide(r.Type, r.Sides[0] == currentPlayer);
+                return new { relationSprite = spriteInfo.Item1, tooltipText = spriteInfo.Item2 };
+            })
+            .Where(r => r.relationSprite != null && r.tooltipText != null)
             .ToList()
             .ForEach(r => {
                 GameObject relationImageObj = Instantiate(relation_type_img_prefab, relations_container.transform);
-                relationImageObj.GetComponent<Image>().sprite = r.relationSprite;
+                Image imageComponent = relationImageObj.GetComponent<Image>();
+                imageComponent.sprite = r.relationSprite;
+                imageComponent.preserveAspect = true;
+                help_tooltip_trigger trigger = relationImageObj.AddComponent<help_tooltip_trigger>();
+                trigger.TooltipText = r.tooltipText;
             });
 
         // Add a war icon if currentPlayer and country are on opposite sides of the conflict
-        country_relations_table_manager.Map.Relations
+        var warRelation = country_relations_table_manager.Map.Relations
             .OfType<Relation.War>()
-            .Where(warRelation =>
+            .FirstOrDefault(warRelation =>
                 (warRelation.Participants1.Contains(currentPlayer) && warRelation.Participants2.Contains(country)) ||
                 (warRelation.Participants2.Contains(currentPlayer) && warRelation.Participants1.Contains(country))
-            )
-            .ToList()
-            .ForEach(warRelation => {
+            );
+
+        if (warRelation != null)
+        {
+            var spriteInfo = GetRelationSpriteForSide(Relation.RelationType.War);
+            if (spriteInfo.Item1 != null)
+            {
                 GameObject warImageObj = Instantiate(relation_type_img_prefab, relations_container.transform);
-                warImageObj.GetComponent<Image>().sprite = war_sprite;
-            });
+                Image imageComponent = warImageObj.GetComponent<Image>();
+                imageComponent.sprite = spriteInfo.Item1;
+                imageComponent.preserveAspect = true;
+                help_tooltip_trigger trigger = warImageObj.AddComponent<help_tooltip_trigger>();
+                trigger.TooltipText = spriteInfo.Item2;
+            }
+        }
     }
 
     void SetOpinionText(TMP_Text textElement, int opinion)
@@ -85,24 +101,30 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
         textElement.text = opinion == 0 ? "0" : (opinion > 0 ? "+" + opinion : opinion.ToString());
     }
 
-    Sprite GetRelationSpriteForSide(RelationType relationType, bool isSide0)
+    (Sprite, string) GetRelationSpriteForSide(RelationType relationType, bool isCurrentPlayerSide0 = true)
     {
         switch (relationType)
         {
             case RelationType.War:
-                return war_sprite;
+                return (war_sprite, "War");
             case RelationType.Alliance:
-                return alliance_sprite;
+                return (alliance_sprite, "Alliance"); 
             case RelationType.Truce:
-                return truce_sprite;
+                return (truce_sprite, "Truce");
             case RelationType.Vassalage:
-                return isSide0 ? vassalage_sprite_1 : vassalage_sprite_2;
+                return isCurrentPlayerSide0 
+                    ? (vassalage_sprite_1, "Your vassal") 
+                    : (vassalage_sprite_2, "Your liege lord");
             case RelationType.Subsidies:
-                return isSide0 ? subsidies_sprite_2 : subsidies_sprite_1;
+                return isCurrentPlayerSide0 
+                    ? (subsidies_sprite_2, "Your subsidy beneficiary") 
+                    : (subsidies_sprite_1, "Your subsidizer");
             case RelationType.MilitaryAccess:
-                return isSide0 ? military_access_sprite_2 : military_access_sprite_1;
+                return isCurrentPlayerSide0 
+                    ? (military_access_sprite_2, "Your military access beneficiary") 
+                    : (military_access_sprite_1, "Your military access provider");
             default:
-                return null;
+                return (null, null);
         }
     }
 

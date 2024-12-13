@@ -651,7 +651,9 @@ namespace Assets.classes {
                     diplomacy.EndRelation(war);
                 }
 
-                public override void Reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class CallToWar : DiploEvent {
@@ -751,7 +753,9 @@ namespace Assets.classes {
                     }
                 }
 
-                public override void Reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class SubsRequest : DiploEvent {
@@ -780,7 +784,9 @@ namespace Assets.classes {
                         diplomacy.StartSub(To, From, Amount);
                     }
                 }
-                public override void Reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class SubsEndMaster : DiploEvent {
@@ -815,7 +821,9 @@ namespace Assets.classes {
                     diplomacy.StartAccess(From, To);
                 }
 
-                public override void Reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class AccessRequest : DiploEvent {
@@ -829,7 +837,9 @@ namespace Assets.classes {
                     diplomacy.StartAccess(To, From);
                 }
 
-                public override void Reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class AccessEndMaster : DiploEvent {

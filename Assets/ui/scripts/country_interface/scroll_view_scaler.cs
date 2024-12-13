@@ -9,7 +9,24 @@ public class scroll_view_scaler : MonoBehaviour
     [SerializeField] private DynamicVScrollView dynamic_vscroll_view_script;
     [SerializeField] private int rowsVisible = 13;
 
-    void Update()
+    private float lastViewportHeight;
+
+    void Start()
+    {
+        lastViewportHeight = viewport.rect.height;
+        InvokeRepeating(nameof(CheckResolutionChange), 0f, 0.5f);
+    }
+
+    void CheckResolutionChange()
+    {
+        if (Mathf.Abs(viewport.rect.height - lastViewportHeight) > 0.01f)
+        {
+            lastViewportHeight = viewport.rect.height;
+            UpdateScrollView();
+        }
+    }
+
+    void UpdateScrollView()
     {
         float viewportHeight = viewport.rect.height;
         float rowHeight = viewportHeight / rowsVisible;
