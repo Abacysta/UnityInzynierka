@@ -293,18 +293,15 @@ public class Country {
 
     [SerializeField] private int id;
     [SerializeField] private string name;
-    [SerializeField] private int prio;
+    [SerializeField] private int priority;
     [SerializeField] private (int, int) capital;
     [SerializeField] private Dictionary<Resource, float> resources;
     [SerializeField] private Dictionary<Technology, int> technologies;
-    private ActionContainer actions;
-    /// <summary>
-    /// Container for all stats modified by technology
-    /// </summary>
-    public TechnologyInterpreter techStats;
     [SerializeField] private HashSet<Province> provinces;
     [SerializeField] private Color color;
-    private int coat;
+
+    private ActionContainer actions;
+    private int coatOfArms;
     private HashSet<(int, int)> revealedTiles;
     private HashSet<(int, int)> seenTiles;
     private List<Event_> events;
@@ -313,44 +310,37 @@ public class Country {
     private army_visibility_manager armyVisibilityManager;
     private ATax tax;
 
+    /// <summary>
+    /// Container for all stats modified by technology
+    /// </summary>
+    private TechnologyInterpreter techStats;
+
     public Country(int id, string name, (int, int) capital, Color color, int coat, Map map) {
         this.id = id;
         this.name = name;
         this.capital = id == 0 ? DEFAULT_CORD : capital;
         this.color = id == 0 ? new Color(0.8392f, 0.7216f, 0.4706f) : color;
-        this.coat = coat;
-        this.resources = new(TechnicalDefaultResources.defaultValues);
-        this.technologies = new Dictionary<Technology, int> { { Technology.Economic, 0 }, { Technology.Military, 0 }, { Technology.Administrative, 0 } };
-        this.techStats = new TechnologyInterpreter(this.technologies);
-        this.provinces = new HashSet<Province> { map.GetProvince(capital) };
+        this.coatOfArms = coat;
+        resources = new(TechnicalDefaultResources.defaultValues);
+        technologies = new Dictionary<Technology, int> { 
+            { Technology.Economic, 0 }, 
+            { Technology.Military, 0 }, 
+            { Technology.Administrative, 0 } 
+        };
+        techStats = new TechnologyInterpreter(this.technologies);
+        provinces = new HashSet<Province> { map.GetProvince(capital) };
         revealedTiles = new HashSet<(int, int)>();
-        this.actions = new(map);
+        actions = new(map);
         seenTiles = new HashSet<(int, int)>();
         events = new List<Event_> ();
-        this.atWar = false;
-        this.opinions = new Dictionary<int, int> { { 0, 0 } };
-        this.tax = new MediumTaxes();
+        atWar = false;
+        opinions = new Dictionary<int, int> { { 0, 0 } };
+        tax = new MediumTaxes();
     }
 
-    public void AddProvince(Province province) {
-        provinces.Add(province);
-    }
-    public void RemoveProvince((int, int) coordinates) {
-        RemoveProvince(provinces.First(p => p.coordinates == coordinates));
-    }
-    public void RemoveProvince(Province province) {
-        if(province.coordinates != capital) provinces.Remove(province);
-        else {
-            provinces.Remove(province);
-            if (provinces.Count != 0) {
-                capital = provinces.ToList().OrderByDescending(p => p.Population).First().coordinates;
-            }
-            else capital = DEFAULT_CORD;
-        }
-    }
     public int Id { get { return id; } }
     public string Name { get { return name; } } 
-    public int Priority { get { return prio; } set => prio = value; }
+    public int Priority { get { return priority; } set => priority = value; }
     public Color Color { get { return color; } }
     public Dictionary<Resource, float> Resources { get { return resources; } }
     public HashSet<Province> Provinces { get { return provinces; } set => provinces = value; }
@@ -358,19 +348,42 @@ public class Country {
     public HashSet<(int,int)> RevealedTiles { get {  return revealedTiles; } }
     public HashSet<(int, int)> SeenTiles { get { return seenTiles;  } }
     public ActionContainer Actions { get { return actions; } }
-
     public List<Event_> Events { get => events; set => events = value; }
     public Dictionary<int, int> Opinions { get => opinions; set => opinions = value; }
     public bool AtWar { get => atWar; set => atWar = value; }
-
-    public int Coat { get => coat; }
+    public int Coat { get => coatOfArms; }
     public Dictionary<Technology, int> Technologies { get => technologies; set => technologies = value; }
     public ATax Tax { get => tax; set => tax = value; }
+    public TechnologyInterpreter TechStats { get => techStats; set => techStats = value; }
+
+    public void AddProvince(Province province)
+    {
+        provinces.Add(province);
+    }
+
+    public void RemoveProvince((int, int) coordinates)
+    {
+        RemoveProvince(provinces.First(p => p.coordinates == coordinates));
+    }
+
+    public void RemoveProvince(Province province)
+    {
+        if (province.coordinates != capital) provinces.Remove(province);
+        else
+        {
+            provinces.Remove(province);
+            if (provinces.Count != 0)
+            {
+                capital = provinces.ToList().OrderByDescending(p => p.Population).First().coordinates;
+            }
+            else capital = DEFAULT_CORD;
+        }
+    }
 
     public Sprite GetCoat() {
         int res;
-        if (coat == 1 || coat == 2 || coat == 3)
-            res = coat;
+        if (coatOfArms == 1 || coatOfArms == 2 || coatOfArms == 3)
+            res = coatOfArms;
         else res = 1;
         return UnityEngine.Resources.Load<Sprite>("sprites/coat_" + res);
     }
@@ -398,7 +411,6 @@ public class Country {
     }
 
     public void ModifyResource((Resource, float) values) {
-        //Debug.Log("modified " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] += values.Item2;
     }
 
@@ -417,7 +429,6 @@ public class Country {
     }
 
     public void SetResource((Resource, float) values) {
-        //Debug.Log("set " + values.Item1.ToString() + " by " + values.Item2.ToString() + " for " + this.name);
         this.resources[values.Item1] = values.Item2;
     }
 
@@ -477,7 +488,8 @@ public class Country {
     {
         this.armyVisibilityManager = manager;
     }
-    public bool IsPayable(Dictionary<Resource, float> cost) {
+
+    public bool CanAfford(Dictionary<Resource, float> cost) {
         bool payFlag = true;
         foreach (var c in cost) { 
             if(c.Value > resources[c.Key])
@@ -488,7 +500,7 @@ public class Country {
         return payFlag;
     }
 
-    public bool IsPayable(Resource type, float amount) {
+    public bool CanAfford(Resource type, float amount) {
         return resources[type] >= amount;
     }
 
@@ -498,6 +510,49 @@ public class Country {
 
     public void SetOpinion(int countryId, int value) {
         opinions[countryId] = Mathf.Clamp(value, MIN_OPINION, MAX_OPINION);
+    }
+
+    public Dictionary<Resource, float> GetResourcesGain(Map map)
+    {
+        var prod = new Dictionary<Resource, float> {
+            { Resource.Gold, 0 },
+            { Resource.Wood, 0 },
+            { Resource.Iron, 0 },
+            { Resource.SciencePoint, 0 },
+            { Resource.AP, 0 }
+        };
+
+        foreach (var prov in provinces)
+        {
+            prod[prov.ResourceType] += prov.ResourcesP;
+            prod[Resource.AP] += 0.1f;
+
+            if (prov.Buildings.ContainsKey(BuildingType.School) &&
+                prov.GetBuildingLevel(BuildingType.School) < 4)
+            {
+                prod[Resource.SciencePoint] += prov.GetBuildingLevel(BuildingType.School) * 3;
+            }
+        }
+
+        foreach (var type in prod.ToList())
+        {
+            if (type.Key != Resource.AP)
+                prod[type.Key] *= TechStats.ProdFactor;
+        }
+
+        foreach (var army in map.GetCountryArmies(map.CurrentPlayer))
+        {
+            prod[Resource.Gold] -= (army.Count / 10 + 1) * TechStats.ArmyUpkeep;
+        }
+
+        foreach (var type in prod.ToList())
+        {
+            prod[type.Key] = (float)Math.Round(prod[type.Key], 1);
+        }
+
+        prod[Resource.AP] += 2.5f;
+
+        return prod;
     }
 }
 

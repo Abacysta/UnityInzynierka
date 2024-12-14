@@ -184,7 +184,7 @@ public class army_click_handler : cursor_helper
         // Do not highlight the tile if:
         // the province is a water tile and
         // the armyOwner cannot boat
-        if (!tileProvince.IsLand && !armyOwner.techStats.CanBoat)
+        if (!tileProvince.IsLand && !armyOwner.TechStats.CanBoat)
         {
             return false;
         }

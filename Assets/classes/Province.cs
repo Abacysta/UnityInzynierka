@@ -51,9 +51,9 @@ public class Province {
     [SerializeField] private OccupationInfo occupationInfo;
     [SerializeField] private int ownerId;
     [SerializeField] private Dictionary<BuildingType, int> buildings;
-    private ProvinceModifiers modifiers;
-    private TerrainType terrain;
-    private List<Status> statuses;
+    [SerializeField] private ProvinceModifiers modifiers;
+    [SerializeField] private TerrainType terrain;
+    [SerializeField] private List<Status> statuses;
 
     [JsonConstructor]
     public Province(string name, int x, int y, bool isLand, TerrainType terrain, Resource resourceType,
@@ -73,7 +73,7 @@ public class Province {
         if (isLand)
         {
             occupationInfo = new OccupationInfo();
-            buildings = DefaultBuildings(this);
+            buildings = GetDefaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
             recruitablePopulation = 0;
@@ -98,7 +98,7 @@ public class Province {
         if (isLand)
         {
             occupationInfo = new OccupationInfo();
-            buildings = DefaultBuildings(this);
+            buildings = GetDefaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
         }
@@ -118,7 +118,7 @@ public class Province {
     public int OwnerId { get => ownerId; set => ownerId = value; }
     public Dictionary<BuildingType,int> Buildings { get => buildings; set => buildings = value; }
     public (int, int) coordinates { get => (x, y); }
-    public float ResourcesP { get => RealProduction(); }
+    public float ResourcesP { get => CalculateRealProduction(); }
     public List<Status> Statuses { get => statuses; set => statuses = value; }
     internal TerrainType Terrain { get => terrain; set => terrain = value; }
     public ProvinceModifiers Modifiers { get => modifiers; set => modifiers = value; }
@@ -174,7 +174,7 @@ public class Province {
         statuses?.Remove(status);
     }
 
-    private float RealProduction() {
+    private float CalculateRealProduction() {
         float prod;
 
         if (ResourceType != Resource.AP) {
@@ -199,7 +199,7 @@ public class Province {
         return (float)Math.Round(prod, 1);
     }
 
-    public static Dictionary<BuildingType, int> DefaultBuildings(Province p)
+    public static Dictionary<BuildingType, int> GetDefaultBuildings(Province p)
     {
         return new Dictionary<BuildingType, int>
         {
@@ -208,5 +208,48 @@ public class Province {
             { BuildingType.School, p.Population > SCHOOL_MIN_POP ? 0 : 4 },
             { BuildingType.Mine, p.resourceType == Resource.Iron ? 0 : p.resourceType == Resource.Gold ? 0 : 4 }
         };
+    }
+
+    public void GrowPopulation(Map map)
+    {
+        if (!isLand) return;
+
+        var provinceOwnerTechStats = map.Countries[ownerId].TechStats;
+
+        if (occupationInfo != null && occupationInfo.IsOccupied)
+        {
+            var occupierTechStats = map.Countries[occupationInfo.OccupyingCountryId].TechStats;
+            population = (int)Math.Floor(population *
+                ((provinceOwnerTechStats.PopGrowth * modifiers.PopMod) - occupierTechStats.OccPenalty));
+        }
+        else
+        {
+            population = (int)Math.Floor(population * provinceOwnerTechStats.PopGrowth * modifiers.PopMod);
+        }
+
+        population += (int)Math.Floor(modifiers.PopStatic);
+    }
+
+    public void GrowHappiness(Map map, int value)
+    {
+        if (!isLand) return;
+
+        if (occupationInfo.IsOccupied)
+        {
+            var occupierTechStats = map.Countries[occupationInfo.OccupyingCountryId].TechStats;
+            happiness += (int)Math.Floor(value * (modifiers.HappMod - occupierTechStats.OccPenalty));
+        }
+        else happiness += (int)Math.Floor(value * modifiers.HappMod);
+
+        happiness += (int)Math.Floor(modifiers.HappStatic);
+    }
+
+    public void CalcRecruitablePopulation(Map map)
+    {
+        if (!isLand) return;
+
+        var techStats = map.Countries[ownerId].TechStats;
+
+        recruitablePopulation = (int)Math.Floor(population * techStats.RecPop * modifiers.RecPop);
     }
 }

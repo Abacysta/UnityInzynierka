@@ -271,10 +271,10 @@ public class province_interface : MonoBehaviour
 
         UpdateBuildings(p);
         recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
-        festivities_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.CanFestival && !p.Statuses.Any(status => status is Festivities);
-        tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.CanTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
+        festivities_button.GetComponent<Button>().interactable = map.CurrentPlayer.TechStats.CanFestival && !p.Statuses.Any(status => status is Festivities);
+        tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.TechStats.CanTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
         rebel_suppress_button.GetComponent<Button>().interactable =
-            map.CurrentPlayer.techStats.CanRebelSupp &&
+            map.CurrentPlayer.TechStats.CanRebelSupp &&
             map.Armies.Any(a => a.Position == p.coordinates && a.OwnerId == 0);
     }
 
@@ -315,13 +315,13 @@ public class province_interface : MonoBehaviour
         switch (buildingType)
         {
             case BuildingType.Infrastructure:
-                return map.CurrentPlayer.techStats.CanInfrastructure ? 3 : 0;
+                return map.CurrentPlayer.TechStats.CanInfrastructure ? 3 : 0;
             case BuildingType.School:
-                return map.CurrentPlayer.techStats.MoreSchool ? 3 : 1;
+                return map.CurrentPlayer.TechStats.MoreSchool ? 3 : 1;
             case BuildingType.Fort:
-                return map.CurrentPlayer.techStats.LvlFort;
+                return map.CurrentPlayer.TechStats.LvlFort;
             case BuildingType.Mine:
-                return map.CurrentPlayer.techStats.LvlMine;
+                return map.CurrentPlayer.TechStats.LvlMine;
             default:
                 return 3;
         }

@@ -71,15 +71,15 @@ public class map_ui : MonoBehaviour
 			}
 			if (Input.GetKeyDown(KeyCode.Backspace)) {
 				if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-					game_manager.UndoAll();
+					game_manager.UndoAllActions();
 				}
 				else {
-					game_manager.UndoLast();
+					game_manager.UndoLastAction();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.Space)) {
 				if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-					game_manager.TurnSimulation();
+					game_manager.PerformTurnSimulation();
 				}
 				else {
 					game_manager.LocalTurnSimulation();

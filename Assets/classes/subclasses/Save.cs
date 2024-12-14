@@ -116,7 +116,7 @@ namespace Assets.classes.subclasses {
                 }
             }
 
-            toLoad.CalcPopExtremes();
+            toLoad.CalcPopulationExtremes();
 
             data = null;
             mapView.Reload();
@@ -296,7 +296,7 @@ namespace Assets.classes.subclasses {
                 }
             }
             else {
-                loaded.Buildings = Province.DefaultBuildings(loaded);
+                loaded.Buildings = Province.GetDefaultBuildings(loaded);
 			}
 
             return loaded;

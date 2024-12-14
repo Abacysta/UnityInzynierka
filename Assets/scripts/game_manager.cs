@@ -82,24 +82,24 @@ public class game_manager : MonoBehaviour
         map.UpdateAllArmyViewOrders();
     }
 
-    public void UndoAll()
+    public void UndoAllActions()
     {
         map_ui.DeactivateInterfaces();
         while(map.CurrentPlayer.Actions.Count > 0) {
-            map.CurrentPlayer.Actions.Revert();
+            map.CurrentPlayer.Actions.RevertLastAction();
         }
     }
     public void InvokeEvent(int id) {
         map.Countries[id].Events[1].Call();
     }
 
-    public void UndoLast() {
+    public void UndoLastAction() {
         map_ui.DeactivateInterfaces();
-        map.CurrentPlayer.Actions.Revert();
+        map.CurrentPlayer.Actions.RevertLastAction();
     }
 
-    public void UndoLast(int id) {
-        map.Countries[id].Actions.Revert();
+    public void UndoLastAction(int id) {
+        map.Countries[id].Actions.RevertLastAction();
     }
 
     private void TeleportUnauthorizedArmies()
@@ -161,7 +161,7 @@ public class game_manager : MonoBehaviour
                         attackerArmy = armyMoveAction.MovedArmy;
                     }
                     else {
-                        c.Actions.Execute();
+                        c.Actions.ExecuteLastAction();
                     }
                 }
 
@@ -174,16 +174,16 @@ public class game_manager : MonoBehaviour
         TeleportUnauthorizedArmies();
     }
 
-    private void TurnCalculations() {
+    private void PerformTurnCalculations() {
         int pcnt = map.Provinces.Count, ccnt = map.Countries.Count;
         loading_txt.text = "txttt";
         loading_bar.value = 0;
         loading_box.SetActive(true);
-        ProvinceCalc(pcnt);
-        CountryCalc();
+        PerformProvinceCalculations(pcnt);
+        PerformCountryCalculations();
         loading_txt.text = "Calculating happiness from relations.";
-        HappinnessFromRelations();
-        map.CalcPopExtremes();
+        SetHappinnessFromRelations();
+        map.CalcPopulationExtremes();
 
         loading_txt.text = "Merging armies";
         foreach(var c in map.Countries) {
@@ -192,7 +192,7 @@ public class game_manager : MonoBehaviour
             c.AtWar = map.GetRelationsOfType(c, Relation.RelationType.War) != null;
         }
         foreach(var a in map.Armies.Where(a=>a.OwnerId != 0)) {
-            map.Countries[a.OwnerId].ModifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.ArmyUpkeep);
+            map.Countries[a.OwnerId].ModifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].TechStats.ArmyUpkeep);
         }
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.TurnCnt).ToString());
@@ -201,22 +201,22 @@ public class game_manager : MonoBehaviour
 
     }
 
-    private void ProvinceCalc(int pcnt) {
+    private void PerformProvinceCalculations(int pcnt) {
         loading_txt.text = "Calculating provinces";
         Debug.Log("started bar");
 
         foreach(var p in map.Provinces.Where(p => p.IsLand)) {
             loading_bar.value = (0.2f * 100 / pcnt);
             if (p.OwnerId != 0) {
-                map.GrowPop(p.coordinates);
-                map.GrowHap(p.coordinates, 3);
-                map.CalcRecruitablePop(p.coordinates);
+                p.GrowPopulation(map);
+                p.GrowHappiness(map, 3);
+                p.CalcRecruitablePopulation(map);
             }
             p.CalcStatuses();
         }
     }
 
-    private void HappinnessFromRelations()
+    private void SetHappinnessFromRelations()
     {
         foreach(var country in map.Countries)
         {
@@ -275,7 +275,7 @@ public class game_manager : MonoBehaviour
 
             if (p.OccupationInfo.IsOccupied)
             {
-                var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
+                var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].TechStats;
                 resources[p.ResourceType] += p.ResourcesP * (1 - occupierTechStats.OccPenalty);
             }
             else
@@ -286,9 +286,9 @@ public class game_manager : MonoBehaviour
             resources[Resource.AP] += 0.1f;
         }
 
-        resources[Resource.Gold] *= map.Countries[i].techStats.ProdFactor;
-        resources[Resource.Wood] *= map.Countries[i].techStats.ProdFactor;
-        resources[Resource.Iron] *= map.Countries[i].techStats.ProdFactor;
+        resources[Resource.Gold] *= map.Countries[i].TechStats.ProdFactor;
+        resources[Resource.Wood] *= map.Countries[i].TechStats.ProdFactor;
+        resources[Resource.Iron] *= map.Countries[i].TechStats.ProdFactor;
         resources[Resource.Gold] -= Map.PowerUtilites.GetArmyUpkeep(map, map.Countries[i]);
         resources[Resource.AP] += 2.5f;//one simple trick
 
@@ -298,7 +298,7 @@ public class game_manager : MonoBehaviour
         map.Countries[i].SetResource(Resource.AP, resources[Resource.AP]);
     }
 
-    private void CountryCalc() {
+    private void PerformCountryCalculations() {
 
         for(int i = 1; i < map.Countries.Count; i++) {
             CalculateCountryResources(i);
@@ -312,14 +312,14 @@ public class game_manager : MonoBehaviour
         map.CurrentPlayer.Events.Clear();
     }
 
-    private void RebellionCheck() {
+    private void CheckRebellion() {
         foreach(var p in map.Provinces.Where(p => p.IsLand)) {
             random_events.CheckRebellion(p);
             //returns bool, so in future can do more with that
         }
     }
 
-    private void AiTurn() {
+    private void PerformAITurn() {
         try {
             ai_manager.Behave();
         }
@@ -331,35 +331,35 @@ public class game_manager : MonoBehaviour
 
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-            TurnSimulation();
+            PerformTurnSimulation();
             return;
         }
-        Action a = () => TurnSimulation();
+        Action a = () => PerformTurnSimulation();
         dialog_box.InvokeConfirmBox("Pass the turn", "Do you want to pass the turn?", a);
     }
 
-    public void TurnSimulation()
+    public void PerformTurnSimulation()
     {
-        PreTurnInstructions();
+        ExecutePreTurnInstructions();
 
         if (map.CurrentPlayerId < map.Countries.Count - 1)
         {
-            NextPlayerInstructions();
+            ExecuteNextPlayerInstructions();
         }
         else
         {
-            EndOfTurnInstructions();
+            ExecuteEndOfTurnInstructions();
         }
 
-        PostTurnInstructions();
+        ExecutePostTurnInstructions();
     }
 
-    private void PreTurnInstructions()
+    private void ExecutePreTurnInstructions()
     {
         ResetArmies();
     }
 
-    private void NextPlayerInstructions()
+    private void ExecuteNextPlayerInstructions()
     {
         AlertClear();
         map.CurrentPlayerId++;
@@ -368,15 +368,15 @@ public class game_manager : MonoBehaviour
         Debug.Log($"Sending actions.");
     }
 
-    private void EndOfTurnInstructions()
+    private void ExecuteEndOfTurnInstructions()
     {
         Debug.Log($"Executing actions and performing calculations.");
 
         turn_sound.Play();
 
-        RebellionCheck();
+        CheckRebellion();
         ExecuteActions();
-        TurnCalculations();
+        PerformTurnCalculations();
         GenerateEventsForCountries();
 
         for (int i = 0; i < map.Countries.Count; i++)
@@ -391,12 +391,12 @@ public class game_manager : MonoBehaviour
         loader.Reload();
     }
 
-    private void PostTurnInstructions()
+    private void ExecutePostTurnInstructions()
     {
         if (map.Controllers[map.CurrentPlayerId] == Map.CountryController.Ai)
         {
-            AiTurn();
-            TurnSimulation();
+            PerformAITurn();
+            PerformTurnSimulation();
         }
         else
         {

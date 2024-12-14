@@ -113,7 +113,7 @@ namespace Assets.Scripts {
             var vassals = map.GetRelationsOfType(map.CurrentPlayer, Relation.RelationType.Vassalage).Where(r => r.Sides[0] == map.CurrentPlayer).Cast<Relation.Vassalage>();
             var topproductions = map.Countries
                 .Where(c => c.Id != 0)
-                .Select(c => map.GetResourceGain(c))
+                .Select(c => c.GetResourcesGain(map))
                 .SelectMany(d => d)
                 .Where(k => k.Key == Resource.Gold)
                 .GroupBy(k => k.Key)
@@ -121,7 +121,7 @@ namespace Assets.Scripts {
                 .OrderByDescending(k => k.Value)
                 .Take(2) // adjust this as needed
                 .ToDictionary(k => k.Key, k => k.Value);
-            var production = map.GetResourceGain(map.CurrentPlayer)[Resource.Gold];
+            var production = map.CurrentPlayer.GetResourcesGain(map)[Resource.Gold];
             if(vassals.Count() > 2//has 3 or more vassals
                 || topproductions.ContainsValue(production)//is in the 2 top gold producing countries
                 ) {
@@ -149,7 +149,7 @@ namespace Assets.Scripts {
             var unavailable = Map.LandUtilites.GetUnpassableProvinces(map, map.CurrentPlayer);
             var enemyIds = Map.WarUtilities.GetEnemyIds(map, map.CurrentPlayer);
             foreach(var a in armies) {
-                if (map.CurrentPlayer.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
+                if (map.CurrentPlayer.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
                 //get all land- no water
                 var possible = map.GetPossibleMoveCells(a).Where(c => map.GetProvince(c).IsLand).ToList();
                 //trbal first I guess
@@ -253,21 +253,21 @@ namespace Assets.Scripts {
                 var vassalages = Map.PowerUtilites.GetVassalRelations(map, c);
                 foreach(var v in vassalages) {
                     var integration = new TurnAction.VassalIntegration(v, toolbox.Item1, toolbox.Item4);
-                    if(c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.IntegrateVassal, v))) {
+                    if(c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.IntegrateVassal, v))) {
                         c.Actions.AddAction(integration);
                     }
                 }
                 var vassals = Map.PowerUtilites.GetVassals(map, c);
                 foreach(var v in vassals) {
                     var improvement = new TurnAction.Praise(c, v, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
-                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.Praise))) {
+                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.Praise))) {
                         c.Actions.AddAction(improvement);
                     }
                 }
                 var weaklings = Map.PowerUtilites.GetWeakCountries(map, c);
                 foreach(var w in weaklings) {
                     var threat = new TurnAction.VassalizationDemand(c, w, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
-                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.VassalizationOffer))) {
+                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.VassalizationOffer))) {
                         c.Actions.AddAction(threat);
                     }
                 }
@@ -278,7 +278,7 @@ namespace Assets.Scripts {
                 foreach(var war in wars) {
                     foreach(var ally in allies) {
                         var call = new TurnAction.CallToWar(c, ally, war, toolbox.Item2, toolbox.Item1, toolbox.Item3, toolbox.Item4);
-                        if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.CallToWar))) {
+                        if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.CallToWar))) {
                             c.Actions.AddAction(call);
                         }
                     }
@@ -327,15 +327,15 @@ namespace Assets.Scripts {
                 var handlable = unhappy.FindAll(p=>p.Happiness >30).OrderBy(p=>p.Happiness).ToList();
                 //tax break on provinces with low chance of rebellion
                 while (handlable.Count > 0) {
-                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
+                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
                         c.Actions.AddAction(new TurnAction.TaxBreakIntroduction(handlable[0]));
                         handlable.RemoveAt(0);
                     }
                     else break;
                 }
                 //if can suppress, will for dire provinces
-                if(c.techStats.CanRebelSupp) while(veryBad.Count > 0) {
-                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
+                if(c.TechStats.CanRebelSupp) while(veryBad.Count > 0) {
+                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
                         c.Actions.AddAction(new TurnAction.RebelSuppresion(veryBad[0]));
                         veryBad.RemoveAt(0);
                     }
@@ -346,7 +346,7 @@ namespace Assets.Scripts {
                 var growable = Map.LandUtilites.GetGrowable(c);
                 int limit = humor == Humor.Leading ? c.Provinces.Count/10 : c.Provinces.Count/20;//10 and 5 % respecitvely
                 foreach(var p in growable) {
-                    if (c.IsPayable(CostsCalculator.TurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
+                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
                         c.Actions.AddAction(new TurnAction.FestivitiesOrganization(p));
                     }
                     else break;
@@ -369,7 +369,7 @@ namespace Assets.Scripts {
             }
             public static void HandleTax(Map map, Country c, Humor humor) {
                 if (humor == Humor.Defensive && humor == Humor.Offensive) {
-                    if (c.techStats.LvlTax >= 1) {
+                    if (c.TechStats.LvlTax >= 1) {
                         if (!(c.Tax is WarTaxes))
                             c.Tax = new WarTaxes();
                         else
@@ -377,7 +377,7 @@ namespace Assets.Scripts {
                     }
                 }
                 else if(humor == Humor.Leading) {
-                    if (c.techStats.LvlTax >= 2) {
+                    if (c.TechStats.LvlTax >= 2) {
                         c.Tax = new InvesmentTaxes();
                         float tax = Map.PowerUtilites.GetTaxGain(c), upkeep = Map.PowerUtilites.GetArmyUpkeep(map, c);
                         if(tax < upkeep) {
@@ -405,7 +405,7 @@ namespace Assets.Scripts {
             public static void HandleTechnology(Country c, Humor humor) {
                 if (c.Technologies[Technology.Administrative] < 4) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if(c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if(c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
@@ -428,19 +428,19 @@ namespace Assets.Scripts {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Administrative] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
@@ -454,19 +454,19 @@ namespace Assets.Scripts {
                 var tech = c.Technologies;
                 if (tech[Technology.Administrative] - tech[Technology.Economic] < 2 && tech[Technology.Administrative] - tech[Technology.Military] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Administrative);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
                 else if (tech[Technology.Economic] - tech[Technology.Military] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
@@ -480,19 +480,19 @@ namespace Assets.Scripts {
                 var tech = c.Technologies;
                 if (tech[Technology.Military] - tech[Technology.Administrative] < 2 && tech[Technology.Military] - tech[Technology.Economic] < 2) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Military);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
                 else if (tech[Technology.Administrative] - tech[Technology.Economic] > 1) {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
                 else {
                     var action = new TurnAction.TechnologyUpgrade(c, Technology.Economic);
-                    if (c.IsPayable(Resource.AP, action.Cost) && c.IsPayable(action.AltCosts)) {
+                    if (c.CanAfford(Resource.AP, action.ApCost) && c.CanAfford(action.AltCosts)) {
                         c.Actions.AddAction(action);
                     }
                 }
@@ -506,38 +506,38 @@ namespace Assets.Scripts {
                 TurnAction.BuildingUpgrade upgrade;
                 if (c.GetCapital().Buildings[BuildingType.Infrastructure] == 0) {
                     upgrade = new(c.GetCapital(), BuildingType.Infrastructure);
-                    if (c.IsPayable(upgrade.AltCosts))
+                    if (c.CanAfford(upgrade.AltCosts))
                         c.Actions.AddAction(upgrade);
                 }
                 //mine block
                 List<Province> toImprove = GetMineable(c);
                 if(toImprove.Count>1){
                     upgrade = new(toImprove[0], BuildingType.Mine);
-                    if(c.IsPayable(upgrade.AltCosts))
+                    if(c.CanAfford(upgrade.AltCosts))
                         c.Actions.AddAction(upgrade);
                 }
                 //infr block
                 toImprove = GetInfrastructurable(c);
                 if(toImprove.Count>2){
                 upgrade = new(toImprove[0], BuildingType.Infrastructure);
-                if (c.IsPayable(upgrade.AltCosts))
+                if (c.CanAfford(upgrade.AltCosts))
                     c.Actions.AddAction(upgrade);
                 upgrade = new(toImprove[1], BuildingType.Infrastructure);
-                    if(c.IsPayable(upgrade.AltCosts))
+                    if(c.CanAfford(upgrade.AltCosts))
                         c.Actions.AddAction(upgrade);
                 }
                 //school block
                 toImprove = GetSchoolable(c);
                 if(toImprove.Count>1){
                 upgrade = new(toImprove[0], BuildingType.School);
-                    if(c.IsPayable(upgrade.AltCosts))
+                    if(c.CanAfford(upgrade.AltCosts))
                         c.Actions.AddAction(upgrade);
                 }
                 //fort block
                 toImprove = GetFortable(c);
                 if(toImprove.Count>1){
                     upgrade = new(toImprove[0], BuildingType.Fort);
-                    if(c.IsPayable(upgrade.AltCosts))
+                    if(c.CanAfford(upgrade.AltCosts))
                         c.Actions.AddAction(upgrade);
                 }
             }
@@ -553,14 +553,14 @@ namespace Assets.Scripts {
                 return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Infrastructure, out int level) && level < mode).OrderByDescending(p=>p.Population).ToList();
             }
             private static List<Province> GetFortable(Country c) {
-                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Fort, out int level) && level < ( c.techStats.LvlFort+1)).OrderByDescending(p=>p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Fort, out int level) && level < ( c.TechStats.LvlFort+1)).OrderByDescending(p=>p.Population).ToList();
             }
             private static List<Province> GetMineable(Country c) {
-                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Mine, out int level) && level < (c.techStats.LvlMine + 1)).OrderByDescending(p => p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.Mine, out int level) && level < (c.TechStats.LvlMine + 1)).OrderByDescending(p => p.Population).ToList();
             }
             //ograniczenie do 2 z lenistwa xd
             private static List<Province> GetSchoolable(Country c) {
-                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.School, out int level) && level < (c.techStats.MoreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
+                return c.Provinces.Where(p => p.Buildings.TryGetValue(BuildingType.School, out int level) && level < (c.TechStats.MoreSchool ? 2 : 1)).OrderByDescending(p=> p.Population).ToList();
             }
         }
         private class diploEventResponder {

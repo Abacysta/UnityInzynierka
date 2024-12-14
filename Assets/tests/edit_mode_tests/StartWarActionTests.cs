@@ -57,7 +57,7 @@ public class StartWarActionTests
         receiverCountry.Events.Clear();
 
         // Act
-        currentPlayer.Actions.Execute();
+        currentPlayer.Actions.ExecuteLastAction();
 
         // Assert
         WarDeclared warDeclaredEvent = (WarDeclared)receiverCountry.Events.Find(e => e is WarDeclared);
@@ -78,7 +78,7 @@ public class StartWarActionTests
         map.Relations.Add(new Relation.Vassalage(receiverCountry, receiverCountryVassal));
 
         // Act
-        currentPlayer.Actions.Execute();
+        currentPlayer.Actions.ExecuteLastAction();
 
         // Assert
         Relation.War warRelation = (Relation.War)map.Relations.ToList().Find(r => r is Relation.War);

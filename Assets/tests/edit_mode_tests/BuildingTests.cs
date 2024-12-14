@@ -32,7 +32,7 @@ public class BuildingTests
         province.Population = 4000;
 
         // Act
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
 
         // Assert
         Assert.AreEqual(0, province.Buildings[BuildingType.School]);
@@ -45,7 +45,7 @@ public class BuildingTests
         province.Population = 2000;
 
         // Act
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
 
         // Assert
         Assert.AreEqual(4, province.Buildings[BuildingType.School]);
@@ -56,7 +56,7 @@ public class BuildingTests
     {
         // Arrange
         province.ResourceType = Resource.Iron;
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
         Assert.AreEqual(0, province.Buildings[BuildingType.Mine]);
 
         // Act
@@ -88,7 +88,7 @@ public class BuildingTests
         province.ResourceType = Resource.Gold;
 
         // Act
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
 
         // Assert
         Assert.AreEqual(0, province.Buildings[BuildingType.Mine]);
@@ -101,7 +101,7 @@ public class BuildingTests
         province.ResourceType = Resource.Iron;
 
         // Act
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
 
         // Assert
         Assert.AreEqual(0, province.Buildings[BuildingType.Mine]);
@@ -114,7 +114,7 @@ public class BuildingTests
         province.ResourceType = Resource.SciencePoint;
 
         // Act
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
 
         // Assert
         Assert.AreEqual(4, province.Buildings[BuildingType.Mine]);
@@ -125,7 +125,7 @@ public class BuildingTests
     {
         // Assert
         province.ResourceType = Resource.Wood;
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
         Assert.AreEqual(4, province.Buildings[BuildingType.Mine]);
 
         // Act
@@ -140,7 +140,7 @@ public class BuildingTests
     {
         // Assert
         province.ResourceType = Resource.SciencePoint;
-        province.Buildings = Province.DefaultBuildings(province);
+        province.Buildings = Province.GetDefaultBuildings(province);
         Assert.AreEqual(4, province.Buildings[BuildingType.Mine]);
 
         // Act

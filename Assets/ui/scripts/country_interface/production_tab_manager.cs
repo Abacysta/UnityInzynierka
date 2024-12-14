@@ -90,7 +90,7 @@ public class production_tab_manager : MonoBehaviour
 
         for (int i = 0; i < toggles.Count; i++)
         {
-            toggles[i].interactable = i < map.CurrentPlayer.techStats.LvlTax + 3;
+            toggles[i].interactable = i < map.CurrentPlayer.TechStats.LvlTax + 3;
             if (i == toSet) toggles[i].isOn = true;
         }
     }
@@ -98,8 +98,8 @@ public class production_tab_manager : MonoBehaviour
     private void UpdateTaxInfo()
     {
         ATax tax = map.CurrentPlayer.Tax;
-        var tax_percent = tax.GoldP;
-        var tax_happ = tax.HappP;
+        var tax_percent = tax.ProjectedGold;
+        var tax_happ = tax.ProjectedHappiness;
         tax_text.text = tax_percent * 100 + "%";
         happ_text.text = (tax_happ >= 0 ? "+" : "") + tax_happ + "%";
 

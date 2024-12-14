@@ -66,9 +66,9 @@ public class TaxButtonsTests
 
     private (string TaxHapp, string TaxPercent, Color HappColor) GetExpectedTaxInfo()
     {
-        string tax_happ = (map.CurrentPlayer.Tax.HappP >= 0 ? "+" : "") + map.CurrentPlayer.Tax.HappP + "%";
-        string tax_percent = map.CurrentPlayer.Tax.GoldP * 100 + "%";
-        Color happ_color = map.CurrentPlayer.Tax.HappP > 0 ? Color.green : Color.red;
+        string tax_happ = (map.CurrentPlayer.Tax.ProjectedHappiness >= 0 ? "+" : "") + map.CurrentPlayer.Tax.ProjectedHappiness + "%";
+        string tax_percent = map.CurrentPlayer.Tax.ProjectedGold * 100 + "%";
+        Color happ_color = map.CurrentPlayer.Tax.ProjectedHappiness > 0 ? Color.green : Color.red;
 
         return (tax_happ, tax_percent, happ_color);
     }

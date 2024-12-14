@@ -209,11 +209,11 @@ public class player_table : MonoBehaviour
         {
             map.Controllers[i] = controllers[i - 1];
         }
-        map.InitCountries();
+        map.InitCountryOpinions();
 		SetCurrentPlayer();
         SetCountryPriorities();
         InitializeProvinces();
-        map.CalcPopExtremes();
+        map.CalcPopulationExtremes();
         map.TurnCnt = 0;
         Debug.Log("Game setup complete. Ready to start the game. " + map.Countries.Count + " countries present.");
     }
@@ -267,7 +267,7 @@ public class player_table : MonoBehaviour
             {
                 if (p.OwnerId == 0) p.AddStatus(new Tribal(-1));
                 p.CalcStatuses();
-                map.CalcRecruitablePop(p.coordinates);
+                p.CalcRecruitablePopulation(map);
             }
         }
     }

@@ -215,8 +215,8 @@ namespace Assets.map.scripts
                 Army rebels = new Army(0, count, DEFAULT_CORD, province.coordinates);
                 map.AddArmy(rebels);
                 Country country = map.Countries.FirstOrDefault(c => c.Id == province.OwnerId);
-                province.AddStatus(new Occupation(country.techStats.OccTime, 0));
-                province.OccupationInfo = new OccupationInfo(true, country.techStats.OccTime, 0);
+                province.AddStatus(new Occupation(country.TechStats.OccTime, 0));
+                province.OccupationInfo = new OccupationInfo(true, country.TechStats.OccTime, 0);
                 TurnAction rebellion = new TurnAction.ArmyMove(DEFAULT_CORD, province.coordinates, count, rebels);
                 rebellion.Execute(map);
                 province.Happiness = 45;

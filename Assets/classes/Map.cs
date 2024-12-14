@@ -30,7 +30,7 @@ public class Map : ScriptableObject
     [SerializeField] private List<army_view> armyViews = new();
     [SerializeField] private HashSet<Relation> relations = new();
     [SerializeField] private int currentPlayerId;
-    [SerializeField] private int turnCnt = 0;
+    [SerializeField] private int turnCounter = 0;
     [SerializeField] diplomatic_relations_manager diplomacy;
 
     public Map() 
@@ -53,7 +53,7 @@ public class Map : ScriptableObject
     public List<CountryController> Controllers { get { return countryControllers; } set => countryControllers = value; }
     public List<army_view> ArmyViews { get => armyViews; set => armyViews = value; }
     public int CurrentPlayerId { get => currentPlayerId; set => currentPlayerId = value; }
-    public int TurnCnt { get => turnCnt; set => turnCnt = value; }
+    public int TurnCnt { get => turnCounter; set => turnCounter = value; }
     internal diplomatic_relations_manager Diplomacy { get => diplomacy; set => diplomacy = value; }
 
     public void AddCountry(Country country, CountryController ptype)
@@ -62,7 +62,7 @@ public class Map : ScriptableObject
         countryControllers.Add(ptype);
     }
 
-    public void InitCountries() {
+    public void InitCountryOpinions() {
 
         for (int i = 1; i < countries.Count; i++) {
             for (int j = 1; j < countries.Count; j++) {
@@ -119,57 +119,9 @@ public class Map : ScriptableObject
         return Provinces.FindIndex(p => p.X == x && p.Y == y);
     }
 
-    public void CalcPopExtremes() {
+    public void CalcPopulationExtremes() {
         int min = Provinces.Min(p => p.Population), max = Provinces.Max(p => p.Population);
         PopExtremes = (min, max);
-    }
-
-    public void GrowPop((int, int) coordinates) {
-        Province province = GetProvince(coordinates);
-        if (!province.IsLand) return;
-        var provinceOwnerTechStats = countries[province.OwnerId].techStats;
-
-        if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied)
-        {
-            var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
-            province.Population = (int)Math.Floor(province.Population *
-                ((provinceOwnerTechStats.PopGrowth * province.Modifiers.PopMod) - occupierTechStats.OccPenalty));
-        }
-        else
-        {
-            province.Population = (int)Math.Floor(province.Population *
-                provinceOwnerTechStats.PopGrowth * province.Modifiers.PopMod);
-        }
-
-        province.Population += (int)Math.Floor(province.Modifiers.PopStatic);
-    }
-
-    public void CalcRecruitablePop((int, int) coordinates) {
-        Province province = GetProvince(coordinates);
-        if (!province.IsLand) return;
-        var techStats = countries[province.OwnerId].techStats;
-
-        province.RecruitablePopulation = (int)Math.Floor(province.Population * techStats.RecPop * province.Modifiers.RecPop);
-    }
-
-    public void CalcRecruitablePop(Province p) {
-        var techstats = countries[p.OwnerId].techStats;
-        if (!p.IsLand) return;
-        p.RecruitablePopulation = (int)Math.Floor(p.Population * techstats.RecPop * p.Modifiers.RecPop);
-    }
-
-    public void GrowHap((int, int) coordinates, int value) {
-        Province province = GetProvince(coordinates);
-        if (!province.IsLand) return;
-
-        if (province.OccupationInfo.IsOccupied)
-        {
-            var occupierTechStats = countries[province.OccupationInfo.OccupyingCountryId].techStats;
-            province.Happiness += (int)Math.Floor(value * (province.Modifiers.HappMod - occupierTechStats.OccPenalty));
-        }
-        else province.Happiness += (int)Math.Floor(value * province.Modifiers.HappMod);
-
-        province.Happiness += (int)Math.Floor(province.Modifiers.HappStatic);
     }
 
     public void AssignProvince((int, int) coordinates, int id) {
@@ -183,11 +135,6 @@ public class Map : ScriptableObject
             c.UnassignProvince(province);
             countries[id].AssignProvince(province);
         }
-    }
-
-    public (Resource, float) CalcResources((int, int) coordinates, int id, float factor) {
-        var p = GetProvince(coordinates);
-        return (p.ResourceType, p.ResourceAmount);
     }
 
     public void AddArmy(Army army) {
@@ -205,41 +152,7 @@ public class Map : ScriptableObject
         CreateArmyView(army);
     }
 
-    public Dictionary<Resource, float> GetResourceGain(Country country) {
-        var prod = new Dictionary<Resource, float> {
-            { Resource.Gold, 0 },
-            { Resource.Wood, 0 },
-            { Resource.Iron, 0 },
-            { Resource.SciencePoint, 0 },
-            { Resource.AP, 0 }
-        };
 
-        foreach (var prov in country.Provinces) {
-            prod[prov.ResourceType] += prov.ResourcesP;
-            prod[Resource.AP] += 0.1f;
-
-            if (prov.Buildings.ContainsKey(BuildingType.School) &&
-                prov.GetBuildingLevel(BuildingType.School) < 4) {
-                prod[Resource.SciencePoint] += prov.GetBuildingLevel(BuildingType.School) * 3;
-            }
-        }
-
-        foreach (var type in prod.ToList()) {
-            if (type.Key != Resource.AP)
-                prod[type.Key] *= country.techStats.ProdFactor;
-        }
-
-        foreach (var army in GetCountryArmies(CurrentPlayer)) {
-            prod[Resource.Gold] -= (army.Count / 10 + 1) * country.techStats.ArmyUpkeep;
-        }
-
-        foreach (var type in prod.ToList()) {
-            prod[type.Key] = (float)Math.Round(prod[type.Key], 1);
-        }
-
-        prod[Resource.AP] += 2.5f;
-        return prod;
-    }
 
     public void CreateArmyView(Army army) {
         var rtype = GetHardRelationType(CurrentPlayer, countries[army.OwnerId]);
@@ -262,7 +175,7 @@ public class Map : ScriptableObject
         }
     }
 
-    public void RecArmy((int, int) coordinates, int amount) {
+    public void RecruitArmy((int, int) coordinates, int amount) {
         var province = GetProvince(coordinates);
         var exitsing = armies.Find(a => a.Position == coordinates && a.Position == a.Destination);
         if (province.RecruitablePopulation >= amount) {
@@ -347,7 +260,7 @@ public class Map : ScriptableObject
     }
 
     public float CalcArmyCombatPower(Army army) {
-        var stats = countries[army.OwnerId].techStats;
+        var stats = countries[army.OwnerId].TechStats;
         return army.Count + (army.Count * stats.ArmyPower);
     }
 
@@ -373,7 +286,7 @@ public class Map : ScriptableObject
         if (view != null) {
             view.ReturnTo(army.Position);
         }
-        MergeToProvince(GetProvince(army.Position), army);
+        MergeArmiesInProvince(GetProvince(army.Position), army);
     }
 
     public Army SetMoveArmy(Army army, int count, (int, int) destination) {
@@ -421,7 +334,7 @@ public class Map : ScriptableObject
         }
     }
 
-    private void MergeToProvince(Province province, Army to_merge) {
+    private void MergeArmiesInProvince(Province province, Army to_merge) {
         Army base_ = armies.Find(a => a.OwnerId == to_merge.OwnerId && 
             a.Position == province.coordinates && a.Destination == a.Position);
 
@@ -438,7 +351,7 @@ public class Map : ScriptableObject
     {
         (int startX, int startY) = army.Position;
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
-        return GetPossibleMoveCells(startX, startY, country.techStats.MoveRange, country.techStats.WaterMoveFactor);
+        return GetPossibleMoveCells(startX, startY, country.TechStats.MoveRange, country.TechStats.WaterMoveFactor);
     }
 
     public List<(int, int)> GetPossibleMoveCells(Province province, int range)
@@ -564,10 +477,10 @@ public class Map : ScriptableObject
 
             if (relation == Relation.RelationType.War) {
                 if (master != null) {
-                    occupationStatus = new Occupation(country.techStats.OccTime, master.Id);
+                    occupationStatus = new Occupation(country.TechStats.OccTime, master.Id);
                 }
                 else {
-                    occupationStatus = new Occupation(country.techStats.OccTime, army.OwnerId);
+                    occupationStatus = new Occupation(country.TechStats.OccTime, army.OwnerId);
                 }
             }
             else if (relation == Relation.RelationType.Rebellion) {
@@ -655,6 +568,7 @@ public class Map : ScriptableObject
         }
         return null;
     }
+
     public Map GetSaveData() {
         return (Map)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(this, 
             Formatting.Indented, new JsonSerializerSettings {
@@ -803,8 +717,8 @@ public class Map : ScriptableObject
         public static bool RecruitAllAvailable(Country c, Province p) {
             if (c.Resources[Resource.AP] >= 1) {
                 c.Actions.AddAction(new TurnAction.ArmyRecruitment(p.coordinates,
-                    p.RecruitablePopulation*c.techStats.ArmyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation 
-                    : (int)Math.Floor(c.Resources[Resource.Gold]/c.techStats.ArmyCost), c.techStats));
+                    p.RecruitablePopulation*c.TechStats.ArmyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation 
+                    : (int)Math.Floor(c.Resources[Resource.Gold]/c.TechStats.ArmyCost), c.TechStats));
             }
             return p.RecruitablePopulation == 0;
         }
@@ -812,7 +726,7 @@ public class Map : ScriptableObject
         public static HashSet<Province> GetUnpassableProvinces(Map map, Country c) {
             HashSet<Province> unpassable = new();
 
-            if (!c.techStats.CanBoat) {
+            if (!c.TechStats.CanBoat) {
                 unpassable.UnionWith(map.Provinces.FindAll(p => p.IsLand).ToHashSet());
             }
 
@@ -857,12 +771,12 @@ public class Map : ScriptableObject
     internal class PowerUtilites {
         public static bool IsArmyStronger(Map map, Country c1, Country c2) {
             return map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a=>a.Count) * 
-                c1.techStats.ArmyPower > map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.ArmyPower;
+                c1.TechStats.ArmyPower > map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.TechStats.ArmyPower;
         }
 
         public static float HowArmyStronger(Map map, Country c1, Country c2) {
-            return (map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a => a.Count) * c1.techStats.ArmyPower) 
-                / (map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.techStats.ArmyPower);
+            return (map.Armies.FindAll(a => a.OwnerId == c1.Id).Sum(a => a.Count) * c1.TechStats.ArmyPower) 
+                / (map.Armies.FindAll(a => a.OwnerId == c2.Id).Sum(a => a.Count) * c2.TechStats.ArmyPower);
         }
 
         public static int GetOpinion(Country of, Country from) {
@@ -879,7 +793,7 @@ public class Map : ScriptableObject
             };
 
             var tax = GetTaxGain(country);
-            var prod = map.GetResourceGain(country);
+            var prod = country.GetResourcesGain(map);
 
             foreach (var res in gain.Keys.ToList()) {
                 if (res == Resource.Gold) gain[res] += tax;
@@ -893,9 +807,9 @@ public class Map : ScriptableObject
         internal static float GetTaxGain(Country country) {
             var tax = 0f;
             foreach (var prov in country.Provinces) {
-                tax += (prov.Population / 10) * country.Tax.GoldP;
+                tax += (prov.Population / 10) * country.Tax.ProjectedGold;
             }
-            tax *= country.techStats.TaxFactor;
+            tax *= country.TechStats.TaxFactor;
 
             return (float)Math.Round(tax, 1);
         }
@@ -907,7 +821,7 @@ public class Map : ScriptableObject
         public static float GetArmyUpkeep(Map map, Country c) {
             float res = 0;
             foreach (var army in map.GetCountryArmies(map.CurrentPlayer)) {
-                 res -= (army.Count / 10 + 1) * map.Countries[c.Id].techStats.ArmyUpkeep;
+                 res -= (army.Count / 10 + 1) * map.Countries[c.Id].TechStats.ArmyUpkeep;
             }
             return res;
         }

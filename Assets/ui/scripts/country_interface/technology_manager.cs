@@ -218,7 +218,7 @@ public class technology_manager : MonoBehaviour
         GameObject nextLevelContainer, Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText, 
         TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Technology type)
     {
-        Dictionary<Resource, float> cost = CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade, 
+        Dictionary<Resource, float> cost = CostsCalculator.GetTurnActionFullCost(ActionType.TechnologyUpgrade, 
             tech: map.CurrentPlayer.Technologies, techType: type);
 
         // Tooltip
@@ -242,7 +242,7 @@ public class technology_manager : MonoBehaviour
 
         if (level < 10)
         {
-            SetButtonColor(techButton, map.CurrentPlayer.IsPayable(cost));
+            SetButtonColor(techButton, map.CurrentPlayer.CanAfford(cost));
 
             nextLevelText.text = $"Level {level + 1} effects:";
 
