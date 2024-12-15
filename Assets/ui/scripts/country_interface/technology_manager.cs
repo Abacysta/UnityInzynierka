@@ -1,13 +1,12 @@
 using Assets.classes.subclasses;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static Country.TechnologyInterpreter;
 using static Assets.classes.TurnAction;
+using static TechnologyInterpreter;
 
 public class technology_manager : MonoBehaviour
 {

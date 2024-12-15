@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static Assets.classes.Relation;
-using static Assets.classes.subclasses.Constants.Relation;
+using static Assets.classes.subclasses.Constants.RelationConstants;
 
 namespace Assets.classes {
     public class TurnAction {
@@ -132,12 +132,12 @@ namespace Assets.classes {
             private (int, int) coordinates;
             private int count;
 
-            public ArmyRecruitment((int, int) coordinates, int count, Country.TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment,
+            public ArmyRecruitment((int, int) coordinates, int count, TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment, 
                 CostsCalculator.GetTurnActionApCost(ActionType.ArmyRecruitment)) {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
                 this.count = count;
-                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.ArmyRecruitment);
+                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.ArmyRecruitment, techStats);
             }
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }
@@ -228,13 +228,13 @@ namespace Assets.classes {
             public override void Preview(Map map) {
                 base.Preview(map);
                 country.Technologies[techType]++;
-                country.TechStats.Calculate(country.Technologies);
+                country.TechStats.CalculateModifiers(country.Technologies);
             }
 
             public override void Revert(Map map) {
                 base.Revert(map);
                 country.Technologies[techType]--;
-                country.TechStats.Calculate(country.Technologies);
+                country.TechStats.CalculateModifiers(country.Technologies);
             }
         }
 

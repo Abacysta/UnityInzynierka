@@ -11,8 +11,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.Relation;
-using static Assets.classes.subclasses.Constants.Province;
-using static Assets.classes.subclasses.Constants.Relation;
+using static Assets.classes.subclasses.Constants.ProvinceConstants;
+using static Assets.classes.subclasses.Constants.RelationConstants;
 
 public class game_manager : MonoBehaviour
 {

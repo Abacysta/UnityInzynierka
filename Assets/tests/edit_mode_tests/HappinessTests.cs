@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using static Assets.classes.subclasses.Constants.Province;
+using static Assets.classes.subclasses.Constants.ProvinceConstants;
 public class HappinessTests
 {
     [Test]

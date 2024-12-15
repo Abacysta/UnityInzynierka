@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using static Assets.classes.subclasses.Constants.Relation;
+using static Assets.classes.subclasses.Constants.RelationConstants;
 
 namespace Assets.classes {
     [Serializable]

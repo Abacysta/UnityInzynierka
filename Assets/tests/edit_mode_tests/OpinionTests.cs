@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
-using static Assets.classes.subclasses.Constants.Province;
+using static Assets.classes.subclasses.Constants.ProvinceConstants;
 
 public class OpinionTests
 {

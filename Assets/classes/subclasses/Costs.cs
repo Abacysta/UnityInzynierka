@@ -130,7 +130,7 @@ namespace Assets.classes.subclasses
             return (vassalage?.Sides[1].Provinces.Count / 5) ?? 1f;
         }
 
-        private static Dictionary<Resource, float> GetArmyRecruitmentCost(Country.TechnologyInterpreter techStats)
+        private static Dictionary<Resource, float> GetArmyRecruitmentCost(TechnologyInterpreter techStats)
         {
             var armyCost = techStats.ArmyCost;
             return new Dictionary<Resource, float> {
@@ -158,7 +158,7 @@ namespace Assets.classes.subclasses
         /// <param name="tech"></param>
         /// <param name="techType"></param>
         /// <returns></returns>
-        public static Dictionary<Resource, float> GetTurnActionFullCost(ActionType actionType, Country.TechnologyInterpreter techStats)
+        public static Dictionary<Resource, float> GetTurnActionFullCost(ActionType actionType, TechnologyInterpreter techStats)
         {
             if (actionType == ActionType.ArmyRecruitment)
             {
@@ -232,7 +232,7 @@ namespace Assets.classes.subclasses
         /// <summary>
         /// Method for army recruitment action
         /// </summary>
-        public static Dictionary<Resource, float> GetTurnActionAltCost(ActionType actionType, Country.TechnologyInterpreter techStats)
+        public static Dictionary<Resource, float> GetTurnActionAltCost(ActionType actionType, TechnologyInterpreter techStats)
         {
             var fullCost = GetTurnActionFullCost(actionType, techStats);
             return RemoveApCost(fullCost);

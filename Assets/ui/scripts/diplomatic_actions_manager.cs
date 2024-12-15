@@ -8,7 +8,7 @@ using Assets.classes;
 using static Assets.classes.Relation;
 using static Assets.classes.TurnAction;
 using Assets.classes.subclasses;
-using static Assets.classes.subclasses.Constants.Relation;
+using static Assets.classes.subclasses.Constants.RelationConstants;
 
 public class Effect
 {
