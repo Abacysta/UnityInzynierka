@@ -22120,10 +22120,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1840996538}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.328}
+  m_AnchorMax: {x: 1, y: 0.683563}
+  m_AnchoredPosition: {x: 0, y: -0.49461746}
+  m_SizeDelta: {x: 0, y: 1.4041004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &996565450
 MonoBehaviour:
@@ -22172,10 +22172,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
+  m_fontSize: 28.4
   m_fontSizeBase: 24
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -40240,10 +40240,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 678607451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.045, y: 0.6224973}
+  m_AnchorMax: {x: 0.94749904, y: 0.79583246}
+  m_AnchoredPosition: {x: 0, y: 0.5000038}
+  m_SizeDelta: {x: -0.0001001358, y: 0.5144005}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1663206264
 MonoBehaviour:
@@ -40295,9 +40295,9 @@ MonoBehaviour:
   m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 15
+  m_fontSizeMax: 36
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -45105,10 +45105,10 @@ RectTransform:
   - {fileID: 996565449}
   m_Father: {fileID: 678607451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -138, y: -54}
+  m_AnchorMin: {x: 0.10546815, y: 0.093414135}
+  m_AnchorMax: {x: 0.896, y: 0.40300003}
+  m_AnchoredPosition: {x: -0.5, y: 0.5}
+  m_SizeDelta: {x: -1, y: -1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1840996539
 MonoBehaviour:
