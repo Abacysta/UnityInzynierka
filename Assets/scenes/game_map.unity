@@ -37382,7 +37382,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 311749113}
         m_TargetAssemblyTypeName: game_manager, assets
-        m_MethodName: UndoLast
+        m_MethodName: UndoLastAction
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
