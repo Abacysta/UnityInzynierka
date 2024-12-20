@@ -32,7 +32,6 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Button cancel_button;
     [SerializeField] private Button confirm_button;
 
-    [SerializeField] private AudioSource click_sound;
     [SerializeField] private alerts_manager alerts;
     [SerializeField] private technology_manager technology_manager;
 
@@ -46,222 +45,291 @@ public class dialog_box_manager : MonoBehaviour
     [SerializeField] private Sprite pop_mod_sprite;
     [SerializeField] private Sprite prod_mod_sprite;
 
-    public class dialog_box_precons {
-        internal class DialogBox {
-            public string title, message;
+    [SerializeField] private GameObject title_bar;
 
-            public DialogBox(string title, string message) {
-                this.title = title;
-                this.message = message;
-            }
+    public class DialogConfig
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public Action OnConfirm { get; set; }
+        public Action OnCancel { get; set; }
+        public Action OnClose { get; set; }
+        public Action OnZoom {  get; set; }
+        public bool Confirmable { get; set; } = true;
+        public bool Rejectable { get; set; } = true;
+        public bool Zoomable { get; set; } = false;
+        public string ConfirmText { get; set; } = "OK";
+        public string CancelText { get; set; } = "Cancel";
+    }
 
-            internal (string, string) toVars() {
-                return (title, message);
-            }
+    public class EffectsDialogConfig : DialogConfig
+    {
+        public Dictionary<Resource, float> Cost { get; set; } = new();
+        public List<Effect> Effects { get; set; } = new();
+    }
+
+    public class SliderDialogConfig : EffectsDialogConfig
+    {
+        public int MaxValue { get; set; }
+        public int AffordableValue { get; set; }
+    }
+
+    public class DialogBoxBuilder
+    {
+        private DialogConfig _dialogConfig = new DialogConfig();
+
+        public DialogBoxBuilder SetBasicParams(DialogConfig basicParameters)
+        {
+            _dialogConfig.Title = basicParameters.Title;
+            _dialogConfig.Message = basicParameters.Message;
+            _dialogConfig.OnConfirm = basicParameters.OnConfirm;
+            _dialogConfig.OnCancel = basicParameters.OnCancel;
+            _dialogConfig.OnClose = basicParameters.OnClose;
+            _dialogConfig.OnZoom = basicParameters.OnZoom;
+            _dialogConfig.Confirmable = basicParameters.Confirmable;
+            _dialogConfig.Rejectable = basicParameters.Rejectable;
+            _dialogConfig.Zoomable = basicParameters.Zoomable;
+            _dialogConfig.ConfirmText = basicParameters.ConfirmText;
+            _dialogConfig.CancelText = basicParameters.CancelText;
+            return this;
         }
 
-        internal static DialogBox armyMoveBox = new("Move Army", "Select how many units you want to move.");
-        internal static DialogBox recruitBox = new("Recruit Army", "Select how many units you want to recruit.");
-        internal static DialogBox disbandBox = new("Disband Army", "Select how many units you want to disband.");
-        internal static DialogBox upBuildingBox = new("Build ", "Do you want to build ");
-        internal static DialogBox downBuildingBox = new("Raze ", "Do you want to raze ");
-        internal static DialogBox techBox = new("Upgrade ", "Do you want to upgrade ");
-        internal static DialogBox taxBreakBox = new("Introduce Tax Break", "Do you want to introduce a tax break?");
-        internal static DialogBox festivitiesBox = new("Organize Festivities", "Do you want to organize festivities?");
-        internal static DialogBox rebelSuppressBox = new("Suppress the Rebellion", "Do you want to suppress the rebellion?");
-    };
+        public DialogBoxBuilder SetSliderParams(int affordableValue, int maxValue)
+        {
+            if (_dialogConfig is not SliderDialogConfig sliderConfig)
+            {
+                sliderConfig = new SliderDialogConfig();
+                CopyBaseProperties(_dialogConfig, sliderConfig);
+                _dialogConfig = sliderConfig;
+            }
 
-    void Update() {
-        if (gameObject.activeSelf) {
-            if (Input.GetKeyDown(KeyCode.Escape)) {
+            sliderConfig.MaxValue = maxValue;
+            sliderConfig.AffordableValue = affordableValue;
+            return this;
+        }
+
+        public DialogBoxBuilder SetEffectsParams(Dictionary<Resource, float> cost = null, List<Effect> effects = null)
+        {
+            if (_dialogConfig is not EffectsDialogConfig effectsConfig)
+            {
+                effectsConfig = new EffectsDialogConfig();
+                CopyBaseProperties(_dialogConfig, effectsConfig);
+                _dialogConfig = effectsConfig;
+            }
+
+            effectsConfig.Cost = cost ?? new Dictionary<Resource, float>();
+            effectsConfig.Effects = effects ?? new List<Effect>();
+            return this;
+        }
+
+        public DialogConfig Build()
+        {
+            return _dialogConfig;
+        }
+
+        private void CopyBaseProperties(DialogConfig source, DialogConfig target)
+        {
+            target.Title = source.Title;
+            target.Message = source.Message;
+            target.OnConfirm = source.OnConfirm;
+            target.OnCancel = source.OnCancel;
+            target.OnClose = source.OnClose;
+            target.Confirmable = source.Confirmable;
+            target.Rejectable = source.Rejectable;
+            target.Zoomable = source.Zoomable;
+            target.ConfirmText = source.ConfirmText;
+            target.CancelText = source.CancelText;
+        }
+    }
+
+    void Update()
+    {
+        if (gameObject.activeSelf) 
+        {
+            if (Input.GetKeyDown(KeyCode.Escape)) 
+            {
                 gameObject.SetActive(false);
                 overlay.SetActive(false);
             }
-            if (Input.GetKeyDown(KeyCode.LeftShift)) {
+            if (Input.GetKeyDown(KeyCode.LeftShift)) 
+            {
                 cancel_button.onClick.Invoke();
                 overlay.SetActive(false);
             }
-            if (Input.GetKeyDown(KeyCode.Return)) {
+            if (Input.GetKeyDown(KeyCode.Return)) 
+            {
                 confirm_button.onClick.Invoke();
                 overlay.SetActive(false);
             }
         }
+        title_bar.SetActive(true);
     }
 
-    public void invokeArmyBox(Army army, (int, int) destination) {
-        (string title, string message) = dialog_box_precons.armyMoveBox.toVars();
-
-        int affordableValue = map.CurrentPlayer
-            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), army.Count);
-
-        Action onConfirm = () => {
-            var act = new Assets.classes.TurnAction.army_move(army.Position, destination, (int)dialog_slider.value, army);
-            map.Countries[army.OwnerId].Actions.addAction(act);
-        };
-        float cost = CostsCalculator.TurnActionApCost(ActionType.ArmyMove);
-        ShowSliderBox(title, message, onConfirm, army.Count, CostsCalculator.TurnActionFullCost(ActionType.ArmyMove), affordableValue: affordableValue);
-    }
-
-    public void invokeRecBox((int, int) coordinates) {
-        (string title, string message) = dialog_box_precons.recruitBox.toVars();
-        var province = map.getProvince(coordinates);
-        Country.TechnologyInterpreter techStats = map.Countries[province.Owner_id].techStats;
-
-        int affordableValue = map.CurrentPlayer
-            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats), province.RecruitablePopulation);
-
-        Action onConfirm = () => {
-            var act = new Assets.classes.TurnAction.army_recruitment(coordinates, (int)dialog_slider.value, techStats);
-            map.Countries[province.Owner_id].Actions.addAction(act);
-        };
-
-        ShowSliderBox(title, message, onConfirm, province.RecruitablePopulation, 
-            CostsCalculator.TurnActionFullCost(ActionType.ArmyRecruitment, techStats), affordableValue: affordableValue);
-    }
-
-    public void invokeDisbandArmyBox(Army army)
+    public void InvokeArmyBox(Army army, (int, int) destination) 
     {
-        (string title, string message) = dialog_box_precons.disbandBox.toVars();
-
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.ArmyMove);
         int affordableValue = map.CurrentPlayer
-            .CalculateMaxArmyUnits(CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), army.Count);
+            .CalculateMaxArmyUnits(CostsCalculator.GetTurnActionFullCost(ActionType.ArmyMove), army.Count);
 
-        Action onConfirm = () =>
+        var basicParameters = new DialogConfig
         {
-            int unitsToDisband = (int)dialog_slider.value;
-            var act = new Assets.classes.TurnAction.army_disbandment(army, unitsToDisband);
-            map.Countries[army.OwnerId].Actions.addAction(act);
+            Title = "Move Army",
+            Message = "Select how many units you want to move.",
+            OnConfirm = () =>
+            {
+                var action = new ArmyMove(army.Position, destination, (int)dialog_slider.value, army);
+                map.Countries[army.OwnerId].Actions.AddAction(action);
+            },
+            Confirmable = false
         };
 
-        ShowSliderBox(title, message, onConfirm, army.Count, 
-            CostsCalculator.TurnActionFullCost(ActionType.ArmyDisbandment), affordableValue: affordableValue);
+        var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetSliderParams(affordableValue, army.Count)
+            .SetEffectsParams(cost)
+            .Build();
+
+        ShowDialogBox(sliderWithEffectsBoxParameters);
     }
 
-    public void invokeUpgradeBuilding((int, int) coordinates, BuildingType type) {
-        (string title, string message) = dialog_box_precons.upBuildingBox.toVars();
-
-        var province = map.getProvince(coordinates);
-
-        switch(type) {
-            case BuildingType.Fort:
-                title += "Fort lvl";
-                message += "Fort lvl";
-                break;
-            case BuildingType.Infrastructure:
-                title += "Infrastructure lvl";
-                message += "Infrastructure lvl";
-                break;
-            case BuildingType.Mine:
-                title += "Mine lvl";
-                message += "Mine lvl";
-                break;
-            case BuildingType.School:
-                title += "School lvl";
-                message += "School lvl";
-                break;
-            default:
-                break;
-        }
-
-        int lvl = province.Buildings.ContainsKey(type) ? province.Buildings[type] + 1 : 0;
-        title += lvl + "?";
-        message += lvl + "?";
-
-        Action onConfirm = () => {
-            var act = new building_upgrade(province, type);
-            map.CurrentPlayer.Actions.addAction(act);
-        };
-
-        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingUpgrade, type, lvl);
-
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
-    }
-
-    public void invokeDowngradeBuilding((int, int) coordinates, BuildingType type) {
-        (string title, string message) = dialog_box_precons.downBuildingBox.toVars();
-
-        var province = map.getProvince(coordinates);
-
-        switch (type) {
-            case BuildingType.Fort:
-                title += "Fort";
-                message += "Fort";
-                break;
-            case BuildingType.Infrastructure:
-                title += "Infrastructure";
-                message += "Infrastructure";
-                break;
-            case BuildingType.Mine:
-                title += "Mine";
-                message += "Mine";
-                break;
-            case BuildingType.School:
-                title += "School";
-                message += "School";
-                break;
-            default:
-                break;
-        }
-
-        int lvl = province.Buildings.ContainsKey(type) ? province.Buildings[type] : 0;
-        title += lvl + "?";
-        message += lvl + "?";
-
-        Action onConfirm = () => {
-            var act = new building_downgrade(province, type);
-            map.CurrentPlayer.Actions.addAction(act);
-        };
-
-        var cost = CostsCalculator.TurnActionFullCost(ActionType.BuildingDowngrade);
-
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
-    }
-
-    public void invokeTechUpgradeBox(Technology type)
+    public void InvokeRecBox((int, int) coordinates)
     {
-        (string title, string message) = dialog_box_precons.techBox.toVars();
+        var province = map.GetProvince(coordinates);
+        var techStats = map.Countries[province.OwnerId].TechStats;
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.ArmyRecruitment, techStats);
+        int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, province.RecruitablePopulation);
 
-        switch (type)
+        var basicParameters = new DialogConfig
         {
-            case Technology.Military:
-                title += "Military Technology";
-                message += $"Military Technology to level {map.CurrentPlayer.Technologies[Technology.Military] + 1}?";
-                break;
-            case Technology.Economic:
-                title += "Economic Technology";
-                message += $"Economic Technology to level {map.CurrentPlayer.Technologies[Technology.Economic] + 1}?";
-                break;
-            case Technology.Administrative:
-                title += "Administrative Technology";
-                message += $"Administrative Technology to level {map.CurrentPlayer.Technologies[Technology.Administrative] + 1}?";
-                break;
-            default:
-                break;
-        }
-
-        Action onConfirm = () => {
-            var act = new technology_upgrade(map.CurrentPlayer, type);
-            map.CurrentPlayer.Actions.addAction(act);
-            technology_manager.UpdateData();
+            Title = "Recruit Army",
+            Message = "Select how many units you want to recruit.",
+            OnConfirm = () =>
+            {
+                var action = new ArmyRecruitment(coordinates, (int)dialog_slider.value, techStats);
+                map.Countries[province.OwnerId].Actions.AddAction(action);
+            },
+            Confirmable = false
         };
-        
-        ShowConfirmBox(title, message, onConfirm, confirmable: true, 
-            cost: CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade,
-            tech: map.CurrentPlayer.Technologies, techType: type));
+
+        var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetSliderParams(affordableValue, province.RecruitablePopulation)
+            .SetEffectsParams(cost)
+            .Build();
+
+        ShowDialogBox(sliderWithEffectsBoxParameters);
     }
 
-    public void invokeTaxBreakIntroductionBox((int, int) coordinates)
+    public void InvokeDisbandArmyBox(Army army)
     {
-        (string title, string message) = dialog_box_precons.taxBreakBox.toVars();
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.ArmyDisbandment);
+        int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, army.Count);
 
-        var province = map.getProvince(coordinates);
-
-        Action onConfirm = () => {
-            var act = new tax_break_introduction(province);
-            map.CurrentPlayer.Actions.addAction(act);
+        var basicParameters = new DialogConfig
+        {
+            Title = "Disband Army",
+            Message = "Select how many units you want to disband.",
+            OnConfirm = () =>
+            {
+                int unitsToDisband = (int)dialog_slider.value;
+                var action = new ArmyDisbandment(army, unitsToDisband);
+                map.Countries[army.OwnerId].Actions.AddAction(action);
+            },
+            Confirmable = false
         };
 
-        var cost = CostsCalculator.TurnActionFullCost(ActionType.TaxBreakIntroduction);
+        var sliderWithEffectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetSliderParams(affordableValue, army.Count)
+            .SetEffectsParams(cost)
+            .Build();
+
+        ShowDialogBox(sliderWithEffectsBoxParameters);
+    }
+
+    public void InvokeUpgradeBuilding((int, int) coordinates, BuildingType buildingType) 
+    {
+        var province = map.GetProvince(coordinates);
+        int lvl = province.Buildings.ContainsKey(buildingType) ? province.Buildings[buildingType] + 1 : 0;
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.BuildingUpgrade, buildingType, lvl);
+
+        var basicParameters = new DialogConfig
+        {
+            Title = $"Build {buildingType} - level {lvl}",
+            Message = $"Do you want to build {buildingType} - level {lvl}?",
+            OnConfirm = () =>
+            {
+                var action = new BuildingUpgrade(province, buildingType);
+                map.CurrentPlayer.Actions.AddAction(action);
+            },
+            Confirmable = map.CurrentPlayer.CanAfford(cost)
+        };
+
+        var effectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetEffectsParams(cost)
+            .Build();
+
+        ShowDialogBox(effectsBoxParameters);
+    }
+
+    public void InvokeDowngradeBuilding((int, int) coordinates, BuildingType buildingType) {
+        var province = map.GetProvince(coordinates);
+        int lvl = province.Buildings.ContainsKey(buildingType) ? province.Buildings[buildingType] : 0;
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.BuildingDowngrade);
+
+        var basicParameters = new DialogConfig
+        {
+            Title = $"Raze {buildingType} - level {lvl}",
+            Message = $"Do you want to raze {buildingType} - level {lvl}?",
+            OnConfirm = () =>
+            {
+                var action = new BuildingDowngrade(province, buildingType);
+                map.CurrentPlayer.Actions.AddAction(action);
+            },
+            Confirmable = map.CurrentPlayer.CanAfford(cost)
+        };
+
+        var effectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetEffectsParams(cost)
+            .Build();
+
+        ShowDialogBox(effectsBoxParameters);
+    }
+
+    public void InvokeTechUpgradeBox(Technology technologyType)
+    {
+        int lvl = map.CurrentPlayer.Technologies[technologyType] + 1;
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.TechnologyUpgrade,
+            tech: map.CurrentPlayer.Technologies, techType: technologyType);
+
+        var basicParameters = new DialogConfig
+        {
+            Title = "Upgrade Technology",
+            Message = $"Do you want to upgrade " +
+                $"{technologyType.ToString().ToLower()} technology to level {lvl}?",
+            OnConfirm = () =>
+            {
+                var action = new TechnologyUpgrade(map.CurrentPlayer, technologyType);
+                map.CurrentPlayer.Actions.AddAction(action);
+                technology_manager.UpdateData();
+            },
+            Confirmable = map.CurrentPlayer.CanAfford(cost)
+        };
+
+        var effectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetEffectsParams(cost)
+            .Build();
+
+        ShowDialogBox(effectsBoxParameters);
+    }
+
+    public void InvokeTaxBreakIntroductionBox((int, int) coordinates)
+    {
+        var province = map.GetProvince(coordinates);
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.TaxBreakIntroduction);
 
         List<Effect> effects = new()
         {
@@ -270,21 +338,30 @@ public class dialog_box_manager : MonoBehaviour
             new(happiness_sprite, "Happiness", $"{(TaxBreak.HappStatic >= 0 ? "+" : "")}{TaxBreak.HappStatic}", true)
         };
 
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
-    }
-
-    public void invokeFestivitiesOrganizationBox((int, int) coordinates)
-    {
-        (string title, string message) = dialog_box_precons.festivitiesBox.toVars();
-
-        var province = map.getProvince(coordinates);
-
-        Action onConfirm = () => {
-            var act = new festivities_organization(province);
-            map.CurrentPlayer.Actions.addAction(act);
+        var basicParameters = new DialogConfig
+        {
+            Title = "Introduce Tax Break",
+            Message = $"Do you want to introduce a tax break?",
+            OnConfirm = () =>
+            {
+                var action = new TaxBreakIntroduction(province);
+                map.CurrentPlayer.Actions.AddAction(action);
+            },
+            Confirmable = map.CurrentPlayer.CanAfford(cost)
         };
 
-        var cost = CostsCalculator.TurnActionFullCost(ActionType.FestivitiesOrganization);
+        var effectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetEffectsParams(cost, effects)
+            .Build();
+
+        ShowDialogBox(effectsBoxParameters);
+    }
+
+    public void InvokeFestivitiesOrganizationBox((int, int) coordinates)
+    {
+        var province = map.GetProvince(coordinates);
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.FestivitiesOrganization);
 
         List<Effect> effects = new()
         {
@@ -293,157 +370,206 @@ public class dialog_box_manager : MonoBehaviour
             new(happiness_sprite, "Happiness", $"{(Festivities.HappStatic >= 0 ? "+" : "")}{Festivities.HappStatic}", true)
         };
 
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost, effects: effects);
-    }
-
-    public void invokeRebelSuppressionBox((int, int) coordinates)
-    {
-        (string title, string message) = dialog_box_precons.rebelSuppressBox.toVars();
-
-        var province = map.getProvince(coordinates);
-
-        Action onConfirm = () => {
-            var act = new rebel_suppresion(province);
-            map.CurrentPlayer.Actions.addAction(act);
+        var basicParameters = new DialogConfig
+        {
+            Title = "Organize Festivities",
+            Message = $"Do you want to organize festivities?",
+            OnConfirm = () =>
+            {
+                var action = new FestivitiesOrganization(province);
+                map.CurrentPlayer.Actions.AddAction(action);
+            },
+            Confirmable = map.CurrentPlayer.CanAfford(cost)
         };
 
-        var cost = CostsCalculator.TurnActionFullCost(ActionType.RebelSuppresion);
+        var effectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetEffectsParams(cost, effects)
+            .Build();
 
-        ShowConfirmBox(title, message, onConfirm, map.CurrentPlayer.isPayable(cost), cost: cost);
+        ShowDialogBox(effectsBoxParameters);
     }
 
-    public void invokeConfirmBox(string title, string message, Action onConfirm, Action onCancel = null, Dictionary<Resource, float> cost = null) {
-        bool confirmable = true;
-        if (cost != null)
-        {
-            confirmable = map.CurrentPlayer.isPayable(cost);
-        }
+    public void InvokeRebelSuppressionBox((int, int) coordinates)
+    {
+        var province = map.GetProvince(coordinates);
+        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.RebelSuppresion);
 
-        ShowConfirmBox(title, message, onConfirm, confirmable, cost: cost);
+        var basicParameters = new DialogConfig
+        {
+            Title = "Suppress the Rebellion",
+            Message = $"Do you want to suppress the rebellion?",
+            OnConfirm = () =>
+            {
+                var action = new RebelSuppresion(province);
+                map.CurrentPlayer.Actions.AddAction(action);
+            },
+            Confirmable = map.CurrentPlayer.CanAfford(cost)
+        };
+
+        var effectsBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .SetEffectsParams(cost)
+            .Build();
+
+        ShowDialogBox(effectsBoxParameters);
     }
 
-    public void invokeEventBox(Event_ _event) {
-        bool confirmable = true;
-        if (_event.Cost != null)
+    public void InvokeConfirmBox(string title, string message, Action onConfirm) 
+    {
+        var basicParameters = new DialogConfig
         {
-            confirmable = map.CurrentPlayer.isPayable(_event.Cost);
-        }
+            Title = title,
+            Message = message,
+            OnConfirm = onConfirm
+        };
 
+        var basicBoxParameters = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters)
+            .Build();
+
+        ShowDialogBox(basicBoxParameters);
+    }
+
+    public void InvokeEventBox(Event_ _event)
+    {
         // Search for a non-static, public, non-inherited method named "reject"
-        MethodInfo rejectMethod = _event.GetType().GetMethod("reject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+        MethodInfo rejectMethod = _event.GetType().GetMethod("reject", 
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
         // If the reject method exists and has a body (braces), it is rejectable
         bool rejectable = rejectMethod != null && rejectMethod.GetMethodBody() != null;
 
-        cost_element.SetActive(_event.Cost != null);
-
-        Action onConfirm = () => {
-            _event.accept();
-            map.CurrentPlayer.Events.Remove(_event);
-            alerts.sortedevents.Remove(_event);
-            alerts.reloadAlerts();
+        var basicParameters = new DialogConfig
+        {
+            Title = "",
+            Message = _event.Message,
+            OnConfirm = () => {
+                _event.Accept();
+                map.CurrentPlayer.Events.Remove(_event);
+                alerts.sortedevents.Remove(_event);
+                alerts.ReloadAlerts();
+            },
+            OnCancel = () => {
+                _event.Reject();
+                map.CurrentPlayer.Events.Remove(_event);
+                alerts.sortedevents.Remove(_event);
+                alerts.ReloadAlerts();
+            },
+            OnZoom = () => {
+                _event.Zoom();
+            },
+            Confirmable = _event.Cost != null ? map.CurrentPlayer.CanAfford(_event.Cost) : true,
+            Rejectable = rejectable,
+            Zoomable = true,
+            ConfirmText = "Confirm",
+            CancelText = "Reject"
         };
 
-        Action onCancel = () => {
-            _event.reject();
-            map.CurrentPlayer.Events.Remove(_event);
-            alerts.sortedevents.Remove(_event);
-            alerts.reloadAlerts();
-        };
+        var eventBox = new DialogBoxBuilder()
+            .SetBasicParams(basicParameters);
+        if (_event.Cost != null) eventBox.SetEffectsParams(_event.Cost);
+        var eventBoxParameters = eventBox.Build();
 
-        zoom_button.onClick.AddListener(() => {
-            _event.zoom();
-            HideDialog();
-        });
-
-        ShowConfirmBox("", _event.Message, onConfirm, confirmable, rejectable, zoomable: true, cost: _event.Cost, confirmText: "Confirm", cancelText: "Reject", onCancel: onCancel);
+        ShowDialogBox(eventBoxParameters);
     }
 
-    private void ShowDialogBox(string actionTitle, string message, Action onConfirm,
-        bool confirmable = true, bool rejectable = true, string confirmText = "OK", string cancelText = "Cancel", 
-        Action onCancel = null, Action onClose = null)
+    private void ShowDialogBox(DialogConfig parameters)
     {
-        if (map.currentPlayer > 0 && map.Countries.Count > 0)
+        choice_element.SetActive(false);
+        cost_element.SetActive(false);
+
+        SetCoatOfArms();
+        SetDialogTexts(parameters);
+
+        if (parameters is SliderDialogConfig sliderParameters)
         {
-            map.CurrentPlayer.setCoatandColor(db_country_color_img);
+            SetSlider(sliderParameters);
+        }
+        else if (parameters is EffectsDialogConfig effectParameters)
+        {
+            SetCostContent(effectParameters.Cost, effectParameters.Effects);
+        }
+
+        SetDialogButtons(parameters);
+        CenterDialogBox();
+        ShowDialog();
+    }
+
+    private void SetCoatOfArms()
+    {
+        if (map.CurrentPlayerId > 0 && map.Countries.Count > 0)
+        {
+            map.CurrentPlayer.SetCoatandColor(db_country_color_img);
             db_country_color_img.transform.parent.gameObject.SetActive(true);
         }
         else
         {
             db_country_color_img.transform.parent.gameObject.SetActive(false);
         }
+    }
 
+    private void SetDialogTexts(DialogConfig parameters)
+    {
+        confirm_button.GetComponentInChildren<TMP_Text>().SetText(parameters.ConfirmText);
+        cancel_button.GetComponentInChildren<TMP_Text>().SetText(parameters.CancelText);
+
+        dialog_title.text = parameters.Title;
+        dialog_message.text = parameters.Message;
+    }
+
+    private void SetDialogButtons(DialogConfig parameters)
+    {
         close_button.onClick.RemoveAllListeners();
         confirm_button.onClick.RemoveAllListeners();
         cancel_button.onClick.RemoveAllListeners();
-
-        confirm_button.GetComponentInChildren<TMP_Text>().SetText(confirmText);
-        cancel_button.GetComponentInChildren<TMP_Text>().SetText(cancelText);
-
-        dialog_title.text = actionTitle;
-        dialog_message.text = message;
+        zoom_button.onClick.RemoveAllListeners();
 
         close_button.onClick.AddListener(() =>
         {
-            onClose?.Invoke();
+            parameters.OnClose?.Invoke();
             HideDialog();
         });
 
-        confirm_button.interactable = confirmable;
+        confirm_button.interactable = parameters.Confirmable;
         confirm_button.onClick.AddListener(() =>
         {
-            onConfirm?.Invoke();
+            parameters.OnConfirm?.Invoke();
             HideDialog();
         });
 
-        cancel_button.interactable = rejectable;
+        cancel_button.interactable = parameters.Rejectable;
         cancel_button.onClick.AddListener(() =>
         {
-            onCancel?.Invoke();
-            click_sound.Play();
+            parameters.OnCancel?.Invoke();
             HideDialog();
         });
 
-        CenterDialogBox();
-        ShowDialog();
+        zoom_button.gameObject.SetActive(parameters.Zoomable);
+        zoom_button.onClick.AddListener(() => {
+            parameters.OnZoom?.Invoke();
+            HideDialog();
+        });
     }
 
-    private void ShowSliderBox(string actionTitle, string message, Action onConfirm, int maxValue,
-        Dictionary<Resource, float> cost = null, List<Effect> effects = null, int affordableValue = int.MaxValue,
-        string confirmText = "OK", string cancelText = "Cancel", Action onCancel = null, Action onClose = null) {
+    private void SetSlider(SliderDialogConfig parameters) {
         dialog_slider.value = 0;
-        dialog_slider.maxValue = maxValue;
-        slider_max.text = maxValue.ToString();
         quantity_text.text = dialog_slider.value.ToString();
+        dialog_slider.maxValue = parameters.MaxValue;
+        slider_max.text = parameters.MaxValue.ToString();
 
-        SetCostContent(cost, dialog_slider.value);
+        confirm_button.interactable = false;
+
+        SetCostContent(parameters.Cost, parameters.Effects, dialog_slider.value);
 
         dialog_slider.onValueChanged.RemoveAllListeners();
         dialog_slider.onValueChanged.AddListener((value) =>
         {
             quantity_text.text = value.ToString();
-            SetCostContent(cost, dialog_slider.value);
-            confirm_button.interactable = value > 0 && value <= affordableValue;
+            SetCostContent(parameters.Cost, parameters.Effects, dialog_slider.value);
+            confirm_button.interactable = value > 0 && value <= parameters.AffordableValue;
         });
 
-        zoom_button.gameObject.SetActive(false);
         choice_element.SetActive(true);
-        cost_element.SetActive(true);
-
-        ShowDialogBox(actionTitle, message, onConfirm, confirmable: false, rejectable: true,
-            confirmText, cancelText, onCancel, onClose);
-    }
-
-    private void ShowConfirmBox(string actionTitle, string message, Action onConfirm,
-        bool confirmable = true, bool rejectable = true, bool zoomable = false, Dictionary<Resource, float> cost = null,
-        List<Effect> effects = null, string confirmText = "OK", string cancelText = "Cancel", Action onCancel = null, Action onClose = null)
-    {
-        SetCostContent(cost, effects: effects, sliderValue: null);
-
-        zoom_button.gameObject.SetActive(zoomable);
-        choice_element.SetActive(false);
-        cost_element.SetActive(cost!=null);
-
-        ShowDialogBox(actionTitle, message, onConfirm, confirmable, rejectable, confirmText, cancelText, onCancel, onClose);
     }
 
     public void HideDialog()
@@ -458,7 +584,8 @@ public class dialog_box_manager : MonoBehaviour
         overlay.SetActive(true);
     }
 
-    private void SetCostContent(Dictionary<Resource, float> cost = null, float? sliderValue = null, List<Effect> effects = null)
+    private void SetCostContent(Dictionary<Resource, float> cost = null, 
+        List<Effect> effects = null, float? sliderValue = null)
     {
         var costRows = new List<Effect>();
 
@@ -481,6 +608,7 @@ public class dialog_box_manager : MonoBehaviour
         }
 
         SetEffects(costRows);
+        cost_element.SetActive(true);
     }
 
     private void SetEffects(List<Effect> actionEffects)
@@ -501,15 +629,15 @@ public class dialog_box_manager : MonoBehaviour
         }
     }
 
-    public void addValue(int value) {
+    public void AddValue(int value) {
         dialog_slider.value += value;
     }
 
-    public void subValue(int value) { 
+    public void SubValue(int value) { 
         dialog_slider.value -= value;
     }
 
-    public void percentValue(float percent) { 
+    public void PercentValue(float percent) { 
         dialog_slider.value = dialog_slider.maxValue * percent;
     }
 

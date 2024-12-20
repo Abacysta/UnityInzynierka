@@ -101,7 +101,7 @@ public class fog_of_war : MonoBehaviour
                 if (province != null)
                 {
                     country.RevealedTiles.Add(province.coordinates);
-                    UpdateVisibilityAroundProvince(province, country.techStats.lvlFoW);
+                    UpdateVisibilityAroundProvince(province, country.TechStats.LvlFoW);
                 }
             }
         }
@@ -118,7 +118,7 @@ public class fog_of_war : MonoBehaviour
             return;
         }
 
-        Country country = map.Countries.FirstOrDefault(c => c.Id == province.Owner_id);
+        Country country = map.Countries.FirstOrDefault(c => c.Id == province.OwnerId);
         HexUtils.Cube centerCube = HexUtils.OffsetToCube(province.X, province.Y);
         List<HexUtils.Cube> visibleCubes = HexUtils.CubeRange(centerCube, visibilityRange);
 
@@ -128,7 +128,7 @@ public class fog_of_war : MonoBehaviour
 
             if (map.IsValidPosition(offsetX, offsetY))
             {
-                Province visibleProvince = map.getProvince(offsetX, offsetY);
+                Province visibleProvince = map.GetProvince(offsetX, offsetY);
                 if (visibleProvince != null)
                 {
                     country.RevealedTiles.Add((offsetX, offsetY));
@@ -140,7 +140,7 @@ public class fog_of_war : MonoBehaviour
 
     private void UpdateVisibilityAroundArmy(Army army)
     {
-        Province province = map.getProvince(army.Position.Item1, army.Position.Item2);
+        Province province = map.GetProvince(army.Position.Item1, army.Position.Item2);
 
         if (province == null)
         {
@@ -150,7 +150,7 @@ public class fog_of_war : MonoBehaviour
         Country country = map.Countries.FirstOrDefault(c => c.Id == army.OwnerId);
 
         HexUtils.Cube centerCube = HexUtils.OffsetToCube(army.Position.Item1, army.Position.Item2);
-        List<HexUtils.Cube> visibleCubes = HexUtils.CubeRange(centerCube, country.techStats.lvlFoW);
+        List<HexUtils.Cube> visibleCubes = HexUtils.CubeRange(centerCube, country.TechStats.LvlFoW);
 
         foreach (HexUtils.Cube cube in visibleCubes)
         {
@@ -158,7 +158,7 @@ public class fog_of_war : MonoBehaviour
 
             if (map.IsValidPosition(offsetX, offsetY))
             {
-                Province visibleProvince = map.getProvince(offsetX, offsetY);
+                Province visibleProvince = map.GetProvince(offsetX, offsetY);
                 if (visibleProvince != null)
                 {
                     country.RevealedTiles.Add((offsetX, offsetY));

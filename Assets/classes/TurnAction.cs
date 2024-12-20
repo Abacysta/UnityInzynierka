@@ -4,13 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static Assets.classes.Relation;
-using static Assets.classes.subclasses.Constants.Relation;
+using static Assets.classes.subclasses.Constants.RelationConstants;
 
 namespace Assets.classes {
     public class TurnAction {
-
-        
-
         public enum ActionType {
             ArmyMove,
             ArmyRecruitment,
@@ -40,134 +37,137 @@ namespace Assets.classes {
             RebelSuppresion
         }
 
-        public ActionType type;
+        public ActionType Type {  get; set; }
         public virtual string desc { get; }
+
         /// <summary>
         /// AP cost
         /// </summary>
-        public float cost;
+        public float ApCost { get; set; }
+
         /// <summary>
         /// non-AP cost
         /// </summary>
-        public Dictionary<Resource, float> altCosts;
-        public Dictionary<Resource, float> fullCost { get => fullRes(); }
-        internal Dictionary<Resource, float> cRes;
+        public Dictionary<Resource, float> AltCosts { get; set; }
+        public Dictionary<Resource, float> fullCost { get => GetFullResources(); }
+        internal Dictionary<Resource, float> countryResources;
 
-        private Dictionary<Resource, float> fullRes() {
-            var res = altCosts != null ? new Dictionary<Resource, float>(altCosts) : new Dictionary<Resource, float> { { Resource.AP, 0 } };
-            res[Resource.AP] = cost;
+        private Dictionary<Resource, float> GetFullResources() {
+            var res = AltCosts != null ? new Dictionary<Resource, float>(AltCosts) : new Dictionary<Resource, float> { { Resource.AP, 0 } };
+            res[Resource.AP] = ApCost;
             return res;
         }
 
         public TurnAction(ActionType type, float cost, Dictionary<Resource, float> altCosts = null) {
-            this.type = type;
-            this.cost = cost;
-            this.altCosts = altCosts;
+            this.Type = type;
+            this.ApCost = cost;
+            this.AltCosts = altCosts;
         }
 
         /// <summary>
         /// execution is locked-in action done during turn calculation
         /// </summary>
-        public virtual void execute(Map map) {
+        public virtual void Execute(Map map) {
 
         }
 
         /// <summary>
         /// preview shows effects of action during turn, able to be reversed
         /// </summary>
-        public virtual void preview(Map map) {
-            cRes[Resource.AP] -= cost;
-            if (altCosts != null) foreach (var key in altCosts.Keys) {
-                    cRes[key] -= altCosts[key];
+        public virtual void Preview(Map map) {
+            countryResources[Resource.AP] -= ApCost;
+            if (AltCosts != null) foreach (var key in AltCosts.Keys) {
+                    countryResources[key] -= AltCosts[key];
                 }
         }
 
         /// <summary>
         /// reversion is a deletion of action from the queue. done before turn calculation, therefore only during player's turn
         /// </summary>
-        public virtual void revert(Map map) {
-            cRes[Resource.AP] += cost;
-            if (altCosts != null) foreach (var key in altCosts.Keys) {
-                    cRes[key] += altCosts[key];
+        public virtual void Revert(Map map) {
+            countryResources[Resource.AP] += ApCost;
+            if (AltCosts != null) foreach (var key in AltCosts.Keys) {
+                    countryResources[key] += AltCosts[key];
                 }
         }
 
-        internal class army_move : TurnAction {
+        internal class ArmyMove : TurnAction {
             private (int, int) from, to;
             private int count;
-            private Army army;
+            private Army armyToMove;
             private Army armyPreview;
+            private Army movedArmy;
 
-            public army_move((int, int) from, (int, int) to, int count, Army army) : base(ActionType.ArmyMove,
-                CostsCalculator.TurnActionApCost(ActionType.ArmyMove)) {
+            public ArmyMove((int, int) from, (int, int) to, int count, Army armyToMove) : base(ActionType.ArmyMove,
+                CostsCalculator.GetTurnActionApCost(ActionType.ArmyMove)) {
                 Debug.Log(from + " " + to + " " + count);
                 this.from = from;
                 this.to = to;
                 this.count = count;
-                this.army = army;
+                this.armyToMove = armyToMove;
             }
 
             public override string desc { get => count + "units moved from " + from.ToString() + " to " + to.ToString(); }
 
-            public override void execute(Map map) {
-                base.execute(map);
-                army = map.setMoveArmy(army, count, to);
-                map.MoveArmy(army);
+            public override void Execute(Map map) {
+                base.Execute(map);
+                movedArmy = map.SetMoveArmy(armyToMove, count, to);
+                map.MoveArmy(movedArmy);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                armyPreview = map.setMoveArmy(army, count, to);
+            public override void Preview(Map map) {
+                base.Preview(map);
+                armyPreview = map.SetMoveArmy(armyToMove, count, to);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
-                map.undoSetMoveArmy(armyPreview);
+            public override void Revert(Map map) {
+                base.Revert(map);
+                map.UndoSetMoveArmy(armyPreview);
             }
 
-            public Army Army { get { return army; } }
+            public Army MovedArmy { get { return movedArmy; } }
         }
 
-        internal class army_recruitment : TurnAction {
+        internal class ArmyRecruitment : TurnAction {
             private (int, int) coordinates;
             private int count;
 
-            public army_recruitment((int, int) coordinates, int count, Country.TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment,
-                CostsCalculator.TurnActionApCost(ActionType.ArmyRecruitment)) {
+            public ArmyRecruitment((int, int) coordinates, int count, TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment, 
+                CostsCalculator.GetTurnActionApCost(ActionType.ArmyRecruitment)) {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
                 this.count = count;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.ArmyRecruitment);
+                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.ArmyRecruitment, techStats);
             }
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }
 
-            public override void execute(Map map) {
-                base.execute(map);
-                map.getProvince(coordinates).Population += count;
-                map.getProvince(coordinates).RecruitablePopulation += count;
-                map.recArmy(coordinates, count);
+            public override void Execute(Map map) {
+                base.Execute(map);
+                map.GetProvince(coordinates).Population += count;
+                map.GetProvince(coordinates).RecruitablePopulation += count;
+                map.RecruitArmy(coordinates, count);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                map.getProvince(coordinates).Population -= count;
-                map.getProvince(coordinates).RecruitablePopulation -= count;
+            public override void Preview(Map map) {
+                base.Preview(map);
+                map.GetProvince(coordinates).Population -= count;
+                map.GetProvince(coordinates).RecruitablePopulation -= count;
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
-                map.getProvince(coordinates).Population += count;
-                map.getProvince(coordinates).RecruitablePopulation += count;
+            public override void Revert(Map map) {
+                base.Revert(map);
+                map.GetProvince(coordinates).Population += count;
+                map.GetProvince(coordinates).RecruitablePopulation += count;
             }
         }
 
-        internal class army_disbandment : TurnAction {
+        internal class ArmyDisbandment : TurnAction {
             private Army army;
             private int count;
 
-            public army_disbandment(Army army, int count) : base(ActionType.ArmyDisbandment,
-                CostsCalculator.TurnActionApCost(ActionType.ArmyDisbandment)) {
+            public ArmyDisbandment(Army army, int count) : base(ActionType.ArmyDisbandment,
+                CostsCalculator.GetTurnActionApCost(ActionType.ArmyDisbandment)) {
                 Debug.Log(count);
                 this.army = army;
                 this.count = count;
@@ -175,164 +175,166 @@ namespace Assets.classes {
 
             public override string desc { get => count + " units disbanded in " + army.Position; }
 
-            public override void execute(Map map) {
-                base.execute(map);
-                map.disArmy(army.Position, count);
+            public override void Execute(Map map) {
+                base.Execute(map);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
+                map.DisbandArmy(army, count);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
+                map.UndoDisbandArmy(army, count);
             }
         }
-        internal class rebel_suppresion : TurnAction, IInstantAction {
+
+        internal class RebelSuppresion : TurnAction, IInstantAction {
             private readonly Province province;
             private int oldH;
             private int oldR;
-            public rebel_suppresion(Province province) :
-                base(ActionType.RebelSuppresion, CostsCalculator.TurnActionApCost(ActionType.RebelSuppresion)) {
+            public RebelSuppresion(Province province) :
+                base(ActionType.RebelSuppresion, CostsCalculator.GetTurnActionApCost(ActionType.RebelSuppresion)) {
                 this.province = province;
                 this.oldH = province.Happiness;
                 this.oldR = province.RecruitablePopulation;
             }
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 province.Happiness = 40;
                 province.Population -= oldR;
                 province.RecruitablePopulation -= oldR;
             }
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.Happiness = oldH;
                 province.Population += oldR;
                 province.RecruitablePopulation += oldR;
             }
 
         }
-        internal class technology_upgrade : TurnAction, IInstantAction {
+        internal class TechnologyUpgrade : TurnAction, IInstantAction {
             private readonly Technology techType;
             private readonly Country country;
 
-            public technology_upgrade(Country country, Technology techType) :
-                base(ActionType.TechnologyUpgrade, CostsCalculator.TurnActionApCost(ActionType.TechnologyUpgrade)) {
+            public TechnologyUpgrade(Country country, Technology techType) :
+                base(ActionType.TechnologyUpgrade, CostsCalculator.GetTurnActionApCost(ActionType.TechnologyUpgrade)) {
                 this.techType = techType;
                 this.country = country;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
+                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 country.Technologies[techType]++;
-                country.techStats.Calculate(country.Technologies);
+                country.TechStats.CalculateModifiers(country.Technologies);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 country.Technologies[techType]--;
-                country.techStats.Calculate(country.Technologies);
+                country.TechStats.CalculateModifiers(country.Technologies);
             }
         }
 
-        internal class building_upgrade : TurnAction, IInstantAction {
+        internal class BuildingUpgrade : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly BuildingType buildingType;
 
-            public building_upgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingUpgrade,
-                CostsCalculator.TurnActionApCost(ActionType.BuildingUpgrade)) {
+            public BuildingUpgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingUpgrade,
+                CostsCalculator.GetTurnActionApCost(ActionType.BuildingUpgrade)) {
                 this.province = province;
                 this.buildingType = buildingType;
                 int upgradeLevel = province.Buildings[buildingType] + 1;
-                altCosts = CostsCalculator.TurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
+                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 province.UpgradeBuilding(buildingType);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.DowngradeBuilding(buildingType);
             }
         }
 
-        internal class building_downgrade : TurnAction, IInstantAction {
+        internal class BuildingDowngrade : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly BuildingType buildingType;
 
-            public building_downgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingDowngrade,
-                CostsCalculator.TurnActionApCost(ActionType.BuildingDowngrade)) {
+            public BuildingDowngrade(Province province, BuildingType buildingType) : base(ActionType.BuildingDowngrade,
+                CostsCalculator.GetTurnActionApCost(ActionType.BuildingDowngrade)) {
                 this.province = province;
                 this.buildingType = buildingType;
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 province.DowngradeBuilding(buildingType);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.UpgradeBuilding(buildingType);
             }
         }
 
-        internal class festivities_organization : TurnAction, IInstantAction {
+        internal class FestivitiesOrganization : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly Status status;
 
-            public festivities_organization(Province province) : base(ActionType.FestivitiesOrganization,
-                CostsCalculator.TurnActionApCost(ActionType.FestivitiesOrganization)) {
+            public FestivitiesOrganization(Province province) : base(ActionType.FestivitiesOrganization,
+                CostsCalculator.GetTurnActionApCost(ActionType.FestivitiesOrganization)) {
                 this.province = province;
                 status = new Festivities(5);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                province.addStatus(status);
+            public override void Preview(Map map) {
+                base.Preview(map);
+                province.AddStatus(status);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.RemoveStatus(status);
             }
         }
 
-        internal class tax_break_introduction : TurnAction, IInstantAction {
+        internal class TaxBreakIntroduction : TurnAction, IInstantAction {
             private readonly Province province;
             private readonly Status status;
 
-            public tax_break_introduction(Province province) : base(ActionType.TaxBreakIntroduction,
-                CostsCalculator.TurnActionApCost(ActionType.TaxBreakIntroduction)) {
+            public TaxBreakIntroduction(Province province) : base(ActionType.TaxBreakIntroduction,
+                CostsCalculator.GetTurnActionApCost(ActionType.TaxBreakIntroduction)) {
                 this.province = province;
                 status = new TaxBreak(5);
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
-                province.addStatus(status);
+            public override void Preview(Map map) {
+                base.Preview(map);
+                province.AddStatus(status);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 province.RemoveStatus(status);
             }
         }
 
-        internal class start_war : TurnAction, IInstantAction {
+        internal class WarDeclaration : TurnAction, IInstantAction {
             private Country c1, c2;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public start_war(Country c1, Country c2, diplomatic_relations_manager diplomacy,
+            public WarDeclaration(Country c1, Country c2, diplomatic_relations_manager diplomacy,
                 dialog_box_manager dialog_box, camera_controller camera, diplomatic_actions_manager dipl_actions) :
                 base(ActionType.StartWar,
-                CostsCalculator.TurnActionApCost(ActionType.StartWar)) {
+                CostsCalculator.GetTurnActionApCost(ActionType.StartWar)) {
                 this.c1 = c1;
                 this.c2 = c2;
                 this.diplomacy = diplomacy;
@@ -341,23 +343,23 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                diplomacy.startWar(c1, c2);
+            public override void Execute(Map map) {
+                diplomacy.StartWar(c1, c2);
                 c2.Events.Add(new Event_.DiploEvent.WarDeclared(c1, c2, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetDeclareWarRelatedButtonStates(true, c2.Id);
             }
         }
 
-        internal class integrate_vassal : TurnAction, IInstantAction {
+        internal class VassalIntegration : TurnAction, IInstantAction {
             private Relation.Vassalage vassalage;
             private diplomatic_relations_manager diplomacy;
             private diplomatic_actions_manager dipl_actions;
 
-            public integrate_vassal(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy,
+            public VassalIntegration(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy,
                 diplomatic_actions_manager dipl_actions) : base(ActionType.IntegrateVassal,
                     CostsCalculator.TurnActionApCost(ActionType.IntegrateVassal, vassalage)) {
                 this.vassalage = vassalage;
@@ -365,17 +367,17 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                diplomacy.integrateVassal(vassalage);
+            public override void Execute(Map map) {
+                diplomacy.IntegrateVassal(vassalage);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetIntegrateVassalRelatedButtonStates(true, vassalage.Sides[1].Id);
             }
         }
 
-        internal class end_war : TurnAction, IInstantAction {
+        internal class PeaceOffer : TurnAction, IInstantAction {
             private Country offer;
             private Relation.War war;
             private diplomatic_relations_manager diplomacy;
@@ -384,9 +386,9 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private Country to;
 
-            public end_war(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public PeaceOffer(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera) : base(ActionType.WarEnd,
-                CostsCalculator.TurnActionApCost(ActionType.WarEnd)) {
+                CostsCalculator.GetTurnActionApCost(ActionType.WarEnd)) {
                 this.offer = offer;
                 this.war = war;
                 this.diplomacy = diplomacy;
@@ -395,26 +397,26 @@ namespace Assets.classes {
                 to = war.Sides[0] == offer ? war.Sides[1] : war.Sides[0];
             }
 
-            public override void execute(Map map) {
+            public override void Execute(Map map) {
                 to.Events.Add(new Event_.DiploEvent.PeaceOffer(war, offer, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferPeaceRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class alliance_offer : TurnAction, IInstantAction {
+        internal class AllianceOffer : TurnAction, IInstantAction {
             private Country c1, c2;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public alliance_offer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public AllianceOffer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceOffer,
-                    CostsCalculator.TurnActionApCost(ActionType.AllianceOffer)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.AllianceOffer)) {
                 this.c1 = c1;
                 this.c2 = c2;
                 this.diplomacy = diplomacy;
@@ -422,18 +424,18 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
                 this.camera = camera;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 c2.Events.Add(new Event_.DiploEvent.AllianceOffer(c1, c2, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferAllianceRelatedButtonStates(true, c2.Id);
             }
         }
 
-        internal class alliance_end : TurnAction, IInstantAction {
+        internal class AllianceBreak : TurnAction, IInstantAction {
             private Country from;
             private Relation.Alliance alliance;
             private diplomatic_relations_manager diplomacy;
@@ -442,9 +444,9 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private Country to;
 
-            public alliance_end(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public AllianceBreak(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceEnd,
-                    CostsCalculator.TurnActionApCost(ActionType.AllianceEnd)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.AllianceEnd)) {
                 this.from = from;
                 this.alliance = alliance;
                 this.diplomacy = diplomacy;
@@ -454,28 +456,28 @@ namespace Assets.classes {
                 to = alliance.Sides.FirstOrDefault(c => c != from);
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AllianceBroken(from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(alliance);
+                diplomacy.EndRelation(alliance);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetBreakAllianceRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class access_offer : TurnAction, IInstantAction {
+        internal class MilAccessOffer : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public access_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccOffer,
-                    CostsCalculator.TurnActionApCost(ActionType.MilAccOffer)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccOffer)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -483,27 +485,27 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
                 this.camera = camera;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessOffer(from, to, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferMilitaryAccessRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class access_request : TurnAction, IInstantAction {
+        internal class MilAccessRequest : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public access_request(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccRequest,
-                    CostsCalculator.TurnActionApCost(ActionType.MilAccRequest)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccRequest)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -511,18 +513,18 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
                 this.camera = camera;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessRequest(from, to, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetRequestMilitaryAccessRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class access_end_master : TurnAction, IInstantAction {
+        internal class MilAccessEndMaster : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -530,9 +532,9 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private MilitaryAccess militaryAccess;
 
-            public access_end_master(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessEndMaster(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndMaster,
-                    CostsCalculator.TurnActionApCost(ActionType.MilAccEndMaster)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccEndMaster)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -542,19 +544,19 @@ namespace Assets.classes {
                 this.militaryAccess = militaryAccess;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessEndMaster(militaryAccess, from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(militaryAccess);
+                diplomacy.EndRelation(militaryAccess);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetEndMilitaryAccessMasterRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class access_end_slave : TurnAction, IInstantAction {
+        internal class MilAccessEndSlave : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -562,9 +564,9 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private MilitaryAccess militaryAccess;
 
-            public access_end_slave(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public MilAccessEndSlave(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndSlave,
-                    CostsCalculator.TurnActionApCost(ActionType.MilAccEndSlave)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccEndSlave)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -574,19 +576,19 @@ namespace Assets.classes {
                 this.militaryAccess = militaryAccess;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.AccessEndSlave(militaryAccess, from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(militaryAccess);
+                diplomacy.EndRelation(militaryAccess);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetEndMilitaryAccessSlaveRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class subs_offer : TurnAction, IInstantAction {
+        internal class SubsOffer : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -594,9 +596,9 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private int amount, duration;
 
-            public subs_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsOffer,
-                    CostsCalculator.TurnActionApCost(ActionType.SubsOffer)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.SubsOffer)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -607,18 +609,18 @@ namespace Assets.classes {
                 this.duration = duration;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.SubsOffer(from, to, diplomacy, dialog_box, amount, duration, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetSubsidizeRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class subs_end : TurnAction, IInstantAction {
+        internal class SubsEnd : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -626,9 +628,9 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private Subsidies subsidies;
 
-            public subs_end(Country from, Country to, Subsidies subsidies, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public SubsEnd(Country from, Country to, Subsidies subsidies, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsEnd,
-                    CostsCalculator.TurnActionApCost(ActionType.SubsEnd)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.SubsEnd)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -638,19 +640,19 @@ namespace Assets.classes {
                 this.subsidies = subsidies;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.SubsEndMaster(from, to, diplomacy, dialog_box, camera));
-                diplomacy.endRelation(subsidies);
+                diplomacy.EndRelation(subsidies);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetEndSubsidiesRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class subs_request : TurnAction, IInstantAction {
+        internal class SubsRequest : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
@@ -658,9 +660,9 @@ namespace Assets.classes {
             private diplomatic_actions_manager dipl_actions;
             private int amount, duration;
 
-            public subs_request(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsRequest,
-                    CostsCalculator.TurnActionApCost(ActionType.SubsRequest)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.SubsRequest)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -671,27 +673,27 @@ namespace Assets.classes {
                 this.duration = duration;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.SubsRequest(from, to, diplomacy, dialog_box, amount, duration, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetRequestSubsidiesRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class vassal_offer : TurnAction, IInstantAction {
+        internal class VassalizationDemand : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public vassal_offer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public VassalizationDemand(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalizationOffer,
-                    CostsCalculator.TurnActionApCost(ActionType.VassalizationOffer)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.VassalizationOffer)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -699,27 +701,27 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.VassalOffer(from, to, diplomacy, dialog_box, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetOfferVassalizationRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class vassal_rebel : TurnAction, IInstantAction {
+        internal class VassalRebellion : TurnAction, IInstantAction {
             private Relation.Vassalage vassalage;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public vassal_rebel(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public VassalRebellion(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalRebel,
-                    CostsCalculator.TurnActionApCost(ActionType.VassalRebel)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.VassalRebel)) {
                 this.vassalage = vassalage;
                 this.diplomacy = diplomacy;
                 this.dialog_box = dialog_box;
@@ -727,29 +729,29 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 vassalage.Sides[0].Events.Add(new Event_.DiploEvent.VassalRebel(vassalage.Sides[1], vassalage.Sides[0], diplomacy, dialog_box, camera));
-                diplomacy.endRelation(vassalage);
-                diplomacy.startWar(vassalage.Sides[1], vassalage.Sides[0]);
+                diplomacy.EndRelation(vassalage);
+                diplomacy.StartWar(vassalage.Sides[1], vassalage.Sides[0]);
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.SetVassalRebelRelatedButtonStates(true, vassalage.Sides[0].Id);
             }
         }
 
-        internal class insult : TurnAction, IInstantAction {
+        internal class Insult : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public Insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Insult,
-                    CostsCalculator.TurnActionApCost(ActionType.Insult)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.Insult)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -757,49 +759,49 @@ namespace Assets.classes {
                 this.dipl_actions = dipl_actions;
             }
 
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] - INSULT_OUR_OPINION_PENALTY_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] - INSULT_THEIR_OPINION_PENALTY_INIT);
             }
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] + INSULT_OUR_OPINION_PENALTY_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] + INSULT_THEIR_OPINION_PENALTY_INIT);
                 dipl_actions.SetInsultRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class praise : TurnAction, IInstantAction {
+        internal class Praise : TurnAction, IInstantAction {
             private Country from, to;
             private diplomatic_relations_manager diplomacy;
             private dialog_box_manager dialog_box;
             private camera_controller camera;
             private diplomatic_actions_manager dipl_actions;
 
-            public praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
+            public Praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Praise,
-                    CostsCalculator.TurnActionApCost(ActionType.Praise)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.Praise)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
                 this.dialog_box = dialog_box;
                 this.dipl_actions = dipl_actions;
             }
-            public override void preview(Map map) {
-                base.preview(map);
+            public override void Preview(Map map) {
+                base.Preview(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] + PRAISE_OUR_OPINION_BONUS_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] + PRAISE_THEIR_OPINION_BONUS_INIT);
             }
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 from.SetOpinion(to.Id, from.Opinions[to.Id] - PRAISE_OUR_OPINION_BONUS_INIT);
                 to.SetOpinion(from.Id, to.Opinions[from.Id] - PRAISE_THEIR_OPINION_BONUS_INIT);
                 dipl_actions.SetDiplomaticMissionRelatedButtonStates(true, to.Id);
             }
         }
 
-        internal class call_to_war : TurnAction, IInstantAction {
+        internal class CallToWar : TurnAction, IInstantAction {
             private Country from, to;
             private War war;
             private dialog_box_manager dialog_box;
@@ -807,10 +809,10 @@ namespace Assets.classes {
             private diplomatic_relations_manager diplomacy;
             private diplomatic_actions_manager dipl_actions;
 
-            public call_to_war(Country from, Country to, War war, dialog_box_manager dialog_box,
+            public CallToWar(Country from, Country to, War war, dialog_box_manager dialog_box,
                 diplomatic_relations_manager diplomacy, camera_controller camera,
                 diplomatic_actions_manager dipl_actions) : base(ActionType.CallToWar,
-                    CostsCalculator.TurnActionApCost(ActionType.CallToWar)) {
+                    CostsCalculator.GetTurnActionApCost(ActionType.CallToWar)) {
                 this.from = from;
                 this.to = to;
                 this.war = war;
@@ -819,32 +821,32 @@ namespace Assets.classes {
                 this.diplomacy = diplomacy;
                 this.dipl_actions = dipl_actions;
             }
-            public override void execute(Map map) {
-                base.execute(map);
+            public override void Execute(Map map) {
+                base.Execute(map);
                 to.Events.Add(new Event_.DiploEvent.CallToWar(from, to, diplomacy, dialog_box, war, camera));
             }
 
-            public override void revert(Map map) {
-                base.revert(map);
+            public override void Revert(Map map) {
+                base.Revert(map);
                 dipl_actions.RevertCallToWarRelatedButtonStates(to.Id);
             }
         }
     }
     internal interface IInstantAction { }
-    public class actionContainer {
+    public class ActionContainer {
         private Map map;
-
-        
-
-
         private List<TurnAction> actions;
 
-        public actionContainer(Map map) {
+        public TurnAction Last { get => actions[actions.Count - 1]; }
+        public int Count { get { return actions.Count; } }
+        public List<TurnAction> Actions { get => actions; set => actions = value; }
+
+        public ActionContainer(Map map) {
             this.map = map;
             actions = new List<TurnAction>();
         }
 
-        public List<TurnAction> extractInstants() {
+        public List<TurnAction> ExtractInstants() {
             List<TurnAction> instants = new List<TurnAction>();
             if (actions != null) {
                 instants = actions.FindAll(a => a is IInstantAction);
@@ -853,26 +855,24 @@ namespace Assets.classes {
             return instants;
         }
 
-        public TurnAction last { get => actions[actions.Count - 1]; }
 
-        public int Count { get { return actions.Count; } }
 
-        public void addAction(TurnAction action) {
-            action.cRes = map.Countries[map.currentPlayer].Resources;
+        public void AddAction(TurnAction action) {
+            action.countryResources = map.Countries[map.CurrentPlayerId].Resources;
             actions.Add(action);
-            actions.Last().preview(map);
+            actions.Last().Preview(map);
         }
 
-        public void execute() {
+        public void ExecuteLastAction() {
             if(actions.Count == 0) return;
-            actions[0].execute(map);
+            actions[0].Execute(map);
             actions.RemoveAt(0);
         }
 
-        public void revert() {
+        public void RevertLastAction() {
             if(actions.Count>0){
-                last.revert(map);
-                actions.Remove(last);
+                Last.Revert(map);
+                actions.Remove(Last);
             }
         }
     }

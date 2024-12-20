@@ -18,7 +18,7 @@ public class map_ui : MonoBehaviour
 
     private void Start()
     {
-		settings_menu_scr.settingsInit();
+		settings_menu_scr.SettingsInit();
     }
 
     void Update()
@@ -71,15 +71,15 @@ public class map_ui : MonoBehaviour
 			}
 			if (Input.GetKeyDown(KeyCode.Backspace)) {
 				if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-					game_manager.UndoAll();
+					game_manager.UndoAllActions();
 				}
 				else {
-					game_manager.undoLast();
+					game_manager.UndoLastAction();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.Space)) {
 				if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-					game_manager.TurnSimulation();
+					game_manager.PerformTurnSimulation();
 				}
 				else {
 					game_manager.LocalTurnSimulation();
@@ -125,13 +125,13 @@ public class map_ui : MonoBehaviour
 			}
 			if (Input.GetKeyDown(KeyCode.F)) {
 				if (province_interface.gameObject.activeSelf && province_interface.Recruitable) {
-					province_interface.recruit();
+					province_interface.Recruit();
 				}
 			}
 			//ctrl actions
 			if (Input.GetKeyDown(KeyCode.S) && game_manager.turnCnt > 0) {
 				if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) {
-					save_manager.saveGame("quicksave");
+					save_manager.SaveGame("quicksave");
 				}
 			}
 		}

@@ -17,14 +17,14 @@ public class province_interface : MonoBehaviour
         {
             string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
             string formattedValue = value > 0 ? $"+{value * 100}%" : value < 0 ? $"{value * 100}%" : "0";
-            return $"� {label}: <color={color}>{formattedValue}</color>";
+            return $"• { label}: <color={color}>{formattedValue}</color>";
         }
 
         private static string FormatValueChangeText(string label, float value)
         {
             string color = value > 0 ? "green" : value < 0 ? "red" : "yellow";
             string formattedValue = value > 0 ? $"+{value}" : value < 0 ? $"{value}" : "0";
-            return $"� {label}: <color={color}>{formattedValue}</color>";
+            return $"• {label}: <color={color}>{formattedValue}</color>";
         }
 
         private static string GenerateTooltipText(Status status, Province province, Map map)
@@ -87,7 +87,7 @@ public class province_interface : MonoBehaviour
             return tooltipText;
         }
 
-        public static void deleteIcons(GameObject obj)
+        public static void DeleteIcons(GameObject obj)
         {
             foreach (Transform child in obj.transform)
             {
@@ -95,12 +95,12 @@ public class province_interface : MonoBehaviour
             }
         }
 
-        public static void showIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites,
+        public static void ShowIcons(GameObject obj, List<Status> statuses, List<Sprite> status_sprites,
             Province province, Map map)
         {
-            if (statuses.SequenceEqual(previousStatuses) && previousTurn == map.turnCnt) return;
+            if (statuses.SequenceEqual(previousStatuses) && previousTurn == map.TurnCnt) return;
 
-            deleteIcons(obj);
+            DeleteIcons(obj);
 
             if (statuses != null)
             {
@@ -127,7 +127,7 @@ public class province_interface : MonoBehaviour
                 }
 
                 previousStatuses = new List<Status>(statuses);
-                previousTurn = map.turnCnt;
+                previousTurn = map.TurnCnt;
             }
         }
     }
@@ -169,7 +169,7 @@ public class province_interface : MonoBehaviour
     private int prov;
 
     public (int, int) SelectedProvince { get; set; }
-    public bool Recruitable { get { return map.getProvince(SelectedProvince).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
+    public bool Recruitable { get { return map.GetProvince(SelectedProvince).RecruitablePopulation > 0 && recruitment_button.activeSelf; } }
 
     private void Start()
     {
@@ -209,38 +209,38 @@ public class province_interface : MonoBehaviour
 
         foreach (var (btnTransform, buildingType) in buildingTypes)
         {
-            btnTransform.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeUpgradeBuilding(SelectedProvince, buildingType));
-            btnTransform.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeDowngradeBuilding(SelectedProvince, buildingType));
+            btnTransform.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeUpgradeBuilding(SelectedProvince, buildingType));
+            btnTransform.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeDowngradeBuilding(SelectedProvince, buildingType));
         }
 
-        recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRecBox(SelectedProvince));
-        festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeFestivitiesOrganizationBox(SelectedProvince));
-        tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeTaxBreakIntroductionBox(SelectedProvince));
-        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.invokeRebelSuppressionBox(SelectedProvince));
+        recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeRecBox(SelectedProvince));
+        festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeFestivitiesOrganizationBox(SelectedProvince));
+        tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeTaxBreakIntroductionBox(SelectedProvince));
+        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeRebelSuppressionBox(SelectedProvince));
     }
 
     private void Update() {
         var coordinates = SelectedProvince;
-        Province p = map.getProvince(coordinates);
-        int countryId = map.Countries[p.Owner_id].Id;
+        Province p = map.GetProvince(coordinates);
+        int countryId = map.Countries[p.OwnerId].Id;
 
         id_.Txt.SetText(coordinates.ToString() +
-            (p.Owner_id != 0 ? " " + map.Countries[p.Owner_id].Name +
+            (p.OwnerId != 0 ? " " + map.Countries[p.OwnerId].Name +
             (map.Controllers[countryId] == Map.CountryController.Ai ? " (AI)" : "") : ""));
 
-        type_.Txt.SetText($"{p.Type}");
+        type_.Txt.SetText(p.IsLand ? "land" : "ocean");
 
-        if (p.Type == "land") 
+        if (p.IsLand) 
         {
-            res_.Txt.SetText("" + p.ResourcesP + "(" + p.ResourceAmount + ")");
+            res_.Txt.SetText("" + p.ResourcesP + " (" + p.ResourceAmount + ")");
             res_.Img.sprite = res_images[((int)p.ResourceType)];
             happ_.Txt.SetText("" + p.Happiness);
             pop_.Txt.SetText("" + p.Population);
             rec_pop_.Txt.SetText("" + p.RecruitablePopulation);
 
             UpdateUIElementStates(p); 
-            UpdateEmblem(p.Owner_id);
-            StatusDisplay.showIcons(statuses_list, p.Statuses, status_sprites, p, map);
+            UpdateEmblem(p.OwnerId);
+            StatusDisplay.ShowIcons(statuses_list, p.Statuses, status_sprites, p, map);
         }
         else {
             res.SetActive(false);
@@ -263,18 +263,18 @@ public class province_interface : MonoBehaviour
         pop.SetActive(true);
         rec_pop.SetActive(true);
 
-        building_interface.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        recruitment_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        festivities_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        tax_break_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
-        rebel_suppress_button.SetActive(p.Owner_id == map.CurrentPlayer.Id);
+        building_interface.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        recruitment_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        festivities_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        tax_break_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
+        rebel_suppress_button.SetActive(p.OwnerId == map.CurrentPlayer.Id);
 
         UpdateBuildings(p);
         recruitment_button.GetComponent<Button>().interactable = p.RecruitablePopulation > 0;
-        festivities_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.canFestival && !p.Statuses.Any(status => status is Festivities);
-        tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.techStats.canTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
+        festivities_button.GetComponent<Button>().interactable = map.CurrentPlayer.TechStats.CanFestival && !p.Statuses.Any(status => status is Festivities);
+        tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.TechStats.CanTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
         rebel_suppress_button.GetComponent<Button>().interactable =
-            map.CurrentPlayer.techStats.canRebelSupp &&
+            map.CurrentPlayer.TechStats.CanRebelSupp &&
             map.Armies.Any(a => a.Position == p.coordinates && a.OwnerId == 0);
     }
 
@@ -290,7 +290,7 @@ public class province_interface : MonoBehaviour
 
     private void UpdateBuildingButtonsStates(Province province)
     {
-        if (map.CurrentPlayer.Id != province.Owner_id) return;
+        if (map.CurrentPlayer.Id != province.OwnerId) return;
 
         var buttonMappings = new List<(Transform ButtonTransform, BuildingType Type)>
         {
@@ -315,13 +315,13 @@ public class province_interface : MonoBehaviour
         switch (buildingType)
         {
             case BuildingType.Infrastructure:
-                return map.CurrentPlayer.techStats.canInfrastructure ? 3 : 0;
+                return map.CurrentPlayer.TechStats.CanInfrastructure ? 3 : 0;
             case BuildingType.School:
-                return map.CurrentPlayer.techStats.moreSchool ? 3 : 1;
+                return map.CurrentPlayer.TechStats.MoreSchool ? 3 : 1;
             case BuildingType.Fort:
-                return map.CurrentPlayer.techStats.lvlFort;
+                return map.CurrentPlayer.TechStats.LvlFort;
             case BuildingType.Mine:
-                return map.CurrentPlayer.techStats.lvlMine;
+                return map.CurrentPlayer.TechStats.LvlMine;
             default:
                 return 3;
         }
@@ -332,7 +332,7 @@ public class province_interface : MonoBehaviour
         if (ownerId == 0) emblem.SetActive(false);
         else
         {
-            map.Countries[ownerId].setCoatandColor(emblem);
+            map.Countries[ownerId].SetCoatandColor(emblem);
             emblem.SetActive(true);
         }
 
@@ -352,11 +352,11 @@ public class province_interface : MonoBehaviour
         map.Provinces[prov].Population += val;
     }
 
-    public void hide() {
+    public void Hide() {
         gameObject.SetActive(false);
     }
 
-    public void recruit() {
+    public void Recruit() {
         recruitment_button.GetComponent<Button>().onClick.Invoke();
     }
 }

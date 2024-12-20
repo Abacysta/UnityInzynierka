@@ -45,9 +45,9 @@ public class StartWarActionTests
         currentPlayerVassal = map.Countries[3];
         receiverCountryVassal = map.Countries[4];
 
-        var action = new start_war(currentPlayer, receiverCountry, diplomatic_relations_manager, 
+        var action = new WarDeclaration(currentPlayer, receiverCountry, diplomatic_relations_manager, 
             dialog_box, camera_controller, diplomatic_actions_manager);
-        currentPlayer.Actions.addAction(action);
+        currentPlayer.Actions.AddAction(action);
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class StartWarActionTests
         receiverCountry.Events.Clear();
 
         // Act
-        currentPlayer.Actions.execute();
+        currentPlayer.Actions.ExecuteLastAction();
 
         // Assert
         WarDeclared warDeclaredEvent = (WarDeclared)receiverCountry.Events.Find(e => e is WarDeclared);
@@ -78,7 +78,7 @@ public class StartWarActionTests
         map.Relations.Add(new Relation.Vassalage(receiverCountry, receiverCountryVassal));
 
         // Act
-        currentPlayer.Actions.execute();
+        currentPlayer.Actions.ExecuteLastAction();
 
         // Assert
         Relation.War warRelation = (Relation.War)map.Relations.ToList().Find(r => r is Relation.War);
@@ -87,10 +87,10 @@ public class StartWarActionTests
         Assert.AreEqual(currentPlayer, warRelation.Sides[0], "First side in the war relation should be the current player.");
         Assert.AreEqual(receiverCountry, warRelation.Sides[1], "Second side in the war relation should be the receiver country.");
 
-        Assert.IsTrue(warRelation.participants1.Contains(currentPlayer));
-        Assert.IsTrue(warRelation.participants1.Contains(currentPlayerVassal));
-        Assert.IsTrue(warRelation.participants2.Contains(receiverCountry));
-        Assert.IsTrue(warRelation.participants2.Contains(receiverCountryVassal));
+        Assert.IsTrue(warRelation.Participants1.Contains(currentPlayer));
+        Assert.IsTrue(warRelation.Participants1.Contains(currentPlayerVassal));
+        Assert.IsTrue(warRelation.Participants2.Contains(receiverCountry));
+        Assert.IsTrue(warRelation.Participants2.Contains(receiverCountryVassal));
 
         Assert.IsTrue(currentPlayer.AtWar);
         Assert.IsTrue(receiverCountry.AtWar);

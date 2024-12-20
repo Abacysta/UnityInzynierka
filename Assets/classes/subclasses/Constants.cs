@@ -1,5 +1,5 @@
 ﻿namespace Assets.classes.subclasses.Constants {
-    internal static class Province {
+    internal static class ProvinceConstants {
         //population needed for a school
         public const ushort SCHOOL_MIN_POP = 3000;
 
@@ -19,7 +19,7 @@
 
     }
 
-    internal static class Relation {
+    internal static class RelationConstants {
         public const byte WAR_HAPP_PENALTY_COST = 2;
         public const byte ALLIANCE_HAPP_BONUS_INIT = 3;
         public const byte ALLIANCE_HAPP_BONUS_COST = 1;

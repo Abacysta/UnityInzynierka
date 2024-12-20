@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using static Assets.classes.subclasses.Constants.Province;
+using static Assets.classes.subclasses.Constants.ProvinceConstants;
 public class HappinessTests
 {
     [Test]
@@ -10,8 +10,8 @@ public class HappinessTests
             "New Province",
             10,
             20,
-            "land",
-            Province.TerrainType.forest,
+            true,
+            Province.TerrainType.Forest,
             Resource.Iron,
             500.0f,
             3000,
@@ -36,8 +36,8 @@ public class HappinessTests
             "New Province",
             10,
             20,
-            "land",
-            Province.TerrainType.forest,
+            true,
+            Province.TerrainType.Forest,
             Resource.Iron,
             500.0f,
             3000,

@@ -3,15 +3,15 @@ Shader "Unlit/NewUnlitShader"
     Properties
     {
         _MainTex ("Sprite Texture", 2D) = "white" {}
-        _MaskTex ("Mask Texture", 2D) = "white" {}   // Tekstura maski
-        _ColorChange ("Color", Color) = (1,1,1,1)    // Kolor dla tu³owia
+        _MaskTex ("Mask Texture", 2D) = "white" {}  // Mask texture
+        _ColorChange ("Color", Color) = (1,1,1,1)    // Color for the torso
     }
     SubShader
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         LOD 100
 
-        // Zastosowanie blendingu dla przezroczystoœci
+        // Applying blending for transparency
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
         Cull Off
@@ -37,7 +37,7 @@ Shader "Unlit/NewUnlitShader"
             };
 
             sampler2D _MainTex;
-            sampler2D _MaskTex; // Tekstura maski
+            sampler2D _MaskTex; // Mask texture
             float4 _ColorChange;
 
             v2f vert (appdata_t v)
@@ -50,19 +50,19 @@ Shader "Unlit/NewUnlitShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // Oryginalny kolor i alfa sprite'a
+                // Original color and alpha of the sprite
                 fixed4 originalColor = tex2D(_MainTex, i.texcoord);
                 
-                // Odczytanie maski
-                float maskValue = tex2D(_MaskTex, i.texcoord).r; // Zak³adamy maskê w skali szaroœci
+                // Reading the mask
+                float maskValue = tex2D(_MaskTex, i.texcoord).r; // Assuming a grayscale mask
                 
-                // Mieszamy kolor, jeœli maska ma wartoœæ powy¿ej 0.5
+                // Blending the color if the mask value is above 0.5
                 if (maskValue > 0.5)
                 {
                     originalColor.rgb = lerp(originalColor.rgb, _ColorChange.rgb, maskValue);
                 }
                 
-                // Zwróæ kolor z oryginaln¹ przezroczystoœci¹
+                // Return the color with original transparency
                 return originalColor;
             }
             ENDCG

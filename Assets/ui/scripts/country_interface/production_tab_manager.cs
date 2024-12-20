@@ -30,21 +30,21 @@ public class production_tab_manager : MonoBehaviour
         {
             var idx = i;
             toggles[idx].onValueChanged.AddListener(delegate {
-                setTaxType(idx);
+                SetTaxType(idx);
             });
-            toggles[idx].onValueChanged.AddListener(delegate { updateTaxInfo(); });
+            toggles[idx].onValueChanged.AddListener(delegate { UpdateTaxInfo(); });
         }
     }
 
     void OnEnable()
     {
-        Debug.Log(getTaxType() + "-tax");
+        Debug.Log(GetTaxType() + "-tax");
 
         SetCountryPopulationText();
         SetCountryHappinessText();
-        setTaxButtons();
-        updateTaxInfo();
-        updateGainInfo();
+        SetTaxButtons();
+        UpdateTaxInfo();
+        UpdateGainInfo();
     }
 
     public void SetCountryPopulationText()
@@ -84,31 +84,31 @@ public class production_tab_manager : MonoBehaviour
         }
     }
 
-    private void setTaxButtons()
+    private void SetTaxButtons()
     {
-        var toSet = getTaxType();
+        var toSet = GetTaxType();
 
         for (int i = 0; i < toggles.Count; i++)
         {
-            toggles[i].interactable = i < map.CurrentPlayer.techStats.lvlTax + 3;
+            toggles[i].interactable = i < map.CurrentPlayer.TechStats.LvlTax + 3;
             if (i == toSet) toggles[i].isOn = true;
         }
     }
 
-    private void updateTaxInfo()
+    private void UpdateTaxInfo()
     {
         ATax tax = map.CurrentPlayer.Tax;
-        var tax_percent = tax.GoldP;
-        var tax_happ = tax.HappP;
+        var tax_percent = tax.ProjectedGold;
+        var tax_happ = tax.ProjectedHappiness;
         tax_text.text = tax_percent * 100 + "%";
         happ_text.text = (tax_happ >= 0 ? "+" : "") + tax_happ + "%";
 
         happ_text.color = tax_happ > 0 ? Color.green : Color.red;
 
-        updateGainInfo();
+        UpdateGainInfo();
     }
 
-    private void setTaxType(int it)
+    private void SetTaxType(int it)
     {
         switch (it)
         {
@@ -130,7 +130,7 @@ public class production_tab_manager : MonoBehaviour
         }
     }
 
-    public int getTaxType()
+    public int GetTaxType()
     {
         switch (map.CurrentPlayer.Tax)
         {
@@ -147,18 +147,18 @@ public class production_tab_manager : MonoBehaviour
         }
     }
 
-    private void updateGainInfo()
+    private void UpdateGainInfo()
     {
-        var gains = Map.PowerUtilites.getGain(map, map.CurrentPlayer);
+        var gains = Map.PowerUtilites.GetGain(map, map.CurrentPlayer);
 
         var gold = panel.transform.Find("gold_text").GetComponent<TMP_Text>();
         var wood = panel.transform.Find("wood_text").GetComponent<TMP_Text>();
         var iron = panel.transform.Find("iron_text").GetComponent<TMP_Text>();
         var sp = panel.transform.Find("science_points_text").GetComponent<TMP_Text>();
 
-        gold.SetText((gains[Resource.Gold] > 0 ? "+" : "") + gains[Resource.Gold]);
-        wood.SetText((gains[Resource.Wood] > 0 ? "+" : "") + gains[Resource.Wood]);
-        iron.SetText((gains[Resource.Iron] > 0 ? "+" : "") + gains[Resource.Iron]);
-        sp.SetText((gains[Resource.SciencePoint] > 0 ? "+" : "") + gains[Resource.SciencePoint]);
+        gold.SetText((gains[Resource.Gold] >= 0 ? "+" : "") + gains[Resource.Gold]);
+        wood.SetText((gains[Resource.Wood] >= 0 ? "+" : "") + gains[Resource.Wood]);
+        iron.SetText((gains[Resource.Iron] >= 0 ? "+" : "") + gains[Resource.Iron]);
+        sp.SetText((gains[Resource.SciencePoint] >= 0 ? "+" : "") + gains[Resource.SciencePoint]);
     }
 }

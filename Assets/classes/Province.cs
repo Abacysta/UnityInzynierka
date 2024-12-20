@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static Assets.classes.subclasses.Constants.Province;
+using static Assets.classes.subclasses.Constants.ProvinceConstants;
 
 public class ProvinceModifiers
 {
@@ -31,96 +31,94 @@ public class ProvinceModifiers
 [System.Serializable]
 public class Province {
     public enum TerrainType {
-        tundra,
-        forest,
-        lowlands,
-        desert,
-        ocean
+        Tundra,
+        Forest,
+        Lowlands,
+        Desert,
+        Ocean
     }
 
-    [SerializeField] private string id;
     [SerializeField] private string name;
     [SerializeField] private int x;
     [SerializeField] private int y;
-    [SerializeField] private string type;
+    [SerializeField] private bool isLand;
     [SerializeField] private Resource resourceType;
     [SerializeField] private float resourceAmount;
     [SerializeField] private int population;
-    [SerializeField] private int recruitable_population;
+    [SerializeField] private int recruitablePopulation;
     [SerializeField] private int happiness;
-    [SerializeField] private bool is_coast;
+    [SerializeField] private bool isCoast;
     [SerializeField] private OccupationInfo occupationInfo;
-    [SerializeField] private int owner_id;
+    [SerializeField] private int ownerId;
     [SerializeField] private Dictionary<BuildingType, int> buildings;
-    private ProvinceModifiers modifiers;
-    private TerrainType terrain;
-    private List<Status> statuses;
+    [SerializeField] private ProvinceModifiers modifiers;
+    [SerializeField] private TerrainType terrain;
+    [SerializeField] private List<Status> statuses;
 
     [JsonConstructor]
-    public Province(string name, int x, int y, string type, TerrainType terrain, Resource resourceType,
-    float resourceAmount, int population,int happiness, bool is_coast)
+    public Province(string name, int x, int y, bool isLand, TerrainType terrain, Resource resourceType,
+        float resourceAmount, int population, int happiness, bool isCoast)
     {
         this.name = name;
         this.x = x;
         this.y = y;
-        this.type = type;
+        this.isLand = isLand;
         this.terrain = terrain;
         this.resourceType = resourceType;
         this.resourceAmount = resourceAmount;
         this.population = population;
         this.happiness = happiness;
-        this.is_coast = is_coast;
+        this.isCoast = isCoast;
 
-        if (type == "land")
+        if (isLand)
         {
             occupationInfo = new OccupationInfo();
-            buildings = defaultBuildings(this);
+            buildings = GetDefaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
-            recruitable_population = 0;
-            owner_id = 0;
+            recruitablePopulation = 0;
+            ownerId = 0;
         }
     }
-    public Province( string name, int x, int y, string type, TerrainType terrain, Resource resourceType, 
-        float resourceAmount, int population, int recruitable_population, int happiness, bool is_coast, int owner_id) {
+    public Province(string name, int x, int y, bool isLand, TerrainType terrain, Resource resourceType, 
+        float resourceAmount, int population, int recruitable_population, int happiness, bool isCoast, int ownerId) {
         this.name = name;
         this.x = x;
         this.y = y;
-        this.type = type;
+        this.isLand = isLand;
         this.terrain = terrain;
         this.resourceType = resourceType;
         this.resourceAmount = resourceAmount;
         this.population = population;
-        this.recruitable_population = recruitable_population;
+        this.recruitablePopulation = recruitable_population;
         this.happiness = happiness;
-        this.is_coast = is_coast;
-        this.owner_id = owner_id;
+        this.isCoast = isCoast;
+        this.ownerId = ownerId;
 
-        if (type == "land")
+        if (isLand)
         {
             occupationInfo = new OccupationInfo();
-            buildings = defaultBuildings(this);
+            buildings = GetDefaultBuildings(this);
             modifiers = new ProvinceModifiers();
             statuses = new List<Status>();
         }
     }
 
-    public string Id { get => id; set => id = value; }
     public string Name { get => name; set => name = value; }
     public int X { get => x; set => x = value; }
     public int Y { get => y; set => y = value; }
-    public string Type { get => type; set => type = value; }
+    public bool IsLand { get => isLand; set => isLand = value; }
     public Resource ResourceType { get => resourceType; set => resourceType = value; }
     public float ResourceAmount { get => (float)System.Math.Round(resourceAmount, 1); set => resourceAmount = value; }
     public int Population { get => population; set => population = value;}
-    public int RecruitablePopulation { get => recruitable_population; set => recruitable_population = value; }
+    public int RecruitablePopulation { get => recruitablePopulation; set => recruitablePopulation = value; }
     public int Happiness { get => happiness; set => happiness = Mathf.Clamp(value, MIN_HAPP, MAX_HAPP); }
-    public bool Is_coast { get => is_coast; set => is_coast = value; }
+    public bool IsCoast { get => isCoast; set => isCoast = value; }
     public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
-    public int Owner_id { get => owner_id; set => owner_id = value; }
+    public int OwnerId { get => ownerId; set => ownerId = value; }
     public Dictionary<BuildingType,int> Buildings { get => buildings; set => buildings = value; }
     public (int, int) coordinates { get => (x, y); }
-    public float ResourcesP { get => RealProduction(); }
+    public float ResourcesP { get => CalculateRealProduction(); }
     public List<Status> Statuses { get => statuses; set => statuses = value; }
     internal TerrainType Terrain { get => terrain; set => terrain = value; }
     public ProvinceModifiers Modifiers { get => modifiers; set => modifiers = value; }
@@ -128,7 +126,7 @@ public class Province {
 
     public void UpgradeBuilding(BuildingType buildingType)
     {
-        if (buildings.ContainsKey(buildingType) && buildings[buildingType] < 3)
+        if (buildings != null && buildings.ContainsKey(buildingType) && buildings[buildingType] < 3)
         {
             buildings[buildingType]++;
         }
@@ -136,7 +134,7 @@ public class Province {
 
     public void DowngradeBuilding(BuildingType buildingType)
     {
-        if (buildings.ContainsKey(buildingType) && buildings[buildingType] > 0 && buildings[buildingType] < 4)
+        if (buildings != null && buildings.ContainsKey(buildingType) && buildings[buildingType] > 0 && buildings[buildingType] < 4)
         {
             buildings[buildingType]--;
         }
@@ -144,39 +142,39 @@ public class Province {
 
     public int GetBuildingLevel(BuildingType type)
     {
-        return buildings.ContainsKey(type) ? buildings[type] : 0;
+        return buildings != null && buildings.ContainsKey(type) ? buildings[type] : 0;
     }
     public void ResetBuilding(BuildingType buildingType)
     {
-        if (buildings.ContainsKey(buildingType))
+        if (buildings != null && buildings.ContainsKey(buildingType))
         {
             buildings[buildingType] = 0;
         }
     }
-    public void calcStatuses() {
+    public void CalcStatuses() {
         modifiers.ResetModifiers();
 
-        if (statuses!= null) {
+        if (statuses != null) {
             List<Status> to_rmv = new();
             statuses.OrderByDescending(s => s.Type).ToList();
 
             foreach (var status in statuses) {
                 if (0 != status.Duration--)
-                    status.applyEffect(this);
+                    status.ApplyEffect(this);
                 else to_rmv.Add(status);
             }
             statuses = statuses.Except(to_rmv).ToList();
         }
     }
-    public void addStatus(Status status) { 
-        statuses.Add(status);
+    public void AddStatus(Status status) {
+        statuses?.Add(status);
     }
 
     public void RemoveStatus(Status status) {
-        statuses.Remove(status);
+        statuses?.Remove(status);
     }
 
-    private float RealProduction() {
+    private float CalculateRealProduction() {
         float prod;
 
         if (ResourceType != Resource.AP) {
@@ -201,7 +199,7 @@ public class Province {
         return (float)Math.Round(prod, 1);
     }
 
-    public static Dictionary<BuildingType, int> defaultBuildings(Province p)
+    public static Dictionary<BuildingType, int> GetDefaultBuildings(Province p)
     {
         return new Dictionary<BuildingType, int>
         {
@@ -210,5 +208,48 @@ public class Province {
             { BuildingType.School, p.Population > SCHOOL_MIN_POP ? 0 : 4 },
             { BuildingType.Mine, p.resourceType == Resource.Iron ? 0 : p.resourceType == Resource.Gold ? 0 : 4 }
         };
+    }
+
+    public void GrowPopulation(Map map)
+    {
+        if (!isLand) return;
+
+        var provinceOwnerTechStats = map.Countries[ownerId].TechStats;
+
+        if (occupationInfo != null && occupationInfo.IsOccupied)
+        {
+            var occupierTechStats = map.Countries[occupationInfo.OccupyingCountryId].TechStats;
+            population = (int)Math.Floor(population *
+                ((provinceOwnerTechStats.PopGrowth * modifiers.PopMod) - occupierTechStats.OccPenalty));
+        }
+        else
+        {
+            population = (int)Math.Floor(population * provinceOwnerTechStats.PopGrowth * modifiers.PopMod);
+        }
+
+        population += (int)Math.Floor(modifiers.PopStatic);
+    }
+
+    public void GrowHappiness(Map map, int value)
+    {
+        if (!isLand) return;
+
+        if (occupationInfo.IsOccupied)
+        {
+            var occupierTechStats = map.Countries[occupationInfo.OccupyingCountryId].TechStats;
+            happiness += (int)Math.Floor(value * (modifiers.HappMod - occupierTechStats.OccPenalty));
+        }
+        else happiness += (int)Math.Floor(value * modifiers.HappMod);
+
+        happiness += (int)Math.Floor(modifiers.HappStatic);
+    }
+
+    public void CalcRecruitablePopulation(Map map)
+    {
+        if (!isLand) return;
+
+        var techStats = map.Countries[ownerId].TechStats;
+
+        recruitablePopulation = (int)Math.Floor(population * techStats.RecPop * modifiers.RecPop);
     }
 }

@@ -60,9 +60,9 @@ public class army_click_handler : cursor_helper
         {
             if (hit.collider.TryGetComponent<army_view>(out var armyView))
             {
-                if (armyView.ArmyData.OwnerId != map.currentPlayer) return;
+                if (armyView.ArmyData.OwnerId != map.CurrentPlayerId) return;
 
-                ResetSelectedArmy(); // Resetuj wybrana armie przed przypisaniem nowej
+                ResetSelectedArmy(); // Reset the selected army before assigning a new one
                 selectedArmy = armyView;
                 selectedArmy.GetComponent<SpriteRenderer>().color = Color.red;
                 HighlightPossibleMoveCells(selectedArmy.ArmyData);
@@ -87,7 +87,7 @@ public class army_click_handler : cursor_helper
                 if (highlightedCells.Contains(cellPosition))
                 {
                     (int x, int y) = (cellPosition.x, cellPosition.y);
-                    dialog_box.invokeArmyBox(selectedArmy.ArmyData, (x, y));
+                    dialog_box.InvokeArmyBox(selectedArmy.ArmyData, (x, y));
                     province_tooltip.OnMouseExitProvince();
                 }
 
@@ -116,7 +116,7 @@ public class army_click_handler : cursor_helper
     private void HighlightPossibleMoveCells(Army army)
     {
         isHighlighted = true;
-        List<(int, int)> possibleCells = map.getPossibleMoveCells(army);
+        List<(int, int)> possibleCells = map.GetPossibleMoveCells(army);
 
         highlightedCells.Clear();
 
@@ -127,7 +127,7 @@ public class army_click_handler : cursor_helper
             Vector3Int cellPosition = new Vector3Int(cell.Item1, cell.Item2, 0);
             TileBase tile = base_layer.GetTile(cellPosition);
 
-            // Sprawdzenie czy na danym tile'u nie znajduje sie biezaca armia
+            // Check if the current army is not on the given tile
             if (cellPosition == currentArmyPosition)
             {
                 continue;
@@ -155,52 +155,52 @@ public class army_click_handler : cursor_helper
 
     public bool IsTileAccessibleForArmyMovement(Vector3Int cellPosition, int armyOwnerId)
     {
-        bool HasCurrentPlayerRelationWithTileOwner(RelationType type, Country tileOwner)
+        bool HasArmyOwnerRelationWithTileOwner(RelationType type, Country armyOwner, Country tileOwner)
         {
-            return map.Relations.Any(rel => rel.type == type &&
-                rel.Sides.Contains(map.CurrentPlayer) && rel.Sides.Contains(tileOwner));
+            return map.Relations.Any(rel => rel.Type == type &&
+                rel.Sides.Contains(armyOwner) && rel.Sides.Contains(tileOwner));
         }
 
-        bool HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType type, Country tileOwner)
+        bool HasArmyOwnerRelationWithTileOwnerAsSide0(RelationType type, Country armyOwner, Country tileOwner)
         {
-            return map.Relations.Any(rel => rel.type == type &&
-                rel.Sides[0] == tileOwner && rel.Sides[1] == map.CurrentPlayer);
+            return map.Relations.Any(rel => rel.Type == type &&
+                rel.Sides[0] == tileOwner && rel.Sides[1] == armyOwner);
         }
 
-        bool HasCurrentPlayerWarRelationWithTileOwner(Country tileOwner)
+        bool HasArmyOwnerWarRelationWithTileOwner(Country armyOwner, Country tileOwner)
         {
             return map.Relations
                 .OfType<Relation.War>()
                 .Any(warRelation =>
-                    (warRelation.participants1.Contains(map.CurrentPlayer) && warRelation.participants2.Contains(tileOwner)) ||
-                    (warRelation.participants2.Contains(map.CurrentPlayer) && warRelation.participants1.Contains(tileOwner))
+                    (warRelation.Participants1.Contains(armyOwner) && warRelation.Participants2.Contains(tileOwner)) ||
+                    (warRelation.Participants2.Contains(armyOwner) && warRelation.Participants1.Contains(tileOwner))
                 );
         }
 
-        Province tileProvince = map.getProvince(cellPosition.x, cellPosition.y);
-        Country tileOwner = map.Countries[tileProvince.Owner_id];
+        Province tileProvince = map.GetProvince(cellPosition.x, cellPosition.y);
+        Country tileOwner = map.Countries[tileProvince.OwnerId];
         Country armyOwner = map.Countries[armyOwnerId];
 
         // Do not highlight the tile if:
         // the province is a water tile and
-        // the currentPlayer cannot boat
-        if (tileProvince.Type == "ocean" && !armyOwner.techStats.canBoat)
+        // the armyOwner cannot boat
+        if (!tileProvince.IsLand && !armyOwner.TechStats.CanBoat)
         {
             return false;
         }
 
         // Highlight the tile if the tile's owner is:
-        // - currentPlayer or
         // - tribal or
-        // - at war with currentPlayer or
-        // - in a alliance relation with currentPlayer or
-        // - in a vassalage relation with currentPlayer or
-        // - granting military access to currentPlayer or
+        // - armyOwner or
+        // - at war with armyOwner or
+        // - in a alliance relation with armyOwner or
+        // - in a vassalage relation with armyOwner or
+        // - granting military access to armyOwner or
         return tileOwner.Id == 0 || tileOwner.Id == armyOwnerId ||
-            HasCurrentPlayerWarRelationWithTileOwner(tileOwner) ||
-            HasCurrentPlayerRelationWithTileOwner(RelationType.Alliance, tileOwner) ||
-            HasCurrentPlayerRelationWithTileOwner(RelationType.Vassalage, tileOwner) ||
-            HasCurrentPlayerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, tileOwner);
+            HasArmyOwnerWarRelationWithTileOwner(armyOwner, tileOwner) ||
+            HasArmyOwnerRelationWithTileOwner(RelationType.Alliance, armyOwner, tileOwner) ||
+            HasArmyOwnerRelationWithTileOwner(RelationType.Vassalage, armyOwner, tileOwner) ||
+            HasArmyOwnerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, armyOwner, tileOwner);
     }
 
     private void AnimateHighlitedTiles()
@@ -245,7 +245,7 @@ public class army_click_handler : cursor_helper
     {
         if (army != null)
         {
-            dialog_box.invokeDisbandArmyBox(army);
+            dialog_box.InvokeDisbandArmyBox(army);
             ResetSelectedArmy();
             province_click_handler.DeselectProvince();
         }

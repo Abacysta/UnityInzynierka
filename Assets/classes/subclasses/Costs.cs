@@ -6,7 +6,7 @@ namespace Assets.classes.subclasses
 {
     public static class CostsCalculator
     {
-        private static Dictionary<Resource, float> BuildingCost(BuildingType buildingType, int upgradeLevel)
+        private static Dictionary<Resource, float> GetBuildingCost(BuildingType buildingType, int upgradeLevel)
         {
             switch (buildingType)
             {
@@ -16,20 +16,20 @@ namespace Assets.classes.subclasses
                         case 1:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 10f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 15f },
                                 { Resource.Wood, 25f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 25f },
                                 { Resource.Wood, 10f },
                                 { Resource.Iron, 25f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -40,21 +40,21 @@ namespace Assets.classes.subclasses
                         case 1:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Wood, 20f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 10f },
                                 { Resource.Wood, 10f },
                                 { Resource.Iron, 25f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 30f },
                                 { Resource.Wood, 10f },
                                 { Resource.Iron, 40f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -65,20 +65,20 @@ namespace Assets.classes.subclasses
                         case 1:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 10f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 10f },
                                 { Resource.Wood, 10f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 10f },
                                 { Resource.Wood, 30f },
                                 { Resource.Iron, 5f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -90,14 +90,14 @@ namespace Assets.classes.subclasses
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 100f },
                                 { Resource.Wood, 50f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 2:
                             return new Dictionary<Resource, float>() {
                                 { Resource.Gold, 150f },
                                 { Resource.Wood, 300f },
                                 { Resource.Iron, 50f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         case 3:
                             return new Dictionary<Resource, float>() {
@@ -105,7 +105,7 @@ namespace Assets.classes.subclasses
                                 { Resource.Wood, 100f },
                                 { Resource.Iron, 300f },
                                 { Resource.SciencePoint, 10f },
-                                { Resource.AP, TurnActionApCost(ActionType.BuildingUpgrade) }
+                                { Resource.AP, GetTurnActionApCost(ActionType.BuildingUpgrade) }
                             };
                         default:
                             return new Dictionary<Resource, float>();
@@ -114,139 +114,155 @@ namespace Assets.classes.subclasses
                     return new Dictionary<Resource, float>();
             }
         }
-        public static Dictionary<Resource, float> TechCost(Dictionary<Technology, int> tech, Technology type)
+        public static Dictionary<Resource, float> GetTechCost(Dictionary<Technology, int> tech, Technology type)
         {
             int techLvl = tech[type];
             int allTechLvl = tech.Values.Sum();
 
             return new Dictionary<Resource, float> {
-                { Resource.AP, TurnActionApCost(ActionType.TechnologyUpgrade) },
+                { Resource.AP, GetTurnActionApCost(ActionType.TechnologyUpgrade) },
                 { Resource.SciencePoint, 10 + (10 * techLvl) + (5 * allTechLvl) }
             };
         }
 
-        private static float IntegrateVassalApCost(Relation vassalage)
+        private static float GetIntegrateVassalApCost(Relation vassalage)
         {
             return (vassalage?.Sides[1].Provinces.Count / 5) ?? 1f;
         }
 
-        private static Dictionary<Resource, float> ArmyRecruitmentCost(Country.TechnologyInterpreter techStats)
+        private static Dictionary<Resource, float> GetArmyRecruitmentCost(TechnologyInterpreter techStats)
         {
-            var armyCost = techStats.armyCost;
+            var armyCost = techStats.ArmyCost;
             return new Dictionary<Resource, float> {
                 { Resource.Gold, 1f * armyCost},
-                { Resource.AP, TurnActionApCost(ActionType.ArmyRecruitment) },
+                { Resource.AP, GetTurnActionApCost(ActionType.ArmyRecruitment) },
             };
         }
 
         /// <summary>
-        /// Generic method for non-building, non-technology and non-recruitment based actions
+        /// A generic method for most actions
         /// </summary>
         /// <param name="actionType"></param>
         /// <returns></returns>
-        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType)
+        public static Dictionary<Resource, float> GetTurnActionFullCost(ActionType actionType)
         {
             return new Dictionary<Resource, float> {
-                { Resource.AP, TurnActionApCost(actionType) }
+                { Resource.AP, GetTurnActionApCost(actionType) }
             };
         }
 
         /// <summary>
-        /// Method for am army recruitment action
+        /// Method for army recruitment action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="tech"></param>
         /// <param name="techType"></param>
         /// <returns></returns>
-        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, Country.TechnologyInterpreter techStats)
+        public static Dictionary<Resource, float> GetTurnActionFullCost(ActionType actionType, TechnologyInterpreter techStats)
         {
             if (actionType == ActionType.ArmyRecruitment)
             {
-                return ArmyRecruitmentCost(techStats);
+                return GetArmyRecruitmentCost(techStats);
             }
-            return TurnActionFullCost(actionType);
+            return GetTurnActionFullCost(actionType);
         }
 
         /// <summary>
-        /// Method for technology based actions
+        /// Method for technology upgrade action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="tech"></param>
         /// <param name="techType"></param>
         /// <returns></returns>
-        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType,
+        public static Dictionary<Resource, float> GetTurnActionFullCost(ActionType actionType,
             Dictionary<Technology, int> tech, Technology techType)
         {
             if (actionType == ActionType.TechnologyUpgrade)
             {
-                return TechCost(tech, techType);
+                return GetTechCost(tech, techType);
             }
-            return TurnActionFullCost(actionType);
+            return GetTurnActionFullCost(actionType);
         }
 
         /// <summary>
-        /// Method for building based actions
+        /// Method for building upgrade action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="buildingType"></param>
         /// <param name="upgradeLevel"></param>
         /// <returns></returns>
-        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, BuildingType buildingType, int upgradeLevel)
+        public static Dictionary<Resource, float> GetTurnActionFullCost(ActionType actionType, BuildingType buildingType, int upgradeLevel)
         {
             if (actionType == ActionType.BuildingUpgrade)
             {
-                return BuildingCost(buildingType, upgradeLevel);
+                return GetBuildingCost(buildingType, upgradeLevel);
             }
-            return TurnActionFullCost(actionType);
+            return GetTurnActionFullCost(actionType);
         }
 
         /// <summary>
-        /// Method for rebellion
+        /// Method for integrate vassal action
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="vassalage"></param>
         /// <returns></returns>
-        public static Dictionary<Resource, float> TurnActionFullCost(ActionType actionType, Relation vassalage)
+        public static Dictionary<Resource, float> GetTurnActionFullCost(ActionType actionType, Relation vassalage)
         {
             if (actionType == ActionType.IntegrateVassal)
             {
                 return new Dictionary<Resource, float> {
-                    { Resource.AP, IntegrateVassalApCost(vassalage) },
+                    { Resource.AP, GetIntegrateVassalApCost(vassalage) },
                 };
             }
             else
             {
-                return TurnActionFullCost(actionType);
+                return GetTurnActionFullCost(actionType);
             }
         }
 
-        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType)
+        /// <summary>
+        /// A generic method for most actions
+        /// </summary>
+        public static Dictionary<Resource, float> GetTurnActionAltCost(ActionType actionType)
         {
-            var fullCost = TurnActionFullCost(actionType);
-            return RemoveApCost(fullCost);
-        }
-        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, Country.TechnologyInterpreter techStats)
-        {
-            var fullCost = TurnActionFullCost(actionType, techStats);
+            var fullCost = GetTurnActionFullCost(actionType);
             return RemoveApCost(fullCost);
         }
 
-        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType,
+        /// <summary>
+        /// Method for army recruitment action
+        /// </summary>
+        public static Dictionary<Resource, float> GetTurnActionAltCost(ActionType actionType, TechnologyInterpreter techStats)
+        {
+            var fullCost = GetTurnActionFullCost(actionType, techStats);
+            return RemoveApCost(fullCost);
+        }
+
+        /// <summary>
+        /// Method for technology upgrade action
+        /// </summary>
+        public static Dictionary<Resource, float> GetTurnActionAltCost(ActionType actionType,
             Dictionary<Technology, int> tech, Technology techType)
         {
-            var fullCost = TurnActionFullCost(actionType, tech, techType);
+            var fullCost = GetTurnActionFullCost(actionType, tech, techType);
             return RemoveApCost(fullCost);
         }
 
-        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, BuildingType bType, int lvl)
+        /// <summary>
+        /// Method for building upgrade action
+        /// </summary>
+        public static Dictionary<Resource, float> GetTurnActionAltCost(ActionType actionType, BuildingType bType, int lvl)
         {
-            var fullCost = TurnActionFullCost(actionType, bType, lvl);
+            var fullCost = GetTurnActionFullCost(actionType, bType, lvl);
             return RemoveApCost(fullCost);
         }
 
-        public static Dictionary<Resource, float> TurnActionAltCost(ActionType actionType, Relation vassalage)
+        /// <summary>
+        /// Method for integrate vassal action
+        /// </summary>
+        public static Dictionary<Resource, float> GetTurnActionAltCost(ActionType actionType, Relation vassalage)
         {
-            var fullCost = TurnActionFullCost(actionType, vassalage);
+            var fullCost = GetTurnActionFullCost(actionType, vassalage);
             return RemoveApCost(fullCost);
         }
 
@@ -259,7 +275,7 @@ namespace Assets.classes.subclasses
         private const float HardActionCost = 1f;
         private const float SoftActionCost = 0.1f;
 
-        public static float TurnActionApCost(ActionType actionType)
+        public static float GetTurnActionApCost(ActionType actionType)
         {
             switch (actionType)
             {
@@ -300,9 +316,9 @@ namespace Assets.classes.subclasses
         {
             if (actionType == ActionType.IntegrateVassal)
             {
-                return IntegrateVassalApCost(vassalage);
+                return GetIntegrateVassalApCost(vassalage);
             }
-            return TurnActionApCost(actionType);
+            return GetTurnActionApCost(actionType);
         }
     }
 }

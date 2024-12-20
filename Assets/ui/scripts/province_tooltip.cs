@@ -70,9 +70,9 @@ public class province_tooltip : MonoBehaviour
     }
     public void SetTooltipData(Province province)
     {
-        Country provinceOwner = map.Countries[province.Owner_id];
-        country_province_name.text = (province.Owner_id != 0 ? provinceOwner.Name : "Tribal") + " - " + province.Name;
-        provinceOwner.setCoatandColor(country_coat);
+        Country provinceOwner = map.Countries[province.OwnerId];
+        country_province_name.text = !province.IsLand ? "Ocean" : (province.OwnerId != 0 ? provinceOwner.Name : "Tribal") + " - " + province.Name;
+        provinceOwner.SetCoatandColor(country_coat);
 
         switch (filter_modes.CurrentMode)
         {
@@ -143,15 +143,15 @@ public class province_tooltip : MonoBehaviour
     {
         switch (terrainType)
         {
-            case TerrainType.tundra:
+            case TerrainType.Tundra:
                 return "Tundra";
-            case TerrainType.forest:
+            case TerrainType.Forest:
                 return "Forest";
-            case TerrainType.lowlands:
+            case TerrainType.Lowlands:
                 return "Lowlands";
-            case TerrainType.desert:
+            case TerrainType.Desert:
                 return "Desert";
-            case TerrainType.ocean:
+            case TerrainType.Ocean:
                 return "Ocean";
             default:
                 return "Unknown";
@@ -170,7 +170,7 @@ public class province_tooltip : MonoBehaviour
                 return truce_sprite;
             case RelationType.Vassalage:
                 var isSide0 = map.Relations
-                    .FirstOrDefault(r => r.type == RelationType.Vassalage &&
+                    .FirstOrDefault(r => r.Type == RelationType.Vassalage &&
                                          r.Sides.Contains(map.CurrentPlayer) &&
                                          r.Sides.Contains(country))?.Sides[0] == map.CurrentPlayer;
                 return isSide0 ? vassalage_sprite_1 : vassalage_sprite_2;

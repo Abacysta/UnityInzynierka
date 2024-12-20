@@ -11,8 +11,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.Relation;
-using static Assets.classes.subclasses.Constants.Province;
-using static Assets.classes.subclasses.Constants.Relation;
+using static Assets.classes.subclasses.Constants.ProvinceConstants;
+using static Assets.classes.subclasses.Constants.RelationConstants;
 
 public class game_manager : MonoBehaviour
 {
@@ -39,14 +39,14 @@ public class game_manager : MonoBehaviour
     [SerializeField] private save_manager save_manager;
     [SerializeField] private AI_manager ai_manager;
 
-    public int turnCnt { get { return map.turnCnt; } }
+    public int turnCnt { get { return map.TurnCnt; } }
 
     void Awake()
     {
         if (PlayerPrefs.HasKey("saveName"))
         {
             string saveName = PlayerPrefs.GetString("saveName");
-            save_manager.loadGame(saveName);
+            save_manager.LoadGame(saveName);
             PlayerPrefs.DeleteKey("saveName");
         }
     }
@@ -54,52 +54,52 @@ public class game_manager : MonoBehaviour
     void Start()
     {
         while (start_screen == null) ;
-        start_screen.welcomeScreen();
-	}
+        start_screen.WelcomeScreen();
+    }
 
     internal async void LoadGameFromSave(Save data)
     {
         // This is called in Awake() before all scripts, the map is being initialized
-        Save.loadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
+        Save.LoadDataFromSave(data, map, loader, (dialog_box, camera_controller, diplomacy));
 
         // You need to wait for the Start() methods in other scripts to complete
         // to ensure required data is initialized before proceeding with the next loading steps.
         await Task.Delay(100);
 
         fog_Of_War.UpdateFogOfWar();
-        alerts.loadEvents(map.CurrentPlayer);
-        alerts.reloadAlerts();
-        turnCntTxt.SetText((map.turnCnt).ToString());
+        alerts.LoadEvents(map.CurrentPlayer);
+        alerts.ReloadAlerts();
+        turnCntTxt.SetText((map.TurnCnt).ToString());
         loader.Reload();
-        camera_controller.ZoomCameraOnCountry(map.currentPlayer);
+        camera_controller.ZoomCameraOnCountry(map.CurrentPlayerId);
 
         foreach (var a in map.Armies)
         {
-            map.reloadArmyView(a);
+            map.ReloadArmyView(a);
         }
 
         armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
         map.UpdateAllArmyViewOrders();
     }
 
-    public void UndoAll()
+    public void UndoAllActions()
     {
         map_ui.DeactivateInterfaces();
         while(map.CurrentPlayer.Actions.Count > 0) {
-            map.CurrentPlayer.Actions.revert();
+            map.CurrentPlayer.Actions.RevertLastAction();
         }
     }
-    public void invokeEvent(int id) {
-        map.Countries[id].Events[1].call();
+    public void InvokeEvent(int id) {
+        map.Countries[id].Events[1].Call();
     }
 
-    public void undoLast() {
+    public void UndoLastAction() {
         map_ui.DeactivateInterfaces();
-        map.CurrentPlayer.Actions.revert();
+        map.CurrentPlayer.Actions.RevertLastAction();
     }
 
-    public void undoLast(int id) {
-        map.Countries[id].Actions.revert();
+    public void UndoLastAction(int id) {
+        map.Countries[id].Actions.RevertLastAction();
     }
 
     private void TeleportUnauthorizedArmies()
@@ -117,13 +117,13 @@ public class game_manager : MonoBehaviour
                 // - it is the territory of a country with which they have a vassalage relation, or
                 // - it is the territory of a country that grants them military access
                 Vector3Int nearestOwnerProvincePosition = map.Provinces
-                    .Where(p => p.Owner_id == army.OwnerId ||
+                    .Where(p => p.OwnerId == army.OwnerId ||
                                 map.Relations.Any(rel =>
-                                    (rel.type == RelationType.Alliance || rel.type == RelationType.Vassalage) &&
-                                    rel.Sides.Contains(armyOwner) && rel.Sides.Contains(map.Countries[p.Owner_id])) ||
+                                    (rel.Type == RelationType.Alliance || rel.Type == RelationType.Vassalage) &&
+                                    rel.Sides.Contains(armyOwner) && rel.Sides.Contains(map.Countries[p.OwnerId])) ||
                                 map.Relations.Any(rel =>
-                                    rel.type == RelationType.MilitaryAccess &&
-                                    rel.Sides[0] == map.Countries[p.Owner_id] && rel.Sides[1] == armyOwner))
+                                    rel.Type == RelationType.MilitaryAccess &&
+                                    rel.Sides[0] == map.Countries[p.OwnerId] && rel.Sides[1] == armyOwner))
                     .Select(p => new Vector3Int(p.X, p.Y, 0))
                     .OrderBy(point => Vector3Int.Distance(tilePosition, point))
                     .FirstOrDefault();
@@ -137,26 +137,36 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    private void executeActions() {
-        foreach(var c in map.Countries) {
-            List<Assets.classes.TurnAction> instants = c.Actions.extractInstants();
+    private void ExecuteActions() {
+        foreach (var c in map.Countries) {
+            List<TurnAction> instants = c.Actions.ExtractInstants();
             foreach (var inst in instants) {
-                inst.execute(map);
+                inst.Execute(map);
             }
         }
 
-        int acmax = map.Countries.Max(a => a.Actions.Count);
-        for(int i = 0; i < acmax; i++) {
+        int actionMax = map.Countries.Max(a => a.Actions.Count);
+
+        for (int i = 0; i < actionMax; i++) {
             foreach (var c in map.Countries.Where(c => c.Id != 0).OrderBy(c => c.Priority)) {
-                bool bswitch = false;
-                Army att = null;
-                if(c.Actions.Count > 0 && c.Actions.last is TurnAction.army_move) {
-                    bswitch = true;
-                    att = (c.Actions.last as TurnAction.army_move).Army;
+                bool isArmyMoveAction = false;
+                Army attackerArmy = null;
+
+                if (c.Actions.Count > 0) {
+                    if (c.Actions.Last is TurnAction.ArmyMove) {
+                        var armyMoveAction = c.Actions.Last as TurnAction.ArmyMove;
+                        armyMoveAction.Execute(map);
+                        c.Actions.Actions.RemoveAt(0);
+                        isArmyMoveAction = true;
+                        attackerArmy = armyMoveAction.MovedArmy;
+                    }
+                    else {
+                        c.Actions.ExecuteLastAction();
+                    }
                 }
-                c.Actions.execute();
-                if(bswitch && att != null) {
-                    battle_manager.checkBattle(att);
+
+                if (isArmyMoveAction && attackerArmy != null) {
+                    battle_manager.CheckBattle(attackerArmy);
                 }
             }
         }
@@ -164,60 +174,60 @@ public class game_manager : MonoBehaviour
         TeleportUnauthorizedArmies();
     }
 
-    private void turnCalculations() {
+    private void PerformTurnCalculations() {
         int pcnt = map.Provinces.Count, ccnt = map.Countries.Count;
         loading_txt.text = "txttt";
         loading_bar.value = 0;
         loading_box.SetActive(true);
-        provinceCalc(pcnt);
-        countryCalc();
+        PerformProvinceCalculations(pcnt);
+        PerformCountryCalculations();
         loading_txt.text = "Calculating happiness from relations.";
-        happinnessFromRelations();
-        map.calcPopExtremes();
+        SetHappinnessFromRelations();
+        map.CalcPopulationExtremes();
 
         loading_txt.text = "Merging armies";
         foreach(var c in map.Countries) {
             loading_bar.value += 0.1f  * 100 / ccnt;
-            map.mergeArmies(c);
-            c.AtWar = map.getRelationsOfType(c, Relation.RelationType.War) != null;
+            map.MergeArmies(c);
+            c.AtWar = map.GetRelationsOfType(c, Relation.RelationType.War) != null;
         }
         foreach(var a in map.Armies.Where(a=>a.OwnerId != 0)) {
-            map.Countries[a.OwnerId].modifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].techStats.armyUpkeep);
+            map.Countries[a.OwnerId].ModifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].TechStats.ArmyUpkeep);
         }
         fog_Of_War.StartTurn();
-        turnCntTxt.SetText((++map.turnCnt).ToString());
+        turnCntTxt.SetText((++map.TurnCnt).ToString());
         loading_box.SetActive(false);
         Debug.Log("stopped bar");
 
     }
 
-    private void provinceCalc(int pcnt) {
+    private void PerformProvinceCalculations(int pcnt) {
         loading_txt.text = "Calculating provinces";
         Debug.Log("started bar");
 
-        foreach(var p in map.Provinces.Where(p => p.Type == "land")) {
+        foreach(var p in map.Provinces.Where(p => p.IsLand)) {
             loading_bar.value = (0.2f * 100 / pcnt);
-            if (p.Owner_id != 0) {
-                map.growPop(p.coordinates);
-                map.growHap(p.coordinates, 3);
-                map.calcRecruitablePop(p.coordinates);
+            if (p.OwnerId != 0) {
+                p.GrowPopulation(map);
+                p.GrowHappiness(map, 3);
+                p.CalcRecruitablePopulation(map);
             }
-            p.calcStatuses();
+            p.CalcStatuses();
         }
     }
 
-    private void happinnessFromRelations()
+    private void SetHappinnessFromRelations()
     {
         foreach(var country in map.Countries)
         {
-            var wars = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.War);
+            var wars = map.GetRelationsOfType(country, Assets.classes.Relation.RelationType.War);
             foreach(var war in wars)
             {
                 foreach( var province in country.Provinces) {
                     province.Happiness -= WAR_HAPP_PENALTY_COST;
                 }
             }
-            var alliances = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Alliance);
+            var alliances = map.GetRelationsOfType(country, Assets.classes.Relation.RelationType.Alliance);
             foreach(var a in alliances)
             {
                 foreach(var p in country.Provinces)
@@ -225,12 +235,12 @@ public class game_manager : MonoBehaviour
                     p.Happiness += ALLIANCE_HAPP_BONUS_COST;
                 }
             }
-            var vassalages = map.getRelationsOfType(country, Assets.classes.Relation.RelationType.Vassalage);
+            var vassalages = map.GetRelationsOfType(country, Assets.classes.Relation.RelationType.Vassalage);
             foreach(var v in vassalages)
             {
                 foreach(var p in country.Provinces)
                 {
-                    Country master = map.getMaster(country);
+                    Country master = map.GetMaster(country);
                     if (master == null)
                     {
                         p.Happiness += VASSALAGE_HAPP_BONUS_C1;
@@ -255,7 +265,7 @@ public class game_manager : MonoBehaviour
 
         loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
         loading_bar.value += 0.7f * 100 / map.Countries.Count;
-        map.Countries[i].Tax.applyCountryTax(map.Countries[i]);
+        map.Countries[i].Tax.ApplyCountryTax(map.Countries[i]);
 
         foreach (var p in map.Countries[i].Provinces) {
             if (p.Buildings.ContainsKey(BuildingType.School)
@@ -265,8 +275,8 @@ public class game_manager : MonoBehaviour
 
             if (p.OccupationInfo.IsOccupied)
             {
-                var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].techStats;
-                resources[p.ResourceType] += p.ResourcesP * (1 - occupierTechStats.occPenalty);
+                var occupierTechStats = map.Countries[p.OccupationInfo.OccupyingCountryId].TechStats;
+                resources[p.ResourceType] += p.ResourcesP * (1 - occupierTechStats.OccPenalty);
             }
             else
             {
@@ -276,42 +286,42 @@ public class game_manager : MonoBehaviour
             resources[Resource.AP] += 0.1f;
         }
 
-        resources[Resource.Gold] *= map.Countries[i].techStats.prodFactor;
-        resources[Resource.Wood] *= map.Countries[i].techStats.prodFactor;
-        resources[Resource.Iron] *= map.Countries[i].techStats.prodFactor;
-        resources[Resource.Gold] -= Map.PowerUtilites.getArmyUpkeep(map, map.Countries[i]);
+        resources[Resource.Gold] *= map.Countries[i].TechStats.ProdFactor;
+        resources[Resource.Wood] *= map.Countries[i].TechStats.ProdFactor;
+        resources[Resource.Iron] *= map.Countries[i].TechStats.ProdFactor;
+        resources[Resource.Gold] -= Map.PowerUtilites.GetArmyUpkeep(map, map.Countries[i]);
         resources[Resource.AP] += 2.5f;//one simple trick
 
         foreach (var res in resources) {
-            map.Countries[i].modifyResource(res.Key, res.Value);
+            map.Countries[i].ModifyResource(res.Key, res.Value);
         }
-        map.Countries[i].setResource(Resource.AP, resources[Resource.AP]);
+        map.Countries[i].SetResource(Resource.AP, resources[Resource.AP]);
     }
 
-    private void countryCalc() {
+    private void PerformCountryCalculations() {
 
         for(int i = 1; i < map.Countries.Count; i++) {
             CalculateCountryResources(i);
         }
     }
 
-    private void alertClear() {
+    private void AlertClear() {
         foreach(var event_ in map.CurrentPlayer.Events) {
-            event_.reject();
+            event_.Reject();
         }
         map.CurrentPlayer.Events.Clear();
     }
 
-    private void rebellionCheck() {
-        foreach(var p in map.Provinces) {
-            random_events.checkRebellion(p);
+    private void CheckRebellion() {
+        foreach(var p in map.Provinces.Where(p => p.IsLand)) {
+            random_events.CheckRebellion(p);
             //returns bool, so in future can do more with that
         }
     }
 
-    private void aiTurn() {
+    private void PerformAITurn() {
         try {
-            ai_manager.behave();
+            ai_manager.Behave();
         }
         catch(Exception e) { 
             Debug.LogError(e);
@@ -321,52 +331,52 @@ public class game_manager : MonoBehaviour
 
 	public void LocalTurnSimulation() {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-            TurnSimulation();
+            PerformTurnSimulation();
             return;
         }
-        Action a = () => TurnSimulation();
-        dialog_box.invokeConfirmBox("Pass the turn", "Do you want to pass the turn?", a, null, null);
+        Action a = () => PerformTurnSimulation();
+        dialog_box.InvokeConfirmBox("Pass the turn", "Do you want to pass the turn?", a);
     }
 
-    public void TurnSimulation()
+    public void PerformTurnSimulation()
     {
-        PreTurnInstructions();
+        ExecutePreTurnInstructions();
 
-        if (map.currentPlayer < map.Countries.Count - 1)
+        if (map.CurrentPlayerId < map.Countries.Count - 1)
         {
-            NextPlayerInstructions();
+            ExecuteNextPlayerInstructions();
         }
         else
         {
-            EndOfTurnInstructions();
+            ExecuteEndOfTurnInstructions();
         }
 
-        PostTurnInstructions();
+        ExecutePostTurnInstructions();
     }
 
-    private void PreTurnInstructions()
+    private void ExecutePreTurnInstructions()
     {
         ResetArmies();
     }
 
-    private void NextPlayerInstructions()
+    private void ExecuteNextPlayerInstructions()
     {
-        alertClear();
-        map.currentPlayer++;
+        AlertClear();
+        map.CurrentPlayerId++;
         diplomaticActionsManager.ResetReceiverButtonStates();
 
         Debug.Log($"Sending actions.");
     }
 
-    private void EndOfTurnInstructions()
+    private void ExecuteEndOfTurnInstructions()
     {
         Debug.Log($"Executing actions and performing calculations.");
 
         turn_sound.Play();
 
-        rebellionCheck();
-        executeActions();
-        turnCalculations();
+        CheckRebellion();
+        ExecuteActions();
+        PerformTurnCalculations();
         GenerateEventsForCountries();
 
         for (int i = 0; i < map.Countries.Count; i++)
@@ -374,29 +384,29 @@ public class game_manager : MonoBehaviour
             Debug.Log(map.Countries[i].Name + "--");
             Debug.Log("--" + map.Controllers[i]);
         }
-        var cleanup_crew = new Janitor(map, battle_manager);
-        if(cleanup_crew.cleanup()) endGame(map.Turnlimit <= map.turnCnt);
-        map.currentPlayer = 1;
-        if (map.turnCnt % 5 == 0) AutoSave();
+        var cleanup_crew = new Janitor(map, battle_manager, diplomacy);
+        if(cleanup_crew.Cleanup()) EndGame(map.Turnlimit <= map.TurnCnt);
+        map.CurrentPlayerId = 1;
+        if (map.TurnCnt % 5 == 0) AutoSave();
         loader.Reload();
     }
 
-    private void PostTurnInstructions()
+    private void ExecutePostTurnInstructions()
     {
-        if (map.Controllers[map.currentPlayer] == Map.CountryController.Ai)
+        if (map.Controllers[map.CurrentPlayerId] == Map.CountryController.Ai)
         {
-            aiTurn();
-            TurnSimulation();
+            PerformAITurn();
+            PerformTurnSimulation();
         }
         else
         {
             Debug.Log($"Now, it's country {map.CurrentPlayer.Id} - {map.CurrentPlayer.Name}'s turn");
             HandleWelcomeScreen();
-            camera_controller.ZoomCameraOnCountry(map.currentPlayer);
+            camera_controller.ZoomCameraOnCountry(map.CurrentPlayerId);
             fog_Of_War.UpdateFogOfWar();
             armyVisibilityManager.UpdateArmyVisibility(map.CurrentPlayer.RevealedTiles);
             map.UpdateAllArmyViewOrders();
-            alerts.loadEvents(map.CurrentPlayer);
+            alerts.LoadEvents(map.CurrentPlayer);
         }
     }
 
@@ -404,7 +414,7 @@ public class game_manager : MonoBehaviour
     {
         foreach (var country in map.Countries) 
         {
-            if (country.Id != 0) random_events.getRandomEvent(country);         
+            if (country.Id != 0) random_events.GetRandomEvent(country);         
         }
     }
 
@@ -412,7 +422,7 @@ public class game_manager : MonoBehaviour
     {
         foreach (Army army in map.Armies)
         {
-            map.destroyArmyView(army);
+            map.DestroyArmyView(army);
         }
 
         for (int i = 0; i < map.Armies.Count; i++)
@@ -420,50 +430,53 @@ public class game_manager : MonoBehaviour
             Army army = map.Armies[i];
             if (army.Destination != army.Position)
             {
-                map.undoSetMoveArmy(army);
+                map.UndoSetMoveArmy(army);
             }
         }
 
         foreach (Army army in map.Armies)
         {
-            map.createArmyView(army);
+            map.CreateArmyView(army);
         }
     }
 
     private void AutoSave()
     {
         save_manager.ToSave = new(map);
-        save_manager.saveGame("autosave");
+        save_manager.SaveGame("autosave");
         save_manager.ToSave = null;
     }
 
     private void HandleWelcomeScreen()
     {
-        if (map.turnCnt == 0 && map.Controllers[map.currentPlayer] == Map.CountryController.Local)
+        if (map.TurnCnt == 0 && map.Controllers[map.CurrentPlayerId] == Map.CountryController.Local)
         {
-            start_screen.welcomeScreen();
+            start_screen.WelcomeScreen();
         }
-        else if (map.turnCnt == 1)
+        else if (map.TurnCnt == 1)
         {
-            start_screen.unHide();
+            start_screen.UnHide();
         }
     }
 
     
-    private void endGame(bool timeout) {
+    private void EndGame(bool timeout) {
         end_screen.SetActive(true);
     }
 
     private class Janitor {
         private Map map;
         private battle_manager battle;
-        public Janitor(Map map, battle_manager battle) {
+        private diplomatic_relations_manager diplomacy;
+
+        public Janitor(Map map, battle_manager battle, diplomatic_relations_manager diplomacy) {
             this.map = map;
             this.battle = battle;
+            this.diplomacy = diplomacy;
         }
-        public bool cleanup() { 
+        public bool Cleanup() { 
             //check if the game should be going at all
-            if(map.turnCnt == map.Turnlimit) {
+            if(map.TurnCnt == map.Turnlimit) {
                 return true;
             }
             
@@ -471,11 +484,12 @@ public class game_manager : MonoBehaviour
             for(int i = 1; i < map.Countries.Count; i++) {
                 var c = map.Countries[i];
                 //check if the game has any point in going forward
-                var vas = Map.PowerUtilites.getVassals(map, c);
+                var vas = Map.PowerUtilites.GetVassals(map, c);
                 if (map.Countries.Where(c => c.Id != 0 || c.Id != i).ToHashSet().Equals(vas)) return true;
                 //capital check so if no capitals kill it
-                if (!c.Provinces.Contains(map.getProvince(c.Capital))) {
-                    map.killCountry(c);
+                if (!c.Provinces.Contains(map.GetProvince(c.Capital))) {
+                    map.Diplomacy = diplomacy;
+                    map.KillCountry(c);
                     continue;
                 }
                 //opinions check
@@ -485,11 +499,11 @@ public class game_manager : MonoBehaviour
                 //unfought armies check
                 var ownedArmies = map.Armies.Where(a => a.OwnerId == c.Id).ToHashSet();
                 foreach (var a in ownedArmies) {
-                    battle.checkBattle(a);
+                    battle.CheckBattle(a);
                     //its a hack but what can you do
-                    var armiesinprov = map.Armies.Where(ass=>ass.Position == a.Position).ToHashSet();
-                    foreach(var aa in armiesinprov) {
-                        map.updateArmyPosition(aa, aa.Position);
+                    var armiesInProv = map.Armies.Where(ass => ass.Position == a.Position).ToHashSet();
+                    foreach (var aa in armiesInProv) {
+                        map.UpdateArmyPosition(aa, aa.Position);
                     }
                 }
             }

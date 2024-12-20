@@ -8,10 +8,10 @@ namespace Assets.classes {
     [Serializable]
     public class Event_ {
         public Dictionary<Resource, float> Cost { get; set; }
-        public virtual void call() {}
-        public virtual void accept() {}
-        public virtual void reject() {}
-        public virtual void zoom() {}
+        public virtual void Call() {}
+        public virtual void Accept() {}
+        public virtual void Reject() {}
+        public virtual void Zoom() {}
         public virtual string Message { get { return ""; } }
 
         public class GlobalEvent : Event_ {
@@ -23,24 +23,24 @@ namespace Assets.classes {
                 Country = country;
                 this.camera = camera;
                 dialog_box = dialog;
-                Cost = cost();
+                Cost = GetCost();
             }
 
-            public override void accept() {
-                Country.modifyResources(cost(), false);
+            public override void Accept() {
+                Country.ModifyResources(GetCost(), false);
             }
 
-            public override void reject() { accept(); }
+            public override void Reject() { Accept(); }
 
-            public override void call() {
-                dialog_box.invokeEventBox(this);
+            public override void Call() {
+                dialog_box.InvokeEventBox(this);
             }
 
-            public override void zoom() {
+            public override void Zoom() {
                 camera.ZoomCameraOnCountry(Country);
             }
 
-            protected virtual Dictionary<Resource, float> cost() {
+            protected virtual Dictionary<Resource, float> GetCost() {
                 return null;
             }
 
@@ -54,22 +54,22 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept() {
-                    base.accept();
+                public override void Accept() {
+                    base.Accept();
                     foreach (var p in Country.Provinces) {
                         if(p.coordinates != Country.Capital) p.Happiness -= 5;
                         p.Happiness -= 5;
                     }
                 }
 
-                public override void reject() {
+                public override void Reject() {
                     foreach (var p in Country.Provinces) {
                         if(p.coordinates != Country.Capital) p.Happiness -= 10;
                         p.Happiness -= 20;
                     }
                 }
 
-                protected override Dictionary<Resource, float> cost() {
+                protected override Dictionary<Resource, float> GetCost() {
                     var cost = new Dictionary<Resource, float> {
                         { Resource.Gold, 0 },
                         { Resource.AP, 0 }
@@ -94,8 +94,8 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept() {
-                    base.accept();
+                public override void Accept() {
+                    base.Accept();
                     foreach (var p in Country.Provinces) {
                         p.Happiness += 10;
                     }
@@ -113,15 +113,15 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept() {
-                    base.accept();
+                public override void Accept() {
+                    base.Accept();
                     foreach (var p in Country.Provinces)
                     {
-                        p.addStatus(new Illness(2));
+                        p.AddStatus(new Illness(2));
                     }
                 }
 
-                protected override Dictionary<Resource, float> cost() {
+                protected override Dictionary<Resource, float> GetCost() {
                     var cost = new Dictionary<Resource, float> {
                         {Resource.Gold, 0 }
                     };
@@ -132,11 +132,11 @@ namespace Assets.classes {
                     return cost;
                 }
 
-                public override void reject() {
-                    base.reject();
+                public override void Reject() {
+                    base.Reject();
                     foreach (var p in Country.Provinces)
                     {
-                        p.addStatus(new Illness(5));
+                        p.AddStatus(new Illness(5));
                     }
                 }
             }
@@ -153,19 +153,19 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
+                    base.Accept();
                     foreach(var p in Country.Provinces)
                     {
                         if (UnityEngine.Random.Range(0f,1f) < 0.05f)
                         {
-                            p.addStatus(new ProdDown(3));
+                            p.AddStatus(new ProdDown(3));
                         }
                     }
                 }
 
-                protected override Dictionary<Resource, float> cost()
+                protected override Dictionary<Resource, float> GetCost()
                 {
                     var cost = new Dictionary<Resource, float> {
                         {Resource.Gold, 0 },
@@ -180,12 +180,12 @@ namespace Assets.classes {
                     return cost;
                 }
 
-                public override void reject()
+                public override void Reject()
                 {
-                    base.reject();
+                    base.Reject();
                     foreach (var p in Country.Provinces)
                     {
-                        p.addStatus(new ProdDown(5));
+                        p.AddStatus(new ProdDown(5));
                     }
                 }
             }
@@ -202,15 +202,15 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
+                    base.Accept();
                     Country.Technologies[Technology.Economic] += 1;
                     Country.Technologies[Technology.Military] += 1;
                     Country.Technologies[Technology.Administrative] += 1;
                 }
 
-                protected override Dictionary<Resource, float> cost()
+                protected override Dictionary<Resource, float> GetCost()
                 {
                     var cost = new Dictionary<Resource, float> {
                         {Resource.Gold, 150 },
@@ -219,9 +219,9 @@ namespace Assets.classes {
                     return cost;
                 }
 
-                public override void reject()
+                public override void Reject()
                 {
-                    base.reject();
+                    base.Reject();
                     int randomTechnology = UnityEngine.Random.Range(0, 3);
                     Country.Technologies[(Technology)randomTechnology] += 1;
                 }
@@ -236,20 +236,20 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
                     foreach(var p in Country.Provinces)
                     {
-                        if (p.Is_coast) p.addStatus(new FloodStatus(3));
+                        if (p.IsCoast) p.AddStatus(new FloodStatus(3));
                         else
                         {
                             if (UnityEngine.Random.Range(0f, 1f) < 0.3f)
                             {
-                                p.addStatus(new FloodStatus(3));
+                                p.AddStatus(new FloodStatus(3));
                             }
                         }
                     }
-                    base.accept();
+                    base.Accept();
                 }
             }
 
@@ -261,7 +261,7 @@ namespace Assets.classes {
 
                 public override string Message { get { return "Severial provinces are on fire."; } }
 
-                public override void accept()
+                public override void Accept()
                 {
                     foreach (var province in Country.Provinces)
                     {
@@ -270,11 +270,11 @@ namespace Assets.classes {
                             if (UnityEngine.Random.Range(0f, 1f) < 0.5f)
                             {
                                 int duration = UnityEngine.Random.Range(1, 5);
-                                province.addStatus(new FireStatus(duration));
+                                province.AddStatus(new FireStatus(duration));
                             }
                         }
                     }
-                    base.accept();
+                    base.Accept();
                 }
             }
 
@@ -285,14 +285,14 @@ namespace Assets.classes {
 
                 public override string Message { get { return "Severial provinces suffered from earthquake."; } }
 
-                public override void accept()
+                public override void Accept()
                 {
                     foreach (var p in Country.Provinces)
                     {
                         p.DowngradeBuilding(BuildingType.Mine);
-                        p.addStatus(new Disaster(3));
+                        p.AddStatus(new Disaster(3));
                     }
-                    base.accept();
+                    base.Accept();
                 }
             }
 
@@ -304,17 +304,17 @@ namespace Assets.classes {
 
                 public override string Message { get { return "It seems you have angered the gods."; } }
 
-                public override void accept()
+                public override void Accept()
                 {
                     foreach (var p in Country.Provinces)
                     {
                         if(UnityEngine.Random.Range(0f,1f) < 0.5f)
                         {
                             int duration = UnityEngine.Random.Range(1,5);
-                            p.addStatus(new Disaster(duration));
+                            p.AddStatus(new Disaster(duration));
                         }
                     }
-                    base.accept();
+                    base.Accept();
                 }
             }
         }
@@ -328,26 +328,26 @@ namespace Assets.classes {
             {
                 Province = province;
                 this.dialog_box = dialog_box;
-                Cost = cost();
+                Cost = GetCost();
                 this.camera = camera;
             }
 
-            public override void accept() {}
+            public override void Accept() {}
 
-            public override void reject() { accept(); }
+            public override void Reject() { Accept(); }
 
             public override string Message { get { return ""; } }
 
-            public override void zoom() {
+            public override void Zoom() {
                 camera.ZoomCameraOnProvince(Province);
             }
 
-            public override void call() {
-                var cost = this.cost();
-                dialog_box.invokeEventBox(this);
+            public override void Call() {
+                var cost = this.GetCost();
+                dialog_box.InvokeEventBox(this);
             }
 
-            protected virtual Dictionary<Resource, float> cost() {
+            protected virtual Dictionary<Resource, float> GetCost() {
                 return null;
             }
 
@@ -362,12 +362,12 @@ namespace Assets.classes {
                     } 
                 }
                 
-                public override void accept() {
-                    base.accept();
-                    Province.addStatus(new ProdBoom(5));
+                public override void Accept() {
+                    base.Accept();
+                    Province.AddStatus(new ProdBoom(5));
                 }
 
-                public override void reject() {
+                public override void Reject() {
                     Province.ResourceAmount += 0.2f;
                 }
             }
@@ -379,8 +379,8 @@ namespace Assets.classes {
                 public GoldRush(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
                     base(province, dialog_box, camera) {}
 
-                public override void accept() {
-                    Province.addStatus(new ProdBoom(6));
+                public override void Accept() {
+                    Province.AddStatus(new ProdBoom(6));
                 }
             }
 
@@ -391,9 +391,9 @@ namespace Assets.classes {
 
                 public override string Message { get { return "More recruits started appearing in " + Province.Name; } }
 
-                public override void accept() {
+                public override void Accept() {
                     Province.RecruitablePopulation += (int)(Province.Population * 0.05);
-                    Province.addStatus(new RecBoom(4));
+                    Province.AddStatus(new RecBoom(4));
                 }
             }
 
@@ -406,7 +406,7 @@ namespace Assets.classes {
                 public override string Message { get { return "Workers are displeased with their workplace in " + Province.Name 
                             + ". Do you want to help them?"; } }
 
-                protected override Dictionary<Resource, float> cost()
+                protected override Dictionary<Resource, float> GetCost()
                 {
                     var cost = new Dictionary<Resource, float> {
                         {Resource.Gold, 50 },
@@ -415,17 +415,17 @@ namespace Assets.classes {
                     return cost;
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
+                    base.Accept();
                 }
 
-                public override void reject()
+                public override void Reject()
                 {
-                    base.reject();
+                    base.Reject();
                     if (UnityEngine.Random.Range(0, 1f) < 0.5f)
                     {
-                        Province.addStatus(new ProdDown(3));
+                        Province.AddStatus(new ProdDown(3));
                     }
                 }
             }
@@ -441,16 +441,16 @@ namespace Assets.classes {
                     } 
                 }
                
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
-                    Province.addStatus(new ProdDown(5));
+                    base.Accept();
+                    Province.AddStatus(new ProdDown(5));
                     Province.Happiness += 10;
                 }
 
-                public override void reject()
+                public override void Reject()
                 {
-                    base.reject();
+                    base.Reject();
                     Province.Happiness -= 30;
                 }
             }
@@ -472,19 +472,19 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
-                    Province.addStatus(new TaxBreak(3));
+                    base.Accept();
+                    Province.AddStatus(new TaxBreak(3));
                     Province.Happiness += 10;
                 }
 
-                public override void reject()
+                public override void Reject()
                 {
-                    base.reject();
-                    Province.addStatus(new ProdDown(5));
+                    base.Reject();
+                    Province.AddStatus(new ProdDown(5));
                     Army strikeArmy = new(0, UnityEngine.Random.Range(10, 50), Province.coordinates, Province.coordinates);
-                    map.addArmy(strikeArmy);
+                    map.AddArmy(strikeArmy);
                 }
             }
 
@@ -501,20 +501,20 @@ namespace Assets.classes {
                     }
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
                     float percent = UnityEngine.Random.Range(5f, 10f) / 100;
                     Province.Population -= (int)(Province.Population * percent);
                     Province.Happiness -= 10;
-                    base.accept();
+                    base.Accept();
                 }
 
-                public override void reject()
+                public override void Reject()
                 {
-                    base.reject();
+                    base.Reject();
                     if(UnityEngine.Random.Range(0f,1f) < 0.2f)
                     {
-                        Province.addStatus(new Illness(8));
+                        Province.AddStatus(new Illness(8));
                     }
                 }
             }
@@ -530,11 +530,11 @@ namespace Assets.classes {
                     get { return "A severe disaster has struck the province of " + Province.Name + "."; }
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
+                    base.Accept();
 
-                    Province.addStatus(new Disaster(5));
+                    Province.AddStatus(new Disaster(5));
                     Province.Happiness -= 10;
                 }
             }
@@ -554,14 +554,14 @@ namespace Assets.classes {
                     get { return "The local found some gold."; }
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
+                    base.Accept();
                     // Resource allocation
                     float gold = UnityEngine.Random.Range(0f, 5f); // From 0 to 5 gold
 
-                    Country country = map.Countries.FirstOrDefault(c => c.Id == Province.Owner_id);
-                    country.modifyResource(Resource.Gold, gold);
+                    Country country = map.Countries.FirstOrDefault(c => c.Id == Province.OwnerId);
+                    country.ModifyResource(Resource.Gold, gold);
                 }
             }
 
@@ -576,19 +576,19 @@ namespace Assets.classes {
                     get { return "The local found a storage full of wine. Do you want to make use of it?"; }
                 }
 
-                public override void accept()
+                public override void Accept()
                 {
-                    base.accept();
-                    Province.addStatus(new Festivities(4));
+                    base.Accept();
+                    Province.AddStatus(new Festivities(4));
                     if (UnityEngine.Random.Range(0f,1f) < 0.5f)
                     {
-                        Province.addStatus(new Illness(2));
+                        Province.AddStatus(new Illness(2));
                     }
                 }
 
-                public override void reject()
+                public override void Reject()
                 {
-                    base.reject();
+                    base.Reject();
                 }
             }
         }
@@ -602,12 +602,12 @@ namespace Assets.classes {
 
             public override string Message { get { return ""; } }
             
-            public override void zoom() {
+            public override void Zoom() {
                 camera.ZoomCameraOnCountry(From);
             }
 
-            public override void call() {
-                dialog_box.invokeEventBox(this);
+            public override void Call() {
+                dialog_box.InvokeEventBox(this);
             }
 
             DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, 
@@ -647,11 +647,13 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept() {
-                    diplomacy.endRelation(war);
+                public override void Accept() {
+                    diplomacy.EndRelation(war);
                 }
 
-                public override void reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class CallToWar : DiploEvent {
@@ -659,7 +661,9 @@ namespace Assets.classes {
 
                 public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, Relation.War war, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera) {
+                    War = war;
+                }
 
                 public override string Message { get { 
                         return From.Name + " has called you to war against " 
@@ -667,12 +671,12 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept() {
-                    diplomacy.joinWar(War, To, From);
+                public override void Accept() {
+                    diplomacy.JoinWar(War, To, From);
                 }
 
-                public override void reject() {
-                    diplomacy.declineWar(To, From);
+                public override void Reject() {
+                    diplomacy.DeclineWar(To, From);
                 }
             }
 
@@ -691,13 +695,13 @@ namespace Assets.classes {
 
                 public override string Message { get { return From.Name + " has sent you an alliance offer"; } }
 
-                public override void accept() {
-                    base.accept();
+                public override void Accept() {
+                    base.Accept();
                     From.Events.Add(new AllianceAccepted(To, From, diplomacy, dialog_box, camera));
-                    diplomacy.startAlliance(To, From);
+                    diplomacy.StartAlliance(To, From);
                 }
 
-                public override void reject() {
+                public override void Reject() {
                     From.Events.Add(new AllianceDenied(To, From, diplomacy, dialog_box, camera));
                 }
             }
@@ -739,17 +743,19 @@ namespace Assets.classes {
 
                 public override string Message { get { return From.Name + " has offered you subsidies."; } }
 
-                public override void accept() {
-                    base.accept();
+                public override void Accept() {
+                    base.Accept();
                     if(Duration != 0) {
-                        diplomacy.startSub(From, To, Amount, false, Duration);
+                        diplomacy.StartSub(From, To, Amount, false, Duration);
                     }
                     else {
-                        diplomacy.startSub(From, To, Amount);
+                        diplomacy.StartSub(From, To, Amount);
                     }
                 }
 
-                public override void reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class SubsRequest : DiploEvent {
@@ -769,16 +775,18 @@ namespace Assets.classes {
                     } 
                 }
 
-                public override void accept() {
-                    base.accept();
+                public override void Accept() {
+                    base.Accept();
                     if (Duration != 0) { 
-                        diplomacy.startSub(To, From, Amount, false, Duration);
+                        diplomacy.StartSub(To, From, Amount, false, Duration);
                     }
                     else {
-                        diplomacy.startSub(To, From, Amount);
+                        diplomacy.StartSub(To, From, Amount);
                     }
                 }
-                public override void reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class SubsEndMaster : DiploEvent {
@@ -809,11 +817,13 @@ namespace Assets.classes {
 
                 public override string Message { get { return From.Name + " offers access to their territory"; } }
 
-                public override void accept() {
-                    diplomacy.startAccess(From, To);
+                public override void Accept() {
+                    diplomacy.StartAccess(From, To);
                 }
 
-                public override void reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class AccessRequest : DiploEvent {
@@ -823,11 +833,13 @@ namespace Assets.classes {
 
                 public override string Message { get { return From.Name + " asks for military access to our teritorry"; } }
 
-                public override void accept() {
-                    diplomacy.startAccess(To, From);
+                public override void Accept() {
+                    diplomacy.StartAccess(To, From);
                 }
 
-                public override void reject() {}
+                public override void Reject() {
+                    base.Reject();
+                }
             }
 
             internal class AccessEndMaster : DiploEvent {
@@ -841,8 +853,8 @@ namespace Assets.classes {
 
                 public override string Message { get { return From.Name + " has stopped giving us the military access"; } }
 
-                public override void accept() {
-                    diplomacy.endRelation(Access);
+                public override void Accept() {
+                    diplomacy.EndRelation(Access);
                 }
             }
 
@@ -857,8 +869,8 @@ namespace Assets.classes {
 
                 public override string Message { get { return From.Name + " stopped using our military access"; } }
 
-                public override void accept() {
-                    diplomacy.endRelation(Access);
+                public override void Accept() {
+                    diplomacy.EndRelation(Access);
                 }
             }
 
@@ -869,12 +881,12 @@ namespace Assets.classes {
 
                 public override string Message { get { return From.Name + " demands our submission"; } }
 
-                public override void accept() {
-                    diplomacy.startVassalage(From, To);
+                public override void Accept() {
+                    diplomacy.StartVassalage(From, To);
                 }
 
-                public override void reject() {
-                    diplomacy.startWar(From, To);
+                public override void Reject() {
+                    diplomacy.StartWar(From, To);
                 }
             }
 

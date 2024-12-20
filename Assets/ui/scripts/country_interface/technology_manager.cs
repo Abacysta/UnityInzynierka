@@ -1,13 +1,12 @@
 using Assets.classes.subclasses;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static Country.TechnologyInterpreter;
 using static Assets.classes.TurnAction;
+using static TechnologyInterpreter;
 
 public class technology_manager : MonoBehaviour
 {
@@ -178,17 +177,17 @@ public class technology_manager : MonoBehaviour
     {
         mil_tech_button.onClick.AddListener(() =>
         {
-            dialog_box.invokeTechUpgradeBox(Technology.Military);
+            dialog_box.InvokeTechUpgradeBox(Technology.Military);
         });
 
         ec_tech_button.onClick.AddListener(() =>
         {
-            dialog_box.invokeTechUpgradeBox(Technology.Economic);
+            dialog_box.InvokeTechUpgradeBox(Technology.Economic);
         });
 
         adm_tech_button.onClick.AddListener(() =>
         {
-            dialog_box.invokeTechUpgradeBox(Technology.Administrative);
+            dialog_box.InvokeTechUpgradeBox(Technology.Administrative);
         });
     }
 
@@ -218,7 +217,7 @@ public class technology_manager : MonoBehaviour
         GameObject nextLevelContainer, Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText, 
         TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Technology type)
     {
-        Dictionary<Resource, float> cost = CostsCalculator.TurnActionFullCost(ActionType.TechnologyUpgrade, 
+        Dictionary<Resource, float> cost = CostsCalculator.GetTurnActionFullCost(ActionType.TechnologyUpgrade, 
             tech: map.CurrentPlayer.Technologies, techType: type);
 
         // Tooltip
@@ -242,7 +241,7 @@ public class technology_manager : MonoBehaviour
 
         if (level < 10)
         {
-            SetButtonColor(techButton, map.CurrentPlayer.isPayable(cost));
+            SetButtonColor(techButton, map.CurrentPlayer.CanAfford(cost));
 
             nextLevelText.text = $"Level {level + 1} effects:";
 
@@ -264,8 +263,6 @@ public class technology_manager : MonoBehaviour
         sp_value.text = cost.ContainsKey(Resource.SciencePoint)
             ? ($"-{Math.Round(cost[Resource.SciencePoint], 1)}") : "?";
         cost_content.SetActive(level < 10);
-
-        StartCoroutine(RefreshUITemporarily(5f));
     }
 
     private void SetButtonColor(Button techButton, bool isGreen)
@@ -305,11 +302,19 @@ public class technology_manager : MonoBehaviour
         }
     }
 
-    void SumEffects(IEnumerable<TechLevel> levelNodes, GameObject tooltip)
+    private void SumEffects(IEnumerable<TechLevel> levelNodes, GameObject tooltip)
     {
-        var consolidatedEffects = new List<TechEffect>();
+        var nonBuildingEffects = GroupNonBuildingEffects(levelNodes);
+        var buildingEffects = GroupBuildingEffects(levelNodes);
 
-        var nonBuildingEffects = levelNodes
+        var consolidatedEffects = nonBuildingEffects.Concat(buildingEffects).ToList();
+
+        SetEffectsInTooltip(consolidatedEffects, tooltip);
+    }
+
+    private IEnumerable<TechEffect> GroupNonBuildingEffects(IEnumerable<TechLevel> levelNodes)
+    {
+        return levelNodes
             .SelectMany(level => level.Effects)
             .Where(b => !b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
@@ -325,8 +330,11 @@ public class technology_manager : MonoBehaviour
                     : new TechEffect(g.Key, g.All(b => b.BoolValue == true), g.Last().Icon, g.All(b => b.IsEffectPositive));
             })
             .ToList();
+    }
 
-        var buildingEffects = levelNodes
+    private IEnumerable<TechEffect> GroupBuildingEffects(IEnumerable<TechLevel> levelNodes)
+    {
+        return levelNodes
             .SelectMany(level => level.Effects)
             .Where(b => b.Name.StartsWith("Building"))
             .GroupBy(b => b.Name)
@@ -356,11 +364,10 @@ public class technology_manager : MonoBehaviour
                 }
             })
             .ToList();
+    }
 
-
-        consolidatedEffects.AddRange(nonBuildingEffects);
-        consolidatedEffects.AddRange(buildingEffects);
-
+    private void SetEffectsInTooltip(IEnumerable<TechEffect> consolidatedEffects, GameObject tooltip)
+    {
         foreach (var effect in consolidatedEffects)
         {
             GameObject effectRow = Instantiate(tech_tooltip_row, tooltip.transform);
@@ -579,29 +586,6 @@ public class technology_manager : MonoBehaviour
                     level.Effects.Add(newEffect);
                 }
             }
-        }
-    }
-
-    void ForceRebuildLayout()
-    {
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_tooltip_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_tooltip_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_tooltip_container.GetComponent<RectTransform>());
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mil_next_level_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(ec_next_level_container.GetComponent<RectTransform>());
-        LayoutRebuilder.ForceRebuildLayoutImmediate(adm_next_level_container.GetComponent<RectTransform>());
-    }
-
-    private IEnumerator RefreshUITemporarily(float duration)
-    {
-        float elapsedTime = 0f;
-
-        while (elapsedTime < duration)
-        {
-            ForceRebuildLayout();
-            elapsedTime += Time.deltaTime;
-            yield return null;
         }
     }
 }

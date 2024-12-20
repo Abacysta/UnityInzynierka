@@ -82,7 +82,7 @@ public class filter_modes : MonoBehaviour
 
         foreach (Province province in map.Provinces)
         {
-            Country owner = map.Countries[province.Owner_id];
+            Country owner = map.Countries[province.OwnerId];
             Vector3Int position = new(province.X, province.Y, 0);
 
             int hash = province.X * 73856093 ^ province.Y * 19349663 ^ (int)province.Terrain * 83492791;
@@ -95,10 +95,10 @@ public class filter_modes : MonoBehaviour
 
                 switch (province.Terrain)
                 {
-                    case Province.TerrainType.lowlands:
+                    case Province.TerrainType.Lowlands:
                         selectedTile = lowlands_1;
                         break;
-                    case Province.TerrainType.desert:
+                    case Province.TerrainType.Desert:
                         selectedTile = (hash % 3) switch
                         {
                             0 => desert_1,
@@ -107,7 +107,7 @@ public class filter_modes : MonoBehaviour
                             _ => null
                         };
                         break;
-                    case Province.TerrainType.tundra:
+                    case Province.TerrainType.Tundra:
                         selectedTile = (hash % 2) switch
                         {
                             0 => tundra_1,
@@ -115,7 +115,7 @@ public class filter_modes : MonoBehaviour
                             _ => null
                         };
                         break;
-                    case Province.TerrainType.forest:
+                    case Province.TerrainType.Forest:
                         selectedTile = forest_1;
                         break;
                 }
@@ -130,19 +130,19 @@ public class filter_modes : MonoBehaviour
 
     public void SetTerrain()
     {
-        Color getTerrainColor(Province.TerrainType type)
+        Color GetTerrainColor(Province.TerrainType type)
         {
             switch (type)
             {
-                case Province.TerrainType.tundra:
+                case Province.TerrainType.Tundra:
                     return ChooseRGBColor(0, 102, 0); // dark green
-                case Province.TerrainType.lowlands:
+                case Province.TerrainType.Lowlands:
                     return ChooseRGBColor(0,255,0); // lime
-                case Province.TerrainType.forest:
+                case Province.TerrainType.Forest:
                     return ChooseRGBColor(0,204,102); // green/blue?
-                case Province.TerrainType.desert:
+                case Province.TerrainType.Desert:
                     return ChooseRGBColor(255,204,0); // yellow/orange
-                case Province.TerrainType.ocean:
+                case Province.TerrainType.Ocean:
                     return ChooseRGBColor(60, 106, 130); // blue
                 default:
                     return ChooseRGBColor(91, 106, 65); // dark green
@@ -150,17 +150,17 @@ public class filter_modes : MonoBehaviour
         }
 
         mode = MapMode.Terrain;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if (province.Type == "land")
+            if (province.IsLand)
             {
                 base_layer.SetTile(position, base_tile);
-                base_layer.SetColor(position, getTerrainColor(province.Terrain));
+                base_layer.SetColor(position, GetTerrainColor(province.Terrain));
             }
             else
             {
@@ -174,7 +174,7 @@ public class filter_modes : MonoBehaviour
 
     public void SetResources()
     {
-        Color getResourceColor(Resource resourceType)
+        Color GetResourceColor(Resource resourceType)
         {
             switch (resourceType)
             {
@@ -191,7 +191,7 @@ public class filter_modes : MonoBehaviour
         }
 
         mode = MapMode.Resource;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
@@ -199,9 +199,9 @@ public class filter_modes : MonoBehaviour
             Vector3Int position = new(province.X, province.Y, 0);
             Color color;
 
-            if (province.Type == "land")
+            if (province.IsLand)
             {
-                color = getResourceColor(province.ResourceType);
+                color = GetResourceColor(province.ResourceType);
                 filter_layer.SetTile(position, base_tile);
                 filter_layer.SetColor(position, color);
             }
@@ -216,13 +216,13 @@ public class filter_modes : MonoBehaviour
     public void SetHappiness()
     {
         mode = MapMode.Happiness;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
-            if (province.Type == "land")
+            if (province.IsLand)
             {
                 Color happinessColor = GetColorBasedOnValueHappiness(province.Happiness);
                 filter_layer.SetTile(position, base_tile);
@@ -239,13 +239,13 @@ public class filter_modes : MonoBehaviour
     public void SetPopulation()
     {
         mode = MapMode.Population;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces)
         {
             Vector3Int position = new(province.X, province.Y, 0);
-            if (province.Type == "land")
+            if (province.IsLand)
             {
                 Color populationColor = GetColorBasedOnValuePop(province.Population);
                 filter_layer.SetTile(position, base_tile);
@@ -260,14 +260,14 @@ public class filter_modes : MonoBehaviour
 
      public void SetPolitical() {
         mode = MapMode.Political;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach (Province province in map.Provinces) {
-            Country owner = map.Countries[province.Owner_id];
+            Country owner = map.Countries[province.OwnerId];
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if(province.Type == "land") {
+            if(province.IsLand) {
                 base_layer.SetTile(position, base_tile);
                 base_layer.SetColor(position, owner.Color);
                 if(owner.Capital == province.coordinates) terrain_feature_layer_2.SetTile(position, capital_tile);
@@ -288,48 +288,47 @@ public class filter_modes : MonoBehaviour
         SetTerrainFeatures();
     }
 
-    public void SetDiplomatic() {
-
-        Color GetDiplomaticColor(Relation.RelationType? relationType)
+    public static Color GetDiplomaticColor(Relation.RelationType? relationType)
+    {
+        switch (relationType)
         {
-            switch (relationType)
-            {
-                case Relation.RelationType.War:
-                    return WarColor;
-                case Relation.RelationType.Truce:
-                    return TruceColor;
-                case Relation.RelationType.Alliance:
-                    return AllianceColor;
-                case Relation.RelationType.Vassalage:
-                    return VassalageColor;
-                case Relation.RelationType.Rebellion:
-                    return RebellionColor;
-                default:
-                    return DefaultColor;
-            }
+            case Relation.RelationType.War:
+                return WarColor;
+            case Relation.RelationType.Truce:
+                return TruceColor;
+            case Relation.RelationType.Alliance:
+                return AllianceColor;
+            case Relation.RelationType.Vassalage:
+                return VassalageColor;
+            case Relation.RelationType.Rebellion:
+                return RebellionColor;
+            default:
+                return DefaultColor;
         }
+    }
 
+    public void SetDiplomatic() {
         mode = MapMode.Diplomatic;
-        greyOutUnused(mode);
+        GreyOutUnused(mode);
         ClearLayers();
 
         foreach(Province province in map.Provinces) {
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if(province.Type == "land") {
+            if(province.IsLand) {
 
                 filter_layer.SetTile(position, base_tile);
-                if (province.Owner_id == map.CurrentPlayer.Id)
+                if (province.OwnerId == map.CurrentPlayer.Id)
                 {
                     filter_layer.SetColor(position, CurrentPlayerColor);
                 }
-                else if (province.Owner_id == 0)
+                else if (province.OwnerId == 0)
                 {
                     filter_layer.SetColor(position, TribalColor);
                 }
                 else
                 {
-                    var relation = map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.Owner_id]);
+                    var relation = map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.OwnerId]);
                     filter_layer.SetColor(position, GetDiplomaticColor(relation));
                 }
             }
@@ -373,8 +372,8 @@ public class filter_modes : MonoBehaviour
         Color midColor = Color.yellow;
         Color maxColor = Color.blue;
 
-        int minPopulation = map.Pop_extremes.Item1;
-        int maxPopulation = map.Pop_extremes.Item2;
+        int minPopulation = map.PopExtremes.Item1;
+        int maxPopulation = map.PopExtremes.Item2;
 
         float t = Mathf.InverseLerp(minPopulation, maxPopulation, value);
 
@@ -397,7 +396,7 @@ public class filter_modes : MonoBehaviour
         mouse_hover_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 2;
     }
 
-    private void greyOutUnused(filter_modes.MapMode mapMode) {
+    private void GreyOutUnused(filter_modes.MapMode mapMode) {
         string name;
         switch (mapMode) {
             case MapMode.Terrain:

@@ -36,7 +36,6 @@ public class map_options : MonoBehaviour
         LoadAvailableMaps();
         SetupResourceOptions();
         SetupTurnOptions();
-
 	}
 
     private void LoadAvailableMaps()
@@ -280,8 +279,8 @@ public class map_options : MonoBehaviour
             Debug.Log("At least one human player!");
             return;
         }
-		map.name = selectedMap;
-        map.File_name = selectedMap;
+
+        map.FileName = selectedMap;
         map.ResourceRate = selectedResourceRate;
         map.Turnlimit = selectedTurnLimit;
 
@@ -289,7 +288,7 @@ public class map_options : MonoBehaviour
 
         SceneManager.LoadScene("game_map");
     }
-    public void exitButton()
+    public void ExitButton()
     {
         SceneManager.LoadScene("main_menu");
     }

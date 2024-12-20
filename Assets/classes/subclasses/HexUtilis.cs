@@ -75,12 +75,12 @@ public class HexUtils
         return results;
     }
 
-    // interpolacja float
+    // float interpolation
     private static float Lerp(float a, float b, float t)
     {
         return a + (b - a) * t;
     }
-    // interpolacja miêdzy dwoma heksami
+    // Interpolation between two hexes
     private static Cube CubeLerp(Cube a, Cube b, float t)
     {
         return new Cube(
@@ -104,7 +104,7 @@ public class HexUtils
     }
 
 
-    // zaokr¹glanie Cube do najbli¿szego heksa wziete z https://www.redblobgames.com/grids/hexagons/#rounding 06.11.2024
+    // Rounding Cube to the nearest hex, taken from https://www.redblobgames.com/grids/hexagons/#rounding 06.11.2024
     private static Cube CubeRound(Cube cube)
     {
         int rq = Mathf.RoundToInt(cube.q);
@@ -124,19 +124,19 @@ public class HexUtils
 
         return new Cube(rq, rr, rs);
     }
-    // generuje listê heksów na linii miêdzy dwoma heksami - https://www.redblobgames.com/grids/hexagons/#line-drawing 06.11.2024
+    // // Generates a list of hexes on the line between two hexes - https://www.redblobgames.com/grids/hexagons/#line-drawing 06.11.2024
     public static List<(int, int)> CubeLineDraw(Cube start, Cube end)
     {
         int N = CubeDistance(start, end);
 
-        // lista 2D
+        // 2D list
         List<(int, int)> results = new List<(int, int)>();
 
         for (int i = 0; i <= N; i++)
         {
             Cube interpolated = CubeLerp(start, end, 1.0f / N * i);
 
-            // z 3d na 2d
+            // from 3d to 2d
             var (x, y) = CubeToOffset(interpolated);
 
             results.Add((x, y));
@@ -152,19 +152,19 @@ public class HexUtils
         return CubeLineDraw(start.coordinates, end.coordinates);
     }
 
-    public static void hexPathingTest() {
-        var start = new HexUtils.Cube(0, 0, 0); // Punkt startowy
-        var end = new HexUtils.Cube(4, -4, 0);  // Punkt koñcowy 
+    public static void HexPathingTest() {
+        var start = new HexUtils.Cube(0, 0, 0); // Starting point
+        var end = new HexUtils.Cube(4, -4, 0); // End point
 
-        // U¿ycie CubeLineDraw, aby wygenerowaæ œcie¿kê miêdzy start a end
+        // Using CubeLineDraw to generate a path between start and end
         List<(int, int)> path = HexUtils.CubeLineDraw(start, end);
 
-        // Wyœwietlenie wyników na konsoli
+        // Displaying results in the console
         Debug.Log("Linia miêdzy punktami startowym i koñcowym:");
         foreach (var hex in path) {
             Debug.Log($"Hex: x:{hex.Item1}, y:{hex.Item2}");
         }
-        // Dodatkowe sprawdzenie, czy œcie¿ka ma poprawn¹ d³ugoœæ
+        // Additional check to ensure the path has the correct length
         int expectedDistance = HexUtils.CubeDistance(start, end);
         bool correctLength = (path.Count - 1 == expectedDistance);
 
@@ -173,36 +173,36 @@ public class HexUtils
             : $"B³¹d: oczekiwano d³ugoœci {expectedDistance + 1}, otrzymano {path.Count}");
     }
 
-    public static int getProvinceDistance(Province p1, Province p2) {
+    public static int GetProvinceDistance(Province p1, Province p2) {
         Cube c1 = OffsetToCube(p1.X, p2.Y), c2=OffsetToCube(p2.X, p2.Y);
         return CubeDistance(c1, c2);
     }
     //A* algo - like Djikstra but better
     //also using imported from normal .net PriorityQueue cuz pretty good for this
-    public static List<Province> getBestPathProvinces(Map map, Country country, Province start, Province end) {
-        return getBestPathProvinces(map, country, (start.X, start.Y), (end.X, end.Y));
+    public static List<Province> GetBestPathProvinces(Map map, Country country, Province start, Province end) {
+        return GetBestPathProvinces(map, country, (start.X, start.Y), (end.X, end.Y));
     }
-    public static bool isPathPossible(Map map, Country country, Province start, Province end) {
-        return getBestPathProvinces(map, country, start, end) != null;
+    public static bool IsPathPossible(Map map, Country country, Province start, Province end) {
+        return GetBestPathProvinces(map, country, start, end) != null;
     }
-    public static List<Province> getBestPathProvinces(Map map, Country country, (int, int) start, (int, int) end) {
+    public static List<Province> GetBestPathProvinces(Map map, Country country, (int, int) start, (int, int) end) {
         var provinces = map.Provinces.Select(p=>(p.X, p.Y)).ToHashSet();
-        var unavailable = Map.LandUtilites.getUnpassableProvinces(map, country).Select(p=>(p.X, p.Y)).ToHashSet();
-        var best = getBestPath(provinces, unavailable, new(), start, end);
+        var unavailable = Map.LandUtilites.GetUnpassableProvinces(map, country).Select(p=>(p.X, p.Y)).ToHashSet();
+        var best = GetBestPath(provinces, unavailable, new(), start, end);
         //for now no misc costs but in future maybe
-        if (best != null) return best.Select(cord => map.getProvince(cord)).Where(province => province != null).ToList();
+        if (best != null) return best.Select(cord => map.GetProvince(cord)).Where(province => province != null).ToList();
         else return null;
     }
-    public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<(int, int)> unpassable, (int, int) start, (int, int) end) {
+    public static List<Province> GetBestPathProvinces(Map map, Country country, HashSet<(int, int)> unpassable, (int, int) start, (int, int) end) {
         var provinces = map.Provinces.Select(p => (p.X, p.Y)).ToHashSet();
-        var best = getBestPath(provinces, unpassable, new(), start, end);
-        if (best != null) return getBestPath(provinces, unpassable, new(), start, end).Select(cord => map.getProvince(cord)).Where(province => province != null).ToList();
+        var best = GetBestPath(provinces, unpassable, new(), start, end);
+        if (best != null) return GetBestPath(provinces, unpassable, new(), start, end).Select(cord => map.GetProvince(cord)).Where(province => province != null).ToList();
         else return null;
     }
-    public static List<Province> getBestPathProvinces(Map map, Country country, HashSet<Province> unpassable, Province start, Province end) {
-        return getBestPathProvinces(map, country, unpassable.Select(p=>p.coordinates).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
+    public static List<Province> GetBestPathProvinces(Map map, Country country, HashSet<Province> unpassable, Province start, Province end) {
+        return GetBestPathProvinces(map, country, unpassable.Select(p=>p.coordinates).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
     }
-    private static List<(int, int)> getBestPath(
+    private static List<(int, int)> GetBestPath(
         HashSet<(int, int)> provinces,
         HashSet<(int, int)> unavailable,
         Dictionary<(int, int), int> miscCosts,
@@ -250,7 +250,7 @@ public class HexUtils
         path.Reverse();
         return path;
     }
-    public static Province getNearestProvince(Map map, (int,int) start, HashSet<int> ids) {
+    public static Province GetNearestProvince(Map map, (int,int) start, HashSet<int> ids) {
         var startCube = OffsetToCube(start.Item1, start.Item2);
         Queue<Cube> front = new Queue<Cube>();
         front.Enqueue(startCube);
@@ -259,8 +259,8 @@ public class HexUtils
         while (front.Count > 0) {
             var current = front.Dequeue();
             var (x, y) = CubeToOffset(current);
-            Province province = map.getProvince(x, y);
-            if (province != null && ids.Contains(province.Owner_id))
+            Province province = map.GetProvince(x, y);
+            if (province != null && ids.Contains(province.OwnerId))
                 return province;
 
             for (int dir = 0; dir > 6; dir++) {

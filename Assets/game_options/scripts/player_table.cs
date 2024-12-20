@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
-using static Assets.classes.subclasses.Constants.Province;
+using static Assets.classes.subclasses.Constants.ProvinceConstants;
 using UnityEngine;
 using UnityEngine.UI;
 using static Map;
@@ -16,7 +16,6 @@ public class player_table : MonoBehaviour
     [SerializeField] private Map map;
     [SerializeField] private map_options optionsTable;
     [SerializeField] private map_preview map_Preview;
-    private GameObject currentPlayerSelection = null;
     private List<CountryController> controllers = new List<CountryController>();
     private List<CountryData> currentStates = new List<CountryData>();
     private List<Province> provinces = new List<Province>();
@@ -72,8 +71,8 @@ public class player_table : MonoBehaviour
         currentStates = gameState.countries;
         provinces = gameState.provinces;
 
-        showCountries(currentStates);
-        showButton();
+        ShowCountries(currentStates);
+        ShowButton();
         map_Preview.Provinces = provinces;
         map_Preview.Reload();
         controllers.Clear();
@@ -123,7 +122,7 @@ public class player_table : MonoBehaviour
 
 
 
-    private Color toColor(int[] color)
+    private Color ToColor(int[] color)
     {
         return new Color(color[0] / 255f, color[1] / 255f, color[2] / 255f);
     }
@@ -141,50 +140,50 @@ public class player_table : MonoBehaviour
         foreach (var provinceData in provinces)
         {
             Province.TerrainType terrain;
-            if (provinceData.Type == "land")
+            if (provinceData.IsLand)
             {
                 string terrainStr = provinceData.Terrain.ToString().ToLower();
                 switch (terrainStr)
                 {
                     case "forest":
-                        terrain = Province.TerrainType.forest;
+                        terrain = Province.TerrainType.Forest;
                         break;
                     case "desert":
-                        terrain = Province.TerrainType.desert;
+                        terrain = Province.TerrainType.Desert;
                         break;
                     case "lowlands":
-                        terrain = Province.TerrainType.lowlands;
+                        terrain = Province.TerrainType.Lowlands;
                         break;
                     case "tundra":
-                        terrain = Province.TerrainType.tundra;
+                        terrain = Province.TerrainType.Tundra;
                         break;
                     default:
                         Debug.LogWarning($"Nieznany typ terenu: {terrainStr}, ustawiam tundra jako domyślny.");
-                        terrain = Province.TerrainType.tundra;
+                        terrain = Province.TerrainType.Tundra;
                         break;
                 }
             }
             else
             {
-                terrain = Province.TerrainType.ocean;
+                terrain = Province.TerrainType.Ocean;
             }
             Province newProvince = new Province(
                 provinceData.Name,
                 provinceData.X,
                 provinceData.Y,
-                provinceData.Type,
+                provinceData.IsLand,
                 terrain,
                 ParseResource(provinceData.ResourceType.ToString().ToLower()),
                 (int)provinceData.ResourceAmount,
                 provinceData.Population,
                 provinceData.Happiness,
-                provinceData.Is_coast
+                provinceData.IsCoast
             );
             newProvince.ResourceAmount = provinceData.ResourceAmount * map.ResourceRate/100;
             map.Provinces.Add(newProvince);
         }
 
-        map.addCountry(new Country(0, "", DEFAULT_CORD, new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
+        map.AddCountry(new Country(0, "", DEFAULT_CORD, new Color(0.8392f, 0.7216f, 0.4706f), 1, map), Map.CountryController.Ai);
 
         foreach (CountryData state in currentStates)
         {
@@ -196,13 +195,13 @@ public class player_table : MonoBehaviour
                 state.owner_id,
                 state.name,
                 (state.capitol[0], state.capitol[1]),
-                toColor(state.color),
+                ToColor(state.color),
                 state.coat,
                 map
             );
 
-            map.addCountry(newCountry, CountryController.Ai);
-            map.assignProvince(newCountry.Capital, newCountry.Id);
+            map.AddCountry(newCountry, CountryController.Ai);
+            map.AssignProvince(newCountry.Capital, newCountry.Id);
             Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
         }
 
@@ -210,12 +209,12 @@ public class player_table : MonoBehaviour
         {
             map.Controllers[i] = controllers[i - 1];
         }
-        map.initCountries();
+        map.InitCountryOpinions();
 		SetCurrentPlayer();
-        SetCountryPrioritiesAndOpinions();
+        SetCountryPriorities();
         InitializeProvinces();
-        map.calcPopExtremes();
-        map.turnCnt = 0;
+        map.CalcPopulationExtremes();
+        map.TurnCnt = 0;
         Debug.Log("Game setup complete. Ready to start the game. " + map.Countries.Count + " countries present.");
     }
 
@@ -226,6 +225,8 @@ public class player_table : MonoBehaviour
         map.Countries.Clear();
         map.Controllers.Clear();
         map.Provinces.Clear();
+        map.Controllers.Clear();
+        map.Relations.Clear();
     }
 
     private void SetCurrentPlayer()
@@ -233,7 +234,7 @@ public class player_table : MonoBehaviour
         int playerIndex = map.Controllers.FindIndex(controller => controller == Map.CountryController.Local);
         if (playerIndex >= 0)
         {
-            map.currentPlayer = playerIndex;
+            map.CurrentPlayerId = playerIndex;
             Debug.Log($"Gracz ustawiony na kraj: {map.CurrentPlayer.Name}");
         }
         else
@@ -242,14 +243,19 @@ public class player_table : MonoBehaviour
         }
     }
 
-    private void SetCountryPrioritiesAndOpinions()
+    private void SetCountryPriorities()
     {
-        int i = 0;
+        var countries = map.Countries.Where(c => c.Id != 0).ToList();
 
-        foreach (Country country in map.Countries.Where(c => c.Id != 0))
+        System.Random random = new();
+
+        var priorities = Enumerable.Range(0, countries.Count).ToList();
+        priorities = priorities.OrderBy(p => random.Next()).ToList();
+
+        for (int i = 0; i < countries.Count; i++)
         {
-            country.Priority = i++;
-            Debug.Log($"Kraj ID: {country.Id}, Nazwa: {country.Name}");
+            countries[i].Priority = priorities[i];
+            Debug.Log($"Country: {countries[i].Name}, Priority: {countries[i].Priority}");
         }
     }
 
@@ -257,11 +263,11 @@ public class player_table : MonoBehaviour
     {
         foreach (var p in map.Provinces)
         {
-            if (p.Type == "land")
+            if (p.IsLand)
             {
-                if (p.Owner_id == 0) p.addStatus(new Tribal(-1));
-                p.calcStatuses();
-                map.calcRecruitablePop(p.coordinates);
+                if (p.OwnerId == 0) p.AddStatus(new Tribal(-1));
+                p.CalcStatuses();
+                p.CalcRecruitablePopulation(map);
             }
         }
     }
@@ -318,10 +324,10 @@ public class player_table : MonoBehaviour
                 currentMaxPlayerNumber--;
             }
         }
-        showButton();
+        ShowButton();
     }
 
-    public void showButton()
+    public void ShowButton()
     {
 		Button button =  optionsTable.transform.Find("startgame").GetComponent<Button>();
         if (controllers.Contains(CountryController.Local))
@@ -334,7 +340,7 @@ public class player_table : MonoBehaviour
         }
 	}
 
-    public void showCountries(List<CountryData> states)
+    public void ShowCountries(List<CountryData> states)
     {
         if (states == null || states.Count == 0)
         {
@@ -429,22 +435,22 @@ public class player_table : MonoBehaviour
             _ => Resource.AP,
         };
     }
-    private void createTestCountrys()
+    private void CreateTestCountrys()
     {
-        map.addCountry(new Country(9, "Temeria", (6, 6), Color.cyan, 1, map), CountryController.Local);
-		map.addCountry(new Country(10, "Kaedwen", (9, 9), Color.green, 2, map), CountryController.Local);
-        map.assignProvince(map.getProvince(7, 7), 9);
-		map.assignProvince(map.getProvince(7, 6), 9);
-        map.assignProvince(map.getProvince(6,6), 9);
-		map.assignProvince(map.getProvince(8, 7), 9);
-		map.assignProvince(map.getProvince(9, 8), 9);
+        map.AddCountry(new Country(9, "Temeria", (6, 6), Color.cyan, 1, map), CountryController.Local);
+		map.AddCountry(new Country(10, "Kaedwen", (9, 9), Color.green, 2, map), CountryController.Local);
+        map.AssignProvince(map.GetProvince(7, 7), 9);
+		map.AssignProvince(map.GetProvince(7, 6), 9);
+        map.AssignProvince(map.GetProvince(6,6), 9);
+		map.AssignProvince(map.GetProvince(8, 7), 9);
+		map.AssignProvince(map.GetProvince(9, 8), 9);
 
-		map.assignProvince(map.getProvince(9,9),10);
-		map.assignProvince(map.getProvince(10, 9), 10);
-		map.assignProvince(map.getProvince(8, 9), 10);
-		map.assignProvince(map.getProvince(7, 9), 10);
-		map.assignProvince(map.getProvince(8, 8), 10);
-		map.assignProvince(map.getProvince(7, 8), 10);
-		map.assignProvince(map.getProvince(6, 7), 10);
+		map.AssignProvince(map.GetProvince(9,9),10);
+		map.AssignProvince(map.GetProvince(10, 9), 10);
+		map.AssignProvince(map.GetProvince(8, 9), 10);
+		map.AssignProvince(map.GetProvince(7, 9), 10);
+		map.AssignProvince(map.GetProvince(8, 8), 10);
+		map.AssignProvince(map.GetProvince(7, 8), 10);
+		map.AssignProvince(map.GetProvince(6, 7), 10);
 	}
 }

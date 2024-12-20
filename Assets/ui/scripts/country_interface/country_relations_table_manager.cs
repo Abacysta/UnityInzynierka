@@ -35,7 +35,7 @@ public class country_relations_table_manager : MonoBehaviour
 
     public void SetData()
     {
-        sortedCountries = map.Countries.Where(c => c.Id != 0 && c.Id != map.currentPlayer).ToList();
+        sortedCountries = map.Countries.Where(c => c.Id != 0 && c.Id != map.CurrentPlayerId).ToList();
         dynamic_vscroll_countries_view.totalItemCount = SortedCountries.Count;
         SortData(currentSortCriteria);
     }
@@ -71,8 +71,8 @@ public class country_relations_table_manager : MonoBehaviour
                 break;
             case "their_opinion":
                 SortedCountries = isAscending
-                    ? SortedCountries.OrderBy(p => p.Opinions.ContainsKey(Map.currentPlayer) ? p.Opinions[Map.currentPlayer] : 0).ToList()
-                    : SortedCountries.OrderByDescending(p => p.Opinions.ContainsKey(Map.currentPlayer) ? p.Opinions[Map.currentPlayer] : 0).ToList();
+                    ? SortedCountries.OrderBy(p => p.Opinions.ContainsKey(Map.CurrentPlayerId) ? p.Opinions[Map.CurrentPlayerId] : 0).ToList()
+                    : SortedCountries.OrderByDescending(p => p.Opinions.ContainsKey(Map.CurrentPlayerId) ? p.Opinions[Map.CurrentPlayerId] : 0).ToList();
                 break;
             case "our_opinion":
                 SortedCountries = isAscending
