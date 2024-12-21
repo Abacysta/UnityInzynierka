@@ -1,5 +1,8 @@
 ﻿namespace Assets.classes.subclasses.Constants {
     internal static class ProvinceConstants {
+        //extremes
+        public const int MAX_POP = 1000000000;
+
         //population needed for a school
         public const ushort SCHOOL_MIN_POP = 3000;
 

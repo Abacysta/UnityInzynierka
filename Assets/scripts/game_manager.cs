@@ -518,6 +518,7 @@ public class game_manager : MonoBehaviour
                 if(p.ResourceAmount<MIN_RESOURCE_PROVINCE) p.ResourceAmount = MIN_RESOURCE_PROVINCE;
                 //population
                 if (p.Population <= 0) p.Population = 1;
+                if (p.Population > MAX_POP) p.Population = MAX_POP;
                 //buildings
                 if(p.Buildings!= null){
                     foreach(var b in p.Buildings.Keys) {
