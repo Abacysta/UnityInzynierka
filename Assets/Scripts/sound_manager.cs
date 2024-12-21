@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class sound_manager : MonoBehaviour
 {
@@ -12,10 +12,13 @@ public class sound_manager : MonoBehaviour
     /// </summary>
     private bool main;
     private short musId = 0;
-
+    [SerializeField] private AudioClip button_sound;
+    [SerializeField] private AudioClip switch_sound;
+    [SerializeField] private AudioClip army_sound;
     [SerializeField] private List<AudioClip> menu_mus;
     [SerializeField] private List<AudioClip> game_mus;
     [SerializeField] private AudioSource speaker;
+    [SerializeField] private AudioSource sfx;
     private void Awake() {
         if(instance == null) {
             instance = this;
@@ -46,7 +49,60 @@ public class sound_manager : MonoBehaviour
             musId=(short)Random.Range(0, main ? menu_mus.Count : game_mus.Count);
             if(speaker.isPlaying) speaker.Stop();
         }
-        
+        switch(scene.buildIndex) {
+            case 0: {
+                GameObject parent = GameObject.Find("main_menu/buttons");
+                if(parent != null) {
+                    UnityEngine.UI.Button[] arr = parent.GetComponentsInChildren<UnityEngine.UI.Button>();
+                    foreach(UnityEngine.UI.Button b in arr) {
+                        b.onClick.AddListener(playButton);
+                    }
+                }
+                break;
+            }
+            case 1: {
+                GameObject.Find("game_options/startgame").GetComponent<Button>().onClick.AddListener(playButton);
+                break;
+            }
+            case 2: {
+                GameObject ui = GameObject.Find("ui");
+                if(ui != null) {
+                    ui.transform.Find("save_button").GetComponent<Button>().onClick.AddListener(playButton);
+                    ui.transform.Find("settings_button").GetComponent<Button>().onClick.AddListener(playButton);
+                    var modes = ui.transform.Find("mapmodes").GetComponentsInChildren<Button>();
+                    foreach(var mode in modes) {
+                        mode.onClick.AddListener(playSwitch);
+                    }
+                    var upperB = ui.transform.Find("country_tab").GetComponentsInChildren<Button>();
+                    foreach(var b in upperB) { 
+                        b.onClick.AddListener(sound_manager.instance.playButton);
+                    }
+                    var cInterface = ui.transform.Find("country_interface");
+                    cInterface.transform.Find("title_bar").GetComponentInChildren<Button>().onClick.AddListener(playButton);
+                    var taxB = cInterface.transform.Find("tab_panels/production_panel/tax_area").GetComponentsInChildren<Toggle>();
+                    foreach(var t in taxB) { 
+                        t.onValueChanged.AddListener(sound_manager.instance.playSwitch);
+                    }
+                }
+                break;
+            }
+        }
+    }
+    public void playButton() {
+        sfx.Stop();
+        sfx.clip = button_sound;
+        sfx.Play();
+    }
+    public void playSwitch() {
+        sfx.Stop();
+        sfx.clip = switch_sound; sfx.Play();
+    }
+    public void playSwitch(bool isOn) {
+        playSwitch();
+    }
+    public void playArmy() {
+        sfx.Stop();
+        sfx.clip = army_sound; sfx.Play();
     }
     //plays songs in order
     private IEnumerator startPlaylist() {

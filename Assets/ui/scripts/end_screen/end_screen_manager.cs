@@ -54,6 +54,7 @@ public class end_screen_manager : MonoBehaviour
         pop_text.SetText(map.Provinces.Sum(p => p.Population).ToString());
         happ_text.SetText(((int)(map.Provinces.Sum(p => p.Happiness) / map.Provinces.Count)).ToString());
         claim_text.SetText((int)((float)map.Provinces.Where(p => p.OwnerId == 0).Count() / (float)map.Provinces.Count * 100) + "%");
+        kill_game_button.onClick.AddListener(sound_manager.instance.playButton);
         kill_game_button.onClick.AddListener(() => SceneManager.LoadScene(0));
     }
 

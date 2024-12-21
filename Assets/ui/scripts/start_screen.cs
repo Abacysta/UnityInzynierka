@@ -23,6 +23,7 @@ namespace Assets.ui.scripts {
             var button = window.transform.Find("window").GetComponentInChildren<Button>();
 
             button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(sound_manager.instance.playButton);
             button.onClick.AddListener(() => alerts.LoadEvents(map.CurrentPlayer));
             button.onClick.AddListener(() => alerts.ReloadAlerts());
             button.onClick.AddListener(() => window.SetActive(false));

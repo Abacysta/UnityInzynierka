@@ -131,5 +131,6 @@ public class dynamic_scoll_view_country_row : UIBehaviour, IDynamicScrollViewIte
     public void OnCountryRowClick()
     {
         diplomatic_actions_manager.ShowDiplomaticActionsInterface(countryId);
+        sound_manager.instance.playSwitch();
     }
 }

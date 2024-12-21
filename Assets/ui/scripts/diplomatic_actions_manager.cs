@@ -134,7 +134,10 @@ public class diplomatic_actions_manager : MonoBehaviour
     void Start()
     {
         country_dropdown.onValueChanged.AddListener(delegate { UpdateCaption(); });
-        
+        var bt = gameObject.GetComponentsInChildren<Button>();
+        foreach(var b in bt) {
+            b.onClick.AddListener(sound_manager.instance.playButton);
+        }
         war_declare_button.onClick.AddListener(SetDeclareWarMessagePanel);
         vassal_rebel_button.onClick.AddListener(SetVassalRebelMessagePanel);
         integrate_vassal_button.onClick.AddListener(SetIntegrateVassalMessagePanel);

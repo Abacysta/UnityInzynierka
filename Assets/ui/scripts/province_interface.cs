@@ -209,14 +209,22 @@ public class province_interface : MonoBehaviour
 
         foreach (var (btnTransform, buildingType) in buildingTypes)
         {
-            btnTransform.Find("add").GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeUpgradeBuilding(SelectedProvince, buildingType));
-            btnTransform.Find("remove").GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeDowngradeBuilding(SelectedProvince, buildingType));
+            var add = btnTransform.Find("add").GetComponent<Button>();
+            add.onClick.AddListener(() => dialog_box.InvokeUpgradeBuilding(SelectedProvince, buildingType));
+            add.onClick.AddListener(sound_manager.instance.playSwitch);
+            var rem = btnTransform.Find("remove").GetComponent<Button>();
+            rem.onClick.AddListener(() => dialog_box.InvokeDowngradeBuilding(SelectedProvince, buildingType));
+            rem.onClick.AddListener(sound_manager.instance.playSwitch);
         }
 
         recruitment_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeRecBox(SelectedProvince));
+        recruitment_button.GetComponent<Button>().onClick.AddListener(sound_manager.instance.playButton);
         festivities_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeFestivitiesOrganizationBox(SelectedProvince));
+        festivities_button.GetComponent<Button>().onClick.AddListener(sound_manager.instance.playButton);
         tax_break_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeTaxBreakIntroductionBox(SelectedProvince));
+        tax_break_button.GetComponent<Button>().onClick.AddListener(sound_manager.instance.playButton);
         rebel_suppress_button.GetComponent<Button>().onClick.AddListener(() => dialog_box.InvokeRebelSuppressionBox(SelectedProvince));
+        rebel_suppress_button.GetComponent<Button>().onClick.AddListener(sound_manager.instance.playButton);
     }
 
     private void Update() {
