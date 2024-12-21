@@ -28,6 +28,9 @@ public class map_ui : MonoBehaviour
             if(dialog_box.activeSelf) {
                 box_manager.HideDialog();
             }
+			else if(diplomatic_actions_manager.gameObject.activeSelf) {
+				diplomatic_actions_manager.gameObject.SetActive(false);
+			}
             else if (country_interface.gameObject.activeSelf) {
                 country_interface.HideCountryInterface();
             }
@@ -35,7 +38,7 @@ public class map_ui : MonoBehaviour
                 province_interface.gameObject.SetActive(false);
             }
             else {
-                settings_menu_ui.SetActive(settings_menu_ui.activeSelf);
+                settings_menu_ui.SetActive(!settings_menu_ui.activeSelf);
             }
         }
         if (!overlay.activeSelf) {

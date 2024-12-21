@@ -63,5 +63,6 @@ public class dynamic_scoll_view_province_row : UIBehaviour, IDynamicScrollViewIt
     {
         camera_controller.ZoomCameraOnProvince(provinceCoordinates);
         province_click_handler.DisplayProvinceInterface(provinceCoordinates.Item1, provinceCoordinates.Item2);
+        sound_manager.instance.playSwitch();
     }
 }

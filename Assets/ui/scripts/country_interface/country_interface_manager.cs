@@ -56,7 +56,7 @@ public class country_interface_manager : MonoBehaviour
 
         tab_panels[index].SetActive(true);
         tab_buttons[index].GetComponent<Image>().color = activeColor;
-
+        sound_manager.instance.playSwitch();
         activeTab = index;
     }
 

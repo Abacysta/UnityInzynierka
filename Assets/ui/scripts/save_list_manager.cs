@@ -23,11 +23,13 @@ public class save_list_manager : MonoBehaviour
     void Start()
     {
         del_button.onClick.AddListener(() => { DelNamedGame(); });
+        del_button.onClick.AddListener(sound_manager.instance.playButton);
         load_button.onClick.AddListener(() => { LoadNamedGame(); });
-
+        load_button.onClick.AddListener(sound_manager.instance.playButton);
         if (SceneManager.GetActiveScene().name == "game_map")
         {
             save_button.onClick.AddListener(() => { SaveNamedGame(); });
+            save_button.onClick.AddListener(sound_manager.instance.playButton);
             isGameMap = true;
         }
         else
@@ -68,7 +70,11 @@ public class save_list_manager : MonoBehaviour
         dynamic_vscroll_saves_view.totalItemCount = Saves.Length;
         DisplayList();
     }
-
+    private void unsetButtons() {
+        
+        
+        
+    }
     private void DisplayList()
     {
         dynamic_vscroll_saves_view.refresh();

@@ -405,6 +405,7 @@ public class player_table : MonoBehaviour
                 {
                     int capturedId = i;
                     countryButton.onClick.AddListener(() => OnCountryClicked(countryUI, controllerTransform, capturedId));
+                    countryButton.onClick.AddListener(sound_manager.instance.playSwitch);
                 }
             }
         }

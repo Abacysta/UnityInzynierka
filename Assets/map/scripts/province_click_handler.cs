@@ -109,7 +109,7 @@ public class province_click_handler : cursor_helper
             if(IsProvinceRevealed(cellPosition.x, cellPosition.y))
             {
                 SelectProvince(cellPosition.x, cellPosition.y);
-                province_click.Play();
+                sound_manager.instance.playButton();
                 DisplayProvinceInterface(cellPosition.x, cellPosition.y);
                 Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
                 Province province = map.GetProvince(cellPosition.y, cellPosition.x);

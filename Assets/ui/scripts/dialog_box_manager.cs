@@ -124,6 +124,9 @@ public class dialog_box_manager : MonoBehaviour
 
         public DialogConfig Build()
         {
+            _dialogConfig.OnConfirm += sound_manager.instance.playButton;
+            _dialogConfig.OnCancel += sound_manager.instance.playButton;
+            _dialogConfig.OnClose += sound_manager.instance.playButton;
             return _dialogConfig;
         }
 

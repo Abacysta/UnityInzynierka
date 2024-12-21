@@ -12,15 +12,16 @@ public class settings_menu : MonoBehaviour
     [SerializeField] private Slider sliderSFX, sliderMus;
     [SerializeField] private GameObject overlay;
     [SerializeField] private Toggle full_screen_toggle;
+    [SerializeField] private Button back;
+    [SerializeField] private Button superback;
 
     private readonly List<Resolution> validResolutions = new();
 
     public void SettingsInit() {
-
         SetInitialVideoSettings();
         SetInitialAudioSettings();
+        setButtons();
     }
-
     private void SetInitialVideoSettings()
     {
         bool isFullScreen = true;
@@ -46,6 +47,7 @@ public class settings_menu : MonoBehaviour
         {
             full_screen_toggle.isOn = isFullScreen;
             full_screen_toggle.onValueChanged.AddListener(ToggleFullScreen);
+            full_screen_toggle.onValueChanged.AddListener(sound_manager.instance.playSwitch);
         }
 
         PopulateDropdown();
@@ -69,6 +71,11 @@ public class settings_menu : MonoBehaviour
         sliderSFX.onValueChanged.AddListener(SetSfx);
     }
 
+    private void setButtons() {
+        while(sound_manager.instance == null) ;
+        if(back != null) back.onClick.AddListener(sound_manager.instance.playButton);
+        if(superback != null) back.onClick.AddListener(sound_manager.instance.playButton);
+    }
     private void PopulateDropdown()
     {
         res_dropdown.ClearOptions();
