@@ -235,7 +235,6 @@ public class Map : ScriptableObject
                 CancelOccupation(GetProvince(armyView.ArmyData.Position));
             }
         }
-        AddOccupation(army);
     }
     private bool ShouldCancelOccupation(Province province, int armyOwnerId) {
         if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied) {
@@ -447,7 +446,7 @@ public class Map : ScriptableObject
         CancelOccupation(province);
     }
 
-    private void AddOccupation(Army army) {
+    public void AddOccupation(Army army) {
         Province province = GetProvince(army.Position.Item1, army.Position.Item2);
         if (!province.IsLand) return;
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
