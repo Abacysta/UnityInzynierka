@@ -191,9 +191,6 @@ public class game_manager : MonoBehaviour
             map.MergeArmies(c);
             c.AtWar = map.GetRelationsOfType(c, Relation.RelationType.War) != null;
         }
-        foreach(var a in map.Armies.Where(a=>a.OwnerId != 0)) {
-            map.Countries[a.OwnerId].ModifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].TechStats.ArmyUpkeep);
-        }
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.TurnCnt).ToString());
         loading_box.SetActive(false);
