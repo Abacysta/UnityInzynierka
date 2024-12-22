@@ -219,7 +219,7 @@ namespace Assets.Scripts {
         /// different humors might have different squences they will take
         /// </summary>
         private void ManageInternal() {
-            internalAffairsManager.SetProperTax(map, map.CurrentPlayer);
+            internalAffairsManager.HandleTax(map, map.CurrentPlayer, humor);
             if (humor == Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.HandleArmyRecruitment(map.CurrentPlayer, humor);
             internalAffairsManager.HandleUnhappy(map.CurrentPlayer, humor);
             if (humor == Humor.Leading) internalAffairsManager.HandleGrowable(map.CurrentPlayer, humor);
