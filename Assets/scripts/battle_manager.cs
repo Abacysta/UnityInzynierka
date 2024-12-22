@@ -30,6 +30,8 @@ namespace Assets.Scripts {
                     if (attackerArmy.Count == 0) map.RemoveArmy(attackerArmy);
                 }
             }
+
+            map.ManageOccupation();
         }
 
         private List<Army> GetEnemyArmiesInProvince(Army army) {

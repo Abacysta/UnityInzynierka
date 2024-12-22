@@ -444,7 +444,7 @@ public class Map : ScriptableObject
             }
             else
             {
-                return;
+                continue;
             }
         }
     }
