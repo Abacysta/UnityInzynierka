@@ -519,10 +519,10 @@ namespace Assets.Scripts {
                 //infr block
                 toImprove = GetInfrastructurable(c);
                 if(toImprove.Count>2){
-                upgrade = new(toImprove[0], BuildingType.Infrastructure);
+                upgrade = new(toImprove[1], BuildingType.Infrastructure);
                 if (c.CanAfford(upgrade.AltCosts))
                     c.Actions.AddAction(upgrade);
-                upgrade = new(toImprove[1], BuildingType.Infrastructure);
+                upgrade = new(toImprove[0], BuildingType.Infrastructure);
                     if(c.CanAfford(upgrade.AltCosts))
                         c.Actions.AddAction(upgrade);
                 }
