@@ -84,7 +84,7 @@ namespace Assets.Scripts {
                 var vassal = vassalage.Sides[1];
                 if (GetArmySum(senior.Id) <= GetArmySum(vassal.Id) //army bigger than seniors
                     || senior.Provinces.Count <= (int)(0.5*vassal.Provinces.Count)//provinces count bigger than half of seniors
-                    || vassal.Opinions[senior.Id] < 0) //negative opinion of senior
+                    || vassal.Opinions[senior.Id] < -50) //negative opinion of senior
                     return Humor.Rebellious;
                 return Humor.Subservient;
             }
@@ -566,7 +566,7 @@ namespace Assets.Scripts {
         private class diploEventResponder {
             public static void Respond(Event_ e, Map map, Humor humor) {
                 Type t = e.GetType();
-                var method = typeof(diploEventResponder).GetMethod("respond", new[] { t, typeof(Map), typeof(Humor) });
+                var method = typeof(diploEventResponder).GetMethod("Respond", new[] { t, typeof(Map), typeof(Humor) });
                 if (method != null) {
                     method.Invoke(null, new object[] { e, map, humor });
                 } else {
