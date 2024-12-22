@@ -6,6 +6,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using Assets.map.scripts;
+using Codice.Client.BaseCommands;
+using static Assets.classes.Relation;
 
 [CreateAssetMenu(fileName = "MapData", menuName = "ScriptableObjects/MapData", order = 1)]
 [Serializable]
@@ -152,8 +154,6 @@ public class Map : ScriptableObject
         CreateArmyView(army);
     }
 
-
-
     public void CreateArmyView(Army army) {
         var rtype = GetHardRelationType(CurrentPlayer, countries[army.OwnerId]);
         GameObject armyObject = Instantiate(army_prefab, 
@@ -221,37 +221,11 @@ public class Map : ScriptableObject
         return armyViews.Find(view => view.ArmyData == army);
     }
     public void UpdateArmyPosition(Army army, (int, int) coordinates) {
-        Province currentProvince = GetProvince(army.Position);
         army_view armyView = armyViews.Find(view => view.ArmyData == army);
 
         if (armyView != null) {
-            if (currentProvince != null && army.OwnerId != 0) {
-                if (ShouldCancelOccupation(currentProvince, army.OwnerId)) {
-                    CancelOccupation(currentProvince);
-                }
-            }
             armyView.MoveTo(coordinates);
-            if (army.OwnerId != 0 && ShouldCancelOccupation(GetProvince(armyView.ArmyData.Position), army.OwnerId)) {
-                CancelOccupation(GetProvince(armyView.ArmyData.Position));
-            }
         }
-    }
-    private bool ShouldCancelOccupation(Province province, int armyOwnerId) {
-        if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied) {
-            Country occupyingCountry = Countries.FirstOrDefault(c => c.Id == province.OccupationInfo.OccupyingCountryId);
-
-            if (occupyingCountry != null) {
-                bool isAllyOrVassal = false;
-                Relation.RelationType? relation = GetHardRelationType(Countries[armyOwnerId], occupyingCountry);
-
-                isAllyOrVassal = relation == Relation.RelationType.Alliance ||
-                                relation == Relation.RelationType.Vassalage ||
-                                armyOwnerId == province.OccupationInfo.OccupyingCountryId;
-
-                return !isAllyOrVassal;
-            }
-        }
-        return false;
     }
 
     public void UpdateArmyDestination(Army army, (int, int) coordinates) {
@@ -446,57 +420,144 @@ public class Map : ScriptableObject
         CancelOccupation(province);
     }
 
-    public void AddOccupation(Army army) {
-        Province province = GetProvince(army.Position.Item1, army.Position.Item2);
-        if (!province.IsLand) return;
+    public void ManageOccupation()
+    {
+        foreach (var army in armies)
+        {
+            Province province = GetProvince(army.Position);
+            if (!province.IsLand) return;
+
+            if (IsProvinceFriendly(province, army))
+            {
+                if (IsEnemyOccupier(province, army))
+                {
+                    CancelOccupation(province);
+                }
+            }
+            else if (IsProvinceHostile(province, army))
+            {
+                if (!IsFriendOrArmyOwnerOccupier(province, army.OwnerId))
+                {
+                    CancelOccupation(province);
+                    AddOccupation(province, army);
+                }
+            }
+            else
+            {
+                continue;
+            }
+        }
+    }
+
+    // A province is friendly if:
+    // - The army owner is the province owner.
+    // - The army owner is in an alliance with the province owner.
+    // - The army owner is in a vassalage relation with the province owner (regardless of the side)
+    private bool IsProvinceFriendly(Province province, Army army)
+    {
+        Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.OwnerId);
+        Country armyOwner = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
+
+        if (provinceOwner != null && armyOwner != null)
+        {
+            return province.OwnerId == army.OwnerId ||
+                HasRelationOfType(armyOwner, provinceOwner, RelationType.Alliance) ||
+                HasRelationOfType(armyOwner, provinceOwner, RelationType.Vassalage);
+        }
+        return false;
+    }
+
+    //  The province is considered occupied by the enemy if it is occupied by:
+    // - A country with which the army owner is at war on the opposite side or
+    // - Rebels
+    private bool IsEnemyOccupier(Province province, Army army)
+    {
+        if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied)
+        {
+            Country occupyingCountry = Countries.FirstOrDefault(c => c.Id == province.OccupationInfo.OccupyingCountryId);
+            Country armyOwner = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
+
+            if (occupyingCountry != null && armyOwner != null)
+            {
+                return AreCountriesOpposingInTheSameWar(armyOwner, occupyingCountry) || occupyingCountry.Id == 0;
+            }
+        }
+        return false;
+    }
+
+    // A province is hostile if:
+    // - The army owner is at war with the province owner on the opposite side.
+    // - The province is tribal.
+    // - The army owner is tribal.
+    private bool IsProvinceHostile(Province province, Army army)
+    {
+        Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.OwnerId);
+        Country armyOwner = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
+
+        if (provinceOwner != null && armyOwner != null)
+        {
+            return AreCountriesOpposingInTheSameWar(armyOwner, provinceOwner) || province.OwnerId == 0 || army.OwnerId == 0;
+        }
+        return false;
+    }
+
+    // Determines if the province is already occupied by the army owner, an ally, or the army owner's senior
+    private bool IsFriendOrArmyOwnerOccupier(Province province, int armyOwnerId)
+    {
+        if (province.OccupationInfo != null && province.OccupationInfo.IsOccupied)
+        {
+            Country occupyingCountry = Countries.FirstOrDefault(c => c.Id == province.OccupationInfo.OccupyingCountryId);
+            Country armyOwner = Countries.FirstOrDefault(c => c.Id == armyOwnerId);
+
+            if (occupyingCountry != null && armyOwner != null)
+            {
+                return armyOwnerId == province.OccupationInfo.OccupyingCountryId ||
+                    HasRelationOfType(armyOwner, occupyingCountry, RelationType.Alliance) ||
+                    HasOrderedRelationOfType(occupyingCountry, armyOwner, RelationType.Vassalage);
+            }
+        }
+        return false;
+    }
+
+    public void AddOccupation(Province province, Army army)
+    {
         Country country = Countries.FirstOrDefault(c => c.Id == army.OwnerId);
         Occupation occupationStatus = null;
         Country master = GetMaster(country);
 
-        if (province.OccupationInfo != null && province.OccupationInfo.OccupyingCountryId == army.OwnerId)
+        if (province.OwnerId == 0 || army.OwnerId == 0)
         {
-            return;
-        }
-
-        if (province.OwnerId == 0 && province.OccupationInfo.OccupyingCountryId != army.OwnerId) {
-            CancelOccupation(province);
             occupationStatus = new Occupation(1, army.OwnerId);
         }
-        else {
+        else
+        {
             Country provinceOwner = Countries.FirstOrDefault(c => c.Id == province.OwnerId);
-            Relation.RelationType? relation = null;
+            bool atWar = false;
 
-            if (master != null) {
-                relation = GetHardRelationType(master, provinceOwner);
+            if (master != null)
+            {
+                atWar = AreCountriesOpposingInTheSameWar(master, provinceOwner);
             }
             else
             {
-                relation = GetHardRelationType(country, provinceOwner);
+                atWar = AreCountriesOpposingInTheSameWar(country, provinceOwner);
             }
 
-            if (relation == Relation.RelationType.War) {
-                if (master != null) {
+            if (atWar)
+            {
+                if (master != null)
+                {
                     occupationStatus = new Occupation(country.TechStats.OccTime, master.Id);
                 }
-                else {
+                else
+                {
                     occupationStatus = new Occupation(country.TechStats.OccTime, army.OwnerId);
                 }
             }
-            else if (relation == Relation.RelationType.Rebellion) {
-                CancelOccupation(province);
-                return;
-            }
-
-            if (relation == Relation.RelationType.Vassalage) {
-                CancelOccupation(province);
-            }
-
-            if (province.OccupationInfo.OccupyingCountryId == 0) {
-                CancelOccupation(province);
-            }
         }
 
-        if (occupationStatus != null && province.IsLand) {
+        if (occupationStatus != null && province.IsLand)
+        {
             province.AddStatus(occupationStatus);
             province.OccupationInfo = new OccupationInfo(true, occupationStatus.Duration + 1, army.OwnerId);
         }
@@ -512,12 +573,34 @@ public class Map : ScriptableObject
     }
 
     public HashSet<Relation> GetRelationsOfType(Country country, Relation.RelationType type) {
-        HashSet<Relation> result = new HashSet<Relation>();
+        HashSet<Relation> result = new();
         foreach (var r in relations) {
             if (r.Type == type && r.Sides.Contains(country))
                 result.Add(r);
         }
         return result;
+    }
+
+    public HashSet<Relation> GetWarRelations(Country country)
+    {
+        HashSet<Relation> result = new();
+        foreach (Relation r in relations) {
+            if (r is Relation.War war && (war.Participants1.Contains(country) 
+                || war.Participants2.Contains(country))) {
+                result.Add(r);
+            }
+        }
+        return result;
+    }
+
+    public bool AreCountriesOpposingInTheSameWar(Country c1, Country c2)
+    {
+        return relations
+            .OfType<Relation.War>()
+            .Any(warRelation =>
+                (warRelation.Participants1.Contains(c1) && warRelation.Participants2.Contains(c2)) ||
+                (warRelation.Participants2.Contains(c1) && warRelation.Participants1.Contains(c2))
+            );
     }
 
     public Relation.RelationType? GetHardRelationType(Country c1, Country c2) { // 0 master 1 slave
@@ -557,6 +640,12 @@ public class Map : ScriptableObject
     public bool HasRelationOfType(Country c1, Country c2, Relation.RelationType type) {
         if (relations.Any(r => r.Sides.Contains(c1) && r.Sides.Contains(c2) && r.Type == type)) return true;
         return false;
+    }
+
+    public bool HasOrderedRelationOfType(Country c1, Country c2, RelationType type)
+    {
+        return relations.Any(rel => rel.Type == type &&
+            rel.Sides[0] == c1 && rel.Sides[1] == c2);
     }
 
     public Country GetMaster(Country country) {
@@ -639,7 +728,7 @@ public class Map : ScriptableObject
         }
 
         public static HashSet<Relation.War> GetAllWars(Map map, Country c) => 
-            map.GetRelationsOfType(c, Relation.RelationType.War).Cast<Relation.War>().ToHashSet();
+            map.GetWarRelations(c).Cast<Relation.War>().ToHashSet();
 
         public static HashSet<Army> GetEnemyArmies(Map map, Country c) {
             HashSet<Army> enemy = new();

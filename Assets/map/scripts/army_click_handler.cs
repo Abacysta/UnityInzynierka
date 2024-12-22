@@ -154,28 +154,6 @@ public class army_click_handler : cursor_helper
 
     public bool IsTileAccessibleForArmyMovement(Vector3Int cellPosition, int armyOwnerId)
     {
-        bool HasArmyOwnerRelationWithTileOwner(RelationType type, Country armyOwner, Country tileOwner)
-        {
-            return map.Relations.Any(rel => rel.Type == type &&
-                rel.Sides.Contains(armyOwner) && rel.Sides.Contains(tileOwner));
-        }
-
-        bool HasArmyOwnerRelationWithTileOwnerAsSide0(RelationType type, Country armyOwner, Country tileOwner)
-        {
-            return map.Relations.Any(rel => rel.Type == type &&
-                rel.Sides[0] == tileOwner && rel.Sides[1] == armyOwner);
-        }
-
-        bool HasArmyOwnerWarRelationWithTileOwner(Country armyOwner, Country tileOwner)
-        {
-            return map.Relations
-                .OfType<Relation.War>()
-                .Any(warRelation =>
-                    (warRelation.Participants1.Contains(armyOwner) && warRelation.Participants2.Contains(tileOwner)) ||
-                    (warRelation.Participants2.Contains(armyOwner) && warRelation.Participants1.Contains(tileOwner))
-                );
-        }
-
         Province tileProvince = map.GetProvince(cellPosition.x, cellPosition.y);
         Country tileOwner = map.Countries[tileProvince.OwnerId];
         Country armyOwner = map.Countries[armyOwnerId];
@@ -196,10 +174,10 @@ public class army_click_handler : cursor_helper
         // - in a vassalage relation with armyOwner or
         // - granting military access to armyOwner or
         return tileOwner.Id == 0 || tileOwner.Id == armyOwnerId ||
-            HasArmyOwnerWarRelationWithTileOwner(armyOwner, tileOwner) ||
-            HasArmyOwnerRelationWithTileOwner(RelationType.Alliance, armyOwner, tileOwner) ||
-            HasArmyOwnerRelationWithTileOwner(RelationType.Vassalage, armyOwner, tileOwner) ||
-            HasArmyOwnerRelationWithTileOwnerAsSide0(RelationType.MilitaryAccess, armyOwner, tileOwner);
+            map.AreCountriesOpposingInTheSameWar(armyOwner, tileOwner) ||
+            map.HasRelationOfType(armyOwner, tileOwner, RelationType.Alliance) ||
+            map.HasRelationOfType(armyOwner, tileOwner, RelationType.Vassalage) ||
+            map.HasOrderedRelationOfType(tileOwner, armyOwner, RelationType.MilitaryAccess);
     }
 
     private void AnimateHighlitedTiles()

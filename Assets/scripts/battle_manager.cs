@@ -27,15 +27,11 @@ namespace Assets.Scripts {
                     }
 
                     enemyArmies.RemoveAll(a => a.Count == 0);
-
                     if (attackerArmy.Count == 0) map.RemoveArmy(attackerArmy);
-                    else
-                    {
-                        map.AddOccupation(attackerArmy);  // jak wygrala bitwe i ktos przezyl
-                    }
                 }
             }
-            else map.AddOccupation(attackerArmy); // jak nie było oporu
+
+            map.ManageOccupation();
         }
 
         private List<Army> GetEnemyArmiesInProvince(Army army) {
