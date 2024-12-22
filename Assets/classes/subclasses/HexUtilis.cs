@@ -160,7 +160,7 @@ public class HexUtils
         List<(int, int)> path = HexUtils.CubeLineDraw(start, end);
 
         // Displaying results in the console
-        Debug.Log("Linia miêdzy punktami startowym i koñcowym:");
+        Debug.Log("Line between the starting and ending points:");
         foreach (var hex in path) {
             Debug.Log($"Hex: x:{hex.Item1}, y:{hex.Item2}");
         }
@@ -169,8 +169,8 @@ public class HexUtils
         bool correctLength = (path.Count - 1 == expectedDistance);
 
         Debug.Log(correctLength
-            ? "Test przeszed³ pomyœlnie: d³ugoœæ œcie¿ki jest poprawna."
-            : $"B³¹d: oczekiwano d³ugoœci {expectedDistance + 1}, otrzymano {path.Count}");
+            ? "Test passed successfully: the path length is correct."
+            : $"Error: expected length {expectedDistance + 1}, but got {path.Count}");
     }
 
     public static int GetProvinceDistance(Province p1, Province p2) {

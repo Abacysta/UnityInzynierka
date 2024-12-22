@@ -59,7 +59,7 @@ public class map_preview : MonoBehaviour
     {
         if (parentRectTransform == null || tilemap == null)
         {
-            Debug.LogError("Brak przypisania do parentRectTransform lub tilemap.");
+            Debug.LogError("Missing assignment to parentRectTransform or tilemap.");
             return;
         }
         Vector2 parentSize = parentRectTransform.rect.size;

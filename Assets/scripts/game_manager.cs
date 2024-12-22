@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using static Assets.classes.Relation;
 using static Assets.classes.subclasses.Constants.ProvinceConstants;
 
@@ -19,7 +18,6 @@ public class game_manager : MonoBehaviour
     [SerializeField] private TMP_Text turnCntTxt;
     [SerializeField] private AudioSource turn_sound;
     [SerializeField] private fog_of_war fog_Of_War;
-    [SerializeField] private GameObject loading_box;
     [SerializeField] private filter_modes loader;
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
@@ -172,9 +170,7 @@ public class game_manager : MonoBehaviour
     }
 
     private void PerformTurnCalculations() {
-        int pcnt = map.Provinces.Count, ccnt = map.Countries.Count;
-        loading_box.SetActive(true);
-        PerformProvinceCalculations(pcnt);
+        PerformProvinceCalculations();
         PerformCountryCalculations();
         diplomacy.PerformTurnRelationCalculations();
         map.CalcPopulationExtremes();
@@ -183,16 +179,13 @@ public class game_manager : MonoBehaviour
             map.MergeArmies(c);
             c.AtWar = map.GetRelationsOfType(c, Relation.RelationType.War) != null;
         }
+
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.TurnCnt).ToString());
-        loading_box.SetActive(false);
-        Debug.Log("stopped bar");
     }
 
-    private void PerformProvinceCalculations(int pcnt) {
-        Debug.Log("started bar");
-
-        foreach(var p in map.Provinces.Where(p => p.IsLand)) {
+    private void PerformProvinceCalculations() {
+        foreach (var p in map.Provinces.Where(p => p.IsLand)) {
             if (p.OwnerId != 0) {
                 p.GrowPopulation(map);
                 p.GrowHappiness(map, 3);
@@ -261,7 +254,6 @@ public class game_manager : MonoBehaviour
     private void CheckRebellion() {
         foreach(var p in map.Provinces.Where(p => p.IsLand)) {
             random_events.CheckRebellion(p);
-            //returns bool, so in future can do more with that
         }
     }
 

@@ -61,7 +61,7 @@ public class map_options : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Nie znaleziono folderu z mapami: {mapsPath}");
+            Debug.LogError($"Maps folder not found: {mapsPath}");
         }
         mapDropdown.ClearOptions();
         mapDropdown.AddOptions(availableMaps);
@@ -74,7 +74,7 @@ public class map_options : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Brak dostêpnych map!");
+            Debug.LogError("No maps available!");
         }
     }
     public void SelectMap(int mapIndex)
