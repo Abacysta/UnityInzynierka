@@ -225,7 +225,7 @@ namespace Assets.Scripts {
             if (humor == Humor.Leading) internalAffairsManager.HandleGrowable(map.CurrentPlayer, humor);
             internalAffairsManager.HandleTechnology(map.CurrentPlayer, humor);
             internalAffairsManager.HandleBuildings(map.CurrentPlayer, humor);
-            if (humor != Humor.Defensive || humor == Humor.Offensive) internalAffairsManager.HandleArmyRecruitment(map.CurrentPlayer, humor);
+            if (humor != Humor.Defensive && humor != Humor.Offensive) internalAffairsManager.HandleArmyRecruitment(map.CurrentPlayer, humor);
             if(humor != Humor.Leading) internalAffairsManager.HandleGrowable(map.CurrentPlayer, humor);
         }
 
