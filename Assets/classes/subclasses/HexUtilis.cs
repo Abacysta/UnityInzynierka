@@ -149,7 +149,7 @@ public class HexUtils
         return CubeLineDraw(OffsetToCube(start), OffsetToCube(end));
     }
     public static List<(int, int)> CubeLineDraw(Province start, Province end) {
-        return CubeLineDraw(start.coordinates, end.coordinates);
+        return CubeLineDraw(start.Coordinates, end.Coordinates);
     }
 
     public static void HexPathingTest() {
@@ -200,7 +200,7 @@ public class HexUtils
         else return null;
     }
     public static List<Province> GetBestPathProvinces(Map map, Country country, HashSet<Province> unpassable, Province start, Province end) {
-        return GetBestPathProvinces(map, country, unpassable.Select(p=>p.coordinates).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
+        return GetBestPathProvinces(map, country, unpassable.Select(p=>p.Coordinates).ToHashSet(), (start.X, start.Y), (end.X, end.Y));
     }
     private static List<(int, int)> GetBestPath(
         HashSet<(int, int)> provinces,

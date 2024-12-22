@@ -191,10 +191,10 @@ namespace Assets.map.scripts
 
         public bool CheckRebellion(Province province)
         {
-            if (province.OwnerId != 0 && map.Countries[province.OwnerId].Capital != province.coordinates)
+            if (province.OwnerId != 0 && map.Countries[province.OwnerId].Capital != province.Coordinates)
             {
                 int happ = province.Happiness;
-                if (happ < -500)
+                if (happ < 40)
                 {//40
                     if (chance > 2 * happ)
                     {
@@ -210,14 +210,14 @@ namespace Assets.map.scripts
         {
             int count = province.RecruitablePopulation + (int)((province.Population - province.RecruitablePopulation) * 0.05);
 
-            if (count > 0 && !map.Armies.Any(a => a.Position == province.coordinates && a.OwnerId == 0))
+            if (count > 0 && !map.Armies.Any(a => a.Position == province.Coordinates && a.OwnerId == 0))
             {
-                Army rebels = new Army(0, count, DEFAULT_CORD, province.coordinates);
+                Army rebels = new Army(0, count, DEFAULT_CORD, province.Coordinates);
                 map.AddArmy(rebels);
                 Country country = map.Countries.FirstOrDefault(c => c.Id == province.OwnerId);
                 province.AddStatus(new Occupation(country.TechStats.OccTime, 0));
                 province.OccupationInfo = new OccupationInfo(true, country.TechStats.OccTime, 0);
-                TurnAction rebellion = new TurnAction.ArmyMove(DEFAULT_CORD, province.coordinates, count, rebels);
+                TurnAction rebellion = new TurnAction.ArmyMove(DEFAULT_CORD, province.Coordinates, count, rebels);
                 rebellion.Execute(map);
                 province.Happiness = 45;
             }

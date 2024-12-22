@@ -117,7 +117,7 @@ public class Province {
     public OccupationInfo OccupationInfo{ get => occupationInfo; set => occupationInfo = value; }
     public int OwnerId { get => ownerId; set => ownerId = value; }
     public Dictionary<BuildingType,int> Buildings { get => buildings; set => buildings = value; }
-    public (int, int) coordinates { get => (x, y); }
+    public (int, int) Coordinates { get => (x, y); }
     public float ResourcesP { get => CalculateRealProduction(); }
     public List<Status> Statuses { get => statuses; set => statuses = value; }
     internal TerrainType Terrain { get => terrain; set => terrain = value; }

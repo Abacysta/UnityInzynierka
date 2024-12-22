@@ -1,4 +1,5 @@
 using Assets.classes;
+using Assets.classes.subclasses.Constants;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -281,7 +282,7 @@ public class army_view : MonoBehaviour
 
     private void UpdateArmyCounterColor(Relation.RelationType? relationType)
     {
-        Color relationColor = filter_modes.GetDiplomaticColor(relationType);
+        Color relationColor = RelationConstants.GetDiplomaticColor(relationType);
         army_count_text.color = relationColor;
     }
 

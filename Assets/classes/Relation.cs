@@ -6,11 +6,12 @@ namespace Assets.classes {
     [Serializable]
     public abstract class Relation {
         private Country[] countries;
-        public RelationType Type {  get; set; }
         private int initialChange, constChange;
+
+        public RelationType Type {  get; set; }
         public Country[] Sides { get { return countries; } }
 
-        public virtual void TurnEffect() {
+        public virtual void ApplyTurnEffect() {
             countries[0].SetOpinion(countries[1].Id, countries[0].Opinions[countries[1].Id] + constChange);
             countries[1].SetOpinion(countries[0].Id, countries[1].Opinions[countries[0].Id] + constChange);
         }
@@ -48,24 +49,30 @@ namespace Assets.classes {
                 Participants2 = new HashSet<Country>{c2};
             }
             
-            public override void TurnEffect() {
-                base.TurnEffect();
+            public override void ApplyTurnEffect() {
+                base.ApplyTurnEffect();
+                foreach (var province in countries[0].Provinces) {
+                    province.Happiness -= WAR_HAPP_PENALTY_CONST;
+                }
+                foreach (var province in countries[1].Provinces) {
+                    province.Happiness -= WAR_HAPP_PENALTY_CONST;
+                }
             }
         }
 
         internal class Alliance : Relation {
             public Alliance(Country c1, Country c2) : base(c1, c2, RelationType.Alliance, 
                 ALLIANCE_OPINION_BONUS_INIT, ALLIANCE_OPINION_BONUS_CONST) {
-                foreach(var p in countries[0].Provinces) {
-                    p.Happiness += ALLIANCE_HAPP_BONUS_INIT;
-                }
-                foreach(var p in countries[1].Provinces) {
-                    p.Happiness += ALLIANCE_HAPP_BONUS_INIT;
-                }
             }
 
-            public override void TurnEffect() {
-                base.TurnEffect();
+            public override void ApplyTurnEffect() {
+                base.ApplyTurnEffect();
+                foreach (var p in countries[0].Provinces) {
+                    p.Happiness += ALLIANCE_HAPP_BONUS_CONST;
+                }
+                foreach (var p in countries[1].Provinces) {
+                    p.Happiness += ALLIANCE_HAPP_BONUS_CONST;
+                }
             }
         }
 
@@ -78,8 +85,8 @@ namespace Assets.classes {
                 this.d = duration;
             }
 
-            public override void TurnEffect() {
-                base.TurnEffect();
+            public override void ApplyTurnEffect() {
+                base.ApplyTurnEffect();
                 if(d > 0) d--;
             }
         }
@@ -91,8 +98,15 @@ namespace Assets.classes {
                 countries[0].SetOpinion(countries[1].Id, countries[0].Opinions[countries[1].Id] - initialChange);
             }
 
-            public override void TurnEffect() {
+            public override void ApplyTurnEffect() {
                 countries[1].SetOpinion(countries[0].Id, countries[1].Opinions[countries[0].Id] + constChange);
+
+                foreach (var p in countries[0].Provinces) {
+                    p.Happiness += VASSALAGE_HAPP_BONUS_CONST_C1;
+                }
+                foreach (var p in countries[1].Provinces) {
+                    p.Happiness -= VASSALAGE_HAPP_PENALTY_CONST_C2;
+                }
             }
         }
 
@@ -115,11 +129,11 @@ namespace Assets.classes {
                 this.duration = duration;
             }
 
-            public override void TurnEffect() {
-                base.TurnEffect();
-                if(duration>0) {
+            public override void ApplyTurnEffect() {
+                base.ApplyTurnEffect();
+                if (duration > 0) {
                     duration--;
-                    if(countries[0].Resources[Resource.Gold] >= amount) {
+                    if (countries[0].Resources[Resource.Gold] >= amount) {
                         countries[0].Resources[Resource.Gold] -= amount;
                         countries[1].Resources[Resource.Gold] += amount;
                     }
@@ -133,8 +147,8 @@ namespace Assets.classes {
         internal class MilitaryAccess : Relation {
             public MilitaryAccess(Country c1, Country c2) : base(c1, c2, RelationType.MilitaryAccess, 0, 0) {}
 
-            public override void TurnEffect() {
-                base.TurnEffect();
+            public override void ApplyTurnEffect() {
+                base.ApplyTurnEffect();
             }
         }
     }

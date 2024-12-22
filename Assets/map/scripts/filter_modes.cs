@@ -1,4 +1,4 @@
-using Assets.classes;
+using Assets.classes.subclasses.Constants;
 using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -13,15 +13,6 @@ public class filter_modes : MonoBehaviour
         Political,
         Diplomatic
     }
-
-    public static readonly Color WarColor = new(1f, 0f, 0f); // Red
-    public static readonly Color TruceColor = new(0.8f, 0.9f, 0.8f); // Light Green
-    public static readonly Color AllianceColor = new(0.5f, 0.8f, 1f); // Light Blue
-    public static readonly Color VassalageColor = new(0.6f, 0.4f, 0.8f); // Purple
-    public static readonly Color RebellionColor = new(0.8f, 0.4f, 0.8f); // Pink
-    public static readonly Color DefaultColor = new(0.96f, 0.76f, 0.76f); // Soft Salmon
-    public static readonly Color TribalColor = new(0.9f, 0.75f, 0.6f); // Light Beige
-    public static readonly Color CurrentPlayerColor = new(0.97f, 0.92f, 0.46f); // Yellow
 
     [SerializeField] private Map map;
 
@@ -89,7 +80,7 @@ public class filter_modes : MonoBehaviour
             hash = Math.Abs(hash);
             float pseudoRandomValue = (hash % 1000) / 1000.0f;
 
-            if (province.coordinates != owner.Capital && pseudoRandomValue < fillProbability)
+            if (province.Coordinates != owner.Capital && pseudoRandomValue < fillProbability)
             {
                 TileBase selectedTile = null;
 
@@ -270,7 +261,7 @@ public class filter_modes : MonoBehaviour
             if(province.IsLand) {
                 base_layer.SetTile(position, base_tile);
                 base_layer.SetColor(position, owner.Color);
-                if(owner.Capital == province.coordinates) terrain_feature_layer_2.SetTile(position, capital_tile);
+                if(owner.Capital == province.Coordinates) terrain_feature_layer_2.SetTile(position, capital_tile);
 
                 if (province.OccupationInfo.IsOccupied)
                 {
@@ -288,25 +279,6 @@ public class filter_modes : MonoBehaviour
         SetTerrainFeatures();
     }
 
-    public static Color GetDiplomaticColor(Relation.RelationType? relationType)
-    {
-        switch (relationType)
-        {
-            case Relation.RelationType.War:
-                return WarColor;
-            case Relation.RelationType.Truce:
-                return TruceColor;
-            case Relation.RelationType.Alliance:
-                return AllianceColor;
-            case Relation.RelationType.Vassalage:
-                return VassalageColor;
-            case Relation.RelationType.Rebellion:
-                return RebellionColor;
-            default:
-                return DefaultColor;
-        }
-    }
-
     public void SetDiplomatic() {
         mode = MapMode.Diplomatic;
         GreyOutUnused(mode);
@@ -320,16 +292,16 @@ public class filter_modes : MonoBehaviour
                 filter_layer.SetTile(position, base_tile);
                 if (province.OwnerId == map.CurrentPlayer.Id)
                 {
-                    filter_layer.SetColor(position, CurrentPlayerColor);
+                    filter_layer.SetColor(position, RelationConstants.CURRENT_PLAYER_COLOR);
                 }
                 else if (province.OwnerId == 0)
                 {
-                    filter_layer.SetColor(position, TribalColor);
+                    filter_layer.SetColor(position, RelationConstants.TRIBAL_COLOR);
                 }
                 else
                 {
                     var relation = map.GetHardRelationType(map.CurrentPlayer, map.Countries[province.OwnerId]);
-                    filter_layer.SetColor(position, GetDiplomaticColor(relation));
+                    filter_layer.SetColor(position, RelationConstants.GetDiplomaticColor(relation));
                 }
             }
             else {

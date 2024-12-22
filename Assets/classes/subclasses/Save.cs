@@ -509,7 +509,7 @@ namespace Assets.classes.subclasses {
                     GlobalId(ev as Event_.GlobalEvent);
                     break;
                 case false:
-                    Province = ((int, int)?)(ev as Event_.LocalEvent).Province.coordinates;
+                    Province = ((int, int)?)(ev as Event_.LocalEvent).Province.Coordinates;
                     LocalId(ev as Event_.LocalEvent);
                     break;
                 default:

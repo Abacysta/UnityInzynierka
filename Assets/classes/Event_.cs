@@ -57,14 +57,14 @@ namespace Assets.classes {
                 public override void Accept() {
                     base.Accept();
                     foreach (var p in Country.Provinces) {
-                        if(p.coordinates != Country.Capital) p.Happiness -= 5;
+                        if(p.Coordinates != Country.Capital) p.Happiness -= 5;
                         p.Happiness -= 5;
                     }
                 }
 
                 public override void Reject() {
                     foreach (var p in Country.Provinces) {
-                        if(p.coordinates != Country.Capital) p.Happiness -= 10;
+                        if(p.Coordinates != Country.Capital) p.Happiness -= 10;
                         p.Happiness -= 20;
                     }
                 }
@@ -126,7 +126,7 @@ namespace Assets.classes {
                         {Resource.Gold, 0 }
                     };
                     foreach (var p in Country.Provinces) {
-                        if (p.coordinates == Country.Capital) cost[Resource.Gold] += 15;
+                        if (p.Coordinates == Country.Capital) cost[Resource.Gold] += 15;
                         cost[Resource.Gold] += 30;
                     }
                     return cost;
@@ -173,7 +173,7 @@ namespace Assets.classes {
                     };
                     foreach (var p in Country.Provinces)
                     {
-                        if (p.coordinates == Country.Capital) cost[Resource.Gold] += 5;
+                        if (p.Coordinates == Country.Capital) cost[Resource.Gold] += 5;
                         cost[Resource.Gold] += 10;
                         cost[Resource.AP] += 0.1f;
                     }
@@ -483,7 +483,7 @@ namespace Assets.classes {
                 {
                     base.Reject();
                     Province.AddStatus(new ProdDown(5));
-                    Army strikeArmy = new(0, UnityEngine.Random.Range(10, 50), Province.coordinates, Province.coordinates);
+                    Army strikeArmy = new(0, UnityEngine.Random.Range(10, 50), Province.Coordinates, Province.Coordinates);
                     map.AddArmy(strikeArmy);
                 }
             }
