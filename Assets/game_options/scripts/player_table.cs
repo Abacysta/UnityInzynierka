@@ -49,13 +49,13 @@ public class player_table : MonoBehaviour
         string json = LoadJsonFromFile(mapName);
         if (string.IsNullOrEmpty(json))
         {
-            Debug.LogWarning($"Nie udało się załadować mapy z pliku, próba załadowania z Resources: {mapName}");
+            Debug.LogWarning($"Failed to load the map from file, attempting to load from Resources: {mapName}");
             json = LoadJsonFromResources(mapName);
         }
 
         if (string.IsNullOrEmpty(json))
         {
-            Debug.LogError($"Nie udało się załadować mapy: {mapName}");
+            Debug.LogError($"Failed to load the map: {mapName}");
             return;
         }
         GameState gameState;
@@ -65,7 +65,7 @@ public class player_table : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Błąd podczas deserializacji mapy: {e.Message}");
+            Debug.LogError($"Error during map deserialization: {e.Message}");
             return;
         }
         currentStates = gameState.countries;
@@ -83,14 +83,14 @@ public class player_table : MonoBehaviour
     {
         if (string.IsNullOrEmpty(mapName))
         {
-            Debug.LogError("Nazwa mapy jest pusta lub null.");
+            Debug.LogError("The map name is empty or null.");
             return null;
         }
 
         TextAsset textAsset = Resources.Load<TextAsset>($"Maps/{mapName}");
         if (textAsset == null)
         {
-            Debug.LogError($"Plik mapy nie został znaleziony w Resources: {mapName}");
+            Debug.LogError($"The map file was not found in Resources: {mapName}");
             return null;
         }
         return textAsset.text;
@@ -101,7 +101,7 @@ public class player_table : MonoBehaviour
     {
         if (string.IsNullOrEmpty(mapName))
         {
-            Debug.LogError("Nazwa mapy jest pusta lub null.");
+            Debug.LogError("The map name is empty or null.");
             return null;
         }
 
@@ -115,7 +115,7 @@ public class player_table : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Plik mapy nie znaleziony: {path}");
+            Debug.LogError($"Map file not found: {path}");
             return null;
         }
     }
@@ -131,7 +131,7 @@ public class player_table : MonoBehaviour
     {
         if (currentStates == null || currentStates.Count == 0)
         {
-            Debug.LogError("Brak wczytanych stanów w currentStates.");
+            Debug.LogError("No states loaded in currentStates.");
             return;
         }
 
@@ -158,7 +158,7 @@ public class player_table : MonoBehaviour
                         terrain = Province.TerrainType.Tundra;
                         break;
                     default:
-                        Debug.LogWarning($"Nieznany typ terenu: {terrainStr}, ustawiam tundra jako domyślny.");
+                        Debug.LogWarning($"Unknown terrain type: {terrainStr}, setting tundra as default.");
                         terrain = Province.TerrainType.Tundra;
                         break;
                 }
@@ -202,7 +202,7 @@ public class player_table : MonoBehaviour
 
             map.AddCountry(newCountry, CountryController.Ai);
             map.AssignProvince(newCountry.Capital, newCountry.Id);
-            Debug.Log($"Dodano kraj: {newCountry.Name}, ID: {newCountry.Id}");
+            Debug.Log($"Country added: {newCountry.Name}, ID: {newCountry.Id}");
         }
 
         for (int i = 1; i <= controllers.Count; i++)
@@ -235,11 +235,11 @@ public class player_table : MonoBehaviour
         if (playerIndex >= 0)
         {
             map.CurrentPlayerId = playerIndex;
-            Debug.Log($"Gracz ustawiony na kraj: {map.CurrentPlayer.Name}");
+            Debug.Log($"Player set to country: {map.CurrentPlayer.Name}");
         }
         else
         {
-            Debug.LogError("Nie udało się znaleźć gracza (CountryController.Local)");
+            Debug.LogError("Failed to find player (CountryController.Local)");
         }
     }
 
@@ -295,7 +295,7 @@ public class player_table : MonoBehaviour
     {
         if (countryId < 0 || countryId >= controllers.Count)
         {
-            Debug.LogError($"Błędny countryId: {countryId}. Musi być pomiędzy 0 a {controllers.Count - 1}.");
+            Debug.LogError($"Invalid countryId: {countryId}. It must be between 0 and {controllers.Count - 1}.");
             return;
         }
 
@@ -307,8 +307,8 @@ public class player_table : MonoBehaviour
             SetCountryAsPlayer(nameTransform, currentMaxPlayerNumber);
             controllers[countryId] = CountryController.Local;
 
-            Debug.Log($"Kraj {countryId} został ustawiony jako Gracz {currentMaxPlayerNumber}.");
-		}
+            Debug.Log($"Country {countryId} has been set as Player {currentMaxPlayerNumber}.");
+        }
         else
         {
             int playerNumber = countryPlayerAssignment[countryId];
@@ -317,7 +317,7 @@ public class player_table : MonoBehaviour
             SetCountryAsAI(nameTransform);
             controllers[countryId] = CountryController.Ai;
 
-            Debug.Log($"Kraj {countryId} został ustawiony jako AI.");
+            Debug.Log($"Country {countryId} has been set as AI.");
 
             if (playerNumber == currentMaxPlayerNumber)
             {
@@ -344,7 +344,7 @@ public class player_table : MonoBehaviour
     {
         if (states == null || states.Count == 0)
         {
-            Debug.LogError("Lista krajów (states) jest pusta lub null.");
+            Debug.LogError("The list of countries (states) is empty or null.");
             return;
         }
         foreach (Transform child in playerTable.transform)
