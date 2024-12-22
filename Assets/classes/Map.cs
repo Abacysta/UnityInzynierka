@@ -424,28 +424,33 @@ public class Map : ScriptableObject
     {
         foreach (var army in armies)
         {
-            Province province = GetProvince(army.Position);
-            if (!province.IsLand) return;
+            ManageArmyOccupation(army);
+        }
+    }
 
-            if (IsProvinceFriendly(province, army))
+    public void ManageArmyOccupation(Army army)
+    {
+        Province province = GetProvince(army.Position);
+        if (!province.IsLand) return;
+
+        if (IsProvinceFriendly(province, army))
+        {
+            if (IsEnemyOccupier(province, army))
             {
-                if (IsEnemyOccupier(province, army))
-                {
-                    CancelOccupation(province);
-                }
+                CancelOccupation(province);
             }
-            else if (IsProvinceHostile(province, army))
+        }
+        else if (IsProvinceHostile(province, army))
+        {
+            if (!IsFriendOrArmyOwnerOccupier(province, army.OwnerId))
             {
-                if (!IsFriendOrArmyOwnerOccupier(province, army.OwnerId))
-                {
-                    CancelOccupation(province);
-                    AddOccupation(province, army);
-                }
+                CancelOccupation(province);
+                AddOccupation(province, army);
             }
-            else
-            {
-                continue;
-            }
+        }
+        else
+        {
+            return;
         }
     }
 

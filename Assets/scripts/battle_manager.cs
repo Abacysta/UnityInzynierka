@@ -31,7 +31,7 @@ namespace Assets.Scripts {
                 }
             }
 
-            map.ManageOccupation();
+            map.ManageArmyOccupation(attackerArmy);
         }
 
         private List<Army> GetEnemyArmiesInProvince(Army army) {
