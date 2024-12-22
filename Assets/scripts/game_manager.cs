@@ -436,13 +436,11 @@ public class game_manager : MonoBehaviour
                 var ownedArmies = map.Armies.Where(a => a.OwnerId == c.Id).ToHashSet();
                 foreach (var a in ownedArmies) {
                     battle.CheckBattle(a);
-                    //its a hack but what can you do
-                    var armiesInProv = map.Armies.Where(ass => ass.Position == a.Position).ToHashSet();
-                    foreach (var aa in armiesInProv) {
-                        map.UpdateArmyPosition(aa, aa.Position);
-                    }
                 }
             }
+
+            map.ManageOccupation();
+
             //provinces
             foreach(var p in map.Provinces) {
                 //status check
