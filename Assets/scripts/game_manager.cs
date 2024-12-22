@@ -20,8 +20,6 @@ public class game_manager : MonoBehaviour
     [SerializeField] private AudioSource turn_sound;
     [SerializeField] private fog_of_war fog_Of_War;
     [SerializeField] private GameObject loading_box;
-    [SerializeField] private Slider loading_bar;
-    [SerializeField] private TMP_Text loading_txt;
     [SerializeField] private filter_modes loader;
     [SerializeField] private camera_controller camera_controller;
     [SerializeField] private army_visibility_manager armyVisibilityManager;
@@ -175,18 +173,13 @@ public class game_manager : MonoBehaviour
 
     private void PerformTurnCalculations() {
         int pcnt = map.Provinces.Count, ccnt = map.Countries.Count;
-        loading_txt.text = "txttt";
-        loading_bar.value = 0;
         loading_box.SetActive(true);
         PerformProvinceCalculations(pcnt);
         PerformCountryCalculations();
-        loading_txt.text = "Calculating happiness from relations.";
         diplomacy.PerformTurnRelationCalculations();
         map.CalcPopulationExtremes();
 
-        loading_txt.text = "Merging armies";
         foreach(var c in map.Countries) {
-            loading_bar.value += 0.1f  * 100 / ccnt;
             map.MergeArmies(c);
             c.AtWar = map.GetRelationsOfType(c, Relation.RelationType.War) != null;
         }
@@ -197,11 +190,9 @@ public class game_manager : MonoBehaviour
     }
 
     private void PerformProvinceCalculations(int pcnt) {
-        loading_txt.text = "Calculating provinces";
         Debug.Log("started bar");
 
         foreach(var p in map.Provinces.Where(p => p.IsLand)) {
-            loading_bar.value = (0.2f * 100 / pcnt);
             if (p.OwnerId != 0) {
                 p.GrowPopulation(map);
                 p.GrowHappiness(map, 3);
@@ -219,9 +210,7 @@ public class game_manager : MonoBehaviour
                 { Resource.SciencePoint, 0 },
                 { Resource.AP, 0 }
             };
-
-        loading_txt.text = "Gathering resources for country." + map.Countries[i].Id;
-        loading_bar.value += 0.7f * 100 / map.Countries.Count;
+        
         map.Countries[i].Tax.ApplyCountryTax(map.Countries[i]);
 
         foreach (var p in map.Countries[i].Provinces) {
