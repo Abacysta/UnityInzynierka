@@ -283,7 +283,7 @@ public class province_interface : MonoBehaviour
         tax_break_button.GetComponent<Button>().interactable = map.CurrentPlayer.TechStats.CanTaxBreak && !p.Statuses.Any(status => status is TaxBreak);
         rebel_suppress_button.GetComponent<Button>().interactable =
             map.CurrentPlayer.TechStats.CanRebelSupp &&
-            map.Armies.Any(a => a.Position == p.coordinates && a.OwnerId == 0);
+            map.Armies.Any(a => a.Position == p.Coordinates && a.OwnerId == 0);
     }
 
     private void UpdateBuildings(Province province)

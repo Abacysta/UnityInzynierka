@@ -335,14 +335,14 @@ public class Map : ScriptableObject
 
     private void MergeArmiesInProvince(Province province, Army to_merge) {
         Army base_ = armies.Find(a => a.OwnerId == to_merge.OwnerId && 
-            a.Position == province.coordinates && a.Destination == a.Position);
+            a.Position == province.Coordinates && a.Destination == a.Position);
 
         if (base_ != null) {
             base_.Count += to_merge.Count;
             RemoveArmy(to_merge);
         }
         else {
-            UpdateArmyDestination(to_merge, province.coordinates);
+            UpdateArmyDestination(to_merge, province.Coordinates);
         }
     }
 
@@ -666,7 +666,7 @@ public class Map : ScriptableObject
         }
 
         public static HashSet<Army> GetEnemyArmiesInProvince(Map map, Country c, Province p) 
-            => GetEnemyArmies(map, c).Where(a => a.Position == p.coordinates).ToHashSet();
+            => GetEnemyArmies(map, c).Where(a => a.Position == p.Coordinates).ToHashSet();
 
         public static HashSet<Province> GetEnemyProvinces(Map map, Country c) {
             HashSet<Province> prov = new();
@@ -715,7 +715,7 @@ public class Map : ScriptableObject
 
         public static bool RecruitAllAvailable(Country c, Province p) {
             if (c.Resources[Resource.AP] >= 1) {
-                c.Actions.AddAction(new TurnAction.ArmyRecruitment(p.coordinates,
+                c.Actions.AddAction(new TurnAction.ArmyRecruitment(p.Coordinates,
                     p.RecruitablePopulation*c.TechStats.ArmyCost <= c.Resources[Resource.Gold] ? p.RecruitablePopulation 
                     : (int)Math.Floor(c.Resources[Resource.Gold]/c.TechStats.ArmyCost), c.TechStats));
             }

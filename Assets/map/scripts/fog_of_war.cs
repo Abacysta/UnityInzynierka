@@ -100,7 +100,7 @@ public class fog_of_war : MonoBehaviour
             {
                 if (province != null)
                 {
-                    country.RevealedTiles.Add(province.coordinates);
+                    country.RevealedTiles.Add(province.Coordinates);
                     UpdateVisibilityAroundProvince(province, country.TechStats.LvlFoW);
                 }
             }

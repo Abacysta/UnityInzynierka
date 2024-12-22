@@ -12,7 +12,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Assets.classes.Relation;
 using static Assets.classes.subclasses.Constants.ProvinceConstants;
-using static Assets.classes.subclasses.Constants.RelationConstants;
 
 public class game_manager : MonoBehaviour
 {
@@ -182,7 +181,7 @@ public class game_manager : MonoBehaviour
         PerformProvinceCalculations(pcnt);
         PerformCountryCalculations();
         loading_txt.text = "Calculating happiness from relations.";
-        SetHappinnessFromRelations();
+        diplomacy.PerformTurnRelationCalculations();
         map.CalcPopulationExtremes();
 
         loading_txt.text = "Merging armies";
@@ -191,14 +190,15 @@ public class game_manager : MonoBehaviour
             map.MergeArmies(c);
             c.AtWar = map.GetRelationsOfType(c, Relation.RelationType.War) != null;
         }
+
         foreach(var a in map.Armies.Where(a=>a.OwnerId != 0)) {
             map.Countries[a.OwnerId].ModifyResource(Resource.Gold, a.Count * map.Countries[a.OwnerId].TechStats.ArmyUpkeep);
         }
+
         fog_Of_War.StartTurn();
         turnCntTxt.SetText((++map.TurnCnt).ToString());
         loading_box.SetActive(false);
         Debug.Log("stopped bar");
-
     }
 
     private void PerformProvinceCalculations(int pcnt) {
@@ -213,44 +213,6 @@ public class game_manager : MonoBehaviour
                 p.CalcRecruitablePopulation(map);
             }
             p.CalcStatuses();
-        }
-    }
-
-    private void SetHappinnessFromRelations()
-    {
-        foreach(var country in map.Countries)
-        {
-            var wars = map.GetRelationsOfType(country, Assets.classes.Relation.RelationType.War);
-            foreach(var war in wars)
-            {
-                foreach( var province in country.Provinces) {
-                    province.Happiness -= WAR_HAPP_PENALTY_COST;
-                }
-            }
-            var alliances = map.GetRelationsOfType(country, Assets.classes.Relation.RelationType.Alliance);
-            foreach(var a in alliances)
-            {
-                foreach(var p in country.Provinces)
-                {
-                    p.Happiness += ALLIANCE_HAPP_BONUS_COST;
-                }
-            }
-            var vassalages = map.GetRelationsOfType(country, Assets.classes.Relation.RelationType.Vassalage);
-            foreach(var v in vassalages)
-            {
-                foreach(var p in country.Provinces)
-                {
-                    Country master = map.GetMaster(country);
-                    if (master == null)
-                    {
-                        p.Happiness += VASSALAGE_HAPP_BONUS_C1;
-                    }
-                    else
-                    {
-                        p.Happiness -= VASSALAGE_HAPP_PENALTY_C2;
-                    }
-                }
-            }
         }
     }
 
@@ -290,7 +252,7 @@ public class game_manager : MonoBehaviour
         resources[Resource.Wood] *= map.Countries[i].TechStats.ProdFactor;
         resources[Resource.Iron] *= map.Countries[i].TechStats.ProdFactor;
         resources[Resource.Gold] -= Map.PowerUtilites.GetArmyUpkeep(map, map.Countries[i]);
-        resources[Resource.AP] += 2.5f;//one simple trick
+        resources[Resource.AP] += 2.5f;
 
         foreach (var res in resources) {
             map.Countries[i].ModifyResource(res.Key, res.Value);
@@ -300,7 +262,7 @@ public class game_manager : MonoBehaviour
 
     private void PerformCountryCalculations() {
 
-        for(int i = 1; i < map.Countries.Count; i++) {
+        for (int i = 1; i < map.Countries.Count; i++) {
             CalculateCountryResources(i);
         }
     }
@@ -326,7 +288,6 @@ public class game_manager : MonoBehaviour
         catch(Exception e) { 
             Debug.LogError(e);
         }
-        
     }
 
 	public void LocalTurnSimulation() {
@@ -459,7 +420,6 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    
     private void EndGame(bool timeout) {
         end_screen.SetActive(true);
     }

@@ -1,5 +1,6 @@
 ﻿using Assets.classes;
 using Assets.classes.subclasses;
+using Assets.classes.subclasses.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,33 +10,29 @@ namespace Assets.map.scripts {
     internal class diplomatic_relations_manager : MonoBehaviour {
         [SerializeField] private Map map;
 
-        public const int WarHappinessPenaltyInitC1 = 15;
-        public const int WarHappinessPenaltyInitC2 = 5;
-        public const int AllianceHappinessBonusInit = 5;
-        public const int VassalageHappinessPenaltyInitC2 = 8;
-        public const int VassalageHappinessBonusInitC1 = 5;
-        public const int DeclineWarOpinionPenaltyInit = 100;
-
         public Map Map { get => map; set => map = value; }
 
-        public void TurnCalc() {
-            HashSet<Relation> toRemove = new HashSet<Relation>();
-            foreach(Relation r in map.Relations) {
-                r.TurnEffect();
-                if(r.Type == Relation.RelationType.Truce) {
+        public void PerformTurnRelationCalculations() {
+            HashSet<Relation> relationsToRemove = new();
+
+            foreach (Relation r in map.Relations) {
+                r.ApplyTurnEffect();
+
+                if (r.Type == Relation.RelationType.Truce) {
                     var R = r as Relation.Truce;
-                    if(R.Duration == 0) {
-                        toRemove.Add(r);
+                    if (R.Duration == 0) {
+                        relationsToRemove.Add(r);
                     }
                 }
-                else if(r.Type == Relation.RelationType.Subsidies) {
+                else if (r.Type == Relation.RelationType.Subsidies) {
                     var R = r as Relation.Subsidies;
-                    if(R.Duration == 0) {
-                        toRemove.Add(r);
+                    if (R.Duration == 0) {
+                        relationsToRemove.Add(r);
                     }
                 }
             }
-            foreach(var r in toRemove) { 
+
+            foreach (var r in relationsToRemove) { 
                 map.Relations.Remove(r);
             }
         }
@@ -51,8 +48,7 @@ namespace Assets.map.scripts {
                 case Relation.RelationType.Truce:
                     EndTruce((Relation.Truce)relation);
                     break;
-                case Relation.RelationType.Vassalage:
-                    
+                case Relation.RelationType.Vassalage:    
                     break;
                 case Relation.RelationType.Subsidies:
                     EndSub((Relation.Subsidies)relation);
@@ -75,8 +71,8 @@ namespace Assets.map.scripts {
             Relation.War warRelation = new(c1, c2);
             map.Relations.Add(warRelation);
 
-            foreach(var p in c1.Provinces) p.Happiness -= WarHappinessPenaltyInitC1;
-            foreach(var p in c2.Provinces) p.Happiness -= WarHappinessPenaltyInitC2;
+            foreach(var p in c1.Provinces) p.Happiness -= RelationConstants.WAR_HAPP_PENALTY_INIT_C1;
+            foreach(var p in c2.Provinces) p.Happiness -= RelationConstants.WAR_HAPP_PENALTY_INIT_C2;
 
             // Vassals of both sides join the war
             foreach (var r in map.Relations.Where(rel => rel.Type == Relation.RelationType.Vassalage))
@@ -128,28 +124,33 @@ namespace Assets.map.scripts {
         private void EndTruce(Relation.Truce relation) {
             map.Relations.Remove(relation);
         }
+
         public void StartAlliance(Country c1, Country c2) {
             map.Relations.Add(new Relation.Alliance(c1, c2));
             //all ally tiles are revealed
             foreach(var tile in c1.Provinces) {
-                c2.SeenTiles.Add(tile.coordinates);
-                tile.Happiness += AllianceHappinessBonusInit;
+                c2.SeenTiles.Add(tile.Coordinates);
+                tile.Happiness += RelationConstants.ALLIANCE_HAPP_BONUS_INIT;
             }
             foreach(var tile in c2.Provinces) {
-                c1.SeenTiles.Add(tile.coordinates);
-                tile.Happiness += AllianceHappinessBonusInit;
+                c1.SeenTiles.Add(tile.Coordinates);
+                tile.Happiness += RelationConstants.ALLIANCE_HAPP_BONUS_INIT;
             }
         }
+
         private void EndAlliance(Relation.Alliance relation) {
             map.Relations.Remove(relation);
             map.Relations.Add(new Relation.Truce(relation.Sides[0], relation.Sides[1], 3));
         }
+
         public void StartAccess(Country c1, Country c2) {
             map.Relations.Add(new Relation.MilitaryAccess(c1, c2));
         }
+
         private void EndAccess(Relation.MilitaryAccess relation) {
             map.Relations.Remove(relation);
         }
+
         public void StartSub(Country c1, Country c2, int amount, bool indf = true, int duration = 0) {
             if(!indf) {
                 map.Relations.Add(new Relation.Subsidies(c1, c2, amount, duration));
@@ -158,22 +159,25 @@ namespace Assets.map.scripts {
                 map.Relations.Add(new Relation.Subsidies(c1, c2, amount));
             }
         }
+
         private void EndSub(Relation.Subsidies relation) {
             map.Relations.Remove(relation);
         }
+
         public void StartVassalage(Country c1, Country c2) {
             map.Relations.Add(new Relation.Vassalage(c1, c2));
 
             //seen tiles
             foreach(var tile in c1.Provinces) {
-                c2.SeenTiles.Add(tile.coordinates);
-                tile.Happiness -= VassalageHappinessPenaltyInitC2;
+                c2.SeenTiles.Add(tile.Coordinates);
+                tile.Happiness -= RelationConstants.VASSALAGE_HAPP_PENALTY_INIT_C2;
             }
             foreach(var tile in c2.Provinces) {
-                c1.SeenTiles.Add(tile.coordinates);
-                tile.Happiness += VassalageHappinessBonusInitC1;
+                c1.SeenTiles.Add(tile.Coordinates);
+                tile.Happiness += RelationConstants.VASSALAGE_HAPP_BONUS_INIT_C1;
             }
         }
+
         public bool JoinWar(Relation.War war, Country join, Country ally) {
             HashSet<Country> enemyParticipants;
 
@@ -197,14 +201,16 @@ namespace Assets.map.scripts {
                 }
             }
 
-            foreach (var p in join.Provinces) p.Happiness -= WarHappinessPenaltyInitC2;
+            foreach (var p in join.Provinces) p.Happiness -= RelationConstants.WAR_HAPP_PENALTY_INIT_C2;
 
             return true;
         }
+
         public void DeclineWar(Country join, Country ally) {
-            ally.SetOpinion(join.Id, ally.Opinions[join.Id] - DeclineWarOpinionPenaltyInit);
+            ally.SetOpinion(join.Id, ally.Opinions[join.Id] - RelationConstants.DECLINE_WAR_OPINION_PENALTY_INIT);
             EndAlliance((Relation.Alliance)map.Relations.FirstOrDefault(r => r.Type == Relation.RelationType.Alliance && r.Sides.Contains(join) && r.Sides.Contains(ally)));
         }
+
         public void IntegrateVassal(Relation.Vassalage relation) {
             Country vassal = relation.Sides[1], master = relation.Sides[0];
             map.Relations.Remove(relation);

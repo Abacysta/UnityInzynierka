@@ -369,18 +369,18 @@ public class Country
 
     public void RemoveProvince((int, int) coordinates)
     {
-        RemoveProvince(provinces.First(p => p.coordinates == coordinates));
+        RemoveProvince(provinces.First(p => p.Coordinates == coordinates));
     }
 
     public void RemoveProvince(Province province)
     {
-        if (province.coordinates != capital) provinces.Remove(province);
+        if (province.Coordinates != capital) provinces.Remove(province);
         else
         {
             provinces.Remove(province);
             if (provinces.Count != 0)
             {
-                capital = provinces.ToList().OrderByDescending(p => p.Population).First().coordinates;
+                capital = provinces.ToList().OrderByDescending(p => p.Population).First().Coordinates;
             }
             else capital = DEFAULT_CORD;
         }
@@ -452,7 +452,7 @@ public class Country
 
     public void ChangeCapital(Province province) {
         if (provinces.Contains(province)) {
-            capital = province.coordinates;
+            capital = province.Coordinates;
         }
     }
 
@@ -515,7 +515,7 @@ public class Country
     }
 
     public Province GetCapital() {
-        return provinces.First(p=>p.coordinates == capital);
+        return provinces.First(p=>p.Coordinates == capital);
     }
 
     public void SetOpinion(int countryId, int value) {

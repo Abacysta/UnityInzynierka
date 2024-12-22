@@ -181,7 +181,7 @@ namespace Assets.Scripts {
                     var bestPath = HexUtils.GetBestPathProvinces(map, map.CurrentPlayer, unavailable.Select(p=>(p.X, p.Y)).ToHashSet(), a.Position, (nearestProv.X, nearestProv.Y));
                     if (bestPath != null) {
                         //if exists move
-                        map.CurrentPlayer.Actions.AddAction(new TurnAction.ArmyMove(a.Position, bestPath[1].coordinates, a.Count, a));
+                        map.CurrentPlayer.Actions.AddAction(new TurnAction.ArmyMove(a.Position, bestPath[1].Coordinates, a.Count, a));
                     }
                 }
             }

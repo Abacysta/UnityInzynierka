@@ -9,6 +9,7 @@ using static Assets.classes.Relation;
 using static Assets.classes.TurnAction;
 using Assets.classes.subclasses;
 using static Assets.classes.subclasses.Constants.RelationConstants;
+using Assets.classes.subclasses.Constants;
 
 public class Effect
 {
@@ -575,8 +576,8 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> actionEffects = new()
         {
-            new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
-            new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
+            new(happiness_sprite, "Happiness", $"-{WAR_HAPP_PENALTY_INIT_C1}%", false),
+            new(happiness_sprite, "Happiness (Enemy)", $"-{WAR_HAPP_PENALTY_INIT_C2}%", true),
             new(opinion_sprite, "Your Opinion of Them", $"{WAR_OPINION_PENALTY_INIT}", false),
             new(opinion_sprite, "Their Opinion of You", $"{WAR_OPINION_PENALTY_INIT}", false),
         };
@@ -621,8 +622,8 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> actionEffects = new()
         {
-            new(happiness_sprite, "Happiness", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC1}%", false),
-            new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.WarHappinessPenaltyInitC2}%", true),
+            new(happiness_sprite, "Happiness", $"-{WAR_HAPP_PENALTY_INIT_C1}%", false),
+            new(happiness_sprite, "Happiness (Enemy)", $"-{WAR_HAPP_PENALTY_INIT_C2}%", true),
             new(opinion_sprite, "Your Opinion of Them", $"{WAR_OPINION_PENALTY_INIT}", false),
             new(opinion_sprite, "Their Opinion of You", $"{WAR_OPINION_PENALTY_INIT}", false),
         };
@@ -809,8 +810,8 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> actionEffects = new()
         {
-            new(happiness_sprite, "Happiness (Both)", $"+{ALLIANCE_HAPP_BONUS_INIT + diplomatic_relations_manager.AllianceHappinessBonusInit}%", true),
-            new(happiness_sprite, "Happiness Per Turn (Both)", $"+{ALLIANCE_HAPP_BONUS_COST}%", true),
+            new(happiness_sprite, "Happiness (Both)", $"+{ALLIANCE_HAPP_BONUS_INIT}%", true),
+            new(happiness_sprite, "Happiness Per Turn (Both)", $"+{ALLIANCE_HAPP_BONUS_CONST}%", true),
             new(opinion_sprite, "Your Opinion of Them", $"+{ALLIANCE_OPINION_BONUS_INIT}", true),
             new(opinion_sprite, "Their Opinion of You", $"+{ALLIANCE_OPINION_BONUS_INIT}", true),
             new(opinion_sprite, "Your Opinion of Them Per Turn", $"+{ALLIANCE_OPINION_BONUS_CONST}", true),
@@ -1174,10 +1175,10 @@ public class diplomatic_actions_manager : MonoBehaviour
 
         List<Effect> actionEffects = new()
         {
-            new(happiness_sprite, "Happiness", $"+{diplomatic_relations_manager.VassalageHappinessBonusInitC1}%", true),
-            new(happiness_sprite, "Happiness (Enemy)", $"-{diplomatic_relations_manager.VassalageHappinessPenaltyInitC2}%", true),
-            new(happiness_sprite, "Happiness Per Turn", $"+{VASSALAGE_HAPP_BONUS_C1}%", true),
-            new(happiness_sprite, "Happiness Per Turn (Enemy)", $"-{VASSALAGE_HAPP_PENALTY_C2}%", true),
+            new(happiness_sprite, "Happiness", $"+{VASSALAGE_HAPP_BONUS_INIT_C1}%", true),
+            new(happiness_sprite, "Happiness (Enemy)", $"-{VASSALAGE_HAPP_PENALTY_INIT_C2}%", true),
+            new(happiness_sprite, "Happiness Per Turn", $"+{VASSALAGE_HAPP_BONUS_CONST_C1}%", true),
+            new(happiness_sprite, "Happiness Per Turn (Enemy)", $"-{VASSALAGE_HAPP_PENALTY_CONST_C2}%", true),
             new(opinion_sprite, "Their Opinion of You", $"{VASSALAGE_OPINION_PENALTY_INIT_C2}", false),
             new(opinion_sprite, "Their Opinion of You (Per Turn)", $"{VASSALAGE_OPINION_PENALTY_CONST_C2}", false),
         };
