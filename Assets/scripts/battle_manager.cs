@@ -18,7 +18,7 @@ namespace Assets.Scripts {
                     var it = 0;
 
                     while (enemyArmies.Sum(a => a.Count) > 0) {
-                        if (IsAttackerVictorious(attackerArmy, enemyArmies[it])) {
+                        if (Battle(attackerArmy, enemyArmies[it])) {
                             enemyArmies[it++].Count = 0;
                         }
                         else {
@@ -43,7 +43,7 @@ namespace Assets.Scripts {
             return enemyArmies;
         }
 
-        private bool IsAttackerVictorious(Army attacker, Army defender) {
+        private bool Battle(Army attacker, Army defender) {
             Country attCountry = map.Countries[attacker.OwnerId];
             Country defCountry = map.Countries[defender.OwnerId];
 
