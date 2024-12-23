@@ -467,6 +467,14 @@ public class game_manager : MonoBehaviour
                     map.ManageOccupationDuration(p);
                 }
             }
+            //relations
+            HashSet<Relation> toEnd = new();
+            foreach(var w in map.Relations) {
+                if(w.Sides[0].Id==0 ||  w.Sides[1].Id==0) toEnd.Add(w);
+            }
+            foreach(var r in toEnd) {
+                diplomacy.EndRelation(r);
+            }
             return false;
         }
     }
