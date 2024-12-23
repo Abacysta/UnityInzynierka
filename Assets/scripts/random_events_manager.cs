@@ -166,7 +166,7 @@ namespace Assets.map.scripts
             }
             else if (c < 70)
             {
-                if (countryHappiness < 30)
+                if (countryHappiness < 60)
                 {
                     country.Events.Add(new Event_.GlobalEvent.Discontent(country, dialog_box, camera_controller));
                 }
