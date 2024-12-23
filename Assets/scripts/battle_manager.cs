@@ -20,18 +20,17 @@ namespace Assets.Scripts {
                     while (enemyArmies.Sum(a => a.Count) > 0) {
                         if (Battle(attackerArmy, enemyArmies[it])) {
                             enemyArmies[it++].Count = 0;
+                            map.ManageArmyOccupation(attackerArmy);
+                            if (attackerArmy.Count == 0) map.RemoveArmy(attackerArmy);
                         }
                         else {
-                            break;
+                            map.ManageArmyOccupation(enemyArmies[it]);
+                            enemyArmies.Where(a => a.Count == 0).ToList().ForEach(a => map.RemoveArmy(a));
+                            return;
                         }
                     }
-
-                    enemyArmies.RemoveAll(a => a.Count == 0);
-                    if (attackerArmy.Count == 0) map.RemoveArmy(attackerArmy);
                 }
             }
-
-            map.ManageArmyOccupation(attackerArmy);
         }
 
         private List<Army> GetEnemyArmiesInProvince(Army army) {
