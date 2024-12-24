@@ -11,7 +11,6 @@ public class province_click_handler : cursor_helper
     [SerializeField] private Tilemap province_select_layer;
     [SerializeField] private TileBase base_tile;
 
-    [SerializeField] private AudioSource province_click;
     [SerializeField] private GameObject province_interface;
     [SerializeField] private province_tooltip province_tooltip;
     [SerializeField] private army_click_handler armyClickHandler;
@@ -83,7 +82,7 @@ public class province_click_handler : cursor_helper
                 mouse_hover_layer.SetTile(cellPosition, base_tile);
                 mouse_hover_layer.SetColor(cellPosition, GetHighlightColor((cellPosition.x, cellPosition.y)));
 
-                if(IsProvinceRevealed(cellPosition.x,cellPosition.y))
+                if (IsProvinceRevealed(cellPosition.x,cellPosition.y))
                 {
                     var prov = map.GetProvince(cellPosition.x, cellPosition.y);
                     province_tooltip.OnMouseEnterProvince(prov);
@@ -106,19 +105,20 @@ public class province_click_handler : cursor_helper
 
         if (clickedTile != null)
         {
-            if(IsProvinceRevealed(cellPosition.x, cellPosition.y))
+            if (IsProvinceRevealed(cellPosition.x, cellPosition.y))
             {
                 SelectProvince(cellPosition.x, cellPosition.y);
                 sound_manager.instance.playButton();
                 DisplayProvinceInterface(cellPosition.x, cellPosition.y);
-                Debug.Log($"Clicked on tile at position: ({cellPosition.x}, {cellPosition.y})");
+                Debug.Log($"Clicked on the tile at position: ({cellPosition.x}, {cellPosition.y})");
                 Province province = map.GetProvince(cellPosition.y, cellPosition.x);
-                if (province.IsLand) Debug.Log("Resource:" + province.ResourcesP + "mul:" + province.Modifiers.ProdMod);
+                if (province.IsLand) Debug.Log("Resource: " + province.ResourcesP 
+                    + " ProdMod: " + province.Modifiers.ProdMod);
             }
             else
             {
                 province_interface.SetActive(false);
-                Debug.Log($"tile at position: ({cellPosition.x}, {cellPosition.y} is not revealed!)");
+                Debug.Log($"Tile at position: ({cellPosition.x}, {cellPosition.y} is not revealed!)");
             }
        }
     }
@@ -133,6 +133,7 @@ public class province_click_handler : cursor_helper
             province_interface.SetActive(true);
         }
     }
+
     private void DisplayProvinceTooltip(int x, int y) {
         Province province = map.GetProvince(x, y);
 
@@ -150,6 +151,7 @@ public class province_click_handler : cursor_helper
         }
         return false;
     }
+
     public void SelectProvince(int x, int y)
     {
         DeselectProvince();
@@ -160,7 +162,6 @@ public class province_click_handler : cursor_helper
         isHighlighted = true;
         timeElapsed = 0.0f;
     }
-
     public void DeselectProvince()
     {
         if (isSelected)
@@ -205,7 +206,7 @@ public class province_click_handler : cursor_helper
         startColor = GetHighlightColor((selectedProvincePosition.x, selectedProvincePosition.y));
         startColor.a = 0f / 255.0f;
         endColor = startColor;
-        endColor.a = 60.0f / 255.0f;
+        endColor.a = 130.0f / 255.0f;
     }
 
     public Color GetHighlightColor((int x, int y) coordinates)
