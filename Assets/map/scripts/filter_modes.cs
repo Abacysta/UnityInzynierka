@@ -159,6 +159,7 @@ public class filter_modes : MonoBehaviour
             }
         }
 
+        SetProvinceHoverAndSelectBelowFilterLayer();
         SetTerrainFeatures();
     }
 
@@ -257,10 +258,12 @@ public class filter_modes : MonoBehaviour
             Country owner = map.Countries[province.OwnerId];
             Vector3Int position = new(province.X, province.Y, 0);
 
-            if(province.IsLand) {
+            if (province.IsLand) {
                 base_layer.SetTile(position, base_tile);
                 base_layer.SetColor(position, owner.Color);
-                if(owner.Capital == province.Coordinates) terrain_feature_layer_2.SetTile(position, capital_tile);
+
+                if (owner.Capital == province.Coordinates) 
+                    terrain_feature_layer_2.SetTile(position, capital_tile);
 
                 if (province.OccupationInfo.IsOccupied)
                 {
@@ -273,8 +276,7 @@ public class filter_modes : MonoBehaviour
                 SetWater(position);
             }
         }
-        province_select_layer_rnd.sortingOrder = 4;
-        mouse_hover_layer_rnd.sortingOrder = 5;
+        SetProvinceHoverAndSelectBelowFilterLayer();
         SetTerrainFeatures();
     }
 
@@ -365,6 +367,12 @@ public class filter_modes : MonoBehaviour
     {
         province_select_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 1;
         mouse_hover_layer_rnd.sortingOrder = filter_layer_rnd.sortingOrder + 2;
+    }
+
+    private void SetProvinceHoverAndSelectBelowFilterLayer()
+    {
+        province_select_layer_rnd.sortingOrder = 4;
+        mouse_hover_layer_rnd.sortingOrder = 5;
     }
 
     private void GreyOutUnused(filter_modes.MapMode mapMode) {
