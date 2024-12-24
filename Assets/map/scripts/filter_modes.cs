@@ -128,11 +128,11 @@ public class filter_modes : MonoBehaviour
                 case Province.TerrainType.Tundra:
                     return ChooseRGBColor(0, 102, 0); // dark green
                 case Province.TerrainType.Lowlands:
-                    return ChooseRGBColor(0,255,0); // lime
+                    return ChooseRGBColor(0, 255, 0); // lime
                 case Province.TerrainType.Forest:
-                    return ChooseRGBColor(0,204,102); // green/blue?
+                    return ChooseRGBColor(0, 204, 102); // emerald green
                 case Province.TerrainType.Desert:
-                    return ChooseRGBColor(255,204,0); // yellow/orange
+                    return ChooseRGBColor(255, 204, 0); // golden yellow
                 case Province.TerrainType.Ocean:
                     return ChooseRGBColor(60, 106, 130); // blue
                 default:
@@ -159,7 +159,6 @@ public class filter_modes : MonoBehaviour
             }
         }
 
-        SetProvinceHoverAndSelectAboveFilterLayer();
         SetTerrainFeatures();
     }
 
