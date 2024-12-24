@@ -47,7 +47,6 @@ public class filter_modes : MonoBehaviour
     void Start()
     {
         SetPolitical();
-        SetTerrainFeatures();
     }
 
     public void Reload() {
