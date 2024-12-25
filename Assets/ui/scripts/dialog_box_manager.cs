@@ -8,6 +8,7 @@ using Assets.Scripts;
 using System.Reflection;
 using Assets.classes.subclasses;
 using static Assets.classes.TurnAction;
+using UnityEngine.SceneManagement;
 
 public class dialog_box_manager : MonoBehaviour
 {
@@ -496,14 +497,14 @@ public class dialog_box_manager : MonoBehaviour
 
     private void SetCoatOfArms()
     {
-        if (map.CurrentPlayerId > 0 && map.Countries.Count > 0)
-        {
+        if (map.CurrentPlayerId > 0 && map.Countries.Count > 0 &&
+            SceneManager.GetActiveScene().name == "game_map") {
             map.CurrentPlayer.SetCoatandColor(db_country_color_img);
-            db_country_color_img.transform.parent.gameObject.SetActive(true);
+            db_country_color_img.gameObject.SetActive(true);
         }
         else
         {
-            db_country_color_img.transform.parent.gameObject.SetActive(false);
+            db_country_color_img.gameObject.SetActive(false);
         }
     }
 
