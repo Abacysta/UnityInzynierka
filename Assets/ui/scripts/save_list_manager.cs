@@ -16,7 +16,7 @@ public class save_list_manager : MonoBehaviour
     [SerializeField] private Button exit;
     [SerializeField] private save_manager save_manager;
 
-    private Boolean isGameMap = false;
+    private bool isGameMap = false;
 
     public string[] Saves { get; set; }
 

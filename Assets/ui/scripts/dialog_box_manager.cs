@@ -436,11 +436,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeEventBox(Event_ _event)
     {
-        // Search for a non-static, public, non-inherited method named "reject"
-        MethodInfo rejectMethod = _event.GetType().GetMethod("reject", 
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-        // If the reject method exists and has a body (braces), it is rejectable
-        bool rejectable = rejectMethod != null && rejectMethod.GetMethodBody() != null;
+        if (_event == null) return;
 
         var basicParameters = new DialogConfig
         {
@@ -462,7 +458,7 @@ public class dialog_box_manager : MonoBehaviour
                 _event.Zoom();
             },
             Confirmable = _event.Cost != null ? map.CurrentPlayer.CanAfford(_event.Cost) : true,
-            Rejectable = rejectable,
+            Rejectable = _event.IsRejectable,
             Zoomable = true,
             ConfirmText = "Confirm",
             CancelText = "Reject"
