@@ -17,6 +17,7 @@ namespace Assets.classes.subclasses.Constants {
         //happ
         public const short MIN_HAPP = 0;
         public const short MAX_HAPP = 100;
+        public const short GROWTH_HAPP = 3;
         
         //opinion
         public const short MIN_OPINION = -200;

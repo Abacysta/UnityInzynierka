@@ -188,7 +188,7 @@ public class game_manager : MonoBehaviour
         foreach (var p in map.Provinces.Where(p => p.IsLand)) {
             if (p.OwnerId != 0) {
                 p.GrowPopulation(map);
-                p.GrowHappiness(map, 3);
+                p.GrowHappiness(map, GROWTH_HAPP);
                 p.CalcRecruitablePopulation(map);
             }
             p.CalcStatuses();
