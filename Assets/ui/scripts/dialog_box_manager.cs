@@ -171,9 +171,9 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeArmyBox(Army army, (int, int) destination) 
     {
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.ArmyMove);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.ArmyMove);
         int affordableValue = map.CurrentPlayer
-            .CalculateMaxArmyUnits(CostsCalculator.GetTurnActionFullCost(ActionType.ArmyMove), army.Count);
+            .CalculateMaxArmyUnits(CostCalculator.GetTurnActionFullCost(ActionType.ArmyMove), army.Count);
 
         var basicParameters = new DialogConfig
         {
@@ -200,7 +200,7 @@ public class dialog_box_manager : MonoBehaviour
     {
         var province = map.GetProvince(coordinates);
         var techStats = map.Countries[province.OwnerId].TechStats;
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.ArmyRecruitment, techStats);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.ArmyRecruitment, techStats);
         int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, province.RecruitablePopulation);
 
         var basicParameters = new DialogConfig
@@ -226,7 +226,7 @@ public class dialog_box_manager : MonoBehaviour
 
     public void InvokeDisbandArmyBox(Army army)
     {
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.ArmyDisbandment);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.ArmyDisbandment);
         int affordableValue = map.CurrentPlayer.CalculateMaxArmyUnits(cost, army.Count);
 
         var basicParameters = new DialogConfig
@@ -255,7 +255,7 @@ public class dialog_box_manager : MonoBehaviour
     {
         var province = map.GetProvince(coordinates);
         int lvl = province.Buildings.ContainsKey(buildingType) ? province.Buildings[buildingType] + 1 : 0;
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.BuildingUpgrade, buildingType, lvl);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.BuildingUpgrade, buildingType, lvl);
 
         var basicParameters = new DialogConfig
         {
@@ -280,7 +280,7 @@ public class dialog_box_manager : MonoBehaviour
     public void InvokeDowngradeBuilding((int, int) coordinates, BuildingType buildingType) {
         var province = map.GetProvince(coordinates);
         int lvl = province.Buildings.ContainsKey(buildingType) ? province.Buildings[buildingType] : 0;
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.BuildingDowngrade);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.BuildingDowngrade);
 
         var basicParameters = new DialogConfig
         {
@@ -305,7 +305,7 @@ public class dialog_box_manager : MonoBehaviour
     public void InvokeTechUpgradeBox(Technology technologyType)
     {
         int lvl = map.CurrentPlayer.Technologies[technologyType] + 1;
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.TechnologyUpgrade,
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.TechnologyUpgrade,
             tech: map.CurrentPlayer.Technologies, techType: technologyType);
 
         var basicParameters = new DialogConfig
@@ -333,7 +333,7 @@ public class dialog_box_manager : MonoBehaviour
     public void InvokeTaxBreakIntroductionBox((int, int) coordinates)
     {
         var province = map.GetProvince(coordinates);
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.TaxBreakIntroduction);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.TaxBreakIntroduction);
 
         List<Effect> effects = new()
         {
@@ -365,7 +365,7 @@ public class dialog_box_manager : MonoBehaviour
     public void InvokeFestivitiesOrganizationBox((int, int) coordinates)
     {
         var province = map.GetProvince(coordinates);
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.FestivitiesOrganization);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.FestivitiesOrganization);
 
         List<Effect> effects = new()
         {
@@ -397,7 +397,7 @@ public class dialog_box_manager : MonoBehaviour
     public void InvokeRebelSuppressionBox((int, int) coordinates)
     {
         var province = map.GetProvince(coordinates);
-        var cost = CostsCalculator.GetTurnActionFullCost(ActionType.RebelSuppresion);
+        var cost = CostCalculator.GetTurnActionFullCost(ActionType.RebelSuppresion);
 
         var basicParameters = new DialogConfig
         {

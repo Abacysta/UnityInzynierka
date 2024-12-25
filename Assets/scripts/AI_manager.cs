@@ -149,7 +149,7 @@ namespace Assets.Scripts {
             var unavailable = Map.LandUtilites.GetUnpassableProvinces(map, map.CurrentPlayer);
             var enemyIds = Map.WarUtilities.GetEnemyIds(map, map.CurrentPlayer);
             foreach(var a in armies) {
-                if (map.CurrentPlayer.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
+                if (map.CurrentPlayer.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.ArmyMove))) break;
                 //get all land- no water
                 var possible = map.GetPossibleMoveCells(a).Where(c => map.GetProvince(c).IsLand).ToList();
                 //trbal first I guess
@@ -253,21 +253,21 @@ namespace Assets.Scripts {
                 var vassalages = Map.PowerUtilites.GetVassalRelations(map, c);
                 foreach(var v in vassalages) {
                     var integration = new TurnAction.VassalIntegration(v, toolbox.Item1, toolbox.Item4);
-                    if(c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.IntegrateVassal, v))) {
+                    if(c.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.IntegrateVassal, v))) {
                         c.Actions.AddAction(integration);
                     }
                 }
                 var vassals = Map.PowerUtilites.GetVassals(map, c);
                 foreach(var v in vassals) {
                     var improvement = new TurnAction.Praise(c, v, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
-                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.Praise))) {
+                    if (c.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.Praise))) {
                         c.Actions.AddAction(improvement);
                     }
                 }
                 var weaklings = Map.PowerUtilites.GetWeakCountries(map, c);
                 foreach(var w in weaklings) {
                     var threat = new TurnAction.VassalizationDemand(c, w, toolbox.Item1, toolbox.Item2, toolbox.Item3, toolbox.Item4);
-                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.VassalizationOffer))) {
+                    if (c.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.VassalizationOffer))) {
                         c.Actions.AddAction(threat);
                     }
                 }
@@ -278,7 +278,7 @@ namespace Assets.Scripts {
                 foreach(var war in wars) {
                     foreach(var ally in allies) {
                         var call = new TurnAction.CallToWar(c, ally, war, toolbox.Item2, toolbox.Item1, toolbox.Item3, toolbox.Item4);
-                        if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.CallToWar))) {
+                        if (c.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.CallToWar))) {
                             c.Actions.AddAction(call);
                         }
                     }
@@ -327,7 +327,7 @@ namespace Assets.Scripts {
                 var handlable = unhappy.FindAll(p=>p.Happiness >30).OrderBy(p=>p.Happiness).ToList();
                 //tax break on provinces with low chance of rebellion
                 while (handlable.Count > 0) {
-                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
+                    if (c.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.TaxBreakIntroduction))) {
                         c.Actions.AddAction(new TurnAction.TaxBreakIntroduction(handlable[0]));
                         handlable.RemoveAt(0);
                     }
@@ -335,7 +335,7 @@ namespace Assets.Scripts {
                 }
                 //if can suppress, will for dire provinces
                 if(c.TechStats.CanRebelSupp) while(veryBad.Count > 0) {
-                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
+                    if (c.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.RebelSuppresion))) {
                         c.Actions.AddAction(new TurnAction.RebelSuppresion(veryBad[0]));
                         veryBad.RemoveAt(0);
                     }
@@ -346,7 +346,7 @@ namespace Assets.Scripts {
                 var growable = Map.LandUtilites.GetGrowable(c);
                 int limit = humor == Humor.Leading ? c.Provinces.Count/10 : c.Provinces.Count/20;//10 and 5 % respecitvely
                 foreach(var p in growable) {
-                    if (c.CanAfford(CostsCalculator.GetTurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
+                    if (c.CanAfford(CostCalculator.GetTurnActionFullCost(TurnAction.ActionType.FestivitiesOrganization))) {
                         c.Actions.AddAction(new TurnAction.FestivitiesOrganization(p));
                     }
                     else break;

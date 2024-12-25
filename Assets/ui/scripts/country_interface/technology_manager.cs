@@ -218,7 +218,7 @@ public class technology_manager : MonoBehaviour
         GameObject nextLevelContainer, Button techButton, TMP_Text currentLevelText, TMP_Text nextLevelText, 
         TMP_Text ap_value, TMP_Text sp_value, GameObject cost_content, Technology type)
     {
-        Dictionary<Resource, float> cost = CostsCalculator.GetTurnActionFullCost(ActionType.TechnologyUpgrade, 
+        Dictionary<Resource, float> cost = CostCalculator.GetTurnActionFullCost(ActionType.TechnologyUpgrade, 
             tech: map.CurrentPlayer.Technologies, techType: type);
 
         // Tooltip

@@ -4,7 +4,7 @@ using static Assets.classes.TurnAction;
 
 namespace Assets.classes.subclasses
 {
-    public static class CostsCalculator
+    public static class CostCalculator
     {
         private static Dictionary<Resource, float> GetBuildingCost(BuildingType buildingType, int upgradeLevel)
         {

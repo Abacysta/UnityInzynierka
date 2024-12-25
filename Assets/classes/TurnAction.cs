@@ -98,8 +98,8 @@ namespace Assets.classes {
             private Army armyPreview;
             private Army movedArmy;
 
-            public ArmyMove((int, int) from, (int, int) to, int count, Army armyToMove) : base(ActionType.ArmyMove,
-                CostsCalculator.GetTurnActionApCost(ActionType.ArmyMove)) {
+            public ArmyMove((int, int) from, (int, int) to, int count, Army armyToMove) 
+                : base(ActionType.ArmyMove, CostCalculator.GetTurnActionApCost(ActionType.ArmyMove)) {
                 Debug.Log(from + " " + to + " " + count);
                 this.from = from;
                 this.to = to;
@@ -107,7 +107,8 @@ namespace Assets.classes {
                 this.armyToMove = armyToMove;
             }
 
-            public override string desc { get => count + "units moved from " + from.ToString() + " to " + to.ToString(); }
+            public override string desc { get => count + "units moved from " 
+                    + from.ToString() + " to " + to.ToString(); }
 
             public override void Execute(Map map) {
                 base.Execute(map);
@@ -133,11 +134,11 @@ namespace Assets.classes {
             private int count;
 
             public ArmyRecruitment((int, int) coordinates, int count, TechnologyInterpreter techStats) : base(ActionType.ArmyRecruitment, 
-                CostsCalculator.GetTurnActionApCost(ActionType.ArmyRecruitment)) {
+                CostCalculator.GetTurnActionApCost(ActionType.ArmyRecruitment)) {
                 Debug.Log(coordinates + " " + count);
                 this.coordinates = coordinates;
                 this.count = count;
-                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.ArmyRecruitment, techStats);
+                AltCosts = CostCalculator.GetTurnActionAltCost(ActionType.ArmyRecruitment, techStats);
             }
 
             public override string desc { get => count + " units recruited in " + coordinates.ToString(); }
@@ -167,7 +168,7 @@ namespace Assets.classes {
             private int count;
 
             public ArmyDisbandment(Army army, int count) : base(ActionType.ArmyDisbandment,
-                CostsCalculator.GetTurnActionApCost(ActionType.ArmyDisbandment)) {
+                CostCalculator.GetTurnActionApCost(ActionType.ArmyDisbandment)) {
                 Debug.Log(count);
                 this.army = army;
                 this.count = count;
@@ -195,7 +196,7 @@ namespace Assets.classes {
             private int oldH;
             private int oldR;
             public RebelSuppresion(Province province) :
-                base(ActionType.RebelSuppresion, CostsCalculator.GetTurnActionApCost(ActionType.RebelSuppresion)) {
+                base(ActionType.RebelSuppresion, CostCalculator.GetTurnActionApCost(ActionType.RebelSuppresion)) {
                 this.province = province;
                 this.oldH = province.Happiness;
                 this.oldR = province.RecruitablePopulation;
@@ -219,10 +220,10 @@ namespace Assets.classes {
             private readonly Country country;
 
             public TechnologyUpgrade(Country country, Technology techType) :
-                base(ActionType.TechnologyUpgrade, CostsCalculator.GetTurnActionApCost(ActionType.TechnologyUpgrade)) {
+                base(ActionType.TechnologyUpgrade, CostCalculator.GetTurnActionApCost(ActionType.TechnologyUpgrade)) {
                 this.techType = techType;
                 this.country = country;
-                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
+                AltCosts = CostCalculator.GetTurnActionAltCost(ActionType.TechnologyUpgrade, country.Technologies, techType);
             }
 
             public override void Preview(Map map) {
@@ -243,11 +244,11 @@ namespace Assets.classes {
             private readonly BuildingType buildingType;
 
             public BuildingUpgrade(Province province, BuildingType buildingType) : base(ActionType.BuildingUpgrade,
-                CostsCalculator.GetTurnActionApCost(ActionType.BuildingUpgrade)) {
+                CostCalculator.GetTurnActionApCost(ActionType.BuildingUpgrade)) {
                 this.province = province;
                 this.buildingType = buildingType;
                 int upgradeLevel = province.Buildings[buildingType] + 1;
-                AltCosts = CostsCalculator.GetTurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
+                AltCosts = CostCalculator.GetTurnActionAltCost(ActionType.BuildingUpgrade, buildingType, upgradeLevel);
             }
 
             public override void Preview(Map map) {
@@ -266,7 +267,7 @@ namespace Assets.classes {
             private readonly BuildingType buildingType;
 
             public BuildingDowngrade(Province province, BuildingType buildingType) : base(ActionType.BuildingDowngrade,
-                CostsCalculator.GetTurnActionApCost(ActionType.BuildingDowngrade)) {
+                CostCalculator.GetTurnActionApCost(ActionType.BuildingDowngrade)) {
                 this.province = province;
                 this.buildingType = buildingType;
             }
@@ -287,7 +288,7 @@ namespace Assets.classes {
             private readonly Status status;
 
             public FestivitiesOrganization(Province province) : base(ActionType.FestivitiesOrganization,
-                CostsCalculator.GetTurnActionApCost(ActionType.FestivitiesOrganization)) {
+                CostCalculator.GetTurnActionApCost(ActionType.FestivitiesOrganization)) {
                 this.province = province;
                 status = new Festivities(5);
             }
@@ -308,7 +309,7 @@ namespace Assets.classes {
             private readonly Status status;
 
             public TaxBreakIntroduction(Province province) : base(ActionType.TaxBreakIntroduction,
-                CostsCalculator.GetTurnActionApCost(ActionType.TaxBreakIntroduction)) {
+                CostCalculator.GetTurnActionApCost(ActionType.TaxBreakIntroduction)) {
                 this.province = province;
                 status = new TaxBreak(5);
             }
@@ -334,7 +335,7 @@ namespace Assets.classes {
             public WarDeclaration(Country c1, Country c2, diplomatic_relations_manager diplomacy,
                 dialog_box_manager dialog_box, camera_controller camera, diplomatic_actions_manager dipl_actions) :
                 base(ActionType.StartWar,
-                CostsCalculator.GetTurnActionApCost(ActionType.StartWar)) {
+                CostCalculator.GetTurnActionApCost(ActionType.StartWar)) {
                 this.c1 = c1;
                 this.c2 = c2;
                 this.diplomacy = diplomacy;
@@ -361,7 +362,7 @@ namespace Assets.classes {
 
             public VassalIntegration(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy,
                 diplomatic_actions_manager dipl_actions) : base(ActionType.IntegrateVassal,
-                    CostsCalculator.TurnActionApCost(ActionType.IntegrateVassal, vassalage)) {
+                    CostCalculator.TurnActionApCost(ActionType.IntegrateVassal, vassalage)) {
                 this.vassalage = vassalage;
                 this.diplomacy = diplomacy;
                 this.dipl_actions = dipl_actions;
@@ -388,7 +389,7 @@ namespace Assets.classes {
 
             public PeaceOffer(Country offer, Relation.War war, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera) : base(ActionType.WarEnd,
-                CostsCalculator.GetTurnActionApCost(ActionType.WarEnd)) {
+                CostCalculator.GetTurnActionApCost(ActionType.WarEnd)) {
                 this.offer = offer;
                 this.war = war;
                 this.diplomacy = diplomacy;
@@ -416,7 +417,7 @@ namespace Assets.classes {
 
             public AllianceOffer(Country c1, Country c2, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceOffer,
-                    CostsCalculator.GetTurnActionApCost(ActionType.AllianceOffer)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.AllianceOffer)) {
                 this.c1 = c1;
                 this.c2 = c2;
                 this.diplomacy = diplomacy;
@@ -446,7 +447,7 @@ namespace Assets.classes {
 
             public AllianceBreak(Country from, Relation.Alliance alliance, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.AllianceEnd,
-                    CostsCalculator.GetTurnActionApCost(ActionType.AllianceEnd)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.AllianceEnd)) {
                 this.from = from;
                 this.alliance = alliance;
                 this.diplomacy = diplomacy;
@@ -477,7 +478,7 @@ namespace Assets.classes {
 
             public MilAccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccOffer,
-                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccOffer)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.MilAccOffer)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -505,7 +506,7 @@ namespace Assets.classes {
 
             public MilAccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccRequest,
-                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccRequest)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.MilAccRequest)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -534,7 +535,7 @@ namespace Assets.classes {
 
             public MilAccessEndMaster(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndMaster,
-                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccEndMaster)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.MilAccEndMaster)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -566,7 +567,7 @@ namespace Assets.classes {
 
             public MilAccessEndSlave(Country from, Country to, MilitaryAccess militaryAccess, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.MilAccEndSlave,
-                    CostsCalculator.GetTurnActionApCost(ActionType.MilAccEndSlave)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.MilAccEndSlave)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -598,7 +599,7 @@ namespace Assets.classes {
 
             public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsOffer,
-                    CostsCalculator.GetTurnActionApCost(ActionType.SubsOffer)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.SubsOffer)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -630,7 +631,7 @@ namespace Assets.classes {
 
             public SubsEnd(Country from, Country to, Subsidies subsidies, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsEnd,
-                    CostsCalculator.GetTurnActionApCost(ActionType.SubsEnd)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.SubsEnd)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -662,7 +663,7 @@ namespace Assets.classes {
 
             public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 int amount, int duration, camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.SubsRequest,
-                    CostsCalculator.GetTurnActionApCost(ActionType.SubsRequest)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.SubsRequest)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -693,7 +694,7 @@ namespace Assets.classes {
 
             public VassalizationDemand(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalizationOffer,
-                    CostsCalculator.GetTurnActionApCost(ActionType.VassalizationOffer)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.VassalizationOffer)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -721,7 +722,7 @@ namespace Assets.classes {
 
             public VassalRebellion(Relation.Vassalage vassalage, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.VassalRebel,
-                    CostsCalculator.GetTurnActionApCost(ActionType.VassalRebel)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.VassalRebel)) {
                 this.vassalage = vassalage;
                 this.diplomacy = diplomacy;
                 this.dialog_box = dialog_box;
@@ -751,7 +752,7 @@ namespace Assets.classes {
 
             public Insult(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Insult,
-                    CostsCalculator.GetTurnActionApCost(ActionType.Insult)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.Insult)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -781,7 +782,7 @@ namespace Assets.classes {
 
             public Praise(Country from, Country to, diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box,
                 camera_controller camera, diplomatic_actions_manager dipl_actions) : base(ActionType.Praise,
-                    CostsCalculator.GetTurnActionApCost(ActionType.Praise)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.Praise)) {
                 this.from = from;
                 this.to = to;
                 this.diplomacy = diplomacy;
@@ -812,7 +813,7 @@ namespace Assets.classes {
             public CallToWar(Country from, Country to, War war, dialog_box_manager dialog_box,
                 diplomatic_relations_manager diplomacy, camera_controller camera,
                 diplomatic_actions_manager dipl_actions) : base(ActionType.CallToWar,
-                    CostsCalculator.GetTurnActionApCost(ActionType.CallToWar)) {
+                    CostCalculator.GetTurnActionApCost(ActionType.CallToWar)) {
                 this.from = from;
                 this.to = to;
                 this.war = war;
