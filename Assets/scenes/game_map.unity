@@ -7899,9 +7899,6 @@ MonoBehaviour:
   turnCntTxt: {fileID: 2103896297}
   turn_sound: {fileID: 613489382}
   fog_Of_War: {fileID: 1430160039}
-  loading_box: {fileID: 638296373}
-  loading_bar: {fileID: 1704613929}
-  loading_txt: {fileID: 1991473713}
   loader: {fileID: 653004896}
   camera_controller: {fileID: 1043393647}
   armyVisibilityManager: {fileID: 1158450263}
@@ -11917,7 +11914,7 @@ Tilemap:
   m_TileColorArray: []
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 0.23529412}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.39215687}
   m_Origin: {x: 0, y: 0, z: 0}
   m_Size: {x: 0, y: 0, z: 1}
   m_TileAnchor: {x: 0, y: 0, z: 0}
@@ -14496,7 +14493,6 @@ MonoBehaviour:
   mouse_hover_layer: {fileID: 504392808}
   province_select_layer: {fileID: 1342113968}
   base_tile: {fileID: 11400000, guid: 93f9a5004e204dd4b8e31c6894d87e29, type: 2}
-  province_click: {fileID: 0}
   province_interface: {fileID: 888877804}
   province_tooltip: {fileID: 486171403}
   armyClickHandler: {fileID: 653004899}
