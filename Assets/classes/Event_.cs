@@ -7,23 +7,26 @@ using System.Linq;
 namespace Assets.classes {
     [Serializable]
     public class Event_ {
-        public Dictionary<Resource, float> Cost { get; set; }
         public virtual void Call() {}
         public virtual void Accept() {}
         public virtual void Reject() {}
         public virtual void Zoom() {}
         public virtual string Message { get { return ""; } }
+        public Dictionary<Resource, float> Cost { get; set; }
+        public bool IsRejectable { get; set; } = true;
 
         public class GlobalEvent : Event_ {
             public Country Country { get; set; }
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
 
-            public GlobalEvent(Country country, dialog_box_manager dialog, camera_controller camera) {
+            public GlobalEvent(Country country, dialog_box_manager dialog, camera_controller camera, 
+                bool isRejectable) {
                 Country = country;
                 this.camera = camera;
                 dialog_box = dialog;
                 Cost = GetCost();
+                IsRejectable = isRejectable;
             }
 
             public override void Accept() {
@@ -47,7 +50,7 @@ namespace Assets.classes {
 
             internal class Discontent : GlobalEvent {
                 public Discontent(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, true) {}
 
                 public override string Message { get { 
                         return "A discontent has spread in the country. You can bribe officials to lower its impact"; 
@@ -87,7 +90,7 @@ namespace Assets.classes {
 
 			internal class Happiness : GlobalEvent {
                 public Happiness(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, false) {}
 
                 public override string Message { get { 
                         return "Happiness has increased in the country"; 
@@ -105,7 +108,7 @@ namespace Assets.classes {
 
 			internal class Plague : GlobalEvent {
                 public Plague(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {
+                    base(country, dialog, camera, true) {
                 }
 
                 public override string Message { get { 
@@ -133,7 +136,6 @@ namespace Assets.classes {
                 }
 
                 public override void Reject() {
-                    base.Reject();
                     foreach (var p in Country.Provinces)
                     {
                         p.AddStatus(new Illness(5));
@@ -145,7 +147,7 @@ namespace Assets.classes {
 			internal class EconomicRecession : GlobalEvent
             {
                 public EconomicRecession(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, true) {}
 
                 public override string Message { get { 
                         return "The global economy has entered a downturn. Your nation's production is suffering as a result. " +
@@ -182,7 +184,6 @@ namespace Assets.classes {
 
                 public override void Reject()
                 {
-                    base.Reject();
                     foreach (var p in Country.Provinces)
                     {
                         p.AddStatus(new ProdDown(5));
@@ -194,7 +195,7 @@ namespace Assets.classes {
 			internal class TechnologicalBreakthrough : GlobalEvent
             {
                 public TechnologicalBreakthrough(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, true) {}
 
                 public override string Message { get { 
                         return "Your researchers have made a significant technological breakthrough. " +
@@ -221,7 +222,6 @@ namespace Assets.classes {
 
                 public override void Reject()
                 {
-                    base.Reject();
                     int randomTechnology = UnityEngine.Random.Range(0, 3);
                     Country.Technologies[(Technology)randomTechnology] += 1;
                 }
@@ -230,7 +230,7 @@ namespace Assets.classes {
 			internal class FloodEvent : GlobalEvent
             {
                 public FloodEvent(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, false) {}
                 public override string Message { get { 
                         return "The water levels have risen dramatically, flooding several provinces."; 
                     } 
@@ -257,7 +257,7 @@ namespace Assets.classes {
 			internal class FireEvent : GlobalEvent
             {
                 public FireEvent(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, false) {}
 
                 public override string Message { get { return "Severial provinces are on fire."; } }
 
@@ -281,7 +281,7 @@ namespace Assets.classes {
 			internal class Earthquake : GlobalEvent
             {
                 public Earthquake(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, false) {}
 
                 public override string Message { get { return "Severial provinces suffered from earthquake."; } }
 
@@ -300,7 +300,7 @@ namespace Assets.classes {
 			internal class Misfortune : GlobalEvent
             {
                 public Misfortune(Country country, dialog_box_manager dialog, camera_controller camera) : 
-                    base(country, dialog, camera) {}
+                    base(country, dialog, camera, false) {}
 
                 public override string Message { get { return "It seems you have angered the gods."; } }
 
@@ -324,12 +324,13 @@ namespace Assets.classes {
             protected dialog_box_manager dialog_box;
             protected camera_controller camera;
 
-            public LocalEvent(Province province, dialog_box_manager dialog_box, camera_controller camera)
-            {
+            public LocalEvent(Province province, dialog_box_manager dialog_box, 
+                camera_controller camera, bool isRejectable) {
                 Province = province;
                 this.dialog_box = dialog_box;
                 Cost = GetCost();
                 this.camera = camera;
+                IsRejectable = isRejectable;
             }
 
             public override void Accept() {}
@@ -354,11 +355,11 @@ namespace Assets.classes {
 
             internal class ProductionBoom : LocalEvent {
                 public ProductionBoom(Province province, dialog_box_manager dialog, camera_controller camera) : 
-                    base(province, dialog , camera) {}
+                    base(province, dialog , camera, true) {}
 
                 public override string Message { get { 
                         return "Work enthusiasm has increased in " + Province.Name + 
-                            ". Should you use it now or invest for future."; 
+                            ". Should you use it now or invest for future?"; 
                     } 
                 }
                 
@@ -377,7 +378,7 @@ namespace Assets.classes {
                 public override string Message { get { return Province.Name + " is experiencing a gold rush!"; } }
 
                 public GoldRush(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(province, dialog_box, camera) {}
+                    base(province, dialog_box, camera, false) {}
 
                 public override void Accept() {
                     Province.AddStatus(new ProdBoom(6));
@@ -387,7 +388,7 @@ namespace Assets.classes {
 
 			internal class BonusRecruits : LocalEvent {
                 public BonusRecruits(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(province, dialog_box, camera) {}
+                    base(province, dialog_box, camera, false) {}
 
                 public override string Message { get { return "More recruits started appearing in " + Province.Name; } }
 
@@ -401,7 +402,7 @@ namespace Assets.classes {
 			internal class WorkersStrike1 : LocalEvent // turmoil mass migration
             {
                 public WorkersStrike1(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(province, dialog_box, camera) {}
+                    base(province, dialog_box, camera, true) {}
 
                 public override string Message { get { return "Workers are displeased with their workplace in " + Province.Name 
                             + ". Do you want to help them?"; } }
@@ -422,7 +423,6 @@ namespace Assets.classes {
 
                 public override void Reject()
                 {
-                    base.Reject();
                     if (UnityEngine.Random.Range(0, 1f) < 0.5f)
                     {
                         Province.AddStatus(new ProdDown(3));
@@ -434,7 +434,7 @@ namespace Assets.classes {
 			internal class WorkersStrike2 : LocalEvent
             {
                 public WorkersStrike2(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(province, dialog_box, camera) {}
+                    base(province, dialog_box, camera, true) {}
 
                 public override string Message { get { 
                         return "Workers in " + Province.Name + " want fewer work hours for a few days. Will you agree?"; 
@@ -450,7 +450,6 @@ namespace Assets.classes {
 
                 public override void Reject()
                 {
-                    base.Reject();
                     Province.Happiness -= 30;
                 }
             }
@@ -460,7 +459,7 @@ namespace Assets.classes {
             {
                 private Map map;
                 public WorkersStrike3(Province province, dialog_box_manager dialog_box, 
-                    camera_controller camera, Map map) : base(province, dialog_box, camera)
+                    camera_controller camera, Map map) : base(province, dialog_box, camera, true)
                 {
                     this.map = map;
                 }
@@ -481,7 +480,6 @@ namespace Assets.classes {
 
                 public override void Reject()
                 {
-                    base.Reject();
                     Province.AddStatus(new ProdDown(5));
                     Army strikeArmy = new(0, UnityEngine.Random.Range(10, 50), Province.Coordinates, Province.Coordinates);
                     map.AddArmy(strikeArmy);
@@ -492,7 +490,7 @@ namespace Assets.classes {
             internal class PlagueFound : LocalEvent
             {
                 public PlagueFound(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(province, dialog_box, camera) {}
+                    base(province, dialog_box, camera, true) {}
 
                 public override string Message { get { 
                         return "Your scientists suspect that the population in " 
@@ -511,8 +509,7 @@ namespace Assets.classes {
 
                 public override void Reject()
                 {
-                    base.Reject();
-                    if(UnityEngine.Random.Range(0f,1f) < 0.2f)
+                    if (UnityEngine.Random.Range(0f,1f) < 0.2f)
                     {
                         Province.AddStatus(new Illness(8));
                     }
@@ -523,7 +520,7 @@ namespace Assets.classes {
             internal class DisasterEvent : LocalEvent
             {
                 public DisasterEvent(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(province, dialog_box, camera) {}
+                    base(province, dialog_box, camera, false) {}
 
                 public override string Message
                 {
@@ -544,7 +541,7 @@ namespace Assets.classes {
             {
                 private Map map;
                 public StrangeRuins1(Province province, dialog_box_manager dialog_box, 
-                    camera_controller camera, Map map) : base(province, dialog_box, camera)
+                    camera_controller camera, Map map) : base(province, dialog_box, camera, false)
                 {
                     this.map = map;
                 }
@@ -569,7 +566,7 @@ namespace Assets.classes {
             internal class StrangeRuins2 : LocalEvent 
             {
                 public StrangeRuins2(Province province, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(province, dialog_box, camera) {}
+                    base(province, dialog_box, camera, true) {}
 
                 public override string Message
                 {
@@ -586,10 +583,7 @@ namespace Assets.classes {
                     }
                 }
 
-                public override void Reject()
-                {
-                    base.Reject();
-                }
+                public override void Reject() {}
             }
         }
 
@@ -611,19 +605,20 @@ namespace Assets.classes {
             }
 
             DiploEvent(Country from, Country to, diplomatic_relations_manager diplomacy, 
-                dialog_box_manager dialog_box, camera_controller camera) {
+                dialog_box_manager dialog_box, camera_controller camera, bool isRejectable) {
                 From = from;
                 To = to;
                 this.diplomacy = diplomacy;
                 this.camera = camera;
                 this.dialog_box = dialog_box;
                 Cost = null;
+                IsRejectable = isRejectable;
             }
 
 			internal class WarDeclared : DiploEvent {
 				public WarDeclared(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {
+                    base(from, to, diplomacy, dialog_box, camera, false) {
 				}
 
 				public override string Message { get { return From.Name + " has declared a war on you!"; } }
@@ -635,7 +630,8 @@ namespace Assets.classes {
 
                 public PeaceOffer(Relation.War war, Country offer, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(offer, offer == war.Sides[0] ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box, camera) { 
+                    base(offer, offer == war.Sides[0] 
+                        ? war.Sides[1] : war.Sides[0], diplomacy, dialog_box, camera, true) { 
                     this.offer = offer;
                     this.war = war;
                     this.diplomacy = diplomacy;
@@ -661,7 +657,7 @@ namespace Assets.classes {
 
                 public CallToWar(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, Relation.War war, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {
+                    base(from, to, diplomacy, dialog_box, camera, true) {
                     War = war;
                 }
 
@@ -683,7 +679,7 @@ namespace Assets.classes {
             internal class TruceEnd : DiploEvent {
                 public TruceEnd(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, false) {}
 
                 public override string Message { get { return "A truce with " + From.Name + " has ended"; } }
             }
@@ -691,7 +687,7 @@ namespace Assets.classes {
             internal class AllianceOffer : DiploEvent {
                 public AllianceOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, true) {}
 
                 public override string Message { get { return From.Name + " has sent you an alliance offer"; } }
 
@@ -709,7 +705,7 @@ namespace Assets.classes {
             internal class AllianceAccepted : DiploEvent {
                 public AllianceAccepted(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, false) {}
 
                 public override string Message { get { return From.Name + " has accepted the alliance offer"; } }
             }
@@ -717,7 +713,7 @@ namespace Assets.classes {
             internal class AllianceDenied : DiploEvent {
                 public AllianceDenied(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, false) {}
 
                 public override string Message { get { return From.Name + " has denied our alliance offer"; } }
             }
@@ -725,7 +721,7 @@ namespace Assets.classes {
             internal class AllianceBroken : DiploEvent {
                 public AllianceBroken(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, false) {}
 
                 public override string Message { get { return From.Name + " has broken our pact"; } }
             }
@@ -736,7 +732,7 @@ namespace Assets.classes {
 
                 public SubsOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {
+                    base(from, to, diplomacy, dialog_box, camera, true) {
                     Duration = duration;
                     Amount = amount;
                 }
@@ -764,7 +760,7 @@ namespace Assets.classes {
 
                 public SubsRequest(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, int amount, int duration, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {
+                    base(from, to, diplomacy, dialog_box, camera, true) {
                     Amount = amount;
                     Duration = duration;
                 }
@@ -792,7 +788,7 @@ namespace Assets.classes {
             internal class SubsEndMaster : DiploEvent {
                 public SubsEndMaster(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, false) {}
 
                 public override string Message { get { return "Subsidies from " + From.Name + " have stopped."; } }
             }
@@ -800,7 +796,7 @@ namespace Assets.classes {
             internal class SubsEndSlave : DiploEvent {
                 public SubsEndSlave(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, false) {}
 
                 public override string Message { get { return "We ended subsidizing " + To.Name; } }
             }
@@ -808,7 +804,7 @@ namespace Assets.classes {
             internal class AccessOffer : DiploEvent {
                 public AccessOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {
+                    base(from, to, diplomacy, dialog_box, camera, true) {
                     From = from;
                     To = to;
                     this.diplomacy = diplomacy;
@@ -829,7 +825,7 @@ namespace Assets.classes {
             internal class AccessRequest : DiploEvent {
                 public AccessRequest(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, true) {}
 
                 public override string Message { get { return From.Name + " asks for military access to our teritorry"; } }
 
@@ -847,7 +843,7 @@ namespace Assets.classes {
 
                 public AccessEndMaster(Relation.MilitaryAccess access, Country from, Country to, 
                     diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {
+                    base(from, to, diplomacy, dialog_box, camera, false) {
                     Access = access;
                 }
 
@@ -863,7 +859,7 @@ namespace Assets.classes {
 
                 public AccessEndSlave(Relation.MilitaryAccess access, Country from, Country to, 
                     diplomatic_relations_manager diplomacy, dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {
+                    base(from, to, diplomacy, dialog_box, camera, false) {
                     Access = access;
                 }
 
@@ -877,7 +873,7 @@ namespace Assets.classes {
             internal class VassalOffer : DiploEvent {
                 public VassalOffer(Country from, Country to, diplomatic_relations_manager diplomacy, 
                     dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                    base(from, to, diplomacy, dialog_box, camera, true) {}
 
                 public override string Message { get { return From.Name + " demands our submission"; } }
 
@@ -891,9 +887,9 @@ namespace Assets.classes {
             }
 
             internal class VassalRebel:DiploEvent {
-                public VassalRebel(Country from, Country to, diplomatic_relations_manager diplomacy, 
-                    dialog_box_manager dialog_box, camera_controller camera) : 
-                    base(from, to, diplomacy, dialog_box, camera) {}
+                public VassalRebel(Country from, Country to, diplomatic_relations_manager diplomacy,
+                    dialog_box_manager dialog_box, camera_controller camera) :
+                    base(from, to, diplomacy, dialog_box, camera, false) {}
 
                 public override string Message { get { return From.Name + " has rebelled against us"; } }
             }
