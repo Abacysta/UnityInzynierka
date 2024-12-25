@@ -98,8 +98,8 @@ public class save_list_manager : MonoBehaviour
     }
 
     public void SaveNamedGame() {
-        dialog_box.InvokeConfirmBox("Save Game", "Are you sure you want to save game under " + save_name.text 
-            + (save_manager.ExistsSaveGame(save_name.text) ? "?\nAlready existing data will be overwritten!" : ""), 
+        dialog_box.InvokeConfirmBox("Save Game", "Are you sure you want to save the game under " + save_name.text + "?" 
+            + (save_manager.ExistsSaveGame(save_name.text) ? "\nAlready existing data will be overwritten!" : ""), 
             ()=> { save_manager.SaveGame(save_name.text); exit.onClick.Invoke(); });
     }
 
