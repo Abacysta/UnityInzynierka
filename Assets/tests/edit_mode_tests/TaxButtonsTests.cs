@@ -26,6 +26,7 @@ public class TaxButtonsTests
         buttonObject.AddComponent<Button>();
         buttonObject.transform.SetParent(mapOptionsGameObject.transform);
         playerTableScript.OptionsTable = mapOptionsScript;
+        playerTableScript.IsTest = true;
 
         playerTableScript.Map = ScriptableObject.CreateInstance<Map>();
         playerTableScript.LoadMap("Map1");

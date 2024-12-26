@@ -28,6 +28,7 @@ public class player_table : MonoBehaviour
     public GameObject PlayerTable { get => playerTable; set => playerTable = value; }
     public GameObject Dummy { get => dummy; set => dummy = value; }
     public map_options OptionsTable { get => optionsTable; set => optionsTable = value; }
+    public bool IsTest { get; set; }
 
     public class CountryData
     {
@@ -73,8 +74,11 @@ public class player_table : MonoBehaviour
 
         ShowCountries(currentStates);
         ShowButton();
-        map_Preview.Provinces = provinces;
-        map_Preview.Reload();
+        if (!IsTest)
+        {
+            map_Preview.Provinces = provinces;
+            map_Preview.Reload();
+        }
         controllers.Clear();
         controllers = Enumerable.Repeat(CountryController.Ai, currentStates.Count).ToList();
     }
